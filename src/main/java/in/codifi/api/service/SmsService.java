@@ -7,7 +7,6 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
 
-import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.UserEntity;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.UserRepository;
@@ -20,11 +19,8 @@ import in.codifi.api.utilities.MessageConstants;
 public class SmsService implements ISmsService {
 	@Inject
 	UserRepository repository;
-
 	@Inject
 	CommonMethods commonMethods;
-	@Inject
-	ApplicationProperties props;
 
 	/**
 	 * Method to send otp to mobile number
@@ -62,8 +58,6 @@ public class SmsService implements ISmsService {
 		}
 		return responseModel;
 	}
-
-	
 
 	/**
 	 * Method to validate Sms OTP

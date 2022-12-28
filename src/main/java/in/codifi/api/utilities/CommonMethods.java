@@ -10,11 +10,15 @@ import javax.inject.Inject;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.model.ResponseModel;
+import io.quarkus.mailer.Mail;
+import io.quarkus.mailer.Mailer;
 
 @ApplicationScoped
 public class CommonMethods {
 	@Inject
 	ApplicationProperties props;
+	@Inject
+	Mailer mailer;
 
 	/**
 	 * Method to generate OTP for Mobile number
@@ -95,6 +99,24 @@ public class CommonMethods {
 			}
 			rd.close();
 			conn.disconnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Method to send mail
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public void sendMailOtp(int otp, String emailId) {
+		try {
+			String getSubject = "SKYCOM COURIER";
+			String getText = otp + " is Your OTP for Registration with SKY COMMODITIES INDIA PVT. LTD";
+			Mail mail = Mail.withText(emailId, getSubject, getText);
+			mailer.send(mail);
+			System.out.print("the post mail" + mail);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

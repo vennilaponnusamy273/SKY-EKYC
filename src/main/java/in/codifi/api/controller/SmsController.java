@@ -43,8 +43,7 @@ public class SmsController implements ISmsController {
 	@Override
 	public ResponseModel verifySmsOtp(UserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
-		if (userEntity != null && userEntity.getMobileNo() != null && userEntity.getMobileNo() > 0
-				&& userEntity.getSmsOtp() > 0) {
+		if (userEntity != null && userEntity.getMobileNo() != null && userEntity.getMobileNo() > 0) {
 			responseModel = iSmsService.verifySmsOtp(userEntity);
 		} else {
 			if (userEntity == null) {
