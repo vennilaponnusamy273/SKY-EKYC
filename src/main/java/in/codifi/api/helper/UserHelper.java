@@ -1,4 +1,4 @@
-package in.codifi.api.service;
+package in.codifi.api.helper;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
