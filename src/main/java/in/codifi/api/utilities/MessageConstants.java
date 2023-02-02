@@ -10,6 +10,11 @@ public class MessageConstants {
 	public static final String ERROR_WHILE_GENERATE_OTP = "Error Occur While Generating OTP";
 	public static final String ERROR_WHILE_VERIFY_OTP = "Error Occur While Verifying OTP";
 	public static final String INVALID_OTP = "The Given OTP is Invalid";
+	public static final String INVALID_OTP_TRY_AFTER = "The Given OTP is Invalid Try again after ";
+	public static final String RETRY_OTP_TRY_AFTER = "Please Request OTP after ";
 	public static final String OTP_TIME_EXPIRED = "Your OTP Time Expired";
 	public static final String WRONG_USER_ID = "User Id is Wrong";
+	public static final String MANDATORY_FIELDS_NULL = "Mandatory Fileds are null";
+	public static final String EKYC_ACTIVE_CUSTOMER = "An Account already exists with the Mobile Number.Please try with another Mobile Number";
+	public static final String EKYC_DORMANT_CUSTOMER = "Your account is Dormant / Closed. Click to Proceed for Re-KYC";
 }

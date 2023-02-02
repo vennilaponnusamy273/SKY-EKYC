@@ -48,21 +48,10 @@ public class CommonMethods {
 	 */
 	public ResponseModel constructFailedMsg(String failesMessage) {
 		ResponseModel model = new ResponseModel();
-		model.setStat(EkycConstants.FAILED_MSG);
-		model.setMessage(failesMessage);
+		model.setStat(EkycConstants.FAILED_STATUS);
+		model.setMessage(EkycConstants.FAILED_MSG);
+		model.setReason(failesMessage);
 		return model;
-	}
-
-	/**
-	 * Method to construct Failed method
-	 * 
-	 * @author prade
-	 * @param failesMessage
-	 * @return
-	 */
-	public void test() {
-		String s = props.getSmsUrl();
-		System.out.println(s);
 	}
 
 	/**
@@ -112,8 +101,8 @@ public class CommonMethods {
 	 */
 	public void sendMailOtp(int otp, String emailId) {
 		try {
-			String getSubject = "SKYCOM COURIER";
-			String getText = otp + " is Your OTP for Registration with SKY COMMODITIES INDIA PVT. LTD";
+			String getSubject = props.getMailSubject();
+			String getText = otp + props.getMailText();
 			Mail mail = Mail.withText(emailId, getSubject, getText);
 			mailer.send(mail);
 			System.out.print("the post mail" + mail);
@@ -121,4 +110,5 @@ public class CommonMethods {
 			e.printStackTrace();
 		}
 	}
+
 }

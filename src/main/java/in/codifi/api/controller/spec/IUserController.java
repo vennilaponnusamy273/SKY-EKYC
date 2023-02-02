@@ -10,10 +10,11 @@ import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import in.codifi.api.entity.UserEntity;
+import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.model.ResponseModel;
 
-public interface IEmailController {
+public interface IUserController {
+
 	/**
 	 * test Method
 	 */
@@ -22,6 +23,34 @@ public interface IEmailController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Test")
 	public ResponseModel test();
+
+	/**
+	 * Method to send otp to mobile number
+	 * 
+	 * @author prade
+	 * @param userEntity
+	 * @return
+	 */
+	@Path("/sendSmsOtp")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to send OTP to validate Mobile Number")
+	public ResponseModel sendSmsOtp(@RequestBody ApplicationUserEntity userEntity);
+
+	/**
+	 * Method to validate sms OTP
+	 * 
+	 * @author prade
+	 * @param userEntity
+	 * @return
+	 */
+	@Path("/verifySmsOtp")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to verify Mobile Otp")
+	public ResponseModel verifySmsOtp(@RequestBody ApplicationUserEntity userEntity);
 
 	/**
 	 * Method to send otp to Email Address
@@ -35,7 +64,7 @@ public interface IEmailController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to send OTP to validate Email Id")
-	public ResponseModel sendMailOtp(@RequestBody UserEntity userEntity);
+	public ResponseModel sendMailOtp(@RequestBody ApplicationUserEntity userEntity);
 
 	/**
 	 * Method to validate sms OTP
@@ -44,11 +73,10 @@ public interface IEmailController {
 	 * @param userEntity
 	 * @return
 	 */
-	@Path("/verifySmsOtp")
+	@Path("/verifyEmailOtp")
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to verify email Otp")
-	public ResponseModel verifyEmailOtp(@RequestBody UserEntity userEntity);
-
+	public ResponseModel verifyEmailOtp(@RequestBody ApplicationUserEntity userEntity);
 }

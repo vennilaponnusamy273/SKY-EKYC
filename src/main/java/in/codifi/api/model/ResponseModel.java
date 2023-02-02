@@ -6,7 +6,8 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ResponseModel {
-	private String stat;
+	private int stat;
 	private String message;
+	private String reason;
 	private Object result;
 }

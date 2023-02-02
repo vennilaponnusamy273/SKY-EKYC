@@ -18,5 +18,19 @@ public class EkycConstants {
 	public static final String HTTP_GET = "GET";
 	// Symbol
 	public static final String AND = "&";
+	// OTP Validation
+	public static final String SMS_KEY = "_SMS";
+	public static final String EMAIL_KEY = "_EMAIL";
+	// ERP
+	public static final String ERP_MOBILE = "MOBILE";
+	public static final String ERP_PAN = "PAN";
+	public static final String ERP_EMAIL = "EMAIL";
+	public static final String EXISTING_YES = "Yes";
+	public static final String EXISTING_NO = "No";
+	public static final String STATUS_ACTIVE = "ACTIVE";
+	public static final String STATUS_DORMANT = "DORMANT";
+	public static final String EKYC_STATUS_COMPLETED = "Completed";
+	public static final String EKYC_STATUS_INPROGRESS = "In-Progress";
+	public static final String EKYC_STATUS_PENDING = "Pending";
 
 }

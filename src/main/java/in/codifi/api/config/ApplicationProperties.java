@@ -22,5 +22,11 @@ public class ApplicationProperties {
 	private String smsUserName;
 	@ConfigProperty(name = "appconfig.sms.password")
 	private String smsPassword;
+	@ConfigProperty(name = "appconfig.mail.subject")
+	private String mailSubject;
+	@ConfigProperty(name = "appconfig.mail.text")
+	private String mailText;
+	@ConfigProperty(name = "appconfig.erp.token")
+	private String erpToken;
 
 }
