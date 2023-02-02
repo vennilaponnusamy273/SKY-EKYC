@@ -93,6 +93,11 @@ public class CommonMethods {
 		}
 	}
 
+	@Inject
+	public void MailService(Mailer javaMailSender) {
+		this.mailer = javaMailSender;
+	}
+
 	/**
 	 * Method to send mail
 	 * 
@@ -102,7 +107,7 @@ public class CommonMethods {
 	public void sendMailOtp(int otp, String emailId) {
 		try {
 			String getSubject = props.getMailSubject();
-			String getText = otp + props.getMailText();
+			String getText = otp + " " + props.getMailText();
 			Mail mail = Mail.withText(emailId, getSubject, getText);
 			mailer.send(mail);
 			System.out.print("the post mail" + mail);
