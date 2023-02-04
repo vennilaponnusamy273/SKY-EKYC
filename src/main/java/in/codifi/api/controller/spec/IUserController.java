@@ -79,4 +79,18 @@ public interface IUserController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to verify email Otp")
 	public ResponseModel verifyEmailOtp(@RequestBody ApplicationUserEntity userEntity);
+
+	/**
+	 * Method to save pan id to get details
+	 * 
+	 * @author Vennila Ponnusamy
+	 * @param pan
+	 * @return
+	 */
+	@Path("/getPan")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to pan id to get  details")
+	public ResponseModel getPanDetails(@RequestBody ApplicationUserEntity userEntity);
 }

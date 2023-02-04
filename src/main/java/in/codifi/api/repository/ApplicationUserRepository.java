@@ -10,4 +10,6 @@ public interface ApplicationUserRepository extends CrudRepository<ApplicationUse
 	ApplicationUserEntity findByMobileNo(@Param("mobileNo") Long mobileNumber);
 
 	ApplicationUserEntity findByEmailId(@Param("emailId") String emailId);
+	
+	ApplicationUserEntity findByPanNumber(@Param("panNumber") String panNumber);
 }

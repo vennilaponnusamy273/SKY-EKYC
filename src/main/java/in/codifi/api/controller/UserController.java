@@ -103,4 +103,26 @@ public class UserController implements IUserController {
 		}
 		return responseModel;
 	}
+
+	/**
+	 * Method to save pan id to get details
+	 */
+	@Override
+	public ResponseModel getPanDetails(ApplicationUserEntity userEntity) {
+		ResponseModel responseModel = new ResponseModel();
+		if (userEntity != null && StringUtil.isNotNullOrEmpty(userEntity.getPanNumber()) && userEntity.getId() > 0) {
+			responseModel = iUserService.getPanDetails(userEntity);
+		} else {
+			if (userEntity == null) {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
+			} else {
+				if (userEntity.getId() <= 0) {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.PAN_NUMBER_NULL);
+				}
+			}
+		}
+		return responseModel;
+	}
 }

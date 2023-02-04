@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.helper.PanHelper;
 import in.codifi.api.helper.UserHelper;
 import in.codifi.api.model.ErpExistingApiModel;
 import in.codifi.api.model.ExistingCustReqModel;
@@ -32,6 +33,8 @@ public class UserService implements IUserService {
 	UserHelper userHelper;
 	@Inject
 	ErpRestService erpRestService;
+	@Inject
+	PanHelper panHelper;
 
 	/**
 	 * Method to send otp to mobile number
@@ -104,23 +107,28 @@ public class UserService implements IUserService {
 						ExistingCustReqModel custModel = new ExistingCustReqModel();
 						custModel.setInput(String.valueOf(oldUserEntity.getMobileNo()));
 						custModel.setInputType(EkycConstants.ERP_MOBILE);
-						ErpExistingApiModel existingModel = erpRestService.testMethod(custModel);
+						ErpExistingApiModel existingModel = erpRestService.erpCheckExisting(custModel);
 						HazleCacheController.getInstance().getVerifyOtp().remove(mapKey);
 						HazleCacheController.getInstance().getFailedOtp().remove(mapKey);
 						HazleCacheController.getInstance().getRetryOtp().remove(mapKey);
-						if (updatedUserDetails != null && updatedUserDetails.getEmailVerified() > 0) {
+						if (updatedUserDetails != null && StringUtil.isNotNullOrEmpty(updatedUserDetails.getStatus())
+								&& StringUtil.isEqual(updatedUserDetails.getStatus(),
+										EkycConstants.EKYC_STATUS_INPROGRESS)) {
 							responseModel = new ResponseModel();
 							responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 							responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 							responseModel.setResult(updatedUserDetails);
+							// corresponding page
 						} else {
 							if (updatedUserDetails == null) {
 								responseModel = commonMethods
 										.constructFailedMsg(MessageConstants.ERROR_WHILE_VERIFY_OTP);
 							} else {
 								if (existingModel != null && StringUtil.isNotNullOrEmpty(existingModel.getExisting())
-										&& StringUtil.isEqual(existingModel.getExisting(),
-												EkycConstants.EXISTING_YES)) {
+										&& StringUtil.isEqual(existingModel.getExisting(), EkycConstants.EXISTING_YES)
+										&& StringUtil.isNotNullOrEmpty(existingModel.getStatus())
+										&& StringUtil.isNotEqual(existingModel.getExisting(),
+												EkycConstants.STATUS_INACTIVE)) {
 									if (StringUtil.isNotNullOrEmpty(existingModel.getStatus()) && StringUtil
 											.isEqual(existingModel.getExisting(), EkycConstants.STATUS_ACTIVE)) {
 										responseModel = commonMethods
@@ -129,7 +137,14 @@ public class UserService implements IUserService {
 											.isEqual(existingModel.getExisting(), EkycConstants.STATUS_DORMANT)) {
 										responseModel = commonMethods
 												.constructFailedMsg(MessageConstants.EKYC_DORMANT_CUSTOMER);
+										responseModel.setPage(EkycConstants.PAGE_PDFDOWNLOAD);
 									}
+								} else {
+									responseModel = new ResponseModel();
+									responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+									responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+									responseModel.setResult(updatedUserDetails);
+									responseModel.setPage(EkycConstants.PAGE_EMAIL);
 								}
 							}
 						}
@@ -180,7 +195,9 @@ public class UserService implements IUserService {
 		try {
 			ApplicationUserEntity updatedUserDetails = null;
 			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
-			if (isUserPresent.isPresent()) {
+			ApplicationUserEntity emailPresent = repository.findByEmailId(userEntity.getEmailId());
+			if (isUserPresent.isPresent() && (emailPresent == null
+					|| emailPresent != null && emailPresent.getMobileNo() == isUserPresent.get().getMobileNo())) {
 				ApplicationUserEntity oldUserEntity = isUserPresent.get();
 				String mapKey = String.valueOf(oldUserEntity.getMobileNo()) + EkycConstants.EMAIL_KEY;
 				int otp = commonMethods.generateOTP(oldUserEntity.getMobileNo());
@@ -199,7 +216,11 @@ public class UserService implements IUserService {
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_GENERATE_OTP);
 				}
 			} else {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.WRONG_USER_ID);
+				if (emailPresent != null) {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.EMAIL_ID_ALREADY_AVAILABLE);
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.WRONG_USER_ID);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -220,30 +241,34 @@ public class UserService implements IUserService {
 			if (oldUserEntity != null) {
 				String mapKey = String.valueOf(oldUserEntity.getMobileNo()) + EkycConstants.EMAIL_KEY;
 				if (HazleCacheController.getInstance().getVerifyOtp().containsKey(mapKey)) {
-					if (HazleCacheController.getInstance().getVerifyOtp().get(mapKey) == userEntity.getSmsOtp()) {
+					if (HazleCacheController.getInstance().getVerifyOtp().get(mapKey) == userEntity.getEmailOtp()) {
 						oldUserEntity.setEmailVerified(1);
 						updatedUserDetails = repository.save(oldUserEntity);
 						if (updatedUserDetails != null) {
 							ExistingCustReqModel custModel = new ExistingCustReqModel();
 							custModel.setInput(oldUserEntity.getEmailId());
 							custModel.setInputType(EkycConstants.ERP_EMAIL);
-							ErpExistingApiModel existingModel = erpRestService.testMethod(custModel);
+							ErpExistingApiModel existingModel = erpRestService.erpCheckExisting(custModel);
 							if (existingModel != null
-									&& StringUtil.isEqual(existingModel.getExisting(), EkycConstants.EXISTING_YES)) {
+									&& StringUtil.isEqual(existingModel.getExisting(), EkycConstants.EXISTING_YES)
+									&& StringUtil.isNotNullOrEmpty(existingModel.getStatus()) && StringUtil
+											.isNotEqual(existingModel.getExisting(), EkycConstants.STATUS_INACTIVE)) {
 								if (StringUtil.isNotNullOrEmpty(existingModel.getStatus()) && StringUtil
 										.isEqual(existingModel.getExisting(), EkycConstants.STATUS_ACTIVE)) {
 									responseModel = commonMethods
-											.constructFailedMsg(MessageConstants.EKYC_ACTIVE_CUSTOMER);
+											.constructFailedMsg(MessageConstants.EKYC_EMAIL_ACTIVE_CUSTOMER);
 								} else if (StringUtil.isNotNullOrEmpty(existingModel.getStatus()) && StringUtil
 										.isEqual(existingModel.getExisting(), EkycConstants.STATUS_DORMANT)) {
 									responseModel = commonMethods
 											.constructFailedMsg(MessageConstants.EKYC_DORMANT_CUSTOMER);
+									responseModel.setPage(EkycConstants.PAGE_PDFDOWNLOAD);
 								}
 							} else {
 								responseModel = new ResponseModel();
 								responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 								responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 								responseModel.setResult(updatedUserDetails);
+								responseModel.setPage(EkycConstants.PAGE_PAN);
 							}
 						} else {
 							responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_VERIFY_OTP);
@@ -256,6 +281,37 @@ public class UserService implements IUserService {
 				}
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.EMAIL_ID_WRONG);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to get PAN details
+	 */
+	@Override
+	public ResponseModel getPanDetails(ApplicationUserEntity userEntity) {
+		ResponseModel responseModel = new ResponseModel();
+		try {
+			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
+			ApplicationUserEntity panNumberPresent = repository.findByPanNumber(userEntity.getPanNumber());
+			if (isUserPresent.isPresent() && (panNumberPresent == null
+					|| panNumberPresent != null && userEntity.getId() == panNumberPresent.getId())) {
+				String result = panHelper.getPanDetailsFromNSDL(userEntity.getPanNumber(), userEntity.getId());
+				if (result != null && !result.equalsIgnoreCase("")) {
+					responseModel = panHelper.saveResult(result, isUserPresent.get());
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);
+				}
+			} else {
+				if (!isUserPresent.isPresent()) {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.PAN_ALREADY_AVAILABLE);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

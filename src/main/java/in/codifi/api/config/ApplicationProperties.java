@@ -28,5 +28,19 @@ public class ApplicationProperties {
 	private String mailText;
 	@ConfigProperty(name = "appconfig.erp.token")
 	private String erpToken;
+	@ConfigProperty(name = "appconfig.pan.filepath")
+	private String panFilePath;
+	@ConfigProperty(name = "appconfig.pan.pfx.userid")
+	private String panPfxUserId;
+	@ConfigProperty(name = "appconfig.pan.pfx.password")
+	private String panPfxPassword;
+	@ConfigProperty(name = "appconfig.pan.pfx.filelocation")
+	private String panPfxFileLocation;
+	@ConfigProperty(name = "appconfig.pan.nsdlurl")
+	private String panNsdlUrl;
+	@ConfigProperty(name = "appconfig.pan.logsurl")
+	private String panLogsUrl;
+	@ConfigProperty(name = "appconfig.pan.version")
+	private String panVersion;
 
 }

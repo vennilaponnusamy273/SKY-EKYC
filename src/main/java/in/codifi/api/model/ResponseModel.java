@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 public class ResponseModel {
 	private int stat;
+	private int page;
 	private String message;
 	private String reason;
 	private Object result;

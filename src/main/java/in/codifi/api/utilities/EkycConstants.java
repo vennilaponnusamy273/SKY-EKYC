@@ -29,8 +29,54 @@ public class EkycConstants {
 	public static final String EXISTING_NO = "No";
 	public static final String STATUS_ACTIVE = "ACTIVE";
 	public static final String STATUS_DORMANT = "DORMANT";
+	public static final String STATUS_INACTIVE = "INACTIVE";
 	public static final String EKYC_STATUS_COMPLETED = "Completed";
 	public static final String EKYC_STATUS_INPROGRESS = "In-Progress";
 	public static final String EKYC_STATUS_PENDING = "Pending";
+	// PAGE STATUS
+	public static final int PAGE_EMAIL = 1;
+	public static final int PAGE_PAN = 2;
+	public static final int PAGE_AADHAR = 3;
+	public static final int PAGE_PROFILE = 4;
+	public static final int PAGE_BANK = 5;
+	public static final int PAGE_PAYMENT = 6;
+	public static final int PAGE_SEGMENT = 7;
+	public static final int PAGE_NOMINEE = 8;
+	public static final int PAGE_IPV = 9;
+	public static final int PAGE_DOCUMENT = 10;
+	public static final int PAGE_PDFDOWNLOAD = 11;
+	public static final int PAGE_ESIGN = 12;
+	public static final String UBUNTU_FILE_SEPERATOR = "/";
+	// PAN
+	public static final String FILE_JKS = ".jks";
+	public static final String KEY_PKS = "pkcs12";
+	public static final String KEY_JKS = "jks";
+	public static final String OUTPUT_SIG = "output.sig";
+	public static final String SIGN_COLL = "Collection";
+	public static final String SIGN_BC = "BC";
+	public static final int FILE_ARGS = 3;
+	public static final String SSL = "SSL";
+	public static final String LOG_MSG_REQ = "::Request Sent At: ";
+	public static final String LOG_MSG_DATA = "::Request Data: ";
+	public static final String LOG_MSG_VERSION = "::Version: ";
+	public static final String CONN_OUTPUT = "Output: ";
+	public static final String CONSTANT_CONTENT_TYPE = "Content-Type";
+	public static final String CONSTANT_URL_ENCODED = "application/x-www-form-urlencoded";
+	public static final String CONSTANT_CONTENT_LENGTH = "Content-Length";
+	public static final String CONSTANT_CONTENT_LANG = "Content-Language";
+	public static final String LAG_ENG_US = "en-US";
+	public static final String CONSTANT_URL_DATA = "data=";
+	public static final String CONSTANT_URL_UF8 = "UTF-8";
+	public static final String CONSTANT_VERSION = "&version=";
+	public static final String CONSTANT_SIGNATURE = "&signature=";
+	public static final String PAN_FIRSTNAME = "firstName";
+	public static final String PAN_LASTNAME = "lastName";
+	public static final String PAN_MIDDLENAME = "middleName";
+	public static final String PAN_NAMEONCARD = "nameOnCard";
+	public static final String PAN_AADHAR_STATUS = "aadhaar seeding status";
+	public static final String PAN_LAST_UPDATED_DATE = "lastUpdatedDate";
+	public static final String PAN_CARD = "panCard";
+	public static final String PAN_CARD_STATUS = "panCardStatus";
+	public static final String PAN_TITLE = "panTittle";
 
 }

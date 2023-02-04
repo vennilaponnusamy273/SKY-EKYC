@@ -20,7 +20,7 @@ public class ErpRestService {
 	@Inject
 	ApplicationProperties props;
 
-	public ErpExistingApiModel testMethod(ExistingCustReqModel model) throws ClientWebApplicationException {
+	public ErpExistingApiModel erpCheckExisting(ExistingCustReqModel model) throws ClientWebApplicationException {
 		String param = "";
 		ErpExistingApiModel apiModel = null;
 		try {

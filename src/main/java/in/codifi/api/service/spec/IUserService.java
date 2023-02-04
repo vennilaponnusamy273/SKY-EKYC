@@ -39,4 +39,14 @@ public interface IUserService {
 	 * @return
 	 */
 	ResponseModel verifyEmailOtp(ApplicationUserEntity userEntity);
+
+	/**
+	 * Method to get pan details from NSDL
+	 * 
+	 * @author Vennila Ponnusamy
+	 * @param PanCardDetails
+	 * @return
+	 */
+
+	ResponseModel getPanDetails(ApplicationUserEntity pan);
 }
