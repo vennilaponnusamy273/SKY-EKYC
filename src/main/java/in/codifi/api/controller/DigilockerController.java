@@ -1,0 +1,58 @@
+package in.codifi.api.controller;
+
+import javax.inject.Inject;
+import javax.ws.rs.Path;
+
+import in.codifi.api.controller.spec.IDigilockerController;
+import in.codifi.api.helper.DigilockerHelper;
+import in.codifi.api.model.ResponseModel;
+import in.codifi.api.service.spec.IUserService;
+import in.codifi.api.utilities.CommonMethods;
+import in.codifi.api.utilities.MessageConstants;
+import in.codifi.api.utilities.StringUtil;
+
+@Path("/digi")
+public class DigilockerController implements IDigilockerController {
+	@Inject
+	DigilockerHelper digilockerHelper;
+	@Inject
+	CommonMethods commonMethods;
+	@Inject
+	IUserService iUserService;
+
+	/**
+	 * Method to intialize digilocker
+	 * 
+	 * @return
+	 */
+	@Override
+	public ResponseModel iniDigilocker(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		if (applicationId > 0) {
+			responseModel = iUserService.iniDigilocker(applicationId);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to save address from digi
+	 */
+	@Override
+	public ResponseModel saveDigi(String code, String state, long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		if (StringUtil.isNotNullOrEmpty(code) && StringUtil.isNotNullOrEmpty(state) && applicationId > 0) {
+			responseModel = digilockerHelper.saveDigi(code, state, applicationId);
+		} else {
+			if (StringUtil.isNullOrEmpty(code)) {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.DIGI_CODE_NULL);
+			} else if (applicationId <= 0) {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.DIGI_STATE_NULL);
+			}
+		}
+		return responseModel;
+	}
+}
