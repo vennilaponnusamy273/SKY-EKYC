@@ -5,10 +5,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.wildfly.common.annotation.NotNull;
 
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.model.ResponseModel;
@@ -108,5 +110,17 @@ public interface IUserController {
 	@APIResponse(description = "Method to save DOB")
 	public ResponseModel saveDob(@RequestBody ApplicationUserEntity userEntity);
 
-	
+	/**
+	 * Method to get User Details
+	 * 
+	 * @author prade
+	 * @param applicationId
+	 * @return
+	 */
+	@Path("/getUsrDetails")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to get Profile Details")
+	ResponseModel getUserDetailsByAppId(@NotNull @QueryParam("applicationId") long applicationId);
+
 }

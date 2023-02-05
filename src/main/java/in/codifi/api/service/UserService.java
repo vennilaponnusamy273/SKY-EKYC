@@ -375,4 +375,22 @@ public class UserService implements IUserService {
 		return responseModel;
 	}
 
+	/**
+	 * Method to get User details
+	 */
+	@Override
+	public ResponseModel getUserDetailsById(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
+		if (isUserPresent.isPresent()) {
+			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+			responseModel.setResult(isUserPresent.get());
+			responseModel.setPage(EkycConstants.PAGE_PAN);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+		}
+		return responseModel;
+	}
+
 }

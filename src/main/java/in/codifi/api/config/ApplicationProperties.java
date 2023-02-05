@@ -58,5 +58,7 @@ public class ApplicationProperties {
 	private String digiFileFromUrl;
 	@ConfigProperty(name = "appconfig.digi.aadharurl")
 	private String digiAadharUrl;
+	@ConfigProperty(name = "appconfig.razorpay.ifsc")
+	private String razorpayIfscUrl;
 
 }

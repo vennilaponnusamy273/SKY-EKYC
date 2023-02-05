@@ -147,4 +147,18 @@ public class UserController implements IUserController {
 		}
 		return responseModel;
 	}
+
+	/**
+	 * Method to get User Details
+	 */
+	@Override
+	public ResponseModel getUserDetailsByAppId(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		if (applicationId > 0) {
+			responseModel = iUserService.getUserDetailsById(applicationId);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+		}
+		return responseModel;
+	}
 }

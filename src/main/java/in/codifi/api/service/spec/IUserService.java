@@ -68,4 +68,13 @@ public interface IUserService {
 	 * @return
 	 */
 	ResponseModel iniDigilocker(long applicationId);
+
+	/**
+	 * Method to get User details
+	 * 
+	 * @author prade
+	 * @param applicationId
+	 * @return
+	 */
+	ResponseModel getUserDetailsById(long applicationId);
 }

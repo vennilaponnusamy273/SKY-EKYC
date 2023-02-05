@@ -18,8 +18,11 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.model.BankAddressModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
 import io.quarkus.mailer.Mail;
@@ -185,6 +188,29 @@ public class CommonMethods {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public BankAddressModel findBankAddressByIfsc(String ifscCode) {
+		BankAddressModel model = null;
+		try {
+			URL url = new URL(props.getRazorpayIfscUrl() + ifscCode);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			conn.setRequestProperty("Accept", "application/json");
+			if (conn.getResponseCode() != 200) {
+				return model;
+			}
+			BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+			String output;
+
+			while ((output = br1.readLine()) != null) {
+				ObjectMapper om = new ObjectMapper();
+				model = om.readValue(output, BankAddressModel.class);
+			}
+		} catch (Exception e) {
+			return model;
+		}
+		return model;
 	}
 
 }

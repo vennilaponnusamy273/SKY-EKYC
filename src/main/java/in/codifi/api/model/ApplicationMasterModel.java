@@ -1,5 +1,6 @@
 package in.codifi.api.model;
 
+import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.ProfileEntity;
@@ -14,6 +15,7 @@ public class ApplicationMasterModel {
 	private ApplicationUserEntity applicationMasterEntity;
 	private ProfileEntity profileEntity;
 	private BankEntity bankEntity;
+	private AddressEntity addressEntity;
 	private int stage;
 
 }
