@@ -49,4 +49,23 @@ public interface IUserService {
 	 */
 
 	ResponseModel getPanDetails(ApplicationUserEntity pan);
+
+	/**
+	 * Method to save Date of birth
+	 * 
+	 * @author prade
+	 * @param PanCardDetails
+	 * @return
+	 */
+
+	ResponseModel saveDob(ApplicationUserEntity userEntity);
+
+	/**
+	 * Method to intialize digi locker
+	 * 
+	 * @author prade
+	 * @param PanCardDetails
+	 * @return
+	 */
+	ResponseModel iniDigilocker(long applicationId);
 }

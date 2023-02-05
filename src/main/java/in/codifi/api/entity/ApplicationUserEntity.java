@@ -6,6 +6,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +26,7 @@ public class ApplicationUserEntity extends CommonEntity {
 
 	@Column(name = "first_name")
 	private String firstName;
-	
+
 	@Column(name = "middle_name")
 	private String middleName;
 
@@ -37,17 +39,13 @@ public class ApplicationUserEntity extends CommonEntity {
 	@Column(name = "email_id")
 	private String emailId;
 
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(name = "email_otp")
 	private int emailOtp;
 
-	@Column(name = "email_otp_timestamp")
-	private Long emailOtpTimeStamp;
-
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(name = "sms_otp")
 	private int smsOtp;
-
-	@Column(name = "sms_otp_timestamp")
-	private Long smsOtpTimeStamp;
 
 	@Column(name = "email_verified")
 	private int emailVerified;
@@ -59,7 +57,7 @@ public class ApplicationUserEntity extends CommonEntity {
 	private String panNumber;
 
 	@Column(name = "dob")
-	private String dateOfBirth;
+	private String dob;
 
 	@Column(name = "stage")
 	private int stage;

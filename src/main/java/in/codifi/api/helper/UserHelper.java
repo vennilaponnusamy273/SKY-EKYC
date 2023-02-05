@@ -1,6 +1,5 @@
 package in.codifi.api.helper;
 
-import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -24,7 +23,6 @@ public class UserHelper {
 		String mapKey = String.valueOf(userEntity.getMobileNo()) + EkycConstants.SMS_KEY;
 		userEntity.setSmsOtp(otp);
 		userEntity.setSmsVerified(0);
-		userEntity.setSmsOtpTimeStamp(Instant.now().toEpochMilli());
 		ApplicationUserEntity savedEntity = repository.save(userEntity);
 		commonMethods.sendOTPtoMobile(otp, userEntity.getMobileNo());
 		HazleCacheController.getInstance().getVerifyOtp().put(mapKey, otp, 300000, TimeUnit.MILLISECONDS);

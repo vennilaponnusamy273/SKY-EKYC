@@ -7,6 +7,7 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -18,7 +19,9 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import in.codifi.api.config.ApplicationProperties;
+import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.ApplicationUserRepository;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
 
@@ -28,6 +31,8 @@ public class CommonMethods {
 	ApplicationProperties props;
 	@Inject
 	Mailer mailer;
+	@Inject
+	ApplicationUserRepository repos;
 
 	/**
 	 * Method to generate OTP for Mobile number
@@ -156,6 +161,28 @@ public class CommonMethods {
 		NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (KeyManagementException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Method to update step in Application Entity
+	 * 
+	 * @author Vennila Ponnusamy
+	 * @param otp
+	 * @param mobile Number
+	 * @return
+	 */
+
+	public void UpdateStep(int step, Long ApplicationID) {
+		try {
+			Optional<ApplicationUserEntity> checkApplicationID = repos.findById(ApplicationID);
+			if (checkApplicationID != null) {
+				ApplicationUserEntity oldUserEntity = checkApplicationID.get();
+				oldUserEntity.setStage(step);
+				repos.save(oldUserEntity);
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

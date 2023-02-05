@@ -17,6 +17,7 @@ public class MessageConstants {
 	public static final String INVALID_OTP_TRY_AFTER = "The Given OTP is Invalid Try again after ";
 	public static final String RETRY_OTP_TRY_AFTER = "Please Request OTP after ";
 	public static final String OTP_TIME_EXPIRED = "Your OTP Time Expired";
+	public static final String SMS_OTP_NOT_VERIFIED = "Sms OTP Not Verified";
 	public static final String WRONG_USER_ID = "User Id is Wrong";
 	public static final String MANDATORY_FIELDS_NULL = "Mandatory Fileds are null";
 	public static final String EKYC_ACTIVE_CUSTOMER = "An Account already exists with the Mobile Number.Please try with another Mobile Number";
@@ -32,4 +33,12 @@ public class MessageConstants {
 	public static final String PAN_PRG_SRT_TIME = " ::Program Start Time:";
 	public static final String PAN_PRG_NO = " ::nonce= ";
 	public static final String INVALID_PAN_MSG = "Invalid Pan Card. Please contact system administrator";
+	public static final String ERROR_WHILE_SAVING_DOB = "Error Occur While Saving DOB";
+	public static final String DIGI_CODE_NULL = "Digi Code is null";
+	public static final String DIGI_STATE_NULL = "Digi State is null";
+	public static final String FAILED_HTTP_CODE = "Failed : HTTP error code :";
+	public static final String DIGI_SYSOUT_BR = "the br1:";
+	public static final String ERR_NO_ACC_TOKEN = "No Access Token Generated From Digilocker";
+	public static final String ERR_ACC_TOKEN = "Error while generate access Token";
+	public static final String ERR_SAVE_DIGI = "Error while Saving address. Please contact system administrator";
 }

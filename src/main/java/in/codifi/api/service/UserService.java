@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 
 import in.codifi.api.cache.HazleCacheController;
+import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.helper.PanHelper;
 import in.codifi.api.helper.UserHelper;
@@ -35,6 +36,8 @@ public class UserService implements IUserService {
 	ErpRestService erpRestService;
 	@Inject
 	PanHelper panHelper;
+	@Inject
+	ApplicationProperties props;
 
 	/**
 	 * Method to send otp to mobile number
@@ -196,7 +199,7 @@ public class UserService implements IUserService {
 			ApplicationUserEntity updatedUserDetails = null;
 			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
 			ApplicationUserEntity emailPresent = repository.findByEmailId(userEntity.getEmailId());
-			if (isUserPresent.isPresent() && (emailPresent == null
+			if (isUserPresent.isPresent() && isUserPresent.get().getSmsOtp() > 0 && (emailPresent == null
 					|| emailPresent != null && emailPresent.getMobileNo() == isUserPresent.get().getMobileNo())) {
 				ApplicationUserEntity oldUserEntity = isUserPresent.get();
 				String mapKey = String.valueOf(oldUserEntity.getMobileNo()) + EkycConstants.EMAIL_KEY;
@@ -219,7 +222,11 @@ public class UserService implements IUserService {
 				if (emailPresent != null) {
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.EMAIL_ID_ALREADY_AVAILABLE);
 				} else {
-					responseModel = commonMethods.constructFailedMsg(MessageConstants.WRONG_USER_ID);
+					if (isUserPresent.isPresent() && isUserPresent.get().getSmsOtp() == 0) {
+						responseModel = commonMethods.constructFailedMsg(MessageConstants.SMS_OTP_NOT_VERIFIED);
+					} else {
+						responseModel = commonMethods.constructFailedMsg(MessageConstants.WRONG_USER_ID);
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -316,6 +323,54 @@ public class UserService implements IUserService {
 		} catch (Exception e) {
 			e.printStackTrace();
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to save Date of Birth
+	 */
+	@Override
+	public ResponseModel saveDob(ApplicationUserEntity userEntity) {
+		ResponseModel responseModel = new ResponseModel();
+		Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
+		if (isUserPresent.isPresent()) {
+			ApplicationUserEntity oldUserEntity = isUserPresent.get();
+			oldUserEntity.setDob(userEntity.getDob());
+			oldUserEntity.setStage(2);
+			ApplicationUserEntity savingEntity = repository.save(oldUserEntity);
+			if (savingEntity != null) {
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setResult(savingEntity);
+				responseModel.setPage(EkycConstants.PAGE_AADHAR);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVING_DOB);
+			}
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+		}
+
+		return responseModel;
+	}
+
+	/**
+	 * Method to intialize digi locker
+	 */
+	@Override
+	public ResponseModel iniDigilocker(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
+		if (isUserPresent.isPresent()) {
+			String redirectUrl = props.getDigiBaseUrl() + EkycConstants.DIGI_CONST_AUTH_CLIENT_ID
+					+ props.getDigiClientId() + EkycConstants.DIGI_CONST_RES_TYPE + props.getDigiResponseCode()
+					+ EkycConstants.DIGI_CONST_STATE + applicationId;
+			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+			responseModel.setResult(redirectUrl);
+			responseModel.setPage(EkycConstants.PAGE_AADHAR);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
 		return responseModel;
 	}

@@ -78,5 +78,17 @@ public class EkycConstants {
 	public static final String PAN_CARD = "panCard";
 	public static final String PAN_CARD_STATUS = "panCardStatus";
 	public static final String PAN_TITLE = "panTittle";
+	// Digi
+	public static final String DIGI_CONST_AUTH_CLIENT_ID = "authorize?client_id=";
+	public static final String DIGI_CONST_RES_TYPE = "&response_type=";
+	public static final String DIGI_CONST_STATE = "&state=";
+	public static final String DIGI_CONST_CODE = "code=";
+	public static final String DIGI_CONST_GRANDTYPE_CLIENTID= "&grant_type=authorization_code&client_id=";
+	public static final String DIGI_CONST_CLIENT_SECRET = "&client_secret=";
+	public static final String DIGI_CONST_REDIRECT_URL = "&redirect_uri=";
+	public static final String DIGI_CONST_ACCESS_TOKEN = "access_token";
+	public static final String DIGI_CONST_TOKEN="token";
+	public static final String AUTH="Authorization";
+	public static final String BEARER_TOKEN="Bearer ";
 
 }

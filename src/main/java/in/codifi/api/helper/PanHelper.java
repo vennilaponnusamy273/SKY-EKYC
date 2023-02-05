@@ -387,16 +387,13 @@ public class PanHelper {
 					if (existingModel != null && StringUtil.isNotNullOrEmpty(existingModel.getExisting())
 							&& StringUtil.isEqual(existingModel.getExisting(), EkycConstants.EXISTING_YES)
 							&& StringUtil.isNotNullOrEmpty(existingModel.getStatus())
-							&& StringUtil.isNotEqual(existingModel.getExisting(),
-									EkycConstants.STATUS_INACTIVE)) {
-						if (StringUtil.isNotNullOrEmpty(existingModel.getStatus()) && StringUtil
-								.isEqual(existingModel.getExisting(), EkycConstants.STATUS_ACTIVE)) {
-							responseModel = commonMethods
-									.constructFailedMsg(MessageConstants.EKYC_ACTIVE_CUSTOMER);
-						} else if (StringUtil.isNotNullOrEmpty(existingModel.getStatus()) && StringUtil
-								.isEqual(existingModel.getExisting(), EkycConstants.STATUS_DORMANT)) {
-							responseModel = commonMethods
-									.constructFailedMsg(MessageConstants.EKYC_DORMANT_CUSTOMER);
+							&& StringUtil.isNotEqual(existingModel.getExisting(), EkycConstants.STATUS_INACTIVE)) {
+						if (StringUtil.isNotNullOrEmpty(existingModel.getStatus())
+								&& StringUtil.isEqual(existingModel.getExisting(), EkycConstants.STATUS_ACTIVE)) {
+							responseModel = commonMethods.constructFailedMsg(MessageConstants.EKYC_ACTIVE_CUSTOMER);
+						} else if (StringUtil.isNotNullOrEmpty(existingModel.getStatus())
+								&& StringUtil.isEqual(existingModel.getExisting(), EkycConstants.STATUS_DORMANT)) {
+							responseModel = commonMethods.constructFailedMsg(MessageConstants.EKYC_DORMANT_CUSTOMER);
 							responseModel.setPage(EkycConstants.PAGE_PDFDOWNLOAD);
 						}
 					} else {
@@ -404,7 +401,7 @@ public class PanHelper {
 						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 						responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 						responseModel.setResult(updatedUserDetails);
-						responseModel.setPage(EkycConstants.PAGE_AADHAR);
+						responseModel.setPage(EkycConstants.PAGE_PAN);
 					}
 				}
 			} else {

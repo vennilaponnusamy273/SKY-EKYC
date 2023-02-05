@@ -42,5 +42,21 @@ public class ApplicationProperties {
 	private String panLogsUrl;
 	@ConfigProperty(name = "appconfig.pan.version")
 	private String panVersion;
+	@ConfigProperty(name = "appconfig.digi.baseurl")
+	private String digiBaseUrl;
+	@ConfigProperty(name = "appconfig.digi.clientid")
+	private String digiClientId;
+	@ConfigProperty(name = "appconfig.digi.responsecode")
+	private String digiResponseCode;
+	@ConfigProperty(name = "appconfig.digi.secret")
+	private String digiSecret;
+	@ConfigProperty(name = "appconfig.digi.redirecturl")
+	private String digiRedirectUrl;
+	@ConfigProperty(name = "appconfig.digi.issueddocumenturl")
+	private String digiIssuedDocUrl;
+	@ConfigProperty(name = "appconfig.digi.filefromurl")
+	private String digiFileFromUrl;
+	@ConfigProperty(name = "appconfig.digi.aadharurl")
+	private String digiAadharUrl;
 
 }
