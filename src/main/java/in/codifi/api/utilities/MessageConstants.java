@@ -45,4 +45,7 @@ public class MessageConstants {
 	public static final String ERROR_WHILE_SAVING_BANK_DETAILS = "Error Occur While Saving Bank Details";
 	public static final String USER_NOT_VERIFIED = "You are not verified Customer please reverified";
 	public static final String IFSC_INVALID = "The given user IFSC Code is Invalid";
+	public static final String NOMINEE_AVAILABLE = "Nominee Details already Available";
+	public static final String ERROR_WHILE_SAVING_NOMINEE_DETAILS = "Error Occur While Saving Nominee Details";
+	public static final String ERROR_WHILE_SAVING_SEGMENT_DETAILS = "Error Occur While Saving Segment Details";
 }

@@ -46,7 +46,7 @@ public class BankService implements IBankService {
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setResult(updatedEntity);
-				responseModel.setPage(EkycConstants.PAGE_BANK);
+				responseModel.setPage(EkycConstants.PAGE_SEGMENT);
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVING_BANK_DETAILS);
 			}
@@ -71,7 +71,7 @@ public class BankService implements IBankService {
 			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 			responseModel.setResult(savedBankEntity);
-			responseModel.setPage(EkycConstants.PAGE_PROFILE);
+			responseModel.setPage(EkycConstants.PAGE_BANK);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
