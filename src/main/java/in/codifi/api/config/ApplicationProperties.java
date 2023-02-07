@@ -60,5 +60,6 @@ public class ApplicationProperties {
 	private String digiAadharUrl;
 	@ConfigProperty(name = "appconfig.razorpay.ifsc")
 	private String razorpayIfscUrl;
-
+	@ConfigProperty(name = "appconfig.file.basepath")
+	private String fileBasePath;
 }

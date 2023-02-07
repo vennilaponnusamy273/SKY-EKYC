@@ -60,10 +60,11 @@ public class NomineeService implements INomineeService {
 				}
 			}
 			if (StringUtil.isListNotNullOrEmpty(savedEntity)) {
+				commonMethods.UpdateStep(8, nomineeEntity.get(0).getApplicationId());
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setResult(savedEntity);
-				responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
+				responseModel.setPage(EkycConstants.PAGE_IPV);
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVING_NOMINEE_DETAILS);
 			}

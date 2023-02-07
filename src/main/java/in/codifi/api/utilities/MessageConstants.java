@@ -48,4 +48,7 @@ public class MessageConstants {
 	public static final String NOMINEE_AVAILABLE = "Nominee Details already Available";
 	public static final String ERROR_WHILE_SAVING_NOMINEE_DETAILS = "Error Occur While Saving Nominee Details";
 	public static final String ERROR_WHILE_SAVING_SEGMENT_DETAILS = "Error Occur While Saving Segment Details";
+	// Document
+	public final static String FAILED_DOC_UPLOAD = "Failed While Upload Document";
+	public static final String CHECK_DOC_CON = "Check File Type and Size";
 }

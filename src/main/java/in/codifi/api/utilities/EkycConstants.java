@@ -18,6 +18,7 @@ public class EkycConstants {
 	public static final String HTTP_GET = "GET";
 	// Symbol
 	public static final String AND = "&";
+	public static final String UNDERSCORE = "_";
 	// OTP Validation
 	public static final String SMS_KEY = "_SMS";
 	public static final String EMAIL_KEY = "_EMAIL";
@@ -47,6 +48,8 @@ public class EkycConstants {
 	public static final int PAGE_PDFDOWNLOAD = 11;
 	public static final int PAGE_ESIGN = 12;
 	public static final String UBUNTU_FILE_SEPERATOR = "/";
+	public static final String WINDOWS_FILE_SEPERATOR = "\\\\";
+	public static final String OS_WINDOWS = "win";
 	// PAN
 	public static final String FILE_JKS = ".jks";
 	public static final String KEY_PKS = "pkcs12";
@@ -83,12 +86,15 @@ public class EkycConstants {
 	public static final String DIGI_CONST_RES_TYPE = "&response_type=";
 	public static final String DIGI_CONST_STATE = "&state=";
 	public static final String DIGI_CONST_CODE = "code=";
-	public static final String DIGI_CONST_GRANDTYPE_CLIENTID= "&grant_type=authorization_code&client_id=";
+	public static final String DIGI_CONST_GRANDTYPE_CLIENTID = "&grant_type=authorization_code&client_id=";
 	public static final String DIGI_CONST_CLIENT_SECRET = "&client_secret=";
 	public static final String DIGI_CONST_REDIRECT_URL = "&redirect_uri=";
 	public static final String DIGI_CONST_ACCESS_TOKEN = "access_token";
-	public static final String DIGI_CONST_TOKEN="token";
-	public static final String AUTH="Authorization";
-	public static final String BEARER_TOKEN="Bearer ";
+	public static final String DIGI_CONST_TOKEN = "token";
+	public static final String AUTH = "Authorization";
+	public static final String BEARER_TOKEN = "Bearer ";
+	// Doc Upload
+	public static final String CONST_APPLICATION_PDF = "application/pdf";
+	public static final String PDF_EXTENSION = ".pdf";
 
 }
