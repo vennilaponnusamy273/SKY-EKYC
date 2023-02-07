@@ -6,16 +6,23 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
 
+import com.razorpay.Order;
+
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.BankEntity;
+import in.codifi.api.entity.PaymentEntity;
+import in.codifi.api.helper.PaymentHelper;
 import in.codifi.api.model.BankAddressModel;
+import in.codifi.api.model.RazorpayModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.BankRepository;
+import in.codifi.api.repository.PaymentRepository;
 import in.codifi.api.service.spec.IBankService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
+import in.codifi.api.utilities.StringUtil;
 
 @Service
 public class BankService implements IBankService {
@@ -25,6 +32,10 @@ public class BankService implements IBankService {
 	BankRepository bankRepository;
 	@Inject
 	CommonMethods commonMethods;
+	@Inject
+	PaymentHelper paymentHelper;
+	@Inject
+	PaymentRepository paymentRepository;
 
 	/**
 	 * Method to save Bank Details
@@ -91,6 +102,78 @@ public class BankService implements IBankService {
 			responseModel.setResult(model);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.IFSC_INVALID);
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to create payment
+	 */
+	@Override
+	public ResponseModel createPayment(PaymentEntity paymentEntity) {
+		ResponseModel responseModel = new ResponseModel();
+		RazorpayModel rzpayModel = paymentHelper.createPayment(paymentEntity);
+		if (rzpayModel.getStat() == 1) {
+			Order order = rzpayModel.getOrder();
+			if (order != null) {
+				PaymentEntity savedEntity = paymentHelper.populateRequiredFeilds(order, paymentEntity);
+				if (savedEntity != null) {
+					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+					responseModel.setResult(savedEntity);
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVE_CREATE_PAYMENT);
+				}
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.PAYMENT_CREATION_FAILED);
+			}
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.PAYMENT_CREATION_FAILED);
+			responseModel.setReason(rzpayModel.getMessage());
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to verify payment
+	 */
+	@Override
+	public ResponseModel verifyPayment(PaymentEntity paymentEntity) {
+		ResponseModel responseModel = new ResponseModel();
+		boolean isEqual = paymentHelper.verifyPayment(paymentEntity);
+		if (isEqual) {
+			PaymentEntity savedEntity = paymentHelper.saveVerifyPayment(paymentEntity);
+			if (savedEntity != null) {
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setResult(savedEntity);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVE_VERIFY_PAYMENT);
+			}
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.VERIFY_NOT_SUCCEED);
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to check payment
+	 */
+	@Override
+	public ResponseModel checkPayment(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		PaymentEntity paymentDTO = paymentRepository.findByApplicationId(applicationId);
+		if (paymentDTO != null) {
+			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+			responseModel.setResult(paymentDTO);
+			if (StringUtil.isEqual(EkycConstants.RAZORPAY_STATUS_COMPLETED, paymentDTO.getStatus())) {
+				responseModel.setMessage(MessageConstants.PAYMENT_ALREADY_COMPLETED);
+			} else if (StringUtil.isEqual(EkycConstants.RAZORPAY_STATUS_CREATED, paymentDTO.getStatus())) {
+				responseModel.setMessage(MessageConstants.PAYMENT_CREATED_COMPLETE_IT);
+			}
+		} else {
+			responseModel.setStat(EkycConstants.FAILED_STATUS);
+			responseModel.setMessage(MessageConstants.PAYMENT_NOT_CREATED);
 		}
 		return responseModel;
 	}

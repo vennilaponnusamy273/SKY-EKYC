@@ -96,5 +96,26 @@ public class EkycConstants {
 	// Doc Upload
 	public static final String CONST_APPLICATION_PDF = "application/pdf";
 	public static final String PDF_EXTENSION = ".pdf";
+	// Razorpay
+	public static final String AMOUNT = "amount";
+	public static final String CURRENCY = "currency";
+	public static final String RECEIPT = "receipt";
+	public static final String RAZORPAY_CURRENCY_INR = "INR";
+	public static final String CONST_BANK_ACCOUNT = "bank_account";
+	public static final String CONST_BANK_ACCOUNT_NUMBER = "account_number";
+	public static final String CONST_BANK_NAME = "name";
+	public static final String CONST_BANK_IFSC = "ifsc";
+	public static final String RAZORPAY_ORDERID = "razorpay_order_id";
+	public static final String RAZORPAY_PAYMENTID = "razorpay_payment_id";
+	public static final String RAZORPAY_SIGNATURE = "razorpay_signature";
+	public static final String RAZORPAY_STATUS_ = "";
+	public static final String RAZORPAY_STATUS_COMPLETED = "completed";
+	public static final String RAZORPAY_STATUS_CREATED = "created";
+	// Rest Methods
+	public static final String METHOD_NSDL = "NSDL";
+	public static final String METHOD_CKYC = "CKYC";
+	public static final String METHOD_DIGI = "DIGI_LOCKER";
+	public static final String METHOD_CRE_PAY = "CREATE_PAYMENT";
+	public static final String METHOD_VER_PAY = "VERIFY_PAYMENT";
 
 }

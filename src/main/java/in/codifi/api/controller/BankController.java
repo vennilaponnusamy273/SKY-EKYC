@@ -1,10 +1,14 @@
 package in.codifi.api.controller;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.ws.rs.Path;
 
 import in.codifi.api.controller.spec.IBankController;
 import in.codifi.api.entity.BankEntity;
+import in.codifi.api.entity.PaymentEntity;
+import in.codifi.api.helper.PaymentHelper;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IBankService;
 import in.codifi.api.utilities.CommonMethods;
@@ -17,6 +21,8 @@ public class BankController implements IBankController {
 	IBankService bankService;
 	@Inject
 	CommonMethods commonMethods;
+	@Inject
+	PaymentHelper paymentHelper;
 
 	/**
 	 * Method to save Bank Details
@@ -58,6 +64,52 @@ public class BankController implements IBankController {
 		ResponseModel responseModel = new ResponseModel();
 		if (StringUtil.isNotNullOrEmptyAfterTrim(ifsc)) {
 			responseModel = bankService.getBankAdd(ifsc);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to create payment
+	 */
+	@Override
+	public ResponseModel createPayment(PaymentEntity paymentEntity) {
+		ResponseModel responseModel = new ResponseModel();
+		List<String> errorMsg = paymentHelper.validateCreatePayment(paymentEntity);
+		if (StringUtil.isListNullOrEmpty(errorMsg)) {
+			responseModel = bankService.createPayment(paymentEntity);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.INVLAID_PARAMETER);
+			responseModel.setResult(errorMsg);
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to verify payment
+	 */
+	@Override
+	public ResponseModel verifyPayment(PaymentEntity paymentEntity) {
+		ResponseModel responseModel = new ResponseModel();
+		List<String> errorMsg = paymentHelper.validateVerifyPayment(paymentEntity);
+		if (StringUtil.isListNullOrEmpty(errorMsg)) {
+			responseModel = bankService.verifyPayment(paymentEntity);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.INVLAID_PARAMETER);
+			responseModel.setResult(errorMsg);
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to check payment
+	 */
+	@Override
+	public ResponseModel checkPayment(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		if (applicationId > 0) {
+			responseModel = bankService.checkPayment(applicationId);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 		}

@@ -22,9 +22,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.entity.ReqResEntity;
 import in.codifi.api.model.BankAddressModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
+import in.codifi.api.repository.ReqResRepository;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
 
@@ -36,6 +38,8 @@ public class CommonMethods {
 	Mailer mailer;
 	@Inject
 	ApplicationUserRepository repos;
+	@Inject
+	ReqResRepository reqResRepository;
 
 	/**
 	 * Method to generate OTP for Mobile number
@@ -190,6 +194,13 @@ public class CommonMethods {
 		}
 	}
 
+	/**
+	 * Method to find bank address by ifsc
+	 * 
+	 * @author prade
+	 * @param ifscCode
+	 * @return
+	 */
 	public BankAddressModel findBankAddressByIfsc(String ifscCode) {
 		BankAddressModel model = null;
 		try {
@@ -211,6 +222,38 @@ public class CommonMethods {
 			return model;
 		}
 		return model;
+	}
+
+	/**
+	 * Method to save out rest service request and response
+	 * 
+	 * @author prade
+	 * @param req
+	 * @param res
+	 * @param applicationId
+	 * @return
+	 */
+	public ReqResEntity saveRequestAndResposne(String req, String res, String method, long applicationId) {
+		ReqResEntity savedResult = null;
+		if (StringUtil.isNotNullOrEmpty(req) && StringUtil.isNotNullOrEmpty(res) && StringUtil.isNotNullOrEmpty(method)
+				&& applicationId > 0) {
+			ReqResEntity oldReqRes = reqResRepository.findByApplicationIdAndType(applicationId, method);
+			if (oldReqRes != null) {
+				oldReqRes.setRequest(req);
+				oldReqRes.setResponse(res);
+				savedResult = reqResRepository.save(oldReqRes);
+			} else {
+				ReqResEntity savingResult = new ReqResEntity();
+				savingResult.setApplicationId(applicationId);
+				savingResult.setType(method);
+				savingResult.setRequest(req);
+				savingResult.setResponse(res);
+				savedResult = reqResRepository.save(savingResult);
+			}
+
+		}
+		return savedResult;
+
 	}
 
 }

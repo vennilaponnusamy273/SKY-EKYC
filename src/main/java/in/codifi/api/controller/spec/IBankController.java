@@ -12,6 +12,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.wildfly.common.annotation.NotNull;
 
 import in.codifi.api.entity.BankEntity;
+import in.codifi.api.entity.PaymentEntity;
 import in.codifi.api.model.ResponseModel;
 
 public interface IBankController {
@@ -26,7 +27,7 @@ public interface IBankController {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	@APIResponse(description = "Method to save Profile Details")
+	@APIResponse(description = "Method to save Bank Details")
 	ResponseModel saveBank(BankEntity bankEntity);
 
 	/**
@@ -39,7 +40,7 @@ public interface IBankController {
 	@Path("/getBank")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@APIResponse(description = "Method to get Profile Details")
+	@APIResponse(description = "Method to get bank Details")
 	ResponseModel getBankByAppId(@NotNull @QueryParam("applicationId") long applicationId);
 
 	/**
@@ -52,6 +53,45 @@ public interface IBankController {
 	@Path("/getBankAdd")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@APIResponse(description = "Method to get Profile Details")
+	@APIResponse(description = "Method to get bank address")
 	ResponseModel getBankAdd(@NotNull @QueryParam("ifsc") String ifsc);
+
+	/**
+	 * Method to create payment
+	 * 
+	 * @author prade
+	 * @param paymentEntity
+	 * @return
+	 */
+	@Path("/createPayment")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to create payment")
+	ResponseModel createPayment(PaymentEntity paymentEntity);
+
+	/**
+	 * Method to verify payment
+	 * 
+	 * @author prade
+	 * @param paymentEntity
+	 * @return
+	 */
+	@Path("/verifyPayment")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to verify payment")
+	ResponseModel verifyPayment(PaymentEntity paymentEntity);
+
+	/**
+	 * Method to check payment
+	 * 
+	 * @author prade
+	 * @param paymentEntity
+	 * @return
+	 */
+	@Path("/checkPayment")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to check payment")
+	ResponseModel checkPayment(@NotNull @QueryParam("applicationId") long applicationId);
 }

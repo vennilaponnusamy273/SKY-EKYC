@@ -6,6 +6,7 @@ public class MessageConstants {
 	public static final String EMAIL_ID_NULL = "The given Email Id is null";
 	public static final String PAN_NUMBER_NULL = "The given Pan Number is null";
 	public static final String USER_ID_NULL = "The given user Id is null";
+	public static final String INVLAID_PARAMETER = "The Given Parameter is Invalid";
 	public static final String USER_ID_INVALID = "The given user Id is Invalid";
 	public static final String MOBILE_NUMBER_WRONG = "The given Mobile Number is wrong";
 	public static final String EMAIL_ID_WRONG = "The given Email Id is wrong";
@@ -51,4 +52,19 @@ public class MessageConstants {
 	// Document
 	public final static String FAILED_DOC_UPLOAD = "Failed While Upload Document";
 	public static final String CHECK_DOC_CON = "Check File Type and Size";
+	// Payment
+	public static final String AMOUNT_NULL = "Amount is Zero";
+	public static final String RECEIPT_NULL = "Receipt is null";
+	public static final String PAYMENT_CREATION_FAILED = "Payment Creation Failed Check Server!";
+	public static final String PAYMENT_ALREADY_CREATED = "Payment already Created";
+	public static final String ERROR_WHILE_SAVE_CREATE_PAYMENT = "Error Occur While Saving Create Payment";
+	public static final String ERROR_WHILE_SAVE_VERIFY_PAYMENT = "Error Occur While Saving Verify Payment";
+	public static final String BANK_DETAILS_NULL = "Bank Details is null please create Bank Details";
+	public static final String RAZORPAY_ORDER_ID_NULL = "Razorpay Order Id Null";
+	public static final String RAZORPAY_PAYMENT_ID_NULL = "Razorpay Payment Id Null";
+	public static final String RAZORPAY_SIGNATURE_NULL = "Razorpay Signature is Null";
+	public static final String VERIFY_NOT_SUCCEED = "Verify Not Succeed";
+	public static final String PAYMENT_ALREADY_COMPLETED = "Payment already Completed";
+	public static final String PAYMENT_CREATED_COMPLETE_IT = "Payment Created. Please complete it";
+	public static final String PAYMENT_NOT_CREATED = "Payment is not created";
 }
