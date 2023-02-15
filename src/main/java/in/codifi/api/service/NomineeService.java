@@ -51,6 +51,7 @@ public class NomineeService implements INomineeService {
 						guardianRepository.save(entity.getGuardianEntity());
 					}
 				}
+				commonMethods.UpdateStep(8, nomineeEntity.get(0).getApplicationId());
 				savedEntity = populateNomineeAndGuardian(nomineeEntity.get(0).getApplicationId());
 			} else {
 				if (user.isEmpty()) {

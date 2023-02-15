@@ -54,6 +54,7 @@ public class BankService implements IBankService {
 				updatedEntity = bankRepository.save(bankEntity);
 			}
 			if (updatedEntity != null && updatedEntity.getId() > 0) {
+				commonMethods.UpdateStep(5, bankEntity.getApplicationId());
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setResult(updatedEntity);
@@ -144,8 +145,10 @@ public class BankService implements IBankService {
 		if (isEqual) {
 			PaymentEntity savedEntity = paymentHelper.saveVerifyPayment(paymentEntity);
 			if (savedEntity != null) {
+				commonMethods.UpdateStep(7, paymentEntity.getApplicationId());
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setPage(EkycConstants.PAGE_NOMINEE);
 				responseModel.setResult(savedEntity);
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVE_VERIFY_PAYMENT);

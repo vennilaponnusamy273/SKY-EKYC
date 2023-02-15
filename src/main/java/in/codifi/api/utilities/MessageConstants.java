@@ -51,7 +51,16 @@ public class MessageConstants {
 	public static final String ERROR_WHILE_SAVING_SEGMENT_DETAILS = "Error Occur While Saving Segment Details";
 	// Document
 	public final static String FAILED_DOC_UPLOAD = "Failed While Upload Document";
+	public final static String FAILED_IVR_DOC_UPLOAD = "Failed While IVR Upload Document";
+	public final static String INVALID_IVR_PARAMS = "Invalid parameters in IVR Upload";
 	public static final String CHECK_DOC_CON = "Check File Type and Size";
+	public final static String IVR_IMAGE_NULL = "Ivr Image is null";
+	public final static String IVR_LAT_NULL = "Latitude is null";
+	public final static String IVR_LON_NULL = "Longitude is null";
+	public final static String IVR_TOKEN_NULL = "Token is null";
+	public final static String IVR_INVALID_TOKEN = "Invalid Token";
+	public final static String INVALID_IVR_INVALID = "Your IVR Image is invalid";
+	public final static String ERROR_LIVENESS = "Error while check liveness";
 	// Payment
 	public static final String AMOUNT_NULL = "Amount is Zero";
 	public static final String RECEIPT_NULL = "Receipt is null";
@@ -67,4 +76,5 @@ public class MessageConstants {
 	public static final String PAYMENT_ALREADY_COMPLETED = "Payment already Completed";
 	public static final String PAYMENT_CREATED_COMPLETE_IT = "Payment Created. Please complete it";
 	public static final String PAYMENT_NOT_CREATED = "Payment is not created";
+	public static final String COMPLETE_PAYMENT_FIRST = "Please complete payment";
 }

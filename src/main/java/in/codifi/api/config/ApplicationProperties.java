@@ -66,4 +66,8 @@ public class ApplicationProperties {
 	private String razorpaySecret;
 	@ConfigProperty(name = "appconfig.file.basepath")
 	private String fileBasePath;
+	@ConfigProperty(name = "appconfig.ivr.ivrlive")
+	private String ivrLiveUrl;
+	@ConfigProperty(name = "appconfig.arya.token")
+	private String aryaAiToken;
 }

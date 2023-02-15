@@ -33,4 +33,10 @@ public class DocumentEntity extends CommonEntity {
 	@Column(name = "password")
 	private String password;
 
+	@Column(name = "latitude")
+	private String latitude;
+
+	@Column(name = "longitude")
+	private String longitude;
+
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,9 +18,14 @@ import org.springframework.stereotype.Service;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.DocumentEntity;
+import in.codifi.api.helper.DocumentHelper;
 import in.codifi.api.model.FormDataModel;
+import in.codifi.api.model.IvrModel;
+import in.codifi.api.model.LivenessCheckReqModel;
+import in.codifi.api.model.LivenessCheckResModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.DocumentRepository;
+import in.codifi.api.restservice.AryaLivenessCheck;
 import in.codifi.api.service.spec.IDocumentService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
@@ -37,6 +43,12 @@ public class DocumentService implements IDocumentService {
 
 	@Inject
 	ApplicationProperties props;
+
+	@Inject
+	AryaLivenessCheck aryaLivenessCheck;
+
+	@Inject
+	DocumentHelper documentHelper;
 
 	/**
 	 * Method to upload file
@@ -136,7 +148,6 @@ public class DocumentService implements IDocumentService {
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setResult(updatedDocEntity);
 			} else {
-				responseModel.setMessage(EkycConstants.FAILED_MSG);
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.FAILED_DOC_UPLOAD);
 			}
 		} catch (Exception e) {
@@ -175,6 +186,83 @@ public class DocumentService implements IDocumentService {
 			e.printStackTrace();
 		}
 		return error;
+	}
+
+	/**
+	 * Method to upload IVR Document
+	 */
+	@Override
+	public ResponseModel uploadIvr(IvrModel ivrModel) {
+		ResponseModel responseModel = new ResponseModel();
+		try {
+			List<String> errorList = checkIvrModel(ivrModel);
+			if (StringUtil.isListNullOrEmpty(errorList)) {
+
+				LivenessCheckReqModel reqModel = new LivenessCheckReqModel();
+				reqModel.setDoc_base64(ivrModel.getImageUrl());
+				reqModel.setReq_id(ivrModel.getApplicationId());
+				LivenessCheckResModel model = aryaLivenessCheck.livenessCheck(reqModel);
+				if (model != null && model.getDocJson() != null
+						&& StringUtil.isEqual(model.getDocJson().getReal(), "1.0")) {
+					String url = documentHelper.convertBase64ToImage(ivrModel.getImageUrl(),
+							ivrModel.getApplicationId());
+					DocumentEntity oldRecord = docrepository
+							.findByApplicationIdAndTypeOfProof(ivrModel.getApplicationId(), EkycConstants.DOC_IVR);
+					DocumentEntity updatedDocEntity = null;
+					if (oldRecord != null) {
+						oldRecord.setAttachement(EkycConstants.DOC_IVR);
+						oldRecord.setTypeOfProof(EkycConstants.DOC_IVR);
+						oldRecord.setAttachementUrl(url);
+						updatedDocEntity = docrepository.save(oldRecord);
+					} else {
+						DocumentEntity doc = new DocumentEntity();
+						doc.setApplicationId(ivrModel.getApplicationId());
+						doc.setAttachement(EkycConstants.DOC_IVR);
+						doc.setTypeOfProof(EkycConstants.DOC_IVR);
+						doc.setAttachementUrl(url);
+						updatedDocEntity = docrepository.save(doc);
+					}
+					if (updatedDocEntity != null) {
+						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+						responseModel.setResult(updatedDocEntity);
+					} else {
+						responseModel = commonMethods.constructFailedMsg(MessageConstants.FAILED_IVR_DOC_UPLOAD);
+					}
+				} else {
+					if (model != null && model.getDocJson() != null
+							&& StringUtil.isEqual(model.getDocJson().getSpoof(), "1.0")) {
+						responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_IVR_INVALID);
+						responseModel.setResult(model);
+					} else {
+						responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_LIVENESS);
+					}
+				}
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_IVR_PARAMS);
+				responseModel.setResult(errorList);
+			}
+		} catch (Exception e) {
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+			e.printStackTrace();
+		}
+		return responseModel;
+	}
+
+	public List<String> checkIvrModel(IvrModel ivrModel) {
+		List<String> errorList = new ArrayList<>();
+		if (StringUtil.isNullOrEmpty(ivrModel.getImageUrl())) {
+			errorList.add(MessageConstants.IVR_IMAGE_NULL);
+		}
+		if (StringUtil.isNullOrEmpty(ivrModel.getLatitude())) {
+			errorList.add(MessageConstants.IVR_LAT_NULL);
+		}
+		if (StringUtil.isNullOrEmpty(ivrModel.getLongitude())) {
+			errorList.add(MessageConstants.IVR_LON_NULL);
+		}
+//		if (ivrModel.isMobile() && StringUtil.isNullOrEmpty(ivrModel.getOtp())) {
+//			errorList.add(MessageConstants.IVR_TOKEN_NULL);
+//		}
+		return errorList;
 	}
 
 }

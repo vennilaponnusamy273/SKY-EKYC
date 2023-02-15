@@ -7,9 +7,12 @@ import javax.ws.rs.Path;
 
 import in.codifi.api.controller.spec.INomineeController;
 import in.codifi.api.entity.NomineeEntity;
+import in.codifi.api.entity.PaymentEntity;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.PaymentRepository;
 import in.codifi.api.service.spec.INomineeService;
 import in.codifi.api.utilities.CommonMethods;
+import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
@@ -19,6 +22,8 @@ public class NomineeController implements INomineeController {
 	INomineeService service;
 	@Inject
 	CommonMethods commonMethods;
+	@Inject
+	PaymentRepository paymentRepository;
 
 	/**
 	 * Method to save nominee and Guardian Details
@@ -27,7 +32,13 @@ public class NomineeController implements INomineeController {
 	public ResponseModel saveNominee(List<NomineeEntity> nomineeEntity) {
 		ResponseModel responseModel = new ResponseModel();
 		if (StringUtil.isListNotNullOrEmpty(nomineeEntity)) {
-			responseModel = service.saveNominee(nomineeEntity);
+			PaymentEntity paymentDTO = paymentRepository.findByApplicationId(nomineeEntity.get(0).getApplicationId());
+			if (paymentDTO != null
+					&& StringUtil.isEqual(EkycConstants.RAZORPAY_STATUS_COMPLETED, paymentDTO.getStatus())) {
+				responseModel = service.saveNominee(nomineeEntity);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.COMPLETE_PAYMENT_FIRST);
+			}
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
 		}

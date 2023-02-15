@@ -40,8 +40,8 @@ public class EkycConstants {
 	public static final int PAGE_AADHAR = 3;
 	public static final int PAGE_PROFILE = 4;
 	public static final int PAGE_BANK = 5;
-	public static final int PAGE_PAYMENT = 6;
-	public static final int PAGE_SEGMENT = 7;
+	public static final int PAGE_SEGMENT = 6;
+	public static final int PAGE_PAYMENT = 7;
 	public static final int PAGE_NOMINEE = 8;
 	public static final int PAGE_IPV = 9;
 	public static final int PAGE_DOCUMENT = 10;
@@ -96,6 +96,11 @@ public class EkycConstants {
 	// Doc Upload
 	public static final String CONST_APPLICATION_PDF = "application/pdf";
 	public static final String PDF_EXTENSION = ".pdf";
+	public static final String DOC_IVR = "IVR";
+	public static final String DOC_CHEQUE = "Cheque/Statement";
+	public static final String DOC_INCOME = "Income";
+	public static final String DOC_SIGNATURE = "Signature";
+	public static final String DOC_PHOTO = "Photo";
 	// Razorpay
 	public static final String AMOUNT = "amount";
 	public static final String CURRENCY = "currency";
