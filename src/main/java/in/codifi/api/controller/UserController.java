@@ -105,56 +105,27 @@ public class UserController implements IUserController {
 	}
 
 	/**
-	 * Method to save pan id to get details
-	 */
-	@Override
-	public ResponseModel getPanDetails(ApplicationUserEntity userEntity) {
-		ResponseModel responseModel = new ResponseModel();
-		if (userEntity != null && StringUtil.isNotNullOrEmpty(userEntity.getPanNumber()) && userEntity.getId() > 0) {
-			responseModel = iUserService.getPanDetails(userEntity);
-		} else {
-			if (userEntity == null) {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
-			} else {
-				if (userEntity.getId() <= 0) {
-					responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
-				} else {
-					responseModel = commonMethods.constructFailedMsg(MessageConstants.PAN_NUMBER_NULL);
-				}
-			}
-		}
-		return responseModel;
-	}
-
-	/**
-	 * Method to save Date Of Birth
-	 */
-	@Override
-	public ResponseModel saveDob(ApplicationUserEntity userEntity) {
-		ResponseModel responseModel = new ResponseModel();
-		if (userEntity != null && StringUtil.isNotNullOrEmpty(userEntity.getDob()) && userEntity.getId() > 0) {
-			responseModel = iUserService.saveDob(userEntity);
-		} else {
-			if (userEntity == null) {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
-			} else {
-				if (userEntity.getId() <= 0) {
-					responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
-				} else {
-					responseModel = commonMethods.constructFailedMsg(MessageConstants.PAN_NUMBER_NULL);
-				}
-			}
-		}
-		return responseModel;
-	}
-
-	/**
 	 * Method to get User Details
 	 */
 	@Override
 	public ResponseModel getUserDetailsByAppId(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		if (applicationId > 0) {
+			responseModel = iUserService.getUserDetailsById(applicationId);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to Update Stage to skip
+	 */
+	@Override
+	public ResponseModel updateStage(long applicationId, double stage) {
+		ResponseModel responseModel = new ResponseModel();
+		if (applicationId > 0) {
+			commonMethods.UpdateStep(stage, applicationId);
 			responseModel = iUserService.getUserDetailsById(applicationId);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);

@@ -1,6 +1,7 @@
 package in.codifi.api.utilities;
 
 public class MessageConstants {
+	public static final String INTERNAL_SERVER_ERROR = "Something went wrong. please try again after some time";
 	public static final String PARAMETER_NULL = "The Given Parameter is null";
 	public static final String MOBILE_NUMBER_NULL = "The given Mobile Number is null";
 	public static final String EMAIL_ID_NULL = "The given Email Id is null";
@@ -15,8 +16,10 @@ public class MessageConstants {
 	public static final String ERROR_WHILE_GENERATE_OTP = "Error Occur While Generating OTP";
 	public static final String ERROR_WHILE_VERIFY_OTP = "Error Occur While Verifying OTP";
 	public static final String INVALID_OTP = "The Given OTP is Invalid";
-	public static final String INVALID_OTP_TRY_AFTER = "The Given OTP is Invalid Try again after ";
-	public static final String RETRY_OTP_TRY_AFTER = "Please Request OTP after ";
+	public static final String INVALID_OTP_TRY_AFTER = "The given otp is Invalid Try again after ";
+	public static final String AGE_RESTRICTION = "You Are Minor";
+	public static final String RETRY_OTP_TRY_AFTER = "Please request otp after ";
+	public static final String SECONDS = " seconds";
 	public static final String OTP_TIME_EXPIRED = "Your OTP Time Expired";
 	public static final String SMS_OTP_NOT_VERIFIED = "Sms OTP Not Verified";
 	public static final String WRONG_USER_ID = "User Id is Wrong";
@@ -33,7 +36,7 @@ public class MessageConstants {
 	public static final String PAN_EXE_MSG = " ::Exception: ";
 	public static final String PAN_PRG_SRT_TIME = " ::Program Start Time:";
 	public static final String PAN_PRG_NO = " ::nonce= ";
-	public static final String INVALID_PAN_MSG = "Invalid Pan Card. Please contact system administrator";
+	public static final String INVALID_PAN_MSG = "Invalid PAN. Please re-enter the valid PAN";
 	public static final String ERROR_WHILE_SAVING_DOB = "Error Occur While Saving DOB";
 	public static final String DIGI_CODE_NULL = "Digi Code is null";
 	public static final String DIGI_STATE_NULL = "Digi State is null";
@@ -77,4 +80,11 @@ public class MessageConstants {
 	public static final String PAYMENT_CREATED_COMPLETE_IT = "Payment Created. Please complete it";
 	public static final String PAYMENT_NOT_CREATED = "Payment is not created";
 	public static final String COMPLETE_PAYMENT_FIRST = "Please complete payment";
+	// Nominee
+	public static final String GUARDIAN_MSG = "No Need to Guardian for this Nominee ,otherwise Nominee details saved ";
+	public final static String NOMINEE_COUNT = "This ApplicationID Against Three Nominee's  Allocated Done";
+	public final static String GUARDIAN_REQUIRED = "Guardian Required For this Nominee";
+	public final static String ALLOCATION_NOT_TALLY = "please give correct allocation";
+	// KRA
+	public final static String KRA_FAILED = "YOUR REQUEST COULD NOT BE PROCESSED.";
 }

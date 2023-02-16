@@ -6,7 +6,7 @@ import javax.ws.rs.Path;
 import in.codifi.api.controller.spec.IDigilockerController;
 import in.codifi.api.helper.DigilockerHelper;
 import in.codifi.api.model.ResponseModel;
-import in.codifi.api.service.spec.IUserService;
+import in.codifi.api.service.spec.IDigilockerService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
@@ -18,7 +18,7 @@ public class DigilockerController implements IDigilockerController {
 	@Inject
 	CommonMethods commonMethods;
 	@Inject
-	IUserService iUserService;
+	IDigilockerService service;
 
 	/**
 	 * Method to intialize digilocker
@@ -29,7 +29,7 @@ public class DigilockerController implements IDigilockerController {
 	public ResponseModel iniDigilocker(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		if (applicationId > 0) {
-			responseModel = iUserService.iniDigilocker(applicationId);
+			responseModel = service.iniDigilocker(applicationId);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 		}

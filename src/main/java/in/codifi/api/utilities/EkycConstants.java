@@ -35,18 +35,23 @@ public class EkycConstants {
 	public static final String EKYC_STATUS_INPROGRESS = "In-Progress";
 	public static final String EKYC_STATUS_PENDING = "Pending";
 	// PAGE STATUS
-	public static final int PAGE_EMAIL = 1;
-	public static final int PAGE_PAN = 2;
-	public static final int PAGE_AADHAR = 3;
-	public static final int PAGE_PROFILE = 4;
-	public static final int PAGE_BANK = 5;
-	public static final int PAGE_SEGMENT = 6;
-	public static final int PAGE_PAYMENT = 7;
-	public static final int PAGE_NOMINEE = 8;
-	public static final int PAGE_IPV = 9;
-	public static final int PAGE_DOCUMENT = 10;
-	public static final int PAGE_PDFDOWNLOAD = 11;
-	public static final int PAGE_ESIGN = 12;
+	public static final String PAGE_EMAIL = "1";
+	public static final String PAGE_PAN = "2";
+	public static final String PAGE_PAN_NSDL_DATA_CONFIRM = "2.1";
+	public static final String PAGE_PAN_KRA_DOB_ENTRY = "2.2";
+	public static final String PAGE_AADHAR = "3";
+	public static final String PAGE_PROFILE = "4";
+	public static final String PAGE_BANK = "5";
+	public static final String PAGE_SEGMENT = "6";
+	public static final String PAGE_PAYMENT = "7";
+	public static final String PAGE_NOMINEE = "8";
+	public static final String PAGE_NOMINEE_1 = "8.1";
+	public static final String PAGE_NOMINEE_2 = "8.2";
+	public static final String PAGE_NOMINEE_3 = "8.3";
+	public static final String PAGE_IPV = "9";
+	public static final String PAGE_DOCUMENT = "10";
+	public static final String PAGE_PDFDOWNLOAD = "11";
+	public static final String PAGE_ESIGN = "12";
 	public static final String UBUNTU_FILE_SEPERATOR = "/";
 	public static final String WINDOWS_FILE_SEPERATOR = "\\\\";
 	public static final String OS_WINDOWS = "win";
@@ -122,5 +127,17 @@ public class EkycConstants {
 	public static final String METHOD_DIGI = "DIGI_LOCKER";
 	public static final String METHOD_CRE_PAY = "CREATE_PAYMENT";
 	public static final String METHOD_VER_PAY = "VERIFY_PAYMENT";
+	public static final String NOM_PROOF = "NOMINEE_PROOF";
+	// KRA
+	public static final String CONST_KRA_APP_RES_ROOT = "APP_RES_ROOT";
+	public static final String CONST_KRA_APP_PAN_INQ = "APP_PAN_INQ";
+	public static final String CONST_KRA_APP_NAME = "APP_NAME";
+	public static final String CONST_KRA_ERROR = "ERROR";
+	public static final String KRA_DATE_FORMAT = "dd/MM/yyyy";
+	public static final String DATE_FORMAT = "dd-MM-yyyy";
+	public static final String CONST_KYC_DATA = "KYC_DATA";
+	public static final String CONST_KYC_ROOT = "ROOT";
+	public static final int STATE_CODE = 1;
+	public static final int COUNTRY_CODE = 2;
 
 }

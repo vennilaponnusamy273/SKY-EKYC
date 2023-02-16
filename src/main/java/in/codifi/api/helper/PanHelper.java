@@ -377,7 +377,7 @@ public class PanHelper {
 					oldUserEntity.setMiddleName(middleName);
 					oldUserEntity.setUserName(panCardname);
 					oldUserEntity.setPanNumber(panNumber);
-					oldUserEntity.setStage(2);
+					oldUserEntity.setStage(2.1);
 					oldUserEntity.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
 					updatedUserDetails = repository.save(oldUserEntity);
 					ExistingCustReqModel custModel = new ExistingCustReqModel();
@@ -401,7 +401,7 @@ public class PanHelper {
 						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 						responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 						responseModel.setResult(updatedUserDetails);
-						responseModel.setPage(EkycConstants.PAGE_PAN);
+						responseModel.setPage(EkycConstants.PAGE_PAN_NSDL_DATA_CONFIRM);
 					}
 				}
 			} else {

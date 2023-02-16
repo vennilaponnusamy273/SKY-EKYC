@@ -8,6 +8,8 @@ import in.codifi.api.entity.NomineeEntity;
 
 public interface NomineeRepository extends CrudRepository<NomineeEntity, Long> {
 
+	Long countByApplicationId(Long applicationId);
+
 	List<NomineeEntity> findByapplicationId(Long applicationId);
 
 }

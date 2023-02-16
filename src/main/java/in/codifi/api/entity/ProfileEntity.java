@@ -24,6 +24,9 @@ public class ProfileEntity extends CommonEntity {
 	@Column(name = "father_name")
 	private String fatherName;
 
+	@Column(name = "applicant_name")
+	private String applicantName;
+
 	@Column(name = "mother_name")
 	private String motherName;
 
@@ -32,6 +35,9 @@ public class ProfileEntity extends CommonEntity {
 
 	@Column(name = "gender")
 	private String gender;
+
+	@Column(name = "title")
+	private String title;
 
 	@Column(name = "annual_income")
 	private String annualIncome;
@@ -47,5 +53,7 @@ public class ProfileEntity extends CommonEntity {
 
 	@Column(name = "legal_action")
 	private String legalAction;
+
+	
 
 }

@@ -22,6 +22,9 @@ public class NomineeEntity extends CommonEntity {
 	@Column(name = "application_id", nullable = false)
 	private Long applicationId;
 
+	@Column(name = "nominee_id")
+	private String nomineeId;
+
 	@Column(name = "first_name")
 	private String firstname;
 
@@ -32,7 +35,7 @@ public class NomineeEntity extends CommonEntity {
 	private String relationship;
 
 	@Column(name = "dob")
-	private String dateofbirth;
+	private String dateOfbirth;
 
 	@Column(name = "pancard")
 	private String pancard;
@@ -55,7 +58,22 @@ public class NomineeEntity extends CommonEntity {
 	@Column(name = "state")
 	private String state;
 
+	@Column(name = "attachementUrl")
+	private String attachementUrl;
+
+	@Column(name = "allocation")
+	private int allocation;
+
 	@Transient
 	private GuardianEntity guardianEntity;
+
+	@Transient
+	private int nomOneAllocation;
+
+	@Transient
+	private int nomTwoAllocation;
+
+	@Transient
+	private int nomThreeAllocation;
 
 }

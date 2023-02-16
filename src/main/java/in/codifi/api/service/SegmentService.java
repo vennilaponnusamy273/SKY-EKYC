@@ -46,7 +46,7 @@ public class SegmentService implements ISegmentService {
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setResult(updatedEntity);
-				responseModel.setPage(EkycConstants.PAGE_BANK);
+				responseModel.setPage(EkycConstants.PAGE_PAYMENT);
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVING_SEGMENT_DETAILS);
 			}
@@ -71,7 +71,7 @@ public class SegmentService implements ISegmentService {
 			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 			responseModel.setResult(savedSegmentEntity);
-			responseModel.setPage(EkycConstants.PAGE_PROFILE);
+			responseModel.setPage(EkycConstants.PAGE_SEGMENT);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}

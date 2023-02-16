@@ -60,7 +60,7 @@ public class ApplicationUserEntity extends CommonEntity {
 	private String dob;
 
 	@Column(name = "stage")
-	private int stage;
+	private double stage;
 
 	@Column(name = "status")
 	private String status;

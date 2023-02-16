@@ -142,6 +142,7 @@ public class DigilockerHelper {
 								if (checkExit == null) {
 									AddressEntity entity = new AddressEntity();
 									entity.setApplicationId(applicationId);
+									entity.setIsdigi(1);
 									entity.setAccessToken(accessToken);
 									entity.setCo((String) PoaDetails.get("co"));
 									entity.setFlatNo((String) PoaDetails.get("house"));
@@ -158,6 +159,7 @@ public class DigilockerHelper {
 									checkExit.setFlatNo((String) PoaDetails.get("house"));
 									checkExit.setCo((String) PoaDetails.get("co"));
 									checkExit.setAccessToken(accessToken);
+									checkExit.setIsdigi(1);
 									checkExit.setAddress1((String) PoaDetails.get("vtc"));
 									checkExit.setAddress2((String) PoaDetails.get("loc"));
 									checkExit.setLandmark((String) PoaDetails.get("lm"));

@@ -83,34 +83,6 @@ public interface IUserController {
 	public ResponseModel verifyEmailOtp(@RequestBody ApplicationUserEntity userEntity);
 
 	/**
-	 * Method to save pan id to get details
-	 * 
-	 * @author Vennila Ponnusamy
-	 * @param pan
-	 * @return
-	 */
-	@Path("/getPan")
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	@APIResponse(description = "Method to pan id to get  details")
-	public ResponseModel getPanDetails(@RequestBody ApplicationUserEntity userEntity);
-
-	/**
-	 * Method to save DOB
-	 * 
-	 * @author prade
-	 * @param pan
-	 * @return
-	 */
-	@Path("/saveDOB")
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	@APIResponse(description = "Method to save DOB")
-	public ResponseModel saveDob(@RequestBody ApplicationUserEntity userEntity);
-
-	/**
 	 * Method to get User Details
 	 * 
 	 * @author prade
@@ -122,5 +94,19 @@ public interface IUserController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to get Profile Details")
 	ResponseModel getUserDetailsByAppId(@NotNull @QueryParam("applicationId") long applicationId);
+
+	/**
+	 * Method to Update Stage to skip
+	 * 
+	 * @author prade
+	 * @param applicationId
+	 * @return
+	 */
+	@Path("/updateStage")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to get Profile Details")
+	ResponseModel updateStage(@NotNull @QueryParam("applicationId") long applicationId,
+			@QueryParam("stage") double stage);
 
 }

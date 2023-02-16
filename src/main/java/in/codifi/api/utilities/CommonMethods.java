@@ -181,7 +181,7 @@ public class CommonMethods {
 	 * @return
 	 */
 
-	public void UpdateStep(int step, Long ApplicationID) {
+	public void UpdateStep(double step, Long ApplicationID) {
 		try {
 			Optional<ApplicationUserEntity> checkApplicationID = repos.findById(ApplicationID);
 			if (checkApplicationID != null) {

@@ -18,6 +18,9 @@ public class AddressEntity extends CommonEntity {
 	@Column(name = "id")
 	private Long id;
 
+	@Column(name = "is_digi")
+	private int isdigi;
+
 	@Column(name = "access_token")
 	private String accessToken;
 
@@ -53,4 +56,43 @@ public class AddressEntity extends CommonEntity {
 
 	@Column(name = "pincode")
 	private Long pincode;
+
+	@Column(name = "is_kra")
+	private int isKra;
+
+	@Column(name = "kra_address_1")
+	private String kraAddress1;
+
+	@Column(name = "kra_address_2")
+	private String kraAddress2;
+
+	@Column(name = "kra_address_3")
+	private String kraAddress3;
+
+	@Column(name = "kra_pin")
+	private int kraPin;
+
+	@Column(name = "kra_city")
+	private String kraCity;
+
+	@Column(name = "kra_state")
+	private String kraState;
+
+	@Column(name = "kra_per_address_1")
+	private String kraPerAddress1;
+
+	@Column(name = "kra_per_address_2")
+	private String kraPerAddress2;
+
+	@Column(name = "kra_per_address_3")
+	private String kraPerAddress3;
+
+	@Column(name = "kra_per_pin")
+	private int kraPerPin;
+
+	@Column(name = "kra_per_city")
+	private String kraPerCity;
+
+	@Column(name = "kra_per_state")
+	private String kraPerState;
 }

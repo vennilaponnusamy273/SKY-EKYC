@@ -26,6 +26,12 @@ public class BankEntity extends CommonEntity {
 
 	@Column(name = "address")
 	private String address;
+	
+	@Column(name = "branch_name")
+	private String branchName;
+	
+	@Column(name = "pincode")
+	private String pincode;
 
 	@Column(name = "ifsc")
 	private String ifsc;

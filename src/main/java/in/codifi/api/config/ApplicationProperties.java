@@ -70,4 +70,14 @@ public class ApplicationProperties {
 	private String ivrLiveUrl;
 	@ConfigProperty(name = "appconfig.arya.token")
 	private String aryaAiToken;
+	@ConfigProperty(name = "appconfig.kra.username")
+	private String kraUsername;
+	@ConfigProperty(name = "appconfig.kra.poscode")
+	private String kraPosCode;
+	@ConfigProperty(name = "appconfig.kra.password")
+	private String kraPassword;
+	@ConfigProperty(name = "appconfig.kra.panstatus.url")
+	private String kraPanStatusUrl;
+	@ConfigProperty(name = "appconfig.kra.detailsfetch.url")
+	private String kraDetailsFetchUrl;
 }

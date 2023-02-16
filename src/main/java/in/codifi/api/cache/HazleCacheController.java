@@ -27,17 +27,9 @@ public class HazleCacheController {
 		return hz;
 	}
 
-	IMap<String, Integer> failedOtp = getHz().getMap("failedOtp");
-	IMap<String, Integer> retryOtp = getHz().getMap("retryOtp");
+	IMap<String, Integer> resendOtp = getHz().getMap("resendOtp"); // 30 seconds for both sms and email
+	IMap<String, Integer> retryOtp = getHz().getMap("retryOtp"); // five minutes for both sms and email
 	IMap<String, Integer> verifyOtp = getHz().getMap("verifyOtp");
-
-	public IMap<String, Integer> getFailedOtp() {
-		return failedOtp;
-	}
-
-	public void setFailedOtp(IMap<String, Integer> failedOtp) {
-		this.failedOtp = failedOtp;
-	}
 
 	public IMap<String, Integer> getRetryOtp() {
 		return retryOtp;
@@ -53,6 +45,14 @@ public class HazleCacheController {
 
 	public void setVerifyOtp(IMap<String, Integer> verifyOtp) {
 		this.verifyOtp = verifyOtp;
+	}
+
+	public IMap<String, Integer> getResendOtp() {
+		return resendOtp;
+	}
+
+	public void setResendOtp(IMap<String, Integer> resendOtp) {
+		this.resendOtp = resendOtp;
 	}
 
 }

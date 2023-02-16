@@ -41,35 +41,6 @@ public interface IUserService {
 	ResponseModel verifyEmailOtp(ApplicationUserEntity userEntity);
 
 	/**
-	 * Method to get pan details from NSDL
-	 * 
-	 * @author Vennila Ponnusamy
-	 * @param PanCardDetails
-	 * @return
-	 */
-
-	ResponseModel getPanDetails(ApplicationUserEntity pan);
-
-	/**
-	 * Method to save Date of birth
-	 * 
-	 * @author prade
-	 * @param PanCardDetails
-	 * @return
-	 */
-
-	ResponseModel saveDob(ApplicationUserEntity userEntity);
-
-	/**
-	 * Method to intialize digi locker
-	 * 
-	 * @author prade
-	 * @param PanCardDetails
-	 * @return
-	 */
-	ResponseModel iniDigilocker(long applicationId);
-
-	/**
 	 * Method to get User details
 	 * 
 	 * @author prade
