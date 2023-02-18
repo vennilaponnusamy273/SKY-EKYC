@@ -95,4 +95,5 @@ public class AddressEntity extends CommonEntity {
 
 	@Column(name = "kra_per_state")
 	private String kraPerState;
+
 }

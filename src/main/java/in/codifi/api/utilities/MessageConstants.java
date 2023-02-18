@@ -9,6 +9,7 @@ public class MessageConstants {
 	public static final String USER_ID_NULL = "The given user Id is null";
 	public static final String INVLAID_PARAMETER = "The Given Parameter is Invalid";
 	public static final String USER_ID_INVALID = "The given user Id is Invalid";
+	public static final String ADDRESS_NOT_YET = "Address details not Yet";
 	public static final String MOBILE_NUMBER_WRONG = "The given Mobile Number is wrong";
 	public static final String EMAIL_ID_WRONG = "The given Email Id is wrong";
 	public static final String EMAIL_ID_ALREADY_AVAILABLE = "The given Email Id is already available for Different Number";

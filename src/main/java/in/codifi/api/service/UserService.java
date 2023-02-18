@@ -8,11 +8,13 @@ import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 
 import in.codifi.api.cache.HazleCacheController;
+import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.helper.UserHelper;
 import in.codifi.api.model.ErpExistingApiModel;
 import in.codifi.api.model.ExistingCustReqModel;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.restservice.ErpRestService;
 import in.codifi.api.service.spec.IUserService;
@@ -262,14 +264,27 @@ public class UserService implements IUserService {
 	/**
 	 * Method to get User details
 	 */
+	@Inject
+	AddressRepository repos;
+	
+	
 	@Override
 	public ResponseModel getUserDetailsById(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
+		AddressEntity isAddressisPresent=repos.findByapplicationId(applicationId);
+		if(isAddressisPresent!=null)
+		{
+			responseModel.setAddress_response(isAddressisPresent);
+		}
+		else
+		{
+			responseModel.setAddress_response(MessageConstants.ADDRESS_NOT_YET);
+		}
 		if (isUserPresent.isPresent()) {
 			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-			responseModel.setResult(isUserPresent.get());
+			responseModel.setResult(isUserPresent);
 			responseModel.setPage(String.valueOf(isUserPresent.get().getStage() + 1));
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);

@@ -139,5 +139,13 @@ public class EkycConstants {
 	public static final String CONST_KYC_ROOT = "ROOT";
 	public static final int STATE_CODE = 1;
 	public static final int COUNTRY_CODE = 2;
+	
+	//Req_Res_Table
+		public static final String PAN ="PAN";
+		public static final String DIGI ="DIGI";
+		public static final String PAN_DOB ="PAN_DOB";
+		
+
+		
 
 }
