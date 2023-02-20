@@ -12,6 +12,7 @@ import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IPanService;
 import in.codifi.api.utilities.CommonMethods;
+import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
@@ -41,6 +42,7 @@ public class PanController implements IPanController {
 				}
 			}
 		}
+		commonMethods.Req_Res_Save_object(userEntity,responseModel,EkycConstants.PAN,userEntity.getId());
 		return responseModel;
 	}
 
@@ -71,6 +73,7 @@ public class PanController implements IPanController {
 				}
 			}
 		}
+		commonMethods.Req_Res_Save_object(userEntity,responseModel,EkycConstants.PAN_DOB,userEntity.getId());
 		return responseModel;
 	}
 }

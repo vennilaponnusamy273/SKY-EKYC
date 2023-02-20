@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,9 +25,11 @@ public class ReqResEntity extends CommonEntity {
 	@Column(name = "type")
 	private String type;
 
+	@Lob
 	@Column(name = "request")
 	private String request;
 
+	@Lob
 	@Column(name = "response")
 	private String response;
 }

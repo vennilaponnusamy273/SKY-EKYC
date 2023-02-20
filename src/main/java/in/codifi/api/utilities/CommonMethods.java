@@ -18,6 +18,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.codifi.api.config.ApplicationProperties;
@@ -233,7 +234,22 @@ public class CommonMethods {
 	 * @param applicationId
 	 * @return
 	 */
-	public ReqResEntity saveRequestAndResposne(String req, String res, String method, long applicationId) {
+	public void Req_Res_Save_object(Object reqe,Object res,String type,long id)
+	{
+		try {
+		ObjectMapper mapper = new ObjectMapper();
+		String Req = mapper.writeValueAsString(reqe);
+		String Res;
+		Res = mapper.writeValueAsString(res);
+		System.out.println("req"+Req);
+		System.out.println("res"+Res);
+		saveRequestAndResposne(Req,Res,type, id);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void saveRequestAndResposne(String req, String res, String method, long applicationId) {
 		ReqResEntity savedResult = null;
 		if (StringUtil.isNotNullOrEmpty(req) && StringUtil.isNotNullOrEmpty(res) && StringUtil.isNotNullOrEmpty(method)
 				&& applicationId > 0) {
@@ -252,7 +268,6 @@ public class CommonMethods {
 			}
 
 		}
-		return savedResult;
 
 	}
 

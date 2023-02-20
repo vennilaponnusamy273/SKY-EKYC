@@ -17,4 +17,5 @@ public class ResponseModel implements Serializable {
 	private String message;
 	private String reason;
 	private Object result;
+	private Object Address_response;
 }

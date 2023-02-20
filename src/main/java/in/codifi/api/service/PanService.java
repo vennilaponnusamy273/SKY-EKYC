@@ -84,7 +84,6 @@ public class PanService implements IPanService {
 							if (panCardStatus == 002) {
 								JSONObject panCardDetails = kraHelper.getPanCardDetails(savingEntity.getPanNumber(),
 										savingEntity.getDob());
-
 								if (panCardDetails != null) {
 									if (panCardDetails.has("APP_NAME")) {
 										profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
