@@ -16,6 +16,8 @@ import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.helper.DocumentHelper;
@@ -197,13 +199,14 @@ public class DocumentService implements IDocumentService {
 		try {
 			List<String> errorList = checkIvrModel(ivrModel);
 			if (StringUtil.isListNullOrEmpty(errorList)) {
-
 				LivenessCheckReqModel reqModel = new LivenessCheckReqModel();
 				reqModel.setDoc_base64(ivrModel.getImageUrl());
 				reqModel.setReq_id(ivrModel.getApplicationId());
 				LivenessCheckResModel model = aryaLivenessCheck.livenessCheck(reqModel);
+				ObjectMapper mapper = new ObjectMapper();
+				System.out.println(mapper.writeValueAsString(model));
 				if (model != null && model.getDocJson() != null
-						&& StringUtil.isEqual(model.getDocJson().getReal(), "1.0")) {
+						&& Double.parseDouble(model.getDocJson().getReal()) >= 0.50) {
 					String url = documentHelper.convertBase64ToImage(ivrModel.getImageUrl(),
 							ivrModel.getApplicationId());
 					DocumentEntity oldRecord = docrepository
@@ -213,6 +216,8 @@ public class DocumentService implements IDocumentService {
 						oldRecord.setAttachement(EkycConstants.DOC_IVR);
 						oldRecord.setTypeOfProof(EkycConstants.DOC_IVR);
 						oldRecord.setAttachementUrl(url);
+						oldRecord.setLatitude(ivrModel.getLatitude());
+						oldRecord.setLongitude(ivrModel.getLongitude());
 						updatedDocEntity = docrepository.save(oldRecord);
 					} else {
 						DocumentEntity doc = new DocumentEntity();
@@ -220,6 +225,8 @@ public class DocumentService implements IDocumentService {
 						doc.setAttachement(EkycConstants.DOC_IVR);
 						doc.setTypeOfProof(EkycConstants.DOC_IVR);
 						doc.setAttachementUrl(url);
+						doc.setLatitude(ivrModel.getLatitude());
+						doc.setLongitude(ivrModel.getLongitude());
 						updatedDocEntity = docrepository.save(doc);
 					}
 					if (updatedDocEntity != null) {
@@ -230,8 +237,9 @@ public class DocumentService implements IDocumentService {
 					}
 				} else {
 					if (model != null && model.getDocJson() != null
-							&& StringUtil.isEqual(model.getDocJson().getSpoof(), "1.0")) {
+							&& Double.parseDouble(model.getDocJson().getSpoof()) > 0.01) {
 						responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_IVR_INVALID);
+						responseModel.setReason(model.getErrorMessage() + model.getDocJson().getSpoof());
 						responseModel.setResult(model);
 					} else {
 						responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_LIVENESS);

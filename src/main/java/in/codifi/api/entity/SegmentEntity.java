@@ -30,6 +30,9 @@ public class SegmentEntity extends CommonEntity {
 	@Column(name = "derivatives")
 	private int derivatives;
 
+	@Column(name = "commodities")
+	private int commodities;
+
 	@Column(name = "aluminium")
 	private String aluminium;
 

@@ -23,6 +23,21 @@ public class PennyDropEntity extends CommonEntity {
 	@Column(name = "application_id", nullable = false)
 	private Long applicationId;
 
+	@Column(name = "email")
+	private String email;
+
+	@Column(name = "mobileNumber")
+	private String mobileNumber;
+
+	@Column(name = "pan")
+	private String pan;
+
+	@Column(name = "accountNumber")
+	private String accNumber;
+
+	@Column(name = "ifsc")
+	private String ifsc;
+
 	@Column(name = "is_verified")
 	private int isVerified;
 

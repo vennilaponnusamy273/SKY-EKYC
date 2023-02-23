@@ -81,9 +81,9 @@ public class PanService implements IPanService {
 					if (pancardResponse != null) {
 						if (pancardResponse.has("APP_NAME")) {
 							int panCardStatus = pancardResponse.getInt("APP_STATUS");
-							if (panCardStatus == 002) {
+							if (checkAppStatus(panCardStatus)) {
 								JSONObject panCardDetails = kraHelper.getPanCardDetails(savingEntity.getPanNumber(),
-										savingEntity.getDob());
+										savingEntity.getDob(), panCardStatus);
 								if (panCardDetails != null) {
 									if (panCardDetails.has("APP_NAME")) {
 										profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
@@ -142,5 +142,16 @@ public class PanService implements IPanService {
 		}
 
 		return responseModel;
+	}
+
+	public boolean checkAppStatus(int appStatuscode) {
+		boolean isPresent = false;
+		if (appStatuscode == 2 || appStatuscode == 002 || appStatuscode == 102 || appStatuscode == 202
+				|| appStatuscode == 302 || appStatuscode == 402 || appStatuscode == 502 || appStatuscode == 7
+				|| appStatuscode == 007 || appStatuscode == 107 || appStatuscode == 207 || appStatuscode == 307
+				|| appStatuscode == 407 || appStatuscode == 507) {
+			isPresent = true;
+		}
+		return isPresent;
 	}
 }

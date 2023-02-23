@@ -96,7 +96,8 @@ public class UserHelper {
 		if ((HazleCacheController.getInstance().getRetryOtp().containsKey(mapKey)
 				&& HazleCacheController.getInstance().getRetryOtp().get(mapKey) > 4)
 				|| HazleCacheController.getInstance().getResendOtp().containsKey(mapKey)) {
-			if (HazleCacheController.getInstance().getRetryOtp().get(mapKey) > 4) {
+			if (HazleCacheController.getInstance().getRetryOtp().containsKey(mapKey)
+					&& HazleCacheController.getInstance().getRetryOtp().get(mapKey) > 4) {
 				long expiryTime = HazleCacheController.getInstance().getRetryOtp().getEntryView(mapKey)
 						.getExpirationTime();
 				seconds = (expiryTime - System.currentTimeMillis()) / 1000;

@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Entity(name = "TBL_ADDRESS_DETAILS")
+@Entity(name = "tbl_address_details")
 public class AddressEntity extends CommonEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

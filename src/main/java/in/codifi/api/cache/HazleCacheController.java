@@ -54,5 +54,4 @@ public class HazleCacheController {
 	public void setResendOtp(IMap<String, Integer> resendOtp) {
 		this.resendOtp = resendOtp;
 	}
-
 }

@@ -21,6 +21,7 @@ import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.PennyDropEntity;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.BankRepository;
 import in.codifi.api.repository.PennyDropRepository;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.StringUtil;
@@ -31,6 +32,8 @@ public class PennyDropHelper {
 	ApplicationProperties props;
 	@Inject
 	PennyDropRepository pennyDropRepository;
+	@Inject
+	BankRepository bankRepository;
 
 	/**
 	 * Method to Create Contact in razorpay
@@ -42,7 +45,9 @@ public class PennyDropHelper {
 	@SuppressWarnings("unchecked")
 	public ResponseModel createContact(ApplicationUserEntity applicationUserEntity) {
 		ResponseModel responseDTO = new ResponseModel();
+		PennyDropEntity pennyDropDTO = null;
 		try {
+			PennyDropEntity oldDataEntity = pennyDropRepository.findByapplicationId(applicationUserEntity.getId());
 			JSONObject createContactJSON = new JSONObject();
 			JSONObject notes = new JSONObject();
 			createContactJSON.put(EkycConstants.CONST_NAME, applicationUserEntity.getUserName());
@@ -86,7 +91,11 @@ public class PennyDropHelper {
 				String output;
 				while ((output = br1.readLine()) != null) {
 					JSONObject object1 = (JSONObject) JSONValue.parse(output);
-					PennyDropEntity pennyDropDTO = new PennyDropEntity();
+					if (oldDataEntity != null) {
+						pennyDropDTO = oldDataEntity;
+					} else {
+						pennyDropDTO = new PennyDropEntity();
+					}
 					pennyDropDTO.setApplicationId(applicationUserEntity.getId());
 					ObjectMapper mapper = new ObjectMapper();
 					pennyDropDTO.setRzReqContactJson(mapper.writeValueAsString(createContactJSON));
@@ -94,6 +103,9 @@ public class PennyDropHelper {
 						pennyDropDTO.setRzContactId(object1.get(EkycConstants.CONST_ID).toString());
 					}
 					pennyDropDTO.setRzResContactJson(output);
+					pennyDropDTO.setPan(applicationUserEntity.getPanNumber());
+					pennyDropDTO.setEmail(applicationUserEntity.getEmailId());
+					pennyDropDTO.setMobileNumber(Long.toString(applicationUserEntity.getMobileNo()));
 					PennyDropEntity savedPennyDrop = pennyDropRepository.save(pennyDropDTO);
 					if (savedPennyDrop != null && savedPennyDrop.getId() > 0) {
 						responseDTO.setStat(EkycConstants.SUCCESS_STATUS);
@@ -173,6 +185,8 @@ public class PennyDropHelper {
 					}
 					pennyDropEntity.setRzResFundJson(output);
 					ObjectMapper mapper = new ObjectMapper();
+					pennyDropEntity.setAccNumber(bankEntity.getAccountNo());
+					pennyDropEntity.setIfsc(bankEntity.getIfsc());
 					pennyDropEntity.setRzReqFundJson(mapper.writeValueAsString(addAccountJSON));
 					PennyDropEntity savedPennyDrop = pennyDropRepository.save(pennyDropEntity);
 					if (savedPennyDrop != null && StringUtil.isNotNullOrEmpty(savedPennyDrop.getRzFundAccountId())) {

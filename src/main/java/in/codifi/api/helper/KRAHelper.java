@@ -18,6 +18,7 @@ import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.repository.AddressRepository;
+import in.codifi.api.repository.KraKeyValueRepository;
 import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
@@ -33,6 +34,8 @@ public class KRAHelper {
 	AddressRepository addressRepository;
 	@Inject
 	CommonMethods commonMethods;
+	@Inject
+	KraKeyValueRepository keyValueRepository;
 
 	/**
 	 * Method to get the pan card status from the kra
@@ -95,16 +98,16 @@ public class KRAHelper {
 	 * @param dob
 	 * @return
 	 */
-	public JSONObject getPanCardDetails(String Pancard, String dob) {
+	public JSONObject getPanCardDetails(String Pancard, String dob, int panCardStatus) {
 		try {
 			Date date1 = new SimpleDateFormat(EkycConstants.DATE_FORMAT).parse(dob);
 			SimpleDateFormat formatter = new SimpleDateFormat(EkycConstants.KRA_DATE_FORMAT);
+			String appKRACode = getKraDesc(panCardStatus);
 			String actualData = formatter.format(date1);
 			String xmlCode = "<APP_REQ_ROOT><APP_PAN_INQ><APP_PAN_NO>" + Pancard + "</APP_PAN_NO><APP_DOB_INCORP>"
 					+ actualData + "</APP_DOB_INCORP><APP_POS_CODE>" + properties.getKraPosCode() + "</APP_POS_CODE>"
-					+ "<APP_RTA_CODE>" + properties.getKraPosCode()
-					+ "</APP_RTA_CODE><APP_KRA_CODE>CVLKRA</APP_KRA_CODE><FETCH_TYPE>I</FETCH_TYPE>"
-					+ "</APP_PAN_INQ></APP_REQ_ROOT>";
+					+ "<APP_RTA_CODE>" + properties.getKraPosCode() + "</APP_RTA_CODE><APP_KRA_CODE>" + appKRACode
+					+ "</APP_KRA_CODE><FETCH_TYPE>I</FETCH_TYPE>" + "</APP_PAN_INQ></APP_REQ_ROOT>";
 			String request = "InputXML=" + xmlCode + "&username=" + properties.getKraUsername() + "&PosCode="
 					+ properties.getKraPosCode() + "&password=" + properties.getKraPassword() + "&PassKey=";
 
@@ -205,8 +208,8 @@ public class KRAHelper {
 			String corrsAdd2 = kraDetails.getString("APP_COR_ADD2");
 			String corrsAdd3 = kraDetails.getString("APP_COR_ADD3");
 			String corrsCity = kraDetails.getString("APP_COR_CITY");
-//			String corrsState = kraDetails.getString("APP_COR_STATE");
-			// String corrsCountry = kraDetails.getString("APP_COR_CTRY");
+			String corrsState = kraDetails.getString("APP_COR_STATE");
+//			 String corrsCountry = kraDetails.getString("APP_COR_CTRY");
 			int corrsPinCode = kraDetails.getInt("APP_COR_PINCD");
 			/*
 			 * Set communication adders from the KRA
@@ -217,13 +220,13 @@ public class KRAHelper {
 			addressEntity.setKraCity(corrsCity);
 			addressEntity.setKraPin(corrsPinCode);
 //		org.json.JSONObject corssState = EKycDAO.getInstance().getKeyValueForKRA(EkycConstants.STATE_CODE, corrsState);
-//		pdto.setState(corssState.getString("value"));
+			addressEntity.setKraState(keyValueRepository.getkeyValueForKra(Integer.toString(1), "STATE", corrsState));
 
 			String perAddress1 = kraDetails.getString("APP_PER_ADD1");
 			String perAddress2 = kraDetails.getString("APP_PER_ADD2");
 			String perAddress3 = kraDetails.getString("APP_PER_ADD3");
 			String perCity = kraDetails.getString("APP_PER_CITY");
-//			String perState = kraDetails.getString("APP_PER_STATE");
+			String perState = kraDetails.getString("APP_PER_STATE");
 			// String perCountry = kraDetails.getString("APP_PER_CTRY");
 			int perPinCode = kraDetails.getInt("APP_PER_PINCD");
 			/*
@@ -234,9 +237,7 @@ public class KRAHelper {
 			addressEntity.setKraPerAddress3(perAddress3);
 			addressEntity.setKraPerCity(perCity);
 			addressEntity.setKraPerPin(perPinCode);
-//			org.json.JSONObject permnanentState = EKycDAO.getInstance().getKeyValueForKRA(EkycConstants.STATE_CODE,
-//			perState);
-//	pdto.setPer_state(permnanentState.getString("value"));
+			addressEntity.setKraPerState(keyValueRepository.getkeyValueForKra(Integer.toString(1), "STATE", perState));
 			savedProfileEntity = profileRepository.save(profileEntity);
 			if (savedProfileEntity != null) {
 				commonMethods.UpdateStep(3, applicationId);
@@ -248,6 +249,24 @@ public class KRAHelper {
 		}
 		return savedProfileEntity;
 
+	}
+
+	public String getKraDesc(int appStatus) {
+		String appKraCode = "CVLKRA";
+		if (appStatus == 002 || appStatus == 007 || appStatus == 2 || appStatus == 7) {
+			appKraCode = "CVLKRA";
+		} else if (appStatus == 102 || appStatus == 107) {
+			appKraCode = "NDML";
+		} else if (appStatus == 202 || appStatus == 207) {
+			appKraCode = "DOTEX";
+		} else if (appStatus == 302 || appStatus == 307) {
+			appKraCode = "CAMS";
+		} else if (appStatus == 402 || appStatus == 407) {
+			appKraCode = "KARVY";
+		} else if (appStatus == 502 || appStatus == 507) {
+			appKraCode = "BSE";
+		}
+		return appKraCode;
 	}
 
 }

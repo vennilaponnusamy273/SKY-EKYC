@@ -14,7 +14,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Entity(name = "TBL_APPLICATION_MASTER")
+@Entity(name = "tbl_application_master")
 public class ApplicationUserEntity extends CommonEntity {
 
 	@Id

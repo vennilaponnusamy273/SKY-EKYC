@@ -90,7 +90,7 @@ public class MessageConstants {
 	public final static String ALLOCATION_NOT_TALLY = "please give correct allocation";
 	// KRA
 	public final static String KRA_FAILED = "YOUR REQUEST COULD NOT BE PROCESSED.";
-	public final static String PENNY_DETAILS_NULL = "Contact Not Created";
+	public final static String PENNY_DETAILS_NULL = "Already Contact and account Created";
 	public final static String PENNY_CONTACT_ID_NULL = "Contact Id is Null ";
 	public final static String FUND_ACCOUNT_ID_NULL = "Fund account Id is Null ";
 	public final static String ACCOUNT_IFSC_NULL = "Bank account number or IFSC is null";

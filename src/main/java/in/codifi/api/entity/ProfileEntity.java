@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Entity(name = "TBL_PROFILE_DETAILS")
+@Entity(name = "tbl_profile_details")
 public class ProfileEntity extends CommonEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

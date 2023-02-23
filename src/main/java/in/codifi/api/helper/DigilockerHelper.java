@@ -145,7 +145,11 @@ public class DigilockerHelper {
 									entity.setIsdigi(1);
 									entity.setAccessToken(accessToken);
 									entity.setCo((String) PoaDetails.get("co"));
-									entity.setFlatNo((String) PoaDetails.get("house"));
+									if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
+										entity.setFlatNo(PoaDetails.get("house").toString());
+									} else {
+										entity.setFlatNo((String) PoaDetails.get("house"));
+									}
 									entity.setAddress1((String) PoaDetails.get("vtc"));
 									entity.setAddress2((String) PoaDetails.get("loc"));
 									entity.setLandmark((String) PoaDetails.get("lm"));
@@ -156,7 +160,11 @@ public class DigilockerHelper {
 									entity.setPincode((Long) PoaDetails.get("pc"));
 									updatedAddEntity = addressRepository.save(entity);
 								} else {
-									checkExit.setFlatNo((String) PoaDetails.get("house"));
+									if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
+										checkExit.setFlatNo(PoaDetails.get("house").toString());
+									} else {
+										checkExit.setFlatNo((String) PoaDetails.get("house"));
+									}
 									checkExit.setCo((String) PoaDetails.get("co"));
 									checkExit.setAccessToken(accessToken);
 									checkExit.setIsdigi(1);

@@ -12,7 +12,7 @@ public class LivenessCheckResModel {
 	@JsonProperty("doc_type")
 	private String docType;
 	@JsonProperty("error_message")
-	private Object errorMessage;
+	private String errorMessage;
 	@JsonProperty("req_id")
 	private Integer reqId;
 	@JsonProperty("success")
@@ -39,12 +39,12 @@ public class LivenessCheckResModel {
 	}
 
 	@JsonProperty("error_message")
-	public Object getErrorMessage() {
+	public String getErrorMessage() {
 		return errorMessage;
 	}
 
 	@JsonProperty("error_message")
-	public void setErrorMessage(Object errorMessage) {
+	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
 
