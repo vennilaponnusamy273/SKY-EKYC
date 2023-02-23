@@ -377,9 +377,9 @@ public class PanHelper {
 					oldUserEntity.setMiddleName(middleName);
 					oldUserEntity.setUserName(panCardname);
 					oldUserEntity.setPanNumber(panNumber);
-					oldUserEntity.setStage(2.1);
 					oldUserEntity.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
 					updatedUserDetails = repository.save(oldUserEntity);
+					commonMethods.UpdateStep(2.1, userEntity.getId());
 					ExistingCustReqModel custModel = new ExistingCustReqModel();
 					custModel.setInput(oldUserEntity.getEmailId());
 					custModel.setInputType(EkycConstants.ERP_PAN);

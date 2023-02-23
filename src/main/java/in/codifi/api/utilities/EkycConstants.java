@@ -48,10 +48,11 @@ public class EkycConstants {
 	public static final String PAGE_NOMINEE_1 = "8.1";
 	public static final String PAGE_NOMINEE_2 = "8.2";
 	public static final String PAGE_NOMINEE_3 = "8.3";
-	public static final String PAGE_IPV = "9";
-	public static final String PAGE_DOCUMENT = "10";
+	public static final String PAGE_DOCUMENT = "9";
+	public static final String PAGE_IPV = "10";
 	public static final String PAGE_PDFDOWNLOAD = "11";
 	public static final String PAGE_ESIGN = "12";
+	public static final String PAGE_COMPLETED_EMAIL_ATTACHED = "13";
 	public static final String UBUNTU_FILE_SEPERATOR = "/";
 	public static final String WINDOWS_FILE_SEPERATOR = "\\\\";
 	public static final String OS_WINDOWS = "win";
@@ -70,6 +71,7 @@ public class EkycConstants {
 	public static final String CONN_OUTPUT = "Output: ";
 	public static final String CONSTANT_CONTENT_TYPE = "Content-Type";
 	public static final String CONSTANT_URL_ENCODED = "application/x-www-form-urlencoded";
+	public static final String CONSTANT_APPLICATION_JSON = "application/json";
 	public static final String CONSTANT_CONTENT_LENGTH = "Content-Length";
 	public static final String CONSTANT_CONTENT_LANG = "Content-Language";
 	public static final String LAG_ENG_US = "en-US";
@@ -121,6 +123,42 @@ public class EkycConstants {
 	public static final String RAZORPAY_STATUS_ = "";
 	public static final String RAZORPAY_STATUS_COMPLETED = "completed";
 	public static final String RAZORPAY_STATUS_CREATED = "created";
+	public static final String CONST_NAME = "name";
+	public static final String CONST_EMAIL = "email";
+	public static final String CONST_CONTACT = "contact";
+	public static final String CONST_ACTIVE = "active";
+	public static final String CONST_CUSTOMER = "customer";
+	public static final String CONST_REFERENCE_ID = "reference_id";
+	public static final String CONST_CONATCT_ID = "contact_id";
+	public static final String CONST_IFSC = "ifsc";
+	public static final String CONST_NOTES_1 = "notes_key_1";
+	public static final String CONST_NOTES_2 = "notes_key_2";
+	public static final String CONST_TYPE = "type";
+	public static final String CONST_ROLL_NO = "roll_no";
+	public static final String CONST_TANDC_ACCEPT = "tnc_accepted";
+	public static final String CONST_ACC_DETAILS = "account_details";
+	public static final String CONST_NOTES = "notes";
+	public static final String NOTES1_MSG = "Penny Drop Test 1";
+	public static final String NOTES2_MSG = "Penny Drop Test 2";
+	public static final String CONST_ERROR = "error";
+	public static final String CONST_DESCRIPTION = "description";
+	public static final String CONST_ID = "id";
+	public static final String CONTACT_NOTES1_MSG = "EKYC Contact Create";
+	public static final String CONTACT_NOTES2_MSG = "EKYC Fund Account Contact";
+	public static final String HTTP_AUTHORIZATION_KEYWORD = "authorization";
+	public static final String HTTP_AUTH_BASIC_KEY = "Basic";
+	public static final String HTTP_FAILED_MSG_KEY = "Failed : HTTP error code : ";
+	public static final String CONST_ACCOUNT_TYPE = "account_type";
+	public static final String CONST_ACCOUNT_NUMBER = "account_number";
+	public static final String FUND_ACCOUNT_ID = "fund_account_id";
+	public static final String FUND_ACCOUNT = "fund_account";
+	public static final String MODE = "mode";
+	public static final String IMPS = "IMPS";
+	public static final String PURPOSE = "purpose";
+	public static final String PAYOUT = "payout";
+	public static final String LOW_BALANCE = "queue_if_low_balance";
+	public static final String NARRATION = "narration";
+	public static final String NARATION_MSG = "Penny Drop Test";
 	// Rest Methods
 	public static final String METHOD_NSDL = "NSDL";
 	public static final String METHOD_CKYC = "CKYC";
@@ -139,13 +177,10 @@ public class EkycConstants {
 	public static final String CONST_KYC_ROOT = "ROOT";
 	public static final int STATE_CODE = 1;
 	public static final int COUNTRY_CODE = 2;
-	
-	//Req_Res_Table
-		public static final String PAN ="PAN";
-		public static final String DIGI ="DIGI";
-		public static final String PAN_DOB ="PAN_DOB";
-		
 
-		
+	// Req_Res_Table
+	public static final String PAN = "PAN";
+	public static final String DIGI = "DIGI";
+	public static final String PAN_DOB = "PAN_DOB";
 
 }

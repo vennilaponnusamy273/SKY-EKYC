@@ -72,8 +72,8 @@ public class PanService implements IPanService {
 		if (isUserPresent.isPresent()) {
 			ApplicationUserEntity oldUserEntity = isUserPresent.get();
 			oldUserEntity.setDob(userEntity.getDob());
-			oldUserEntity.setStage(2.2);
 			ApplicationUserEntity savingEntity = repository.save(oldUserEntity);
+			commonMethods.UpdateStep(2.2, userEntity.getId());
 			try {
 				if (StringUtil.isNotNullOrEmpty(savingEntity.getPanNumber())
 						&& StringUtil.isNotNullOrEmpty(savingEntity.getDob())) {

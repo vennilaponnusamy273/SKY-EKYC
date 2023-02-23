@@ -44,4 +44,17 @@ public interface INomineeController {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@APIResponse(description = "Method to upload nominee file")
 	ResponseModel uploadNominee(@MultipartForm NomineeDocModel fileModel);
+
+	/**
+	 * Method to delete Nominee
+	 * 
+	 * @author prade
+	 * @param applicationId
+	 * @return
+	 */
+	@Path("/deleteNom")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to delete nominee Details")
+	ResponseModel deleteNom(@NotNull @QueryParam("id") long id);
 }

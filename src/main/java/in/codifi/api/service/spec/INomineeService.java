@@ -25,4 +25,14 @@ public interface INomineeService {
 
 	ResponseModel uploadDocNominee(NomineeDocModel fileModel);
 
+	/**
+	 * Method to delete Nominee
+	 * 
+	 * @author prade
+	 * 
+	 * @param id
+	 * @return
+	 */
+	ResponseModel deleteNom(long id);
+
 }

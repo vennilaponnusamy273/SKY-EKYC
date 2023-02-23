@@ -1,7 +1,5 @@
 package in.codifi.api.entity;
 
-import java.time.LocalDate;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,7 +34,7 @@ public class GuardianEntity extends CommonEntity {
 	private String relationship;
 
 	@Column(name = "dob")
-	private LocalDate dateofbirth;
+	private String dateOfbirth;
 
 	@Column(name = "pancard")
 	private String pancard;

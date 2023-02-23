@@ -5,6 +5,8 @@ public class MessageConstants {
 	public static final String PARAMETER_NULL = "The Given Parameter is null";
 	public static final String MOBILE_NUMBER_NULL = "The given Mobile Number is null";
 	public static final String EMAIL_ID_NULL = "The given Email Id is null";
+	public static final String RZ_EMAIL_NULL = "Email ID is Null";
+	public static final String RZ_MOBILE_NUMBER_NULL = "Mobile Number is Null";
 	public static final String PAN_NUMBER_NULL = "The given Pan Number is null";
 	public static final String USER_ID_NULL = "The given user Id is null";
 	public static final String INVLAID_PARAMETER = "The Given Parameter is Invalid";
@@ -16,7 +18,7 @@ public class MessageConstants {
 	public static final String PAN_ALREADY_AVAILABLE = "The given PAN Number is already available";
 	public static final String ERROR_WHILE_GENERATE_OTP = "Error Occur While Generating OTP";
 	public static final String ERROR_WHILE_VERIFY_OTP = "Error Occur While Verifying OTP";
-	public static final String INVALID_OTP = "The Given OTP is Invalid";
+	public static final String INVALID_OTP = "You have taken too long to enter the OTP. Please regenerate new OTP";
 	public static final String INVALID_OTP_TRY_AFTER = "The given otp is Invalid Try again after ";
 	public static final String AGE_RESTRICTION = "You Are Minor";
 	public static final String RETRY_OTP_TRY_AFTER = "Please request otp after ";
@@ -88,4 +90,8 @@ public class MessageConstants {
 	public final static String ALLOCATION_NOT_TALLY = "please give correct allocation";
 	// KRA
 	public final static String KRA_FAILED = "YOUR REQUEST COULD NOT BE PROCESSED.";
+	public final static String PENNY_DETAILS_NULL = "Contact Not Created";
+	public final static String PENNY_CONTACT_ID_NULL = "Contact Id is Null ";
+	public final static String FUND_ACCOUNT_ID_NULL = "Fund account Id is Null ";
+	public final static String ACCOUNT_IFSC_NULL = "Bank account number or IFSC is null";
 }

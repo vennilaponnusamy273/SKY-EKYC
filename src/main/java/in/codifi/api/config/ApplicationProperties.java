@@ -80,4 +80,16 @@ public class ApplicationProperties {
 	private String kraPanStatusUrl;
 	@ConfigProperty(name = "appconfig.kra.detailsfetch.url")
 	private String kraDetailsFetchUrl;
+	@ConfigProperty(name = "appconfig.check.erpnext")
+	private boolean checkErpNext;
+	@ConfigProperty(name = "appconfig.razorpay.create.contact")
+	private String rzCreateContact;
+	@ConfigProperty(name = "appconfig.razorpay.add.account")
+	private String rzAddAccount;
+	@ConfigProperty(name = "appconfig.razorpay.payout.account")
+	private String rzPennyPayout;
+	@ConfigProperty(name = "appconfig.razorpay.validate.account")
+	private String rzValidateAccount;
+	@ConfigProperty(name = "appconfig.razorpay.acc.number")
+	private String rzAccountNumber;
 }

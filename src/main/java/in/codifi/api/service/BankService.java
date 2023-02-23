@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.razorpay.Order;
 
+import in.codifi.api.controller.spec.IPennyController;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.PaymentEntity;
@@ -36,6 +37,8 @@ public class BankService implements IBankService {
 	PaymentHelper paymentHelper;
 	@Inject
 	PaymentRepository paymentRepository;
+	@Inject
+	IPennyController iPennyController;
 
 	/**
 	 * Method to save Bank Details
@@ -55,6 +58,8 @@ public class BankService implements IBankService {
 			}
 			if (updatedEntity != null && updatedEntity.getId() > 0) {
 				commonMethods.UpdateStep(5, bankEntity.getApplicationId());
+				iPennyController.addAccount(bankEntity.getApplicationId());
+				iPennyController.createPayout(bankEntity.getApplicationId());
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setResult(updatedEntity);

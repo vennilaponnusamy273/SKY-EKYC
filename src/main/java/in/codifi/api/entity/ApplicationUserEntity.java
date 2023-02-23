@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -64,5 +65,8 @@ public class ApplicationUserEntity extends CommonEntity {
 
 	@Column(name = "status")
 	private String status;
+
+	@Transient
+	private String gender;
 
 }

@@ -24,9 +24,11 @@ public class ErpRestService {
 		String param = "";
 		ErpExistingApiModel apiModel = null;
 		try {
-			ObjectMapper mapper = new ObjectMapper();
-			param = mapper.writeValueAsString(model);
-			apiModel = erpRestService.checkExistingClient(props.getErpToken(), param);
+			if (props.isCheckErpNext()) {
+				ObjectMapper mapper = new ObjectMapper();
+				param = mapper.writeValueAsString(model);
+				apiModel = erpRestService.checkExistingClient(props.getErpToken(), param);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
 
+import in.codifi.api.controller.spec.IPennyController;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.model.ResponseModel;
@@ -24,6 +25,8 @@ public class ProfileService implements IProfileService {
 	ProfileRepository profileRepository;
 	@Inject
 	CommonMethods commonMethods;
+	@Inject
+	IPennyController iPennyController;
 
 	/**
 	 * Method to save Profile Details
@@ -43,6 +46,7 @@ public class ProfileService implements IProfileService {
 			}
 			if (updatedEntity != null && updatedEntity.getId() > 0) {
 				commonMethods.UpdateStep(4, userEntity.getApplicationId());
+				iPennyController.createContact(userEntity.getApplicationId());
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setResult(updatedEntity);

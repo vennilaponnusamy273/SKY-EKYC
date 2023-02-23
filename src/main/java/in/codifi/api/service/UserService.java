@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.helper.UserHelper;
 import in.codifi.api.model.ErpExistingApiModel;
 import in.codifi.api.model.ExistingCustReqModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
+import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.restservice.ErpRestService;
 import in.codifi.api.service.spec.IUserService;
 import in.codifi.api.utilities.CommonMethods;
@@ -33,6 +35,10 @@ public class UserService implements IUserService {
 	UserHelper userHelper;
 	@Inject
 	ErpRestService erpRestService;
+	@Inject
+	AddressRepository repos;
+	@Inject
+	ProfileRepository profileRepository;
 
 	/**
 	 * Method to send otp to mobile number
@@ -264,24 +270,22 @@ public class UserService implements IUserService {
 	/**
 	 * Method to get User details
 	 */
-	@Inject
-	AddressRepository repos;
-	
-	
+
 	@Override
 	public ResponseModel getUserDetailsById(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
-		AddressEntity isAddressisPresent=repos.findByapplicationId(applicationId);
-		if(isAddressisPresent!=null)
-		{
+		AddressEntity isAddressisPresent = repos.findByapplicationId(applicationId);
+		if (isAddressisPresent != null) {
 			responseModel.setAddress_response(isAddressisPresent);
-		}
-		else
-		{
+		} else {
 			responseModel.setAddress_response(MessageConstants.ADDRESS_NOT_YET);
 		}
+		ProfileEntity profileEntity = profileRepository.findByapplicationId(applicationId);
 		if (isUserPresent.isPresent()) {
+			if (profileEntity != null && StringUtil.isNotNullOrEmpty(profileEntity.getGender())) {
+				isUserPresent.get().setGender(profileEntity.getGender());
+			}
 			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 			responseModel.setResult(isUserPresent);

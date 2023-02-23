@@ -185,7 +185,7 @@ public class CommonMethods {
 	public void UpdateStep(double step, Long ApplicationID) {
 		try {
 			Optional<ApplicationUserEntity> checkApplicationID = repos.findById(ApplicationID);
-			if (checkApplicationID != null) {
+			if (checkApplicationID.isPresent() && checkApplicationID.get().getStage() < step) {
 				ApplicationUserEntity oldUserEntity = checkApplicationID.get();
 				oldUserEntity.setStage(step);
 				repos.save(oldUserEntity);
@@ -234,37 +234,36 @@ public class CommonMethods {
 	 * @param applicationId
 	 * @return
 	 */
-	public void Req_Res_Save_object(Object reqe,Object res,String type,long id)
-	{
+	public void Req_Res_Save_object(Object reqe, Object res, String type, long id) {
 		try {
-		ObjectMapper mapper = new ObjectMapper();
-		String Req = mapper.writeValueAsString(reqe);
-		String Res;
-		Res = mapper.writeValueAsString(res);
-		System.out.println("req"+Req);
-		System.out.println("res"+Res);
-		saveRequestAndResposne(Req,Res,type, id);
+			ObjectMapper mapper = new ObjectMapper();
+			String Req = mapper.writeValueAsString(reqe);
+			String Res;
+			Res = mapper.writeValueAsString(res);
+			System.out.println("req" + Req);
+			System.out.println("res" + Res);
+			saveRequestAndResposne(Req, Res, type, id);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void saveRequestAndResposne(String req, String res, String method, long applicationId) {
-		ReqResEntity savedResult = null;
+//		ReqResEntity savedResult = null;
 		if (StringUtil.isNotNullOrEmpty(req) && StringUtil.isNotNullOrEmpty(res) && StringUtil.isNotNullOrEmpty(method)
 				&& applicationId > 0) {
 			ReqResEntity oldReqRes = reqResRepository.findByApplicationIdAndType(applicationId, method);
 			if (oldReqRes != null) {
 				oldReqRes.setRequest(req);
 				oldReqRes.setResponse(res);
-				savedResult = reqResRepository.save(oldReqRes);
+				reqResRepository.save(oldReqRes);
 			} else {
 				ReqResEntity savingResult = new ReqResEntity();
 				savingResult.setApplicationId(applicationId);
 				savingResult.setType(method);
 				savingResult.setRequest(req);
 				savingResult.setResponse(res);
-				savedResult = reqResRepository.save(savingResult);
+				reqResRepository.save(savingResult);
 			}
 
 		}

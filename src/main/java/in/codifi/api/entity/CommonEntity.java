@@ -16,27 +16,27 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CommonEntity {
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-	@Column(name = "CREATED_ON", insertable = false, updatable = false)
+	@Column(name = "created_on", insertable = false, updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	@CreationTimestamp
 	private Date createdOn;
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-	@Column(name = "UPDATED_ON")
+	@Column(name = "updated_on")
 	@UpdateTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updatedOn;
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-	@Column(name = "CREATED_BY")
+	@Column(name = "created_by")
 	private String createdBy;
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-	@Column(name = "UPDATED_BY")
+	@Column(name = "updated_by")
 	private String updatedBy;
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-	@Column(name = "ACTIVE_STATUS")
+	@Column(name = "active_status")
 	private int activeStatus = 1;
 
 	public Date getCreatedOn() {
