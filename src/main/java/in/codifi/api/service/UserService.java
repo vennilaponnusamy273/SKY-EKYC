@@ -10,14 +10,18 @@ import org.springframework.stereotype.Service;
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.entity.PennyDropEntity;
 import in.codifi.api.entity.ProfileEntity;
+import in.codifi.api.entity.SegmentEntity;
 import in.codifi.api.helper.UserHelper;
 import in.codifi.api.model.ErpExistingApiModel;
 import in.codifi.api.model.ExistingCustReqModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
+import in.codifi.api.repository.PennyDropRepository;
 import in.codifi.api.repository.ProfileRepository;
+import in.codifi.api.repository.SegmentRepository;
 import in.codifi.api.restservice.ErpRestService;
 import in.codifi.api.service.spec.IUserService;
 import in.codifi.api.utilities.CommonMethods;
@@ -40,6 +44,12 @@ public class UserService implements IUserService {
 	@Inject
 	ProfileRepository profileRepository;
 
+	@Inject
+	SegmentRepository segmentRepository;
+	
+	@Inject
+	PennyDropRepository PennyRepository;
+	
 	/**
 	 * Method to send otp to mobile number
 	 */
@@ -295,5 +305,44 @@ public class UserService implements IUserService {
 		}
 		return responseModel;
 	}
+	
+	@Override
+	public ResponseModel BankStatementCheck(long applicationId)
+	{
+		ResponseModel responseModel = new ResponseModel();
+		try
+		{
+		Optional<ApplicationUserEntity> user = repository.findById(applicationId);
+		String PanUser=user.get().getUserName();
+		PennyDropEntity PennyUser=PennyRepository.findByapplicationId(applicationId);
+		String Pennyuser=PennyUser.getAccountHolderName();
+		SegmentEntity savedSegmentEntity = segmentRepository.findByapplicationId(applicationId);
+		if(PennyUser!=null &&user!=null && savedSegmentEntity!=null)
+		{
+		int CheckDerivatives=savedSegmentEntity.getDerivatives();
+		if(CheckDerivatives==1 || PanUser==Pennyuser)
+		{
+			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+			responseModel.setResult(EkycConstants.NO_NEED_BANK_STATEMENT);
+		}
+		else
+		{
+			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+			responseModel.setResult(EkycConstants.NEED_BANK_STATEMENT);
+		} 
+		}
+		else
+		{
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_DETAILS_INVALID);	
+		}
+		}catch (Exception e) {
+			e.printStackTrace();
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
+		return responseModel;
+	}
+	
 
 }
