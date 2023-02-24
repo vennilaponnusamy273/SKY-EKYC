@@ -5,9 +5,11 @@ import javax.ws.rs.Path;
 
 import in.codifi.api.controller.spec.IProfileController;
 import in.codifi.api.entity.ProfileEntity;
+import in.codifi.api.filter.MyFilter;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IProfileService;
 import in.codifi.api.utilities.CommonMethods;
+import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 
 @Path("/profile")
@@ -17,6 +19,8 @@ public class ProfileController implements IProfileController {
 	@Inject
 	CommonMethods commonMethods;
 
+	@Inject
+	MyFilter filter;
 	/**
 	 * Method to save Profile Details
 	 */
@@ -32,6 +36,7 @@ public class ProfileController implements IProfileController {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
 			}
 		}
+		filter.Access_Req_Res_Save_object(profileEntity,responseModel,EkycConstants.PROFILE,profileEntity.getId());
 		return responseModel;
 	}
 

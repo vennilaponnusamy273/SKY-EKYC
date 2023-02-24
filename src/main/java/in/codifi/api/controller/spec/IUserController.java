@@ -109,4 +109,10 @@ public interface IUserController {
 	ResponseModel updateStage(@NotNull @QueryParam("applicationId") long applicationId,
 			@QueryParam("stage") double stage);
 
+
+	@Path("/getBankStatement")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to get Profile Details")
+	ResponseModel getBankStatementStatus(@NotNull @QueryParam("applicationId") long applicationId);
 }

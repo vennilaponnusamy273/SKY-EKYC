@@ -94,4 +94,6 @@ public class MessageConstants {
 	public final static String PENNY_CONTACT_ID_NULL = "Contact Id is Null ";
 	public final static String FUND_ACCOUNT_ID_NULL = "Fund account Id is Null ";
 	public final static String ACCOUNT_IFSC_NULL = "Bank account number or IFSC is null";
+	//BANK STATEMENT
+	public static final String USER_DETAILS_INVALID = "The details are not vaild ";
 }

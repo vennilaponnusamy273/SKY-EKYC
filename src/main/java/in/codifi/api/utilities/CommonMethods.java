@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -126,17 +127,13 @@ public class CommonMethods {
 	 * @param user
 	 * @return
 	 */
-	public void sendMailOtp(int otp, String emailId) {
-		try {
-			String getSubject = props.getMailSubject();
-			String getText = otp + " " + props.getMailText();
-			Mail mail = Mail.withText(emailId, getSubject, getText);
-			mailer.send(mail);
-			System.out.print("the post mail" + mail);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	public void sendMailOtp(int otp, String emailId) throws MessagingException {
+		String getSubject = props.getMailSubject();
+		String getText = otp + " " + props.getMailText();
+		Mail mail = Mail.withText(emailId, getSubject, getText);
+		mailer.send(mail);
+		System.out.print("the post mail" + mail);
+	    }
 
 	/**
 	 * Trust Management

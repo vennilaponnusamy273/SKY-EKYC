@@ -7,10 +7,12 @@ import javax.ws.rs.Path;
 
 import in.codifi.api.controller.spec.IPennyController;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.filter.MyFilter;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.service.spec.IPennyService;
 import in.codifi.api.utilities.CommonMethods;
+import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 
 @Path("/penny")
@@ -21,6 +23,8 @@ public class PennyController implements IPennyController {
 	CommonMethods commonMethods;
 	@Inject
 	IPennyService iPennyService;
+	@Inject
+	MyFilter filter;
 
 	/**
 	 * Method to Create Contact for penny drop
@@ -38,6 +42,7 @@ public class PennyController implements IPennyController {
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 		}
+		filter.Access_Req_Res_Save_object(applicationId,responseModel,EkycConstants.CREATE_CONTACT,applicationId);
 		return responseModel;
 	}
 
@@ -57,6 +62,7 @@ public class PennyController implements IPennyController {
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 		}
+		filter.Access_Req_Res_Save_object(applicationId,responseModel,EkycConstants.ADD_ACOUNT,applicationId);
 		return responseModel;
 	}
 
@@ -76,6 +82,7 @@ public class PennyController implements IPennyController {
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 		}
+		filter.Access_Req_Res_Save_object(applicationId,responseModel,EkycConstants.CREATE_PAYOUT,applicationId);
 		return responseModel;
 	}
 
