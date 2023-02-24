@@ -48,4 +48,15 @@ public interface IUserService {
 	 * @return
 	 */
 	ResponseModel getUserDetailsById(long applicationId);
+	
+	/**
+	 * Method to get Bank Statement details
+	 * 
+	 * @author prade
+	 * @param applicationId
+	 * @return
+	 */
+	
+
+	ResponseModel BankStatementCheck(long applicationId);
 }

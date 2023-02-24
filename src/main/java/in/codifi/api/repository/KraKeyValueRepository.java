@@ -11,7 +11,7 @@ import in.codifi.api.entity.KraKeyValueEntity;
 public interface KraKeyValueRepository extends CrudRepository<KraKeyValueEntity, Long> {
 
 	@Transactional
-	@Query(value = " SELECT kraValue FROM tbl_kra_keyvalue_pair as A where A.masterId = :masterId and A.masterName = :masterName  and A.kraKey = :kraKey;")
+	@Query(value = " SELECT kraValue FROM tbl_kra_keyvalue_pair as A where A.masterId = :masterId and A.masterName = :masterName  and A.kraKey = :kraKey")
 	String getkeyValueForKra(@Param("masterId") String masterId, @Param("masterName") String masterName,
 			@Param("kraKey") String kraKey);
 }

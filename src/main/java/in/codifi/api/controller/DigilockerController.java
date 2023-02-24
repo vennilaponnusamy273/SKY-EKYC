@@ -6,6 +6,7 @@ import javax.ws.rs.Path;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.codifi.api.controller.spec.IDigilockerController;
+import in.codifi.api.filter.MyFilter;
 import in.codifi.api.helper.DigilockerHelper;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IDigilockerService;
@@ -23,6 +24,8 @@ public class DigilockerController implements IDigilockerController {
 	@Inject
 	IDigilockerService service;
 
+	@Inject
+	MyFilter filter;
 	/**
 	 * Method to intialize digilocker
 	 * 
@@ -62,6 +65,7 @@ public class DigilockerController implements IDigilockerController {
 		ObjectMapper mapper = new ObjectMapper();
 		String Res = mapper.writeValueAsString(responseModel);
 		commonMethods.saveRequestAndResposne(Request_tble,Res,EkycConstants.DIGI,applicationId);
+		filter.saveAccessRequestAndResposne(Request_tble,Res,EkycConstants.DIGI,applicationId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());

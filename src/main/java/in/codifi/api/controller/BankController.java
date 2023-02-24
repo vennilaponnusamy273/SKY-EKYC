@@ -8,10 +8,12 @@ import javax.ws.rs.Path;
 import in.codifi.api.controller.spec.IBankController;
 import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.PaymentEntity;
+import in.codifi.api.filter.MyFilter;
 import in.codifi.api.helper.PaymentHelper;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IBankService;
 import in.codifi.api.utilities.CommonMethods;
+import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
@@ -24,6 +26,8 @@ public class BankController implements IBankController {
 	@Inject
 	PaymentHelper paymentHelper;
 
+	@Inject
+	MyFilter filter;
 	/**
 	 * Method to save Bank Details
 	 */
@@ -39,6 +43,7 @@ public class BankController implements IBankController {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
 			}
 		}
+		filter.Access_Req_Res_Save_object(bankEntity,responseModel,EkycConstants.BANK,bankEntity.getApplicationId());
 		return responseModel;
 	}
 
@@ -83,6 +88,7 @@ public class BankController implements IBankController {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.INVLAID_PARAMETER);
 			responseModel.setResult(errorMsg);
 		}
+		filter.Access_Req_Res_Save_object(paymentEntity,responseModel,EkycConstants.CREATE_PAYMENT,paymentEntity.getApplicationId());
 		return responseModel;
 	}
 
@@ -99,6 +105,7 @@ public class BankController implements IBankController {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.INVLAID_PARAMETER);
 			responseModel.setResult(errorMsg);
 		}
+		filter.Access_Req_Res_Save_object(paymentEntity,responseModel,EkycConstants.VERIFY_PAYMENT,paymentEntity.getApplicationId());
 		return responseModel;
 	}
 
