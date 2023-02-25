@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Entity(name = "TBL_ACCESS_LOG_DETAILS")
+@Entity(name = "tbl_access_log_details")
 public class AccesslogEntity extends CommonEntity {
 
 	@Id

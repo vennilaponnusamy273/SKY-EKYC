@@ -109,10 +109,30 @@ public interface IUserController {
 	ResponseModel updateStage(@NotNull @QueryParam("applicationId") long applicationId,
 			@QueryParam("stage") double stage);
 
-
+	/**
+	 * Method to get Bank Details
+	 * 
+	 * @param applicationId
+	 * @return
+	 */
+//TODO
 	@Path("/getBankStatement")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to get Profile Details")
 	ResponseModel getBankStatementStatus(@NotNull @QueryParam("applicationId") long applicationId);
+
+	/**
+	 * Method to create new user in keycloak
+	 * 
+	 * @author prade
+	 * @param userEntity
+	 * @return
+	 */
+	@Path("/creation")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to save DOB")
+	public ResponseModel userCreation(@RequestBody ApplicationUserEntity userEntity);
 }

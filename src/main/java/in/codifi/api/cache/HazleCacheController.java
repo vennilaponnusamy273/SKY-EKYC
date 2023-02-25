@@ -1,5 +1,7 @@
 package in.codifi.api.cache;
 
+import java.util.Map;
+
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
@@ -30,6 +32,7 @@ public class HazleCacheController {
 	IMap<String, Integer> resendOtp = getHz().getMap("resendOtp"); // 30 seconds for both sms and email
 	IMap<String, Integer> retryOtp = getHz().getMap("retryOtp"); // five minutes for both sms and email
 	IMap<String, Integer> verifyOtp = getHz().getMap("verifyOtp");
+	private Map<String, String> keycloakAdminSession = getHz().getMap("keycloakAdminSession");
 
 	public IMap<String, Integer> getRetryOtp() {
 		return retryOtp;
@@ -54,4 +57,13 @@ public class HazleCacheController {
 	public void setResendOtp(IMap<String, Integer> resendOtp) {
 		this.resendOtp = resendOtp;
 	}
+
+	public Map<String, String> getKeycloakAdminSession() {
+		return keycloakAdminSession;
+	}
+
+	public void setKeycloakAdminSession(Map<String, String> keycloakAdminSession) {
+		this.keycloakAdminSession = keycloakAdminSession;
+	}
+
 }

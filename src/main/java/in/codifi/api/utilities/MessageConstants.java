@@ -10,6 +10,7 @@ public class MessageConstants {
 	public static final String PAN_NUMBER_NULL = "The given Pan Number is null";
 	public static final String USER_ID_NULL = "The given user Id is null";
 	public static final String INVLAID_PARAMETER = "The Given Parameter is Invalid";
+	public static final String NULL_PASSWORD = "The Given password is Null";
 	public static final String USER_ID_INVALID = "The given user Id is Invalid";
 	public static final String ADDRESS_NOT_YET = "Address details not Yet";
 	public static final String MOBILE_NUMBER_WRONG = "The given Mobile Number is wrong";
@@ -70,6 +71,7 @@ public class MessageConstants {
 	// Payment
 	public static final String AMOUNT_NULL = "Amount is Zero";
 	public static final String RECEIPT_NULL = "Receipt is null";
+	public static final String VERIFY_URL_NULL = "Verify URL is null";
 	public static final String PAYMENT_CREATION_FAILED = "Payment Creation Failed Check Server!";
 	public static final String PAYMENT_ALREADY_CREATED = "Payment already Created";
 	public static final String ERROR_WHILE_SAVE_CREATE_PAYMENT = "Error Occur While Saving Create Payment";
@@ -94,6 +96,6 @@ public class MessageConstants {
 	public final static String PENNY_CONTACT_ID_NULL = "Contact Id is Null ";
 	public final static String FUND_ACCOUNT_ID_NULL = "Fund account Id is Null ";
 	public final static String ACCOUNT_IFSC_NULL = "Bank account number or IFSC is null";
-	//BANK STATEMENT
+	// BANK STATEMENT
 	public static final String USER_DETAILS_INVALID = "The details are not vaild ";
 }

@@ -57,6 +57,9 @@ public class ApplicationUserEntity extends CommonEntity {
 	@Column(name = "pan_number")
 	private String panNumber;
 
+	@Column(name = "pwd")
+	private String password;
+
 	@Column(name = "dob")
 	private String dob;
 

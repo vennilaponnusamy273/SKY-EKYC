@@ -4,13 +4,11 @@ import javax.inject.Inject;
 import javax.ws.rs.Path;
 
 import in.codifi.api.controller.spec.IDocUpController;
-import in.codifi.api.filter.MyFilter;
 import in.codifi.api.model.FormDataModel;
 import in.codifi.api.model.IvrModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IDocumentService;
 import in.codifi.api.utilities.CommonMethods;
-import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 
 @Path("/doc")
@@ -19,9 +17,6 @@ public class DocUpController implements IDocUpController {
 	IDocumentService docservice;
 	@Inject
 	CommonMethods commonMethods;
-
-	@Inject
-	MyFilter filter;
 	/**
 	 * Method to Upload proof Documnt
 	 */
@@ -37,7 +32,6 @@ public class DocUpController implements IDocUpController {
 				response = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 			}
 		}
-		filter.Access_Req_Res_Save_object(fileModel,response,EkycConstants.DOC_UPLOAD,fileModel.getApplicationId());
 		return response;
 	}
 
@@ -56,7 +50,6 @@ public class DocUpController implements IDocUpController {
 				response = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 			}
 		}
-		filter.Access_Req_Res_Save_object(ivrModel,response,EkycConstants.IVR_UPLOAD,ivrModel.getApplicationId());
 		return response;
 	}
 

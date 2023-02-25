@@ -1,5 +1,7 @@
 package in.codifi.api.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -14,6 +16,8 @@ import in.codifi.api.entity.PennyDropEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.entity.SegmentEntity;
 import in.codifi.api.helper.UserHelper;
+import in.codifi.api.model.CreateUserCredentialsModel;
+import in.codifi.api.model.CreateUserRequestModel;
 import in.codifi.api.model.ErpExistingApiModel;
 import in.codifi.api.model.ExistingCustReqModel;
 import in.codifi.api.model.ResponseModel;
@@ -46,9 +50,10 @@ public class UserService implements IUserService {
 
 	@Inject
 	SegmentRepository segmentRepository;
-	
+
 	@Inject
 	PennyDropRepository PennyRepository;
+
 	
 	/**
 	 * Method to send otp to mobile number
@@ -305,44 +310,68 @@ public class UserService implements IUserService {
 		}
 		return responseModel;
 	}
-	
+
 	@Override
-	public ResponseModel BankStatementCheck(long applicationId)
-	{
+	public ResponseModel BankStatementCheck(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
-		try
-		{
-		Optional<ApplicationUserEntity> user = repository.findById(applicationId);
-		String PanUser=user.get().getUserName();
-		PennyDropEntity PennyUser=PennyRepository.findByapplicationId(applicationId);
-		String Pennyuser=PennyUser.getAccountHolderName();
-		SegmentEntity savedSegmentEntity = segmentRepository.findByapplicationId(applicationId);
-		if(PennyUser!=null &&user!=null && savedSegmentEntity!=null)
-		{
-		int CheckDerivatives=savedSegmentEntity.getDerivatives();
-		if(CheckDerivatives==1 || PanUser==Pennyuser)
-		{
-			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-			responseModel.setResult(EkycConstants.NO_NEED_BANK_STATEMENT);
-		}
-		else
-		{
-			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-			responseModel.setResult(EkycConstants.NEED_BANK_STATEMENT);
-		} 
-		}
-		else
-		{
-			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_DETAILS_INVALID);	
-		}
-		}catch (Exception e) {
+		try {
+			Optional<ApplicationUserEntity> user = repository.findById(applicationId);
+			String PanUser = user.get().getUserName();
+			PennyDropEntity PennyUser = PennyRepository.findByapplicationId(applicationId);
+			String Pennyuser = PennyUser.getAccountHolderName();
+			SegmentEntity savedSegmentEntity = segmentRepository.findByapplicationId(applicationId);
+			if (PennyUser != null && user != null && savedSegmentEntity != null) {
+				int CheckDerivatives = savedSegmentEntity.getDerivatives();
+				if (CheckDerivatives == 1 || PanUser == Pennyuser) {
+					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+					responseModel.setResult(EkycConstants.NO_NEED_BANK_STATEMENT);
+				} else {
+					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+					responseModel.setResult(EkycConstants.NEED_BANK_STATEMENT);
+				}
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_DETAILS_INVALID);
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
-	
+
+	/**
+	 * Method to create new user in keycloak
+	 */
+	@Override
+	public ResponseModel userCreation(ApplicationUserEntity userEntity) {
+		ResponseModel responseModel = new ResponseModel();
+		Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
+		if (isUserPresent.isPresent()) {
+			ApplicationUserEntity savingEntity = isUserPresent.get();
+			savingEntity.setPassword(userEntity.getPassword());
+			ApplicationUserEntity savedEntity = repository.save(savingEntity);
+			if (savedEntity != null) {
+				CreateUserRequestModel requestModel = new CreateUserRequestModel();
+				List<CreateUserCredentialsModel> userCredentilList = new ArrayList<>();
+				requestModel.setEmail(savedEntity.getEmailId());
+				requestModel.setUsername(savedEntity.getMobileNo().toString());
+				requestModel.setFirstName(savedEntity.getFirstName());
+				requestModel.setLastName(savedEntity.getLastName());
+				CreateUserCredentialsModel credentialsModel = new CreateUserCredentialsModel();
+				credentialsModel.setType("password");
+				credentialsModel.setValue(savedEntity.getPassword());
+				userCredentilList.add(credentialsModel);
+				requestModel.setCredentials(userCredentilList);
+				// TO DO
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
+			}
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_DETAILS_INVALID);
+		}
+		return responseModel;
+	}
 
 }

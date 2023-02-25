@@ -48,7 +48,7 @@ public interface IUserService {
 	 * @return
 	 */
 	ResponseModel getUserDetailsById(long applicationId);
-	
+
 	/**
 	 * Method to get Bank Statement details
 	 * 
@@ -56,7 +56,15 @@ public interface IUserService {
 	 * @param applicationId
 	 * @return
 	 */
-	
 
 	ResponseModel BankStatementCheck(long applicationId);
+
+	/**
+	 * Method to create new user in keycloak
+	 * 
+	 * @author prade
+	 * @param userEntity
+	 * @return
+	 */
+	ResponseModel userCreation(ApplicationUserEntity userEntity);
 }

@@ -5,11 +5,9 @@ import javax.ws.rs.Path;
 
 import in.codifi.api.controller.spec.ISegmentController;
 import in.codifi.api.entity.SegmentEntity;
-import in.codifi.api.filter.MyFilter;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.ISegmentService;
 import in.codifi.api.utilities.CommonMethods;
-import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 
 @Path("/segment")
@@ -19,8 +17,6 @@ public class SegmentController implements ISegmentController {
 	@Inject
 	CommonMethods commonMethods;
 
-	@Inject
-	MyFilter filter;
 	/**
 	 * Method to save Segment Details
 	 */
@@ -36,7 +32,6 @@ public class SegmentController implements ISegmentController {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
 			}
 		}
-		filter.Access_Req_Res_Save_object(segmentEntity,responseModel,EkycConstants.SEGMENT,segmentEntity.getId());
 		return responseModel;
 	}
 

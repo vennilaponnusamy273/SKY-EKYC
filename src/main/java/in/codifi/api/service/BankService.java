@@ -139,11 +139,12 @@ public class BankService implements IBankService {
 	 * Method to verify payment
 	 */
 	@Override
-	public ResponseModel verifyPayment(PaymentEntity paymentEntity) {
+	public ResponseModel verifyPayment(PaymentEntity params) {
 		ResponseModel responseModel = new ResponseModel();
-		boolean isEqual = paymentHelper.verifyPayment(paymentEntity);
-		if (isEqual) {
-			PaymentEntity savedEntity = paymentHelper.saveVerifyPayment(paymentEntity);
+		PaymentEntity paymentEntity = paymentRepository.findByApplicationId(params.getApplicationId());
+		if (paymentEntity != null) {
+			paymentEntity.setVerifyUrl(params.getVerifyUrl());
+			PaymentEntity savedEntity = paymentHelper.verifyPayment(paymentEntity);
 			if (savedEntity != null) {
 				commonMethods.UpdateStep(7, paymentEntity.getApplicationId());
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
@@ -151,10 +152,10 @@ public class BankService implements IBankService {
 				responseModel.setPage(EkycConstants.PAGE_NOMINEE);
 				responseModel.setResult(savedEntity);
 			} else {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVE_VERIFY_PAYMENT);
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.VERIFY_NOT_SUCCEED);
 			}
 		} else {
-			responseModel = commonMethods.constructFailedMsg(MessageConstants.VERIFY_NOT_SUCCEED);
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.PAYMENT_CREATION_FAILED);
 		}
 		return responseModel;
 	}

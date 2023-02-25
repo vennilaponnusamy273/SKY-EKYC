@@ -5,12 +5,10 @@ import javax.ws.rs.Path;
 
 import in.codifi.api.controller.spec.IUserController;
 import in.codifi.api.entity.ApplicationUserEntity;
-import in.codifi.api.filter.MyFilter;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.service.spec.IUserService;
 import in.codifi.api.utilities.CommonMethods;
-import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
@@ -20,12 +18,9 @@ public class UserController implements IUserController {
 	CommonMethods commonMethods;
 	@Inject
 	IUserService iUserService;
-
-	@Inject 
-	ApplicationUserRepository applicationUserRepository;
-	
 	@Inject
-	MyFilter filter;
+	ApplicationUserRepository applicationUserRepository;
+
 	/**
 	 * test Method
 	 */
@@ -60,7 +55,8 @@ public class UserController implements IUserController {
 	@Override
 	public ResponseModel verifySmsOtp(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
-		ApplicationUserEntity getUserIdfromMobileNo=applicationUserRepository.findByMobileNo(userEntity.getMobileNo());
+		ApplicationUserEntity getUserIdfromMobileNo = applicationUserRepository
+				.findByMobileNo(userEntity.getMobileNo());
 		if (userEntity != null && userEntity.getMobileNo() != null && userEntity.getMobileNo() > 0) {
 			responseModel = iUserService.verifySmsOtp(userEntity);
 		} else {
@@ -70,7 +66,6 @@ public class UserController implements IUserController {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.MOBILE_NUMBER_NULL);
 			}
 		}
-		filter.Access_Req_Res_Save_object(userEntity, responseModel,EkycConstants.SMS_VERIFY,getUserIdfromMobileNo.getId());
 		return responseModel;
 	}
 
@@ -93,7 +88,6 @@ public class UserController implements IUserController {
 				}
 			}
 		}
-		filter.Access_Req_Res_Save_object(userEntity,responseModel,EkycConstants.EMAIL,userEntity.getId());
 		return responseModel;
 
 	}
@@ -105,7 +99,7 @@ public class UserController implements IUserController {
 	@Override
 	public ResponseModel verifyEmailOtp(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
-		ApplicationUserEntity getUserIdfromEmail=applicationUserRepository.findByEmailId(userEntity.getEmailId());
+		ApplicationUserEntity getUserIdfromEmail = applicationUserRepository.findByEmailId(userEntity.getEmailId());
 		if (userEntity != null && StringUtil.isNotNullOrEmpty(userEntity.getEmailId())) {
 			responseModel = iUserService.verifyEmailOtp(userEntity);
 		} else {
@@ -115,7 +109,6 @@ public class UserController implements IUserController {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.EMAIL_ID_NULL);
 			}
 		}
-		filter.Access_Req_Res_Save_object(userEntity,responseModel,EkycConstants.EMAIL_VERIFY,getUserIdfromEmail.getId());
 		return responseModel;
 	}
 
@@ -147,6 +140,7 @@ public class UserController implements IUserController {
 		}
 		return responseModel;
 	}
+
 	@Override
 	public ResponseModel getBankStatementStatus(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
@@ -154,6 +148,25 @@ public class UserController implements IUserController {
 			responseModel = iUserService.BankStatementCheck(applicationId);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to create new user in keycloak
+	 */
+	@Override
+	public ResponseModel userCreation(ApplicationUserEntity userEntity) {
+		ResponseModel responseModel = new ResponseModel();
+		if (userEntity.getId() != null && userEntity.getId() > 0
+				&& StringUtil.isNotNullOrEmpty(userEntity.getPassword())) {
+			responseModel = iUserService.userCreation(userEntity);
+		} else {
+			if (StringUtil.isNullOrEmpty(userEntity.getPassword())) {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.NULL_PASSWORD);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+			}
 		}
 		return responseModel;
 	}

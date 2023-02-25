@@ -65,4 +65,7 @@ public class PaymentEntity extends CommonEntity {
 
 	@Column(name = "order_id")
 	private int orderId;
+
+	@Column(name = "verify_url")
+	private String verifyUrl;
 }
