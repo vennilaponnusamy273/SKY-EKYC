@@ -6,16 +6,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.bind.DatatypeConverter;
-
-import org.springframework.stereotype.Service;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 
-@Service
+@ApplicationScoped
 public class DocumentHelper {
 	private static String OS = System.getProperty("os.name").toLowerCase();
 	@Inject

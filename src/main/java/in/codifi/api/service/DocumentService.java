@@ -9,12 +9,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
-import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,7 +34,7 @@ import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
-@Service
+@ApplicationScoped
 public class DocumentService implements IDocumentService {
 	private static String OS = System.getProperty("os.name").toLowerCase();
 	@Inject

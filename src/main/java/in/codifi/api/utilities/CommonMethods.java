@@ -133,7 +133,7 @@ public class CommonMethods {
 		Mail mail = Mail.withText(emailId, getSubject, getText);
 		mailer.send(mail);
 		System.out.print("the post mail" + mail);
-	    }
+	}
 
 	/**
 	 * Trust Management

@@ -73,6 +73,7 @@ public class MessageConstants {
 	public static final String RECEIPT_NULL = "Receipt is null";
 	public static final String VERIFY_URL_NULL = "Verify URL is null";
 	public static final String PAYMENT_CREATION_FAILED = "Payment Creation Failed Check Server!";
+	public static final String NOT_FOUND_DATA = "No Record Found for this application ID";
 	public static final String PAYMENT_ALREADY_CREATED = "Payment already Created";
 	public static final String ERROR_WHILE_SAVE_CREATE_PAYMENT = "Error Occur While Saving Create Payment";
 	public static final String ERROR_WHILE_SAVE_VERIFY_PAYMENT = "Error Occur While Saving Verify Payment";

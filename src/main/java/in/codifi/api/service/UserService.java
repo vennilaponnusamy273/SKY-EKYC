@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import org.springframework.stereotype.Service;
 
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.entity.AddressEntity;
@@ -27,13 +26,14 @@ import in.codifi.api.repository.PennyDropRepository;
 import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.repository.SegmentRepository;
 import in.codifi.api.restservice.ErpRestService;
+import in.codifi.api.restservice.keycloak.KeyCloakAdminRestService;
 import in.codifi.api.service.spec.IUserService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
-@Service
+@ApplicationScoped
 public class UserService implements IUserService {
 	@Inject
 	ApplicationUserRepository repository;
@@ -47,14 +47,13 @@ public class UserService implements IUserService {
 	AddressRepository repos;
 	@Inject
 	ProfileRepository profileRepository;
-
 	@Inject
 	SegmentRepository segmentRepository;
-
 	@Inject
 	PennyDropRepository PennyRepository;
+	@Inject
+	KeyCloakAdminRestService keyCloakAdminRestService;
 
-	
 	/**
 	 * Method to send otp to mobile number
 	 */
@@ -357,14 +356,17 @@ public class UserService implements IUserService {
 				List<CreateUserCredentialsModel> userCredentilList = new ArrayList<>();
 				requestModel.setEmail(savedEntity.getEmailId());
 				requestModel.setUsername(savedEntity.getMobileNo().toString());
-				requestModel.setFirstName(savedEntity.getFirstName());
-				requestModel.setLastName(savedEntity.getLastName());
+				requestModel.setFirstName("Guest");
+				requestModel.setLastName("User");
+				requestModel.setEnabled(true);
+				requestModel.setEmailVerified(true);
 				CreateUserCredentialsModel credentialsModel = new CreateUserCredentialsModel();
 				credentialsModel.setType("password");
 				credentialsModel.setValue(savedEntity.getPassword());
 				userCredentilList.add(credentialsModel);
 				requestModel.setCredentials(userCredentilList);
-				// TO DO
+				String message = keyCloakAdminRestService.addNewUser(requestModel);
+				responseModel.setReason(message);
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
 			}

@@ -54,6 +54,4 @@ public class ProfileEntity extends CommonEntity {
 	@Column(name = "legal_action")
 	private String legalAction;
 
-	
-
 }

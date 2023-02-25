@@ -8,11 +8,11 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.json.JSONObject;
 import org.json.XML;
-import org.springframework.stereotype.Service;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
@@ -24,7 +24,7 @@ import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 
-@Service
+@ApplicationScoped
 public class KRAHelper {
 	@Inject
 	ApplicationProperties properties;
@@ -131,21 +131,18 @@ public class KRAHelper {
 			StringBuilder sb = new StringBuilder();
 			while ((output = br1.readLine()) != null) {
 				sb.append(output);
-				System.out.println(output);
 			}
+			System.out.println("output" + output);
 			JSONObject xmlJSONObj = XML.toJSONObject(sb.toString());
-			if (xmlJSONObj != null) {
-				JSONObject rootJson = xmlJSONObj.getJSONObject(EkycConstants.CONST_KYC_ROOT);
-				JSONObject kycData = null;
-				if (rootJson.has(EkycConstants.CONST_KYC_DATA)) {
-					kycData = rootJson.getJSONObject(EkycConstants.CONST_KYC_DATA);
-					return kycData;
-				} else {
-					kycData = rootJson.getJSONObject(EkycConstants.CONST_KRA_ERROR);
-					return kycData;
-				}
+			System.out.println(xmlJSONObj.toString());
+			JSONObject rootJson = xmlJSONObj.getJSONObject(EkycConstants.CONST_KYC_ROOT);
+			JSONObject kycData = null;
+			if (rootJson.has(EkycConstants.CONST_KYC_DATA)) {
+				kycData = rootJson.getJSONObject(EkycConstants.CONST_KYC_DATA);
+				return kycData;
 			} else {
-				return null;
+				kycData = rootJson.getJSONObject(EkycConstants.CONST_KRA_ERROR);
+				return kycData;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -220,6 +217,7 @@ public class KRAHelper {
 			addressEntity.setKraCity(corrsCity);
 			addressEntity.setKraPin(corrsPinCode);
 //		org.json.JSONObject corssState = EKycDAO.getInstance().getKeyValueForKRA(EkycConstants.STATE_CODE, corrsState);
+			System.out.println(corrsState);
 			addressEntity.setKraState(keyValueRepository.getkeyValueForKra(Integer.toString(1), "STATE", corrsState));
 
 			String perAddress1 = kraDetails.getString("APP_PER_ADD1");

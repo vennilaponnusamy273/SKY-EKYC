@@ -51,7 +51,6 @@ public interface IPennyController {
 	@APIResponse(description = "Method add put penny amount")
 	ResponseModel createPayout(@NotNull @QueryParam("applicationId") long applicationId);
 
-
 	/**
 	 * Method to Validate Penny Details
 	 * 

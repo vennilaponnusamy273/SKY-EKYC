@@ -77,7 +77,7 @@ public interface IBankController {
 	 * @return
 	 */
 	@Path("/verifyPayment")
-	@GET
+	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to verify payment")
 	ResponseModel verifyPayment(PaymentEntity paymentEntity);

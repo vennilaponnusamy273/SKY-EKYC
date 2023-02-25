@@ -3,9 +3,8 @@ package in.codifi.api.helper;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import org.springframework.stereotype.Service;
 
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.entity.AddressEntity;
@@ -22,7 +21,7 @@ import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 
-@Service
+@ApplicationScoped
 public class UserHelper {
 	@Inject
 	ApplicationUserRepository repository;

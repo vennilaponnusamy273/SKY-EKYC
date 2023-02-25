@@ -2,9 +2,8 @@ package in.codifi.api.service;
 
 import java.util.Optional;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import org.springframework.stereotype.Service;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
@@ -15,7 +14,7 @@ import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 
-@Service
+@ApplicationScoped
 public class DigilockerService implements IDigilockerService {
 	@Inject
 	ApplicationUserRepository repository;

@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Optional;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
@@ -44,9 +45,6 @@ import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.util.encoders.Base64;
 import org.json.simple.JSONObject;
-import org.springframework.stereotype.Service;
-
-import com.hazelcast.topic.Message;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
@@ -62,7 +60,7 @@ import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
-@Service
+@ApplicationScoped
 @SuppressWarnings({ "rawtypes", "unused", "unchecked" })
 public class PanHelper {
 

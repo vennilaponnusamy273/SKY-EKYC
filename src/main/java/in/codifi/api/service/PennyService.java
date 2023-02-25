@@ -1,8 +1,7 @@
 package in.codifi.api.service;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import org.springframework.stereotype.Service;
 
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.BankEntity;
@@ -17,7 +16,7 @@ import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
-@Service
+@ApplicationScoped
 public class PennyService implements IPennyService {
 	@Inject
 	CommonMethods commonMethods;

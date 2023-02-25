@@ -1,5 +1,6 @@
 package in.codifi.api.restservice.keycloak;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -9,6 +10,7 @@ import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.config.KeyCloakConfig;
 import in.codifi.api.model.GetTokenResponse;
 
+@ApplicationScoped
 public class KeyCloakTokenRestService {
 
 	@Inject

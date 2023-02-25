@@ -178,29 +178,28 @@ public class EkycConstants {
 	public static final int STATE_CODE = 1;
 	public static final int COUNTRY_CODE = 2;
 
+	// Req_Res_Table
+	public static final String PAN = "PAN";
+	public static final String DIGI = "DIGI";
+	public static final String PAN_DOB = "PAN_DOB";
 
-	//Req_Res_Table
-	public static final String PAN ="PAN";
-	public static final String DIGI ="DIGI";
-	public static final String PAN_DOB ="PAN_DOB";
-			
-	//ACCESS_REQ_RES_TBL
-	public static final String SMS_VERIFY ="SMS_VERIFIED";
-	public static final String EMAIL ="EMAIL";
-	public static final String EMAIL_VERIFY ="EMAIL_VERIFY";
-	public static final String BANK ="BANK";
-	public static final String CREATE_PAYMENT ="CREATE_PAYMENT";
-	public static final String CREATE_PAYOUT ="CREATE_PAYOUT";
-	public static final String CREATE_CONTACT ="CREATE_CONTACT";
-	public static final String ADD_ACOUNT ="ADD_ACOUNT";
-	public static final String VERIFY_PAYMENT="VERIFY_PAYMENT";
-	public static final String DOC_UPLOAD ="UPLOAD_DOC";
-	public static final String IVR_UPLOAD ="IVR_UPLOAD";
-	public static final String NOMINEE ="NOMINEE";
-	public static final String PROFILE ="PROFILE";
-	public static final String SEGMENT ="SEGMENT";
-	
-	//BANK STATEMENT
+	// ACCESS_REQ_RES_TBL
+	public static final String SMS_VERIFY = "SMS_VERIFIED";
+	public static final String EMAIL = "EMAIL";
+	public static final String EMAIL_VERIFY = "EMAIL_VERIFY";
+	public static final String BANK = "BANK";
+	public static final String CREATE_PAYMENT = "CREATE_PAYMENT";
+	public static final String CREATE_PAYOUT = "CREATE_PAYOUT";
+	public static final String CREATE_CONTACT = "CREATE_CONTACT";
+	public static final String ADD_ACOUNT = "ADD_ACOUNT";
+	public static final String VERIFY_PAYMENT = "VERIFY_PAYMENT";
+	public static final String DOC_UPLOAD = "UPLOAD_DOC";
+	public static final String IVR_UPLOAD = "IVR_UPLOAD";
+	public static final String NOMINEE = "NOMINEE";
+	public static final String PROFILE = "PROFILE";
+	public static final String SEGMENT = "SEGMENT";
+
+	// BANK STATEMENT
 	public static final String NO_NEED_BANK_STATEMENT = "BANK STATEMENT IS NOT  REQUIRED";
 	public static final String NEED_BANK_STATEMENT = "LAST SIX MONTH BANK STATEMENT IS REQUIRED";
 

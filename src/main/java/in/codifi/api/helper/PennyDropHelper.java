@@ -6,13 +6,13 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.commons.codec.binary.Base64;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
-import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,7 +26,7 @@ import in.codifi.api.repository.PennyDropRepository;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.StringUtil;
 
-@Service
+@ApplicationScoped
 public class PennyDropHelper {
 	@Inject
 	ApplicationProperties props;

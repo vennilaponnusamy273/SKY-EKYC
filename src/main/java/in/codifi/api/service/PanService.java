@@ -2,10 +2,10 @@ package in.codifi.api.service;
 
 import java.util.Optional;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.json.JSONObject;
-import org.springframework.stereotype.Service;
 
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.ProfileEntity;
@@ -19,7 +19,7 @@ import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
-@Service
+@ApplicationScoped
 public class PanService implements IPanService {
 	@Inject
 	ApplicationUserRepository repository;

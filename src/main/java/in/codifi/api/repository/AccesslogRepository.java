@@ -4,7 +4,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import in.codifi.api.entity.AccesslogEntity;
 
-public interface AccesslogRepository  extends CrudRepository<AccesslogEntity, Long> {
+public interface AccesslogRepository extends CrudRepository<AccesslogEntity, Long> {
 
 	AccesslogEntity findByApplicationIdAndType(long applicationId, String method);
 

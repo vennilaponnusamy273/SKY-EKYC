@@ -1,4 +1,5 @@
 package in.codifi.api.entity;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,27 +19,26 @@ public class AccesslogEntity extends CommonEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Long id;
-	
+
 	@Column(name = "application_id", nullable = false)
 	private Long applicationId;
-	
-	
+
 	@Column(name = "uri")
 	private String uri;
-	
+
 	@Column(name = "user_agent")
 	private String user_agent;
-	
+
 	@Column(name = "device_ip")
 	private String device_ip;
-	
+
 	@Column(name = "type")
 	private String type;
 
 	@Lob
 	@Column(name = "response_data")
 	private String response_data;
-	
+
 	@Lob
 	@Column(name = "request_data")
 	private String request_data;

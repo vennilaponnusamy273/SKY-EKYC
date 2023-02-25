@@ -32,6 +32,9 @@ public class CreateUserRequestModel implements Serializable {
 	@JsonProperty("enabled")
 	private Boolean enabled;
 
+	@JsonProperty("emailVerified")
+	private Boolean emailVerified;
+
 	@JsonProperty("credentials")
 	private List<CreateUserCredentialsModel> credentials;
 

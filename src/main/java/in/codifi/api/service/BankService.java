@@ -2,9 +2,8 @@ package in.codifi.api.service;
 
 import java.util.Optional;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import org.springframework.stereotype.Service;
 
 import com.razorpay.Order;
 
@@ -24,7 +23,7 @@ import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
-@Service
+@ApplicationScoped
 public class BankService implements IBankService {
 	@Inject
 	ApplicationUserRepository applicationUserRepository;
@@ -143,22 +142,52 @@ public class BankService implements IBankService {
 		ResponseModel responseModel = new ResponseModel();
 		PaymentEntity paymentEntity = paymentRepository.findByApplicationId(params.getApplicationId());
 		if (paymentEntity != null) {
-			paymentEntity.setVerifyUrl(params.getVerifyUrl());
-			PaymentEntity savedEntity = paymentHelper.verifyPayment(paymentEntity);
-			if (savedEntity != null) {
-				commonMethods.UpdateStep(7, paymentEntity.getApplicationId());
-				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-				responseModel.setPage(EkycConstants.PAGE_NOMINEE);
-				responseModel.setResult(savedEntity);
+			boolean isEqual = paymentHelper.verifyPayment(params);
+			if (isEqual) {
+				PaymentEntity savedEntity = paymentHelper.saveVerifyPayment(params);
+				if (savedEntity != null) {
+					commonMethods.UpdateStep(7, paymentEntity.getApplicationId());
+					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+					responseModel.setPage(EkycConstants.PAGE_NOMINEE);
+					responseModel.setResult(savedEntity);
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVE_VERIFY_PAYMENT);
+				}
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.VERIFY_NOT_SUCCEED);
 			}
 		} else {
-			responseModel = commonMethods.constructFailedMsg(MessageConstants.PAYMENT_CREATION_FAILED);
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.NOT_FOUND_DATA);
 		}
 		return responseModel;
 	}
+
+//	public ResponseModel verifyPayment(PaymentEntity params) {
+// 		ResponseModel responseModel = new ResponseModel();
+//-		boolean isEqual = paymentHelper.verifyPayment(paymentEntity);
+//-		if (isEqual) {
+//-			PaymentEntity savedEntity = paymentHelper.saveVerifyPayment(paymentEntity);
+//+		PaymentEntity paymentEntity = paymentRepository.findByApplicationId(params.getApplicationId());
+//+		if (paymentEntity != null) {
+//+			paymentEntity.setVerifyUrl(params.getVerifyUrl());
+//+			PaymentEntity savedEntity = paymentHelper.verifyPayment(paymentEntity);
+// 			if (savedEntity != null) {
+// 				commonMethods.UpdateStep(7, paymentEntity.getApplicationId());
+// 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+//@@ -151,10 +152,10 @@
+// 				responseModel.setPage(EkycConstants.PAGE_NOMINEE);
+// 				responseModel.setResult(savedEntity);
+// 			} else {
+//-				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVE_VERIFY_PAYMENT);
+//+				responseModel = commonMethods.constructFailedMsg(MessageConstants.VERIFY_NOT_SUCCEED);
+// 			}
+// 		} else {
+//-			responseModel = commonMethods.constructFailedMsg(MessageConstants.VERIFY_NOT_SUCCEED);
+//+			responseModel = commonMethods.constructFailedMsg(MessageConstants.PAYMENT_CREATION_FAILED);
+// 		}
+// 		return responseModel;
+// 	}
 
 	/**
 	 * Method to check payment

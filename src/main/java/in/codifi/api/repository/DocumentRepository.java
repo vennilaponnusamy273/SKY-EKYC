@@ -7,7 +7,7 @@ import in.codifi.api.entity.DocumentEntity;
 public interface DocumentRepository extends CrudRepository<DocumentEntity, Long> {
 
 	DocumentEntity findByApplicationId(Long applicationId);
-	
+
 	Long countByApplicationId(Long applicationid);
 
 	DocumentEntity findByApplicationIdAndTypeOfProof(long applicationId, String typeOfProof);

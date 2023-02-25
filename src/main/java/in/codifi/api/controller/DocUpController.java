@@ -17,6 +17,7 @@ public class DocUpController implements IDocUpController {
 	IDocumentService docservice;
 	@Inject
 	CommonMethods commonMethods;
+
 	/**
 	 * Method to Upload proof Documnt
 	 */

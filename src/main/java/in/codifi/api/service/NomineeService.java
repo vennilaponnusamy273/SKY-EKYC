@@ -12,10 +12,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.jboss.resteasy.reactive.multipart.FileUpload;
-import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,7 +34,7 @@ import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
-@Service
+@ApplicationScoped
 public class NomineeService implements INomineeService {
 
 	private static String OS = System.getProperty("os.name").toLowerCase();
