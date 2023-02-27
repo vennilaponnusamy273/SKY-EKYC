@@ -22,19 +22,25 @@ public class KeyCloakAdminRestService {
 	KeyCloakTokenRestService cloakTokenRestService;
 
 	public String addNewUser(CreateUserRequestModel user) throws ClientWebApplicationException {
-		String message = "";
+		String message = "User Created";
+		int count = 1;
 		try {
 			String token = "Bearer " + getAccessToken();
 			iKeyCloakAdminRestService.addNewUser(token, user);
-			message = "User Created";
 		} catch (ClientWebApplicationException e) {
 			int statusCode = e.getResponse().getStatus();
-			if (statusCode == 401) {
+			if (statusCode == 401 && count > 0) {
+				count--;
 				HazleCacheController.getInstance().getKeycloakAdminSession().clear();
+				addNewUser(user);
 			} else if (statusCode == 409) {
-				message = "User already exists";
+				return "User already exists";
+			} else if (count == 0) {
+				message = "";
+			} else {
+				e.printStackTrace();
+				message = e.getMessage();
 			}
-			e.printStackTrace();
 		}
 		return message;
 	}

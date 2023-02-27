@@ -51,12 +51,12 @@ public class CommonMethods {
 	 * @return
 	 */
 	public int generateOTP(long mobileNumber) {
-		int otp = 0000;
+		int otp = 000000;
 		if (mobileNumber == 1234567890 || mobileNumber == 1111100000) {
-			otp = 0000;
+			otp = 000000;
 			System.out.println("OTP : " + otp);
 		} else {
-			otp = (int) (Math.random() * 9000) + 1000;
+			otp = (int) (Math.random() * 900000) + 100000;
 			System.out.println("OTP : " + otp);
 		}
 		return otp;

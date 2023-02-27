@@ -46,7 +46,7 @@ public class PaymentHelper {
 			if (entity != null) {
 				errorMsg.add(MessageConstants.PAYMENT_ALREADY_CREATED);
 			} else {
-				if (paymentEntity.getApplicationId() <= 0) {
+				if (paymentEntity.getApplicationId() == null || paymentEntity.getApplicationId() <= 0) {
 					errorMsg.add(MessageConstants.USER_ID_NULL);
 				}
 				if (paymentEntity.getAmount() <= 0) {

@@ -260,7 +260,7 @@ public class UserService implements IUserService {
 								responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 								responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 								responseModel.setResult(updatedUserDetails);
-								responseModel.setPage(EkycConstants.PAGE_PAN);
+								responseModel.setPage(EkycConstants.PAGE_PASSWORD);
 							}
 						} else {
 							responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_VERIFY_OTP);
@@ -331,7 +331,7 @@ public class UserService implements IUserService {
 					responseModel.setResult(EkycConstants.NEED_BANK_STATEMENT);
 				}
 			} else {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_DETAILS_INVALID);
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -366,12 +366,19 @@ public class UserService implements IUserService {
 				userCredentilList.add(credentialsModel);
 				requestModel.setCredentials(userCredentilList);
 				String message = keyCloakAdminRestService.addNewUser(requestModel);
-				responseModel.setReason(message);
+				if (StringUtil.isNotNullOrEmpty(message)) {
+					responseModel.setReason(message);
+					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+					responseModel.setPage(EkycConstants.PAGE_PAN);
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
+				}
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
 			}
 		} else {
-			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_DETAILS_INVALID);
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
 		return responseModel;
 	}

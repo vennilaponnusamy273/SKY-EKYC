@@ -36,6 +36,7 @@ public class EkycConstants {
 	public static final String EKYC_STATUS_PENDING = "Pending";
 	// PAGE STATUS
 	public static final String PAGE_EMAIL = "1";
+	public static final String PAGE_PASSWORD = "1.1";
 	public static final String PAGE_PAN = "2";
 	public static final String PAGE_PAN_NSDL_DATA_CONFIRM = "2.1";
 	public static final String PAGE_PAN_KRA_DOB_ENTRY = "2.2";
