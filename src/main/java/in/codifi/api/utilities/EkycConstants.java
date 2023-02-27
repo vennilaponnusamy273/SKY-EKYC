@@ -203,5 +203,10 @@ public class EkycConstants {
 	// BANK STATEMENT
 	public static final String NO_NEED_BANK_STATEMENT = "BANK STATEMENT IS NOT  REQUIRED";
 	public static final String NEED_BANK_STATEMENT = "LAST SIX MONTH BANK STATEMENT IS REQUIRED";
+	
+	//CKYC
+	public static final String CONST_APPLICATION_JSON = "application/json";
+	public static final String PAN_TYPE = "PAN";
+	public static final String CKYC_TOKEN = "9f20fbcbf7673dc0a478e5b71ad7ad18";
 
 }
