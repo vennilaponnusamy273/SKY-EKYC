@@ -12,6 +12,7 @@ import lombok.Setter;
 @Setter
 public class ApplicationProperties {
 
+	
 	@ConfigProperty(name = "appconfig.sms.url")
 	private String smsUrl;
 	@ConfigProperty(name = "appconfig.sms.feedid")
@@ -92,4 +93,6 @@ public class ApplicationProperties {
 	private String rzValidateAccount;
 	@ConfigProperty(name = "appconfig.razorpay.acc.number")
 	private String rzAccountNumber;
+	@ConfigProperty(name = "appconfig.ckyc.getdetails.url")
+	private String ckycapi;
 }
