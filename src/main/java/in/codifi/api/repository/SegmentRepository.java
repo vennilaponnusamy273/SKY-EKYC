@@ -7,5 +7,7 @@ import in.codifi.api.entity.SegmentEntity;
 public interface SegmentRepository extends CrudRepository<SegmentEntity, Long> {
 
 	SegmentEntity findByapplicationId(Long applicationId);
+	
+	void deleteByApplicationId(long applicationId);
 
 }

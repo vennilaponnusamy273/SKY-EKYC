@@ -99,4 +99,5 @@ public class MessageConstants {
 	public final static String ACCOUNT_IFSC_NULL = "Bank account number or IFSC is null";
 	// BANK STATEMENT
 	public static final String USER_DETAILS_INVALID = "The Given User Details is invalid";
+	public static final String FILE_NULL = "please choose file";
 }

@@ -20,7 +20,7 @@ public class ResponseCkyc  extends CommonEntity {
 	private Long id;
 	
 	@Column(name = "application_id")
-	private Long applicationid;
+	private Long applicationId;
 	
 	@Column(name="constiType")
 	private String constiType;

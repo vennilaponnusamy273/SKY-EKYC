@@ -14,6 +14,9 @@ import javax.inject.Inject;
 import org.json.JSONObject;
 import org.json.XML;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ProfileEntity;
@@ -132,16 +135,19 @@ public class KRAHelper {
 			while ((output = br1.readLine()) != null) {
 				sb.append(output);
 			}
-			System.out.println("output" + output);
-			JSONObject xmlJSONObj = XML.toJSONObject(sb.toString());
-			System.out.println(xmlJSONObj.toString());
-			JSONObject rootJson = xmlJSONObj.getJSONObject(EkycConstants.CONST_KYC_ROOT);
+			ObjectMapper xmlMapper = new XmlMapper();
+			Object obj = xmlMapper.readValue(sb.toString(), Object.class);
+			ObjectMapper jsonMapper = new ObjectMapper();
+//		        jsonMapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN); // to write BigDecimal values as plain strings
+			String jsonString = jsonMapper.writeValueAsString(obj);
+			JSONObject jsonObject = new JSONObject(jsonString);
+			System.out.println(jsonObject.toString());
 			JSONObject kycData = null;
-			if (rootJson.has(EkycConstants.CONST_KYC_DATA)) {
-				kycData = rootJson.getJSONObject(EkycConstants.CONST_KYC_DATA);
+			if (jsonObject.has(EkycConstants.CONST_KYC_DATA)) {
+				kycData = jsonObject.getJSONObject(EkycConstants.CONST_KYC_DATA);
 				return kycData;
 			} else {
-				kycData = rootJson.getJSONObject(EkycConstants.CONST_KRA_ERROR);
+				kycData = jsonObject.getJSONObject(EkycConstants.CONST_KRA_ERROR);
 				return kycData;
 			}
 		} catch (Exception e) {

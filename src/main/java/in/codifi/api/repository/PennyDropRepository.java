@@ -22,4 +22,6 @@ public interface PennyDropRepository extends CrudRepository<PennyDropEntity, Lon
 	PennyDropEntity getPennyForContact(@Param("applicationId") Long applicationId, @Param("email") String email,
 			@Param("mobileNumber") String mobileNumber, @Param("pan") String pan, @Param("accNumber") String accNumber,
 			@Param("ifsc") String ifsc);
+	
+	void deleteByApplicationId(long applicationId);
 }

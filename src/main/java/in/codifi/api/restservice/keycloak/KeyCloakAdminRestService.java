@@ -1,5 +1,7 @@
 package in.codifi.api.restservice.keycloak;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -9,6 +11,8 @@ import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.config.KeyCloakConfig;
 import in.codifi.api.model.CreateUserRequestModel;
+import in.codifi.api.model.GetKeyCloakUser;
+import in.codifi.api.utilities.StringUtil;
 
 @ApplicationScoped
 public class KeyCloakAdminRestService {
@@ -21,6 +25,13 @@ public class KeyCloakAdminRestService {
 	@Inject
 	KeyCloakTokenRestService cloakTokenRestService;
 
+	/**
+	 * User Creation in Keycloak
+	 * 
+	 * @param user
+	 * @return
+	 * @throws ClientWebApplicationException
+	 */
 	public String addNewUser(CreateUserRequestModel user) throws ClientWebApplicationException {
 		String message = "User Created";
 		int count = 1;
@@ -50,5 +61,27 @@ public class KeyCloakAdminRestService {
 			return HazleCacheController.getInstance().getKeycloakAdminSession().get(props.getAdminClientId());
 		}
 		return cloakTokenRestService.getAdminAccessToken();
+	}
+
+	/**
+	 * Check user available in keycloak
+	 * 
+	 * @param user
+	 * @return
+	 * @throws ClientWebApplicationException
+	 */
+	public boolean checkUser(String mail, String mobileNumber) throws ClientWebApplicationException {
+		boolean userPresent = false;
+		try {
+			String token = "Bearer " + getAccessToken();
+			List<GetKeyCloakUser> cloakUser = iKeyCloakAdminRestService.getUserDetails(token, mail, mobileNumber);
+			if (StringUtil.isListNotNullOrEmpty(cloakUser)
+					&& StringUtil.isNotNullOrEmpty(cloakUser.get(0).getEmail())) {
+				userPresent = true;
+			}
+		} catch (ClientWebApplicationException e) {
+			e.printStackTrace();
+		}
+		return userPresent;
 	}
 }

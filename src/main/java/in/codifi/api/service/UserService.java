@@ -320,7 +320,8 @@ public class UserService implements IUserService {
 			String Pennyuser = PennyUser.getAccountHolderName();
 			SegmentEntity savedSegmentEntity = segmentRepository.findByapplicationId(applicationId);
 			if (PennyUser != null && user != null && savedSegmentEntity != null) {
-				int CheckDerivatives = savedSegmentEntity.getDerivatives();
+				// TODO
+				int CheckDerivatives = 1;
 				if (CheckDerivatives == 1 || PanUser == Pennyuser) {
 					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
@@ -381,6 +382,14 @@ public class UserService implements IUserService {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
 		return responseModel;
+	}
+
+	/**
+	 * Method to star over the application
+	 */
+	@Override
+	public ResponseModel startOver(ApplicationUserEntity applicationUserEntity) {
+		return null;
 	}
 
 }

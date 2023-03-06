@@ -67,7 +67,8 @@ public class DocumentService implements IDocumentService {
 			if (!dir.exists()) {
 				dir.mkdirs();
 			}
-			if (fileModel.getApplicationId() != 0 && fileModel.getApplicationId() > 0) {
+			if (fileModel.getApplicationId() != 0 && fileModel.getApplicationId() > 0 && fileModel.getFile() != null
+					&& StringUtil.isNotNullOrEmpty(fileModel.getFile().contentType())) {
 				boolean content = (fileModel.getFile().contentType().equals(EkycConstants.CONST_APPLICATION_PDF));
 				if (content) {
 					String fileName = fileModel.getApplicationId() + EkycConstants.UNDERSCORE
@@ -117,7 +118,11 @@ public class DocumentService implements IDocumentService {
 				}
 			} else {
 				responseModel.setMessage(EkycConstants.FAILED_MSG);
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+				if (StringUtil.isNullOrEmpty(fileModel.getFile().contentType()) || fileModel.getFile() == null) {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.FILE_NULL);
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

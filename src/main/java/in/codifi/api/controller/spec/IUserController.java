@@ -135,4 +135,18 @@ public interface IUserController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to save DOB")
 	public ResponseModel userCreation(@RequestBody ApplicationUserEntity userEntity);
+
+	/**
+	 * Method to star over the application
+	 * 
+	 * @author prade
+	 * @param applicationId
+	 * @return
+	 */
+	@Path("/startOver")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to get Profile Details")
+	ResponseModel startOver(@NotNull @QueryParam("applicationId") long applicationId);
+
 }

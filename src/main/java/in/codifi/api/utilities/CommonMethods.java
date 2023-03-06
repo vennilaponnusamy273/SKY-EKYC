@@ -2,6 +2,7 @@ package in.codifi.api.utilities;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -18,6 +19,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+
+import org.json.JSONObject;
+import org.json.simple.JSONValue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -116,6 +120,49 @@ public class CommonMethods {
 		}
 	}
 
+	/**
+	 * Method to send OTP to aliceBlue
+	 * 
+	 * @author Dinesh
+	 * @param otp
+	 * @param mobile
+	 * @return
+	 */
+
+	public boolean sendOTPMessage(String otp, String mobile) {
+		try {
+			HttpURLConnection conn = null;
+			JSONObject json = new JSONObject();
+			json.put("apikey", props.getApiKey());
+			json.put("senderid", props.getSenderId());
+			json.put("number", mobile);
+			json.put("message", "Dear User, " + otp
+					+ " is your verification code as requested online, this code is valid for next 5 minutes. Regards-AliceBlue");
+			URL url = new URL(props.getUrl());
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("POST");
+			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setDoOutput(true);
+			try (OutputStream os = conn.getOutputStream()) {
+				byte[] input = json.toString().getBytes("utf-8");
+				os.write(input, 0, input.length);
+			}
+			if (conn.getResponseCode() != 200) {
+				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+			}
+			BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+			String output;
+			while ((output = br1.readLine()) != null) {
+				@SuppressWarnings("unused")
+				Object object = JSONValue.parse(output);
+			}
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 	@Inject
 	public void MailService(Mailer javaMailSender) {
 		this.mailer = javaMailSender;
@@ -129,7 +176,7 @@ public class CommonMethods {
 	 */
 	public void sendMailOtp(int otp, String emailId) throws MessagingException {
 		String getSubject = props.getMailSubject();
-		String getText = otp + " " + props.getMailText();
+		String getText = "Dear User, " + otp + " " + props.getMailText();
 		Mail mail = Mail.withText(emailId, getSubject, getText);
 		mailer.send(mail);
 		System.out.print("the post mail" + mail);

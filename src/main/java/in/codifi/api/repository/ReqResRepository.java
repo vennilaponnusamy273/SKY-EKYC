@@ -9,5 +9,7 @@ public interface ReqResRepository extends CrudRepository<ReqResEntity, Long> {
 	ReqResEntity findByApplicationId(Long applicationId);
 
 	ReqResEntity findByApplicationIdAndType(Long applicationId, String type);
+	
+	void deleteByApplicationId(long applicationId);
 
 }

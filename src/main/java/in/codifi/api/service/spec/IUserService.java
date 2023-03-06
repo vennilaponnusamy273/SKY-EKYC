@@ -67,4 +67,13 @@ public interface IUserService {
 	 * @return
 	 */
 	ResponseModel userCreation(ApplicationUserEntity userEntity);
+
+	/**
+	 * Method to star over the application
+	 * 
+	 * @author prade
+	 * @param applicationId
+	 * @return
+	 */
+	ResponseModel startOver(ApplicationUserEntity applicationUserEntity);
 }

@@ -11,5 +11,7 @@ public interface DocumentRepository extends CrudRepository<DocumentEntity, Long>
 	Long countByApplicationId(Long applicationid);
 
 	DocumentEntity findByApplicationIdAndTypeOfProof(long applicationId, String typeOfProof);
+	
+	void deleteByApplicationId(long applicationId);
 
 }

@@ -12,4 +12,5 @@ public interface ApplicationUserRepository extends CrudRepository<ApplicationUse
 	ApplicationUserEntity findByEmailId(@Param("emailId") String emailId);
 
 	ApplicationUserEntity findByPanNumber(@Param("panNumber") String panNumber);
+	
 }

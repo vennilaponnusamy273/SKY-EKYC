@@ -8,4 +8,5 @@ public interface PaymentRepository extends CrudRepository<PaymentEntity, Long> {
 
 	PaymentEntity findByApplicationId(Long applicationId);
 
+	void deleteByApplicationId(long applicationId);
 }

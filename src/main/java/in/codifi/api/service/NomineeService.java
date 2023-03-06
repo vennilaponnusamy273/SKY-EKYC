@@ -51,6 +51,8 @@ public class NomineeService implements INomineeService {
 
 	/**
 	 * Method to get Nominee Details
+	 * 
+	 * @author prade
 	 **/
 	@Override
 	public ResponseModel getNominee(long applicationId) {
@@ -71,6 +73,7 @@ public class NomineeService implements INomineeService {
 	 * Method to populate nominee and Guardian Details
 	 * 
 	 * @param applicationId
+	 * @author prade
 	 * @return
 	 */
 	public List<NomineeEntity> populateNomineeAndGuardian(long applicationId) {
@@ -87,6 +90,7 @@ public class NomineeService implements INomineeService {
 	 * Method to upload nominee details
 	 * 
 	 * @param fileModel
+	 * @author prade
 	 * @return
 	 */
 	@Override
@@ -137,32 +141,27 @@ public class NomineeService implements INomineeService {
 					LocalDate localDate = LocalDate.parse(entity.getDateOfbirth(), formatter);
 					LocalDate today = LocalDate.now();
 					Period p = Period.between(localDate, today);
-					int allocataionTally = calculateNomineeAllocation(entity, countNominee);
 					if (entity.getId() != null && entity.getId() > 0 && entity.getGuardianEntity() == null) {
 						GuardianEntity oldGuardianEntity = guardianRepository.findByNomineeId(entity.getId());
 						if (oldGuardianEntity != null) {
 							guardianRepository.deleteById(oldGuardianEntity.getId());
 						}
 					}
-					if (allocataionTally != 100) {
-						return commonMethods.constructFailedMsg(MessageConstants.ALLOCATION_NOT_TALLY);
+					if (p.getYears() > 19) {
+						savingNominee = nomineeRepository.save(entity);
+					} else if (p.getYears() < 19 && entity.getGuardianEntity() != null) {
+						savingNominee = nomineeRepository.save(entity);
+						GuardianEntity guardian = entity.getGuardianEntity();
+						guardian.setNomineeId(savingNominee.getId());
+						guardianRepository.save(guardian);
 					} else {
-						if (p.getYears() > 19) {
-							savingNominee = nomineeRepository.save(entity);
-						} else if (p.getYears() < 19 && entity.getGuardianEntity() != null) {
-							savingNominee = nomineeRepository.save(entity);
-							GuardianEntity guardian = entity.getGuardianEntity();
-							guardian.setNomineeId(savingNominee.getId());
-							guardianRepository.save(guardian);
-						} else {
-							return commonMethods.constructFailedMsg(MessageConstants.GUARDIAN_REQUIRED);
-						}
+						return commonMethods.constructFailedMsg(MessageConstants.GUARDIAN_REQUIRED);
 					}
 				} else {
 					return commonMethods.constructFailedMsg(MessageConstants.NOMINEE_COUNT);
 				}
 				if (savingNominee != null) {
-					responseModel = Stageandallocate(savingNominee.getApplicationId(), savingNominee.getId(), entity);
+					responseModel = allocationForNomiee(savingNominee.getApplicationId(), savingNominee.getId());
 				} else {
 					responseModel = commonMethods
 							.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVING_NOMINEE_DETAILS);
@@ -181,30 +180,66 @@ public class NomineeService implements INomineeService {
 		return responseModel;
 	}
 
-	private int calculateNomineeAllocation(NomineeEntity entity, Long countNominee) {
+	/**
+	 * Method to save allocation for nominee
+	 * 
+	 * @param ApplicationId
+	 * @param id
+	 * @author prade
+	 */
+	public ResponseModel allocationForNomiee(Long ApplicationId, Long id) {
+		ResponseModel responseModel = new ResponseModel();
+		responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+		responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+		List<NomineeEntity> nomineeEntities = nomineeRepository.findByapplicationId(ApplicationId);
+		Collections.sort(nomineeEntities, new Comparator<NomineeEntity>() {
+			public int compare(NomineeEntity e1, NomineeEntity e2) {
+				return Integer.compare(Math.toIntExact(e1.getId()), Math.toIntExact(e2.getId()));
+			}
+		});
+		if (nomineeEntities.size() == 1) {
+			for (NomineeEntity neList : nomineeEntities) {
+				neList.setAllocation(100);
+			}
+			nomineeRepository.saveAll(nomineeEntities);
+			commonMethods.UpdateStep(8.1, ApplicationId);
+			responseModel.setPage(EkycConstants.PAGE_NOMINEE_2);
+		} else if (nomineeEntities.size() == 2) {
+			for (NomineeEntity neList : nomineeEntities) {
+				neList.setAllocation(50);
+			}
+			nomineeRepository.saveAll(nomineeEntities);
+			commonMethods.UpdateStep(8.2, ApplicationId);
+			responseModel.setPage(EkycConstants.PAGE_NOMINEE_3);
+		} else if (nomineeEntities.size() == 3) {
+			int count = 1;
+			for (NomineeEntity neList : nomineeEntities) {
+				if (count == 1) {
+					neList.setAllocation(34);
+				} else {
+					neList.setAllocation(33);
+				}
+				count++;
+			}
+			nomineeRepository.saveAll(nomineeEntities);
+			commonMethods.UpdateStep(8.3, ApplicationId);
+			responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
+		}
+		List<NomineeEntity> updatedNomineeList = nomineeRepository.findByapplicationId(ApplicationId);
+		responseModel.setResult(updatedNomineeList);
+		return responseModel;
+	}
+
+	private int calculateNomineeAllocation(NomineeEntity entity, int countNominee) {
 		int allocationTally = 0;
-		if (entity.getId() == null || entity.getId() < 0) {
-			if (countNominee == 0) {
-				allocationTally = 100;
-			} else if (countNominee == 1 && entity.getNomOneAllocation() > 0 && entity.getNomTwoAllocation() > 0) {
-				allocationTally = entity.getNomOneAllocation() + entity.getNomTwoAllocation();
-			} else if (countNominee == 2 && entity.getNomOneAllocation() > 0 && entity.getNomTwoAllocation() > 0
-					&& entity.getNomThreeAllocation() > 0) {
-				allocationTally = entity.getNomOneAllocation() + entity.getNomTwoAllocation()
-						+ entity.getNomThreeAllocation();
-			}
-		} else {
-			if (countNominee == 0) {
-				allocationTally = 100;
-			} else if (countNominee == 1 && entity.getNomOneAllocation() > 0) {
-				allocationTally = entity.getNomOneAllocation() + entity.getNomTwoAllocation();
-			} else if (countNominee == 2 && entity.getNomOneAllocation() > 0 && entity.getNomTwoAllocation() > 0) {
-				allocationTally = entity.getNomOneAllocation() + entity.getNomTwoAllocation();
-			} else if (countNominee == 3 && entity.getNomOneAllocation() > 0 && entity.getNomTwoAllocation() > 0
-					&& entity.getNomThreeAllocation() > 0) {
-				allocationTally = entity.getNomOneAllocation() + entity.getNomTwoAllocation()
-						+ entity.getNomThreeAllocation();
-			}
+		if (countNominee == 1) {
+			allocationTally = 100;
+		} else if (countNominee == 2 && entity.getNomOneAllocation() > 0 && entity.getNomTwoAllocation() > 0) {
+			allocationTally = entity.getNomOneAllocation() + entity.getNomTwoAllocation();
+		} else if (countNominee == 3 && entity.getNomOneAllocation() > 0 && entity.getNomTwoAllocation() > 0
+				&& entity.getNomThreeAllocation() > 0) {
+			allocationTally = entity.getNomOneAllocation() + entity.getNomTwoAllocation()
+					+ entity.getNomThreeAllocation();
 		}
 		return allocationTally;
 	}
@@ -215,59 +250,55 @@ public class NomineeService implements INomineeService {
 	 * @param ApplicationId
 	 * @param id
 	 * @param entity
+	 * @author prade
 	 */
-	public ResponseModel Stageandallocate(Long ApplicationId, Long id, NomineeEntity entity) {
+	public ResponseModel updateNomineeAllocation(NomineeEntity entity) {
 		ResponseModel responseModel = new ResponseModel();
 		responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 		responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-		Long countNominee = nomineeRepository.countByApplicationId(ApplicationId);
-		List<NomineeEntity> nomineeEntities = nomineeRepository.findByapplicationId(ApplicationId);
+		List<NomineeEntity> nomineeEntities = nomineeRepository.findByapplicationId(entity.getApplicationId());
 		Collections.sort(nomineeEntities, new Comparator<NomineeEntity>() {
 			public int compare(NomineeEntity e1, NomineeEntity e2) {
 				return Integer.compare(Math.toIntExact(e1.getId()), Math.toIntExact(e2.getId()));
 			}
 		});
-		if (countNominee == 1) {
-			Optional<NomineeEntity> exeentity = nomineeRepository.findById(id);
-			if (exeentity.isPresent()) {
-				NomineeEntity isuserPresend = exeentity.get();
-				isuserPresend.setAllocation(100);
-				nomineeRepository.save(isuserPresend);
-				responseModel.setResult(isuserPresend);
-			}
-			commonMethods.UpdateStep(8.1, ApplicationId);
-			responseModel.setPage(EkycConstants.PAGE_NOMINEE_2);
-		} else if (countNominee == 2) {
-			int count = 1;
-			for (NomineeEntity neList : nomineeEntities) {
-				if (count == 1) {
-					neList.setAllocation(entity.getNomOneAllocation());
-				} else {
-					neList.setAllocation(entity.getNomTwoAllocation());
+		int allocataionTally = calculateNomineeAllocation(entity, nomineeEntities.size());
+		if (allocataionTally == 100) {
+			if (nomineeEntities.size() == 1) {
+				for (NomineeEntity neList : nomineeEntities) {
+					neList.setAllocation(100);
 				}
-				count++;
+			} else if (nomineeEntities.size() == 2) {
+				int count = 1;
+				for (NomineeEntity neList : nomineeEntities) {
+					if (count == 1) {
+						neList.setAllocation(entity.getNomOneAllocation());
+					} else {
+						neList.setAllocation(entity.getNomTwoAllocation());
+					}
+					count++;
+				}
+			} else if (nomineeEntities.size() == 3) {
+				int count = 1;
+				for (NomineeEntity neList : nomineeEntities) {
+					if (count == 1) {
+						neList.setAllocation(entity.getNomOneAllocation());
+					} else if (count == 2) {
+						neList.setAllocation(entity.getNomTwoAllocation());
+					} else {
+						neList.setAllocation(entity.getNomThreeAllocation());
+					}
+					count++;
+				}
 			}
 			nomineeRepository.saveAll(nomineeEntities);
-			commonMethods.UpdateStep(8.2, ApplicationId);
-			responseModel.setResult(nomineeEntities);
-			responseModel.setPage(EkycConstants.PAGE_NOMINEE_3);
-		} else if (countNominee == 3) {
-			int count = 1;
-			for (NomineeEntity neList : nomineeEntities) {
-				if (count == 1) {
-					neList.setAllocation(entity.getNomOneAllocation());
-				} else if (count == 2) {
-					neList.setAllocation(entity.getNomTwoAllocation());
-				} else {
-					neList.setAllocation(entity.getNomThreeAllocation());
-				}
-				count++;
-			}
-			nomineeRepository.saveAll(nomineeEntities);
-			commonMethods.UpdateStep(8.3, ApplicationId);
+			commonMethods.UpdateStep(8.3, entity.getApplicationId());
 			responseModel.setResult(nomineeEntities);
 			responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
+		} else {
+			return commonMethods.constructFailedMsg(MessageConstants.ALLOCATION_NOT_TALLY);
 		}
+
 		return responseModel;
 	}
 

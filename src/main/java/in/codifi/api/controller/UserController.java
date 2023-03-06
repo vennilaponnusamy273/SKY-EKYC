@@ -1,5 +1,7 @@
 package in.codifi.api.controller;
 
+import java.util.Optional;
+
 import javax.inject.Inject;
 import javax.ws.rs.Path;
 
@@ -167,6 +169,25 @@ public class UserController implements IUserController {
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 			}
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to star over the application
+	 */
+	@Override
+	public ResponseModel startOver(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		if (applicationId > 0) {
+			Optional<ApplicationUserEntity> isUserPresent = applicationUserRepository.findById(applicationId);
+			if (isUserPresent.isPresent()) {
+				responseModel = iUserService.startOver(isUserPresent.get());
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+			}
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 		}
 		return responseModel;
 	}

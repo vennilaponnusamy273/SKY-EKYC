@@ -1,5 +1,6 @@
 package in.codifi.api.service.spec;
 
+import in.codifi.api.entity.NomineeEntity;
 import in.codifi.api.model.NomineeDocModel;
 import in.codifi.api.model.ResponseModel;
 
@@ -34,5 +35,14 @@ public interface INomineeService {
 	 * @return
 	 */
 	ResponseModel deleteNom(long id);
+
+	/**
+	 * Method to update Nominee Alloction
+	 * 
+	 * @author prade
+	 * @param paymentEntity
+	 * @return
+	 */
+	ResponseModel updateNomineeAllocation(NomineeEntity nomineeEntity);
 
 }

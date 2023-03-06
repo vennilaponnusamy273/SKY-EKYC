@@ -21,17 +21,20 @@ public class SegmentEntity extends CommonEntity {
 	@Column(name = "application_id", nullable = false)
 	private Long applicationId;
 
-	@Column(name = "all_segment")
-	private int allSegment;
+	@Column(name = "equity_cash")
+	private int equCash;
 
-	@Column(name = "equity")
-	private int equity;
+	@Column(name = "mutual_funds")
+	private int mutFunds;
 
-	@Column(name = "derivatives")
-	private int derivatives;
+	@Column(name = "equity_derivatives")
+	private int ed;
 
-	@Column(name = "commodities")
-	private int commodities;
+	@Column(name = "currency_derivatives")
+	private int cd;
+
+	@Column(name = "commodity")
+	private int comm;
 
 	@Column(name = "aluminium")
 	private String aluminium;
