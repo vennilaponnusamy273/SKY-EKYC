@@ -50,14 +50,14 @@ public interface IUserService {
 	ResponseModel getUserDetailsById(long applicationId);
 
 	/**
-	 * Method to get Bank Statement details
+	 * Method to get Documents that need to upload
 	 * 
 	 * @author prade
 	 * @param applicationId
 	 * @return
 	 */
 
-	ResponseModel BankStatementCheck(long applicationId);
+	ResponseModel docStatus(long applicationId);
 
 	/**
 	 * Method to create new user in keycloak

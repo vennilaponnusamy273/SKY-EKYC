@@ -2,6 +2,7 @@ package in.codifi.api.helper;
 
 import java.util.Date;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import in.codifi.api.entity.ApplicationUserEntity;
@@ -21,6 +22,7 @@ import in.codifi.api.repository.ReqResRepository;
 import in.codifi.api.repository.SegmentRepository;
 import in.codifi.api.utilities.EkycConstants;
 
+@ApplicationScoped
 public class DeleteHelper {
 	@Inject
 	ApplicationUserRepository repository;
@@ -66,8 +68,8 @@ public class DeleteHelper {
 		applicationUserEntity.setCreatedOn(null);
 		applicationUserEntity.setUpdatedBy(null);
 		applicationUserEntity.setMiddleName(null);
-		applicationUserEntity.setStage(0);
-		applicationUserEntity.setStatus(null);
+		applicationUserEntity.setStage(1);
+		applicationUserEntity.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
 		applicationUserEntity.setUserName(null);
 		applicationUserEntity.setUpdatedOn(new Date());
 		repository.save(applicationUserEntity);

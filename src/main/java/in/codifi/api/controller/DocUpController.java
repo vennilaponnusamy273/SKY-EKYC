@@ -1,6 +1,7 @@
 package in.codifi.api.controller;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Path;
 
 import in.codifi.api.controller.spec.IDocUpController;
@@ -10,6 +11,7 @@ import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IDocumentService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.MessageConstants;
+import in.codifi.api.utilities.StringUtil;
 
 @Path("/doc")
 public class DocUpController implements IDocUpController {
@@ -50,6 +52,48 @@ public class DocUpController implements IDocUpController {
 			} else {
 				response = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 			}
+		}
+		return response;
+	}
+
+	/**
+	 * Method to generate IVR Link
+	 */
+	@Override
+	public ResponseModel getIvrLink(@NotNull long applicationId) {
+		ResponseModel response = new ResponseModel();
+		if (applicationId > 0) {
+			response = docservice.getLinkIvr(applicationId);
+		} else {
+			response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
+		}
+		return response;
+	}
+
+	/**
+	 * Method to check document present or not
+	 */
+	@Override
+	public ResponseModel checkDoc(@NotNull long applicationId) {
+		ResponseModel response = new ResponseModel();
+		if (applicationId > 0) {
+			response = docservice.checkDocuments(applicationId);
+		} else {
+			response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
+		}
+		return response;
+	}
+
+	/**
+	 * Method to get Document based on id and type
+	 */
+	@Override
+	public ResponseModel getDocument(@NotNull long applicationId, @NotNull String type) {
+		ResponseModel response = new ResponseModel();
+		if (applicationId > 0 && StringUtil.isNotNullOrEmpty(type)) {
+			response = docservice.getDocument(applicationId, type);
+		} else {
+			response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
 		}
 		return response;
 	}

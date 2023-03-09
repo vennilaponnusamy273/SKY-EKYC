@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity(name = "tbl_kra_keyvalue_pair")
-public class KraKeyValueEntity extends CommonEntity {
+public class KraKeyValueEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")

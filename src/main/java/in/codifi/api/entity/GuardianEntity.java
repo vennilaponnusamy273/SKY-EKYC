@@ -57,4 +57,7 @@ public class GuardianEntity extends CommonEntity {
 	@Column(name = "state")
 	private String state;
 
+	@Column(name = "attachementUrl")
+	private String attachementUrl;
+
 }

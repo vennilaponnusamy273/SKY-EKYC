@@ -1,31 +1,45 @@
 package in.codifi.api.service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
+import org.json.JSONObject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.codifi.api.config.ApplicationProperties;
+import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.helper.DocumentHelper;
+import in.codifi.api.model.DocumentCheckModel;
 import in.codifi.api.model.FormDataModel;
 import in.codifi.api.model.IvrModel;
 import in.codifi.api.model.LivenessCheckReqModel;
 import in.codifi.api.model.LivenessCheckResModel;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.DocumentRepository;
 import in.codifi.api.restservice.AryaLivenessCheck;
 import in.codifi.api.service.spec.IDocumentService;
@@ -51,6 +65,9 @@ public class DocumentService implements IDocumentService {
 
 	@Inject
 	DocumentHelper documentHelper;
+
+	@Inject
+	ApplicationUserRepository userRepository;
 
 	/**
 	 * Method to upload file
@@ -118,7 +135,7 @@ public class DocumentService implements IDocumentService {
 				}
 			} else {
 				responseModel.setMessage(EkycConstants.FAILED_MSG);
-				if (StringUtil.isNullOrEmpty(fileModel.getFile().contentType()) || fileModel.getFile() == null) {
+				if (fileModel.getFile() == null || StringUtil.isNullOrEmpty(fileModel.getFile().contentType())) {
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.FILE_NULL);
 				} else {
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
@@ -273,10 +290,164 @@ public class DocumentService implements IDocumentService {
 		if (StringUtil.isNullOrEmpty(ivrModel.getLongitude())) {
 			errorList.add(MessageConstants.IVR_LON_NULL);
 		}
-//		if (ivrModel.isMobile() && StringUtil.isNullOrEmpty(ivrModel.getOtp())) {
-//			errorList.add(MessageConstants.IVR_TOKEN_NULL);
-//		}
 		return errorList;
+	}
+
+	/**
+	 * Method to generate IVR Link
+	 */
+	@Override
+	public ResponseModel getLinkIvr(@NotNull long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		Optional<ApplicationUserEntity> isUserPresent = userRepository.findById(applicationId);
+		if (isUserPresent.isPresent()) {
+			String FirstName = isUserPresent.get().getFirstName();
+			String Email = isUserPresent.get().getEmailId();
+			Long Mobile_No = isUserPresent.get().getMobileNo();
+			String RandomencodedUuid = Base64.getUrlEncoder().withoutPadding()
+					.encodeToString(UUID.randomUUID().toString().getBytes());
+			String baseUrl = props.getIvrBaseUrl();
+			String apiKey = props.getBitlyAccessToken();
+			// String url = baseUrl + "?key=" + apiKey + "&short=" + "ivpBaseURl" +
+			// ApplicationId + "&name=" + FirstName + "&userDomain=1&randomKey=" +
+			// RandomencodedUuid;
+			String url = baseUrl + EkycConstants.IVR_KEY + apiKey + EkycConstants.IVR_SHORT + EkycConstants.IVPBASEURL
+					+ applicationId + EkycConstants.IVR_NAME + FirstName + EkycConstants.IVR_USER_DOMAIN_AND_RANDOMKEY
+					+ RandomencodedUuid;
+			try {
+				String generateShortLink = generateShortLink(url);
+				commonMethods.sendIvrLinktoMobile(generateShortLink, Mobile_No);
+				commonMethods.sendMailIvr(generateShortLink, Email);
+				JSONObject result = new JSONObject();
+				result.put("ivrURL", generateShortLink);
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				responseModel.setReason(EkycConstants.SUCCESS_MSG);
+				responseModel.setResult(generateShortLink);
+			} catch (Exception e) {
+				responseModel.setStat(EkycConstants.FAILED_STATUS);
+				responseModel.setMessage(EkycConstants.IVR_FAILED_MESSAGE);
+				responseModel.setReason(e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		return responseModel;
+	}
+
+	public String generateShortLink(String longUrl) {
+		HttpURLConnection conn = null;
+		String shortUrl = "";
+		try {
+			String apiKey = props.getBitlyAccessToken();
+			String apiUrl = String.format(props.getBitlyBaseUrl(), apiKey,
+					URLEncoder.encode(longUrl, StandardCharsets.UTF_8));
+			URL url = new URL(apiUrl);
+
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod(EkycConstants.HTTP_GET);
+			conn.setRequestProperty(EkycConstants.IVR_ACCEPT, EkycConstants.CONSTANT_APPLICATION_JSON);
+
+			if (conn.getResponseCode() != 200) {
+				BufferedReader errorReader = new BufferedReader(new InputStreamReader((conn.getErrorStream())));
+				String errorOutput;
+				StringBuilder errorResponseBuilder = new StringBuilder();
+				while ((errorOutput = errorReader.readLine()) != null) {
+					errorResponseBuilder.append(errorOutput);
+				}
+				throw new RuntimeException(MessageConstants.FAILED_HTTP_CODE + conn.getResponseCode() + " : "
+						+ errorResponseBuilder.toString());
+			}
+
+			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String output;
+			StringBuilder responseBuilder = new StringBuilder();
+
+			while ((output = in.readLine()) != null) {
+				responseBuilder.append(output);
+			}
+			JSONObject responseJson = new JSONObject(responseBuilder.toString());
+			JSONObject urlObj = responseJson.getJSONObject(EkycConstants.URL);
+			shortUrl = urlObj.getString(EkycConstants.SHORT_URL);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (conn != null) {
+				conn.disconnect();
+			}
+		}
+		return shortUrl;
+	}
+
+	/**
+	 * Method to check document present or not
+	 */
+	@Override
+	public ResponseModel checkDocuments(@NotNull long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		DocumentCheckModel documentCheckModel = null;
+		try {
+			List<DocumentEntity> documents = docrepository.findByApplicationId(applicationId);
+			if (StringUtil.isListNotNullOrEmpty(documents)) {
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				documentCheckModel = new DocumentCheckModel();
+				for (DocumentEntity docEntity : documents) {
+					if (docEntity != null && StringUtil.isNotNullOrEmpty(docEntity.getTypeOfProof())) {
+						if (StringUtil.isEqual(EkycConstants.DOC_IVR, docEntity.getTypeOfProof())) {
+							documentCheckModel.setIpvPresent(true);
+						} else if (StringUtil.isEqual(EkycConstants.DOC_CHEQUE, docEntity.getTypeOfProof())) {
+							documentCheckModel.setCancelledChequeOrStatement(true);
+						} else if (StringUtil.isEqual(EkycConstants.DOC_INCOME, docEntity.getTypeOfProof())) {
+							documentCheckModel.setIncomeProofPresent(true);
+						} else if (StringUtil.isEqual(EkycConstants.DOC_SIGNATURE, docEntity.getTypeOfProof())) {
+							documentCheckModel.setSignaturePresent(true);
+						} else if (StringUtil.isEqual(EkycConstants.DOC_PAN, docEntity.getTypeOfProof())) {
+							documentCheckModel.setPanCardPresent(true);
+						}
+					}
+				}
+				responseModel.setResult(documentCheckModel);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.NOT_FOUND_DATA);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to get Document based on id and type
+	 */
+	@Override
+	public ResponseModel getDocument(@NotNull long applicationId, @NotNull String type) {
+		ResponseModel responseModel = new ResponseModel();
+		try {
+			DocumentEntity documents = docrepository.findByApplicationIdAndTypeOfProof(applicationId, type);
+			if (documents != null) {
+				DocumentCheckModel documentCheckModel = new DocumentCheckModel();
+				if (StringUtil.isEqual(EkycConstants.DOC_IVR, documents.getTypeOfProof())) {
+					documentCheckModel.setIpvPresent(true);
+				} else if (StringUtil.isEqual(EkycConstants.DOC_CHEQUE, documents.getTypeOfProof())) {
+					documentCheckModel.setCancelledChequeOrStatement(true);
+				} else if (StringUtil.isEqual(EkycConstants.DOC_INCOME, documents.getTypeOfProof())) {
+					documentCheckModel.setIncomeProofPresent(true);
+				} else if (StringUtil.isEqual(EkycConstants.DOC_SIGNATURE, documents.getTypeOfProof())) {
+					documentCheckModel.setSignaturePresent(true);
+				} else if (StringUtil.isEqual(EkycConstants.DOC_PAN, documents.getTypeOfProof())) {
+					documentCheckModel.setPanCardPresent(true);
+				}
+				documentCheckModel.setImageUrl(documents.getAttachementUrl());
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				responseModel.setResult(documentCheckModel);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.NOT_FOUND_DATA);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return responseModel;
 	}
 
 }

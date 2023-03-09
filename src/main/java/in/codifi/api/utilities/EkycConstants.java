@@ -104,10 +104,11 @@ public class EkycConstants {
 	// Doc Upload
 	public static final String CONST_APPLICATION_PDF = "application/pdf";
 	public static final String PDF_EXTENSION = ".pdf";
-	public static final String DOC_IVR = "IVR";
-	public static final String DOC_CHEQUE = "Cheque/Statement";
-	public static final String DOC_INCOME = "Income";
-	public static final String DOC_SIGNATURE = "Signature";
+	public static final String DOC_IVR = "IPV";
+	public static final String DOC_CHEQUE = "CANCELLED_CHEQUE_OR_STATEMENT";
+	public static final String DOC_INCOME = "INCOME_PROOF";
+	public static final String DOC_SIGNATURE = "SIGNATURE";
+	public static final String DOC_PAN = "PAN";
 	public static final String DOC_PHOTO = "Photo";
 	// Razorpay
 	public static final String AMOUNT = "amount";
@@ -167,6 +168,7 @@ public class EkycConstants {
 	public static final String METHOD_CRE_PAY = "CREATE_PAYMENT";
 	public static final String METHOD_VER_PAY = "VERIFY_PAYMENT";
 	public static final String NOM_PROOF = "NOMINEE_PROOF";
+	public static final String GUARDINA_PROOF = "GUARDIAN_PROOF";
 	// KRA
 	public static final String CONST_KRA_APP_RES_ROOT = "APP_RES_ROOT";
 	public static final String CONST_KRA_APP_PAN_INQ = "APP_PAN_INQ";
@@ -203,10 +205,28 @@ public class EkycConstants {
 	// BANK STATEMENT
 	public static final String NO_NEED_BANK_STATEMENT = "BANK STATEMENT IS NOT  REQUIRED";
 	public static final String NEED_BANK_STATEMENT = "LAST SIX MONTH BANK STATEMENT IS REQUIRED";
-	
-	//CKYC
+
+	// CKYC
 	public static final String CONST_APPLICATION_JSON = "application/json";
 	public static final String PAN_TYPE = "PAN";
 	public static final String CKYC_TOKEN = "9f20fbcbf7673dc0a478e5b71ad7ad18";
+
+	// Ivr
+	public static final String IVR_FAILED_MESSAGE = "Failed to generate short URL";
+	public static final String IVR_ACCEPT = "Accept";
+	public static final String URL = "url";
+	public static final String SHORT_URL = "shortLink";
+	public static final String IVR_KEY = "?key=";
+	public static final String IVPBASEURL = "ivpBaseURl";
+	public static final String IVR_SHORT = "&short=";
+	public static final String IVR_NAME = "&name=";
+	public static final String IVR_USER_DOMAIN_AND_RANDOMKEY = "&userDomain=1&randomKey=";
+	public static final String IVR_MSG = " Dear user, your NIDHI eKYC Application IPV is pending. Kindly click here:";
+
+	public static final String STATEKEY = "1_STATE_";
+	public static final String COUNTRYKEY = "1_COUNTRY_";
+	public static final String INCOMEKEY = "1_INCOME_";
+	public static final String OCCUPATIONKEY = "1_OCCUPATION_";
+	public static final String PEPKEY = "1_PEP_";
 
 }

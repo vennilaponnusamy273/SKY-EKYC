@@ -54,4 +54,10 @@ public class ProfileEntity extends CommonEntity {
 	@Column(name = "legal_action")
 	private String legalAction;
 
+	@Column(name = "legal_action_statement")
+	private String actionStatement;
+
+	@Column(name = "settlement_cycle")
+	private String settlementCycle;
+
 }

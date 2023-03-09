@@ -110,17 +110,16 @@ public interface IUserController {
 			@QueryParam("stage") double stage);
 
 	/**
-	 * Method to get Bank Details
+	 * Method to get Documents that need to upload
 	 * 
 	 * @param applicationId
 	 * @return
 	 */
-//TODO
-	@Path("/getBankStatement")
+	@Path("/docStatus")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@APIResponse(description = "Method to get Profile Details")
-	ResponseModel getBankStatementStatus(@NotNull @QueryParam("applicationId") long applicationId);
+	@APIResponse(description = "Method to get Documents that need to upload")
+	ResponseModel docStatus(@NotNull @QueryParam("applicationId") long applicationId);
 
 	/**
 	 * Method to create new user in keycloak

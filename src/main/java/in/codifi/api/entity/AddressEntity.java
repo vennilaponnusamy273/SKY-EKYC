@@ -18,6 +18,9 @@ public class AddressEntity extends CommonEntity {
 	@Column(name = "id")
 	private Long id;
 
+	@Column(name = "address_confirm")
+	private int addressConfirm;
+
 	@Column(name = "is_digi")
 	private int isdigi;
 
@@ -78,6 +81,9 @@ public class AddressEntity extends CommonEntity {
 	@Column(name = "kra_state")
 	private String kraState;
 
+	@Column(name = "kra_country")
+	private String kraCountry;
+
 	@Column(name = "kra_per_address_1")
 	private String kraPerAddress1;
 
@@ -95,5 +101,8 @@ public class AddressEntity extends CommonEntity {
 
 	@Column(name = "kra_per_state")
 	private String kraPerState;
+
+	@Column(name = "kra_per_country")
+	private String kraPerCountry;
 
 }

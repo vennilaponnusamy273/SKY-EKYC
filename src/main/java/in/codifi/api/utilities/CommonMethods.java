@@ -9,6 +9,8 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -175,11 +177,18 @@ public class CommonMethods {
 	 * @return
 	 */
 	public void sendMailOtp(int otp, String emailId) throws MessagingException {
-		String getSubject = props.getMailSubject();
-		String getText = "Dear User, " + otp + " " + props.getMailText();
-		Mail mail = Mail.withText(emailId, getSubject, getText);
-		mailer.send(mail);
-		System.out.print("the post mail" + mail);
+		ExecutorService pool = Executors.newSingleThreadExecutor();
+		pool.execute(new Runnable() {
+			@Override
+			public void run() {
+				String getSubject = props.getMailSubject();
+				String getText = "Dear User, " + otp + " " + props.getMailText();
+				Mail mail = Mail.withText(emailId, getSubject, getText);
+				mailer.send(mail);
+				System.out.print("the post mail" + mail);
+			}
+		});
+		pool.shutdown();
 	}
 
 	/**
@@ -312,6 +321,46 @@ public class CommonMethods {
 
 		}
 
+	}
+
+	public void sendIvrLinktoMobile(String Url, long mobileNumber) {
+		try {
+			StringBuffer data = new StringBuffer();
+			data.append(EkycConstants.CONST_SMS_FEEDID + props.getSmsFeedId());
+			data.append(EkycConstants.AND + EkycConstants.CONST_SMS_SENDERID + props.getSmsSenderId());
+			data.append(EkycConstants.AND + EkycConstants.CONST_SMS_USERNAME + props.getSmsUserName());
+			data.append(EkycConstants.AND + EkycConstants.CONST_SMS_PASSWORD + props.getSmsPassword());
+			data.append(EkycConstants.AND + EkycConstants.CONST_SMS_TO + mobileNumber);
+			String msg = EkycConstants.AND + EkycConstants.CONST_SMS_TEXT + EkycConstants.IVR_MSG.replace(" ", "%20")
+					+ Url + " .NIDHI".replace(" ", "%20");
+			data.append(msg);
+			URL url = new URL(props.getSmsUrl() + data.toString());
+			System.out.println("the url" + url);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod(EkycConstants.HTTP_POST);
+			conn.setDoOutput(true);
+			conn.setDoInput(true);
+			conn.setUseCaches(false);
+			conn.connect();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String line;
+			StringBuffer buffer = new StringBuffer();
+			while ((line = rd.readLine()) != null) {
+				buffer.append(line);
+			}
+			rd.close();
+			conn.disconnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void sendMailIvr(String generateShortLink1, String emailId) throws MessagingException {
+		String getSubject = props.getMailSubject();
+		String getText = "<p>" + props.getBitText() + " <a href=\"" + generateShortLink1 + "\">" + generateShortLink1
+				+ "</a> .NIDHI</p>";
+		Mail mail = Mail.withHtml(emailId, getSubject, getText);
+		mailer.send(mail);
 	}
 
 }

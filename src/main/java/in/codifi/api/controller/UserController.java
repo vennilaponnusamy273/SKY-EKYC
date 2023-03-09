@@ -143,11 +143,14 @@ public class UserController implements IUserController {
 		return responseModel;
 	}
 
+	/**
+	 * Method to get Documents that need to upload
+	 */
 	@Override
-	public ResponseModel getBankStatementStatus(long applicationId) {
+	public ResponseModel docStatus(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		if (applicationId > 0) {
-			responseModel = iUserService.BankStatementCheck(applicationId);
+			responseModel = iUserService.docStatus(applicationId);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 		}

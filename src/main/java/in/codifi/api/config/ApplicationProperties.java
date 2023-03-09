@@ -101,4 +101,12 @@ public class ApplicationProperties {
 	private String apiKey;
 	@ConfigProperty(name = "appconfig.sms.senderida")
 	private String senderId;
+	@ConfigProperty(name = "quarkus.bitly.access_token")
+	private String bitlyAccessToken;
+	@ConfigProperty(name = "quarkus.bitly_baseUrl")
+	private String bitlyBaseUrl;
+	@ConfigProperty(name = "appconfig.mail.ivr.text")
+	private String bitText;
+	@ConfigProperty(name = "quarkus.ivr_baseUrl")
+	private String ivrBaseUrl;
 }

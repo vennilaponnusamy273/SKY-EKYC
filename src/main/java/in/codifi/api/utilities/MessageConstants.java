@@ -53,6 +53,7 @@ public class MessageConstants {
 	public static final String ERROR_WHILE_SAVING_BANK_DETAILS = "Error Occur While Saving Bank Details";
 	public static final String USER_NOT_VERIFIED = "You are not verified Customer please reverified";
 	public static final String IFSC_INVALID = "The given user IFSC Code is Invalid";
+	public static final String ACC_NUM_MISMATCH = "The given Account number are not same";
 	public static final String NOMINEE_AVAILABLE = "Nominee Details already Available";
 	public static final String ERROR_WHILE_SAVING_NOMINEE_DETAILS = "Error Occur While Saving Nominee Details";
 	public static final String ERROR_WHILE_SAVING_SEGMENT_DETAILS = "Error Occur While Saving Segment Details";
@@ -100,4 +101,6 @@ public class MessageConstants {
 	// BANK STATEMENT
 	public static final String USER_DETAILS_INVALID = "The Given User Details is invalid";
 	public static final String FILE_NULL = "please choose file";
+	public static final String NOM_FILE_NULL = "Nominee proof empty";
+	public static final String GUARD_FILE_NULL = "Guardian proof empty";
 }

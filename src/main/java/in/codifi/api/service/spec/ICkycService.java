@@ -1,5 +1,4 @@
 package in.codifi.api.service.spec;
-import in.codifi.api.entity.ResponseCkyc;
 import in.codifi.api.model.ResponseModel;
 
 public interface ICkycService {
@@ -13,5 +12,5 @@ public interface ICkycService {
 	 * @return
 	 */
 	
-	ResponseModel ckyc(ResponseCkyc ckyc);
+	ResponseModel getckyc(long ckyc);
 }

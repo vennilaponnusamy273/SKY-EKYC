@@ -36,66 +36,10 @@ public class SegmentEntity extends CommonEntity {
 	@Column(name = "commodity")
 	private int comm;
 
-	@Column(name = "aluminium")
-	private String aluminium;
+	@Column(name = "category")
+	private String category;
 
-	@Column(name = "brass")
-	private String brass;
+	@Column(name = "consent")
+	private int consent;
 
-	@Column(name = "cardamom")
-	private String cardamom;
-
-	@Column(name = "copper")
-	private String copper;
-
-	@Column(name = "cotton")
-	private String cotton;
-
-	@Column(name = "crupalmoil")
-	private String crupalmoil;
-
-	@Column(name = "crudeoil")
-	private String crudeoil;
-
-	@Column(name = "gold")
-	private String gold;
-
-	@Column(name = "menthaoil")
-	private String menthaoil;
-
-	@Column(name = "naturalgas")
-	private String naturalgas;
-
-	@Column(name = "nickel")
-	private String nickel;
-
-	@Column(name = "pepper")
-	private String pepper;
-
-	@Column(name = "rbdpmolein")
-	private String rbdpmolein;
-
-	@Column(name = "silver")
-	private String silver;
-
-	@Column(name = "zinc")
-	private String zinc;
-
-	@Column(name = "kapas")
-	private String kapas;
-
-	@Column(name = "rubber")
-	private String rubber;
-
-	@Column(name = "mcxbulldex")
-	private String mcxbulldex;
-
-	@Column(name = "mcxmetldex")
-	private String mcxmetldex;
-
-	@Column(name = "mcxcomdex")
-	private String mcxcomdex;
-
-	@Column(name = "leadsky")
-	public String lead;
 }

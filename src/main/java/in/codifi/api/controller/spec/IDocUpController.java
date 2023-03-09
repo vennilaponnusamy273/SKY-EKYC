@@ -1,9 +1,12 @@
 package in.codifi.api.controller.spec;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -42,4 +45,45 @@ public interface IDocUpController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to Upload proof Documnt")
 	public ResponseModel uploadIvr(IvrModel ivrModel);
+
+	/**
+	 * Method to generate IVR Link
+	 * 
+	 * @param ApplicationId
+	 * @return
+	 */
+	@Path("/getIvrLink")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to get ivr link")
+	public ResponseModel getIvrLink(@NotNull @QueryParam("applicationId") long applicationId);
+
+	/**
+	 * Method to check document present or not
+	 * 
+	 * @param ApplicationId
+	 * @return
+	 */
+	@Path("/checkDoc")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to check document ")
+	public ResponseModel checkDoc(@NotNull @QueryParam("applicationId") long applicationId);
+
+	/**
+	 * Method to get Document based on id and type
+	 * 
+	 * @param ApplicationId
+	 * @param Type
+	 * @return
+	 */
+	@Path("/getDocument")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to get document ")
+	public ResponseModel getDocument(@NotNull @QueryParam("applicationId") long applicationId,
+			@NotNull @QueryParam("proofType") String Type);
 }

@@ -8,16 +8,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.entity.ResponseCkyc;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.model.ckyc.CkycResponse;
 import in.codifi.api.model.ckyc.PersonalDetails;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.CkycResponseRepos;
+import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.service.spec.ICkycService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
+import in.codifi.api.utilities.StringUtil;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -39,25 +42,27 @@ public class CkycService implements ICkycService {
 	@Inject
 	ApplicationUserRepository repository;
 
+	@Inject
+	ProfileRepository profileRepository;
+
 	@Override
-	public ResponseModel ckyc(ResponseCkyc ckyc) {
+	public ResponseModel getckyc(long applicationId) {
 
 		ResponseModel responseModel = new ResponseModel();
 		try {
-			if (ckyc.getApplicationId() >= 0) {
-				Optional<ApplicationUserEntity> isUserPresent = repository.findById(ckyc.getApplicationId());
+			if (applicationId > 0) {
+				Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
 				if (isUserPresent.isPresent()) {
 					OkHttpClient client = new OkHttpClient().newBuilder().build();
 					MediaType mediaType = MediaType.parse(EkycConstants.CONST_APPLICATION_JSON);
 					// RequestBody body = RequestBody.create(mediaType, "{\r\n \"id_type\":
 					// \"PAN\",\r\n \"id_num\": \"CKAPD5698F\",\r\n \"full_name\": \"DINESH\",\r\n
 					// \"gender\": \"M\",\r\n \"dob\": \"24-01-1995\",\r\n \"req_id\": \"1\"\r\n}");
-					RequestBody body = RequestBody.create(mediaType,
-							"{\r\n    \"id_type\": \"" + EkycConstants.PAN_TYPE + "\",\r\n    \"id_num\": \""
-									+ isUserPresent.get().getPanNumber() + "\",\r\n    \"full_name\": \""
-									+ isUserPresent.get().getUserName() + "\",\r\n    \"gender\": \"" + ckyc.getGender()
-									+ "\",\r\n    \"dob\": \"" + ckyc.getDob() + "\",\r\n    \"req_id\": \""
-									+ ckyc.getApplicationId() + "\"\r\n}");
+					RequestBody body = RequestBody.create(mediaType, "{\r\n    \"id_type\": \"" + EkycConstants.PAN_TYPE
+							+ "\",\r\n    \"id_num\": \"" + isUserPresent.get().getPanNumber()
+							+ "\",\r\n    \"full_name\": \"" + isUserPresent.get().getUserName()
+							+ "\",\r\n    \"gender\": \"" + isUserPresent.get().getGender() + "\",\r\n    \"dob\": \""
+							+ isUserPresent.get().getDob() + "\",\r\n    \"req_id\": \"" + applicationId + "\"\r\n}");
 					Request request = new Request.Builder().url(props.getCkycapi())
 							.method(EkycConstants.HTTP_POST, body)
 							.addHeader(EkycConstants.DIGI_CONST_TOKEN, EkycConstants.CKYC_TOKEN)
@@ -67,7 +72,7 @@ public class CkycService implements ICkycService {
 					if (response.code() == 200) {
 						ObjectMapper om = new ObjectMapper();
 						CkycResponse dto = om.readValue(response.body().string(), CkycResponse.class);
-						responseModel.setResult(saveCkycResponse(dto, ckyc));
+						responseModel.setResult(saveCkycResponse(dto, applicationId));
 					} else {
 						System.out.println(response.code());
 
@@ -85,14 +90,15 @@ public class CkycService implements ICkycService {
 		return responseModel;
 	}
 
-	public ResponseModel saveCkycResponse(CkycResponse dto, ResponseCkyc ckyc) {
+	public ResponseModel saveCkycResponse(CkycResponse dto, long applicatioId) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-			ResponseCkyc checkExit = repos.findByapplicationId(ckyc.getApplicationId());
+			String motherName = "";
+			ResponseCkyc checkExit = repos.findByapplicationId(applicatioId);
 			if (checkExit == null) {
 				PersonalDetails personalDetails = dto.getResult().getPersonalDetails();
 				ResponseCkyc response = new ResponseCkyc();
-				response.setApplicationId(ckyc.getApplicationId());
+				response.setApplicationId(applicatioId);
 				response.setAccType(personalDetails.getAccType());
 				response.setCkycNo(personalDetails.getCkycNo());
 				response.setConstiType(personalDetails.getConstiType());
@@ -124,6 +130,9 @@ public class CkycService implements ICkycService {
 				response.setMobNum(personalDetails.getMobNum());
 				response.setMotherFname(personalDetails.getMotherFname());
 				response.setMotherFullname(personalDetails.getMotherFullname());
+				if (StringUtil.isNotNullOrEmpty(personalDetails.getMotherFullname())) {
+					motherName = personalDetails.getMotherFullname();
+				}
 				response.setMotherLname((String) personalDetails.getMotherLname());
 				response.setMotherMname((String) personalDetails.getMotherMname());
 				response.setMotherPrefix(personalDetails.getMotherPrefix());
@@ -182,6 +191,9 @@ public class CkycService implements ICkycService {
 				checkExit.setMobNum(personalDetails.getMobNum());
 				checkExit.setMotherFname(personalDetails.getMotherFname());
 				checkExit.setMotherFullname(personalDetails.getMotherFullname());
+				if (StringUtil.isNotNullOrEmpty(personalDetails.getMotherFullname())) {
+					motherName = personalDetails.getMotherFullname();
+				}
 				checkExit.setMotherLname((String) personalDetails.getMotherLname());
 				checkExit.setMotherMname((String) personalDetails.getMotherMname());
 				checkExit.setMotherPrefix(personalDetails.getMotherPrefix());
@@ -205,7 +217,14 @@ public class CkycService implements ICkycService {
 				checkExit.setUpdatedDate(personalDetails.getUpdatedDate());
 				repos.save(checkExit);
 				responseModel.setResult(checkExit);
-				// commonMethods.UpdateStep(1,ckyc.getApplicationid());
+			}
+
+			if (StringUtil.isNotNullOrEmpty(motherName)) {
+				ProfileEntity profileDetails = profileRepository.findByapplicationId(applicatioId);
+				if (profileDetails != null && StringUtil.isNullOrEmpty(profileDetails.getMotherName())) {
+					profileDetails.setMotherName(motherName);
+					profileRepository.save(profileDetails);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -76,4 +76,18 @@ public class PanController implements IPanController {
 		commonMethods.Req_Res_Save_object(userEntity, responseModel, EkycConstants.PAN_DOB, userEntity.getId());
 		return responseModel;
 	}
+
+	/**
+	 * Method to Confirm KRA Address
+	 */
+	@Override
+	public ResponseModel confirmAddress(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		if (applicationId > 0) {
+			responseModel = service.confirmAddress(applicationId);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+		}
+		return responseModel;
+	}
 }

@@ -14,18 +14,17 @@ import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.PennyDropEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.entity.SegmentEntity;
+import in.codifi.api.helper.DeleteHelper;
 import in.codifi.api.helper.UserHelper;
 import in.codifi.api.model.CreateUserCredentialsModel;
 import in.codifi.api.model.CreateUserRequestModel;
-import in.codifi.api.model.ErpExistingApiModel;
-import in.codifi.api.model.ExistingCustReqModel;
+import in.codifi.api.model.DocReqModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.PennyDropRepository;
 import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.repository.SegmentRepository;
-import in.codifi.api.restservice.ErpRestService;
 import in.codifi.api.restservice.keycloak.KeyCloakAdminRestService;
 import in.codifi.api.service.spec.IUserService;
 import in.codifi.api.utilities.CommonMethods;
@@ -42,8 +41,6 @@ public class UserService implements IUserService {
 	@Inject
 	UserHelper userHelper;
 	@Inject
-	ErpRestService erpRestService;
-	@Inject
 	AddressRepository repos;
 	@Inject
 	ProfileRepository profileRepository;
@@ -53,6 +50,8 @@ public class UserService implements IUserService {
 	PennyDropRepository PennyRepository;
 	@Inject
 	KeyCloakAdminRestService keyCloakAdminRestService;
+	@Inject
+	DeleteHelper deleteHelper;
 
 	/**
 	 * Method to send otp to mobile number
@@ -106,10 +105,6 @@ public class UserService implements IUserService {
 					if (savedOtp == userEntity.getSmsOtp()) {
 						oldUserEntity.setSmsVerified(1);
 						updatedUserDetails = repository.save(oldUserEntity);
-						ExistingCustReqModel custModel = new ExistingCustReqModel();
-						custModel.setInput(String.valueOf(oldUserEntity.getMobileNo()));
-						custModel.setInputType(EkycConstants.ERP_MOBILE);
-						ErpExistingApiModel existingModel = erpRestService.erpCheckExisting(custModel);
 						HazleCacheController.getInstance().getVerifyOtp().remove(mapKey);
 						HazleCacheController.getInstance().getRetryOtp().remove(mapKey);
 						if (updatedUserDetails != null && StringUtil.isNotNullOrEmpty(updatedUserDetails.getStatus())
@@ -125,28 +120,11 @@ public class UserService implements IUserService {
 								responseModel = commonMethods
 										.constructFailedMsg(MessageConstants.ERROR_WHILE_VERIFY_OTP);
 							} else {
-								if (existingModel != null && StringUtil.isNotNullOrEmpty(existingModel.getExisting())
-										&& StringUtil.isEqual(existingModel.getExisting(), EkycConstants.EXISTING_YES)
-										&& StringUtil.isNotNullOrEmpty(existingModel.getStatus())
-										&& StringUtil.isNotEqual(existingModel.getExisting(),
-												EkycConstants.STATUS_INACTIVE)) {
-									if (StringUtil.isNotNullOrEmpty(existingModel.getStatus()) && StringUtil
-											.isEqual(existingModel.getExisting(), EkycConstants.STATUS_ACTIVE)) {
-										responseModel = commonMethods
-												.constructFailedMsg(MessageConstants.EKYC_ACTIVE_CUSTOMER);
-									} else if (StringUtil.isNotNullOrEmpty(existingModel.getStatus()) && StringUtil
-											.isEqual(existingModel.getExisting(), EkycConstants.STATUS_DORMANT)) {
-										responseModel = commonMethods
-												.constructFailedMsg(MessageConstants.EKYC_DORMANT_CUSTOMER);
-										responseModel.setPage(EkycConstants.PAGE_PDFDOWNLOAD);
-									}
-								} else {
-									responseModel = new ResponseModel();
-									responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-									responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-									responseModel.setResult(updatedUserDetails);
-									responseModel.setPage(EkycConstants.PAGE_EMAIL);
-								}
+								responseModel = new ResponseModel();
+								responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+								responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+								responseModel.setResult(updatedUserDetails);
+								responseModel.setPage(EkycConstants.PAGE_EMAIL);
 							}
 						}
 					} else {
@@ -237,31 +215,11 @@ public class UserService implements IUserService {
 						oldUserEntity.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
 						updatedUserDetails = repository.save(oldUserEntity);
 						if (updatedUserDetails != null) {
-							ExistingCustReqModel custModel = new ExistingCustReqModel();
-							custModel.setInput(oldUserEntity.getEmailId());
-							custModel.setInputType(EkycConstants.ERP_EMAIL);
-							ErpExistingApiModel existingModel = erpRestService.erpCheckExisting(custModel);
-							if (existingModel != null
-									&& StringUtil.isEqual(existingModel.getExisting(), EkycConstants.EXISTING_YES)
-									&& StringUtil.isNotNullOrEmpty(existingModel.getStatus()) && StringUtil
-											.isNotEqual(existingModel.getExisting(), EkycConstants.STATUS_INACTIVE)) {
-								if (StringUtil.isNotNullOrEmpty(existingModel.getStatus()) && StringUtil
-										.isEqual(existingModel.getExisting(), EkycConstants.STATUS_ACTIVE)) {
-									responseModel = commonMethods
-											.constructFailedMsg(MessageConstants.EKYC_EMAIL_ACTIVE_CUSTOMER);
-								} else if (StringUtil.isNotNullOrEmpty(existingModel.getStatus()) && StringUtil
-										.isEqual(existingModel.getExisting(), EkycConstants.STATUS_DORMANT)) {
-									responseModel = commonMethods
-											.constructFailedMsg(MessageConstants.EKYC_DORMANT_CUSTOMER);
-									responseModel.setPage(EkycConstants.PAGE_PDFDOWNLOAD);
-								}
-							} else {
-								responseModel = new ResponseModel();
-								responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-								responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-								responseModel.setResult(updatedUserDetails);
-								responseModel.setPage(EkycConstants.PAGE_PASSWORD);
-							}
+							responseModel = new ResponseModel();
+							responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+							responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+							responseModel.setResult(updatedUserDetails);
+							responseModel.setPage(EkycConstants.PAGE_PASSWORD);
 						} else {
 							responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_VERIFY_OTP);
 						}
@@ -310,27 +268,38 @@ public class UserService implements IUserService {
 		return responseModel;
 	}
 
+	/**
+	 * Method to get Documents that need to upload
+	 */
 	@Override
-	public ResponseModel BankStatementCheck(long applicationId) {
+	public ResponseModel docStatus(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
 			Optional<ApplicationUserEntity> user = repository.findById(applicationId);
-			String PanUser = user.get().getUserName();
 			PennyDropEntity PennyUser = PennyRepository.findByapplicationId(applicationId);
-			String Pennyuser = PennyUser.getAccountHolderName();
 			SegmentEntity savedSegmentEntity = segmentRepository.findByapplicationId(applicationId);
-			if (PennyUser != null && user != null && savedSegmentEntity != null) {
-				// TODO
-				int CheckDerivatives = 1;
-				if (CheckDerivatives == 1 || PanUser == Pennyuser) {
-					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-					responseModel.setResult(EkycConstants.NO_NEED_BANK_STATEMENT);
-				} else {
-					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-					responseModel.setResult(EkycConstants.NEED_BANK_STATEMENT);
+			DocReqModel docReqModel = new DocReqModel();
+			if (user != null) {
+				if (savedSegmentEntity != null) {
+					if (savedSegmentEntity.getEd() == 0 && savedSegmentEntity.getCd() == 0
+							&& savedSegmentEntity.getComm() == 0) {
+						docReqModel.setIncomeProofRequired(false);
+					}
 				}
+				if (PennyUser != null && StringUtil.isNotNullOrEmpty(PennyUser.getAccountHolderName())) {
+					String accountHolderName = PennyUser.getAccountHolderName();
+					String fnLn = user.get().getFirstName() + user.get().getLastName();
+					String lnFn = user.get().getLastName() + user.get().getFirstName();
+					String fullName = user.get().getUserName();
+					if (accountHolderName.equalsIgnoreCase(fullName) || accountHolderName.equalsIgnoreCase(fnLn)
+							|| accountHolderName.equalsIgnoreCase(lnFn)) {
+						docReqModel.setChequeRequired(false);
+						docReqModel.setNameMismatch(false);
+					}
+				}
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setResult(docReqModel);
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 			}
@@ -389,7 +358,8 @@ public class UserService implements IUserService {
 	 */
 	@Override
 	public ResponseModel startOver(ApplicationUserEntity applicationUserEntity) {
-		return null;
+		ResponseModel responseModel = deleteHelper.DeleteAll(applicationUserEntity);
+		return responseModel;
 	}
 
 }

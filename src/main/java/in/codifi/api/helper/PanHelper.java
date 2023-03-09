@@ -48,17 +48,13 @@ import org.json.simple.JSONObject;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
-import in.codifi.api.model.ErpExistingApiModel;
-import in.codifi.api.model.ExistingCustReqModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
-import in.codifi.api.restservice.ErpRestService;
 import in.codifi.api.utilities.APIBased.DummyHostnameVerifier;
 import in.codifi.api.utilities.APIBased.DummyTrustManager;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
-import in.codifi.api.utilities.StringUtil;
 
 @ApplicationScoped
 @SuppressWarnings({ "rawtypes", "unused", "unchecked" })
@@ -70,8 +66,6 @@ public class PanHelper {
 	ApplicationUserRepository repository;
 	@Inject
 	CommonMethods commonMethods;
-	@Inject
-	ErpRestService erpRestService;
 
 	public String getPanDetailsFromNSDL(String panCard, Long applicationId) {
 		/**
@@ -378,29 +372,11 @@ public class PanHelper {
 					oldUserEntity.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
 					updatedUserDetails = repository.save(oldUserEntity);
 					commonMethods.UpdateStep(2.1, userEntity.getId());
-					ExistingCustReqModel custModel = new ExistingCustReqModel();
-					custModel.setInput(oldUserEntity.getEmailId());
-					custModel.setInputType(EkycConstants.ERP_PAN);
-					ErpExistingApiModel existingModel = erpRestService.erpCheckExisting(custModel);
-					if (existingModel != null && StringUtil.isNotNullOrEmpty(existingModel.getExisting())
-							&& StringUtil.isEqual(existingModel.getExisting(), EkycConstants.EXISTING_YES)
-							&& StringUtil.isNotNullOrEmpty(existingModel.getStatus())
-							&& StringUtil.isNotEqual(existingModel.getExisting(), EkycConstants.STATUS_INACTIVE)) {
-						if (StringUtil.isNotNullOrEmpty(existingModel.getStatus())
-								&& StringUtil.isEqual(existingModel.getExisting(), EkycConstants.STATUS_ACTIVE)) {
-							responseModel = commonMethods.constructFailedMsg(MessageConstants.EKYC_ACTIVE_CUSTOMER);
-						} else if (StringUtil.isNotNullOrEmpty(existingModel.getStatus())
-								&& StringUtil.isEqual(existingModel.getExisting(), EkycConstants.STATUS_DORMANT)) {
-							responseModel = commonMethods.constructFailedMsg(MessageConstants.EKYC_DORMANT_CUSTOMER);
-							responseModel.setPage(EkycConstants.PAGE_PDFDOWNLOAD);
-						}
-					} else {
-						responseModel = new ResponseModel();
-						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-						responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-						responseModel.setResult(updatedUserDetails);
-						responseModel.setPage(EkycConstants.PAGE_PAN_NSDL_DATA_CONFIRM);
-					}
+					responseModel = new ResponseModel();
+					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+					responseModel.setResult(updatedUserDetails);
+					responseModel.setPage(EkycConstants.PAGE_PAN_NSDL_DATA_CONFIRM);
 				}
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);

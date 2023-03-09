@@ -17,6 +17,7 @@ import org.json.XML;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ProfileEntity;
@@ -26,6 +27,7 @@ import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
+import in.codifi.api.utilities.StringUtil;
 
 @ApplicationScoped
 public class KRAHelper {
@@ -212,7 +214,7 @@ public class KRAHelper {
 			String corrsAdd3 = kraDetails.getString("APP_COR_ADD3");
 			String corrsCity = kraDetails.getString("APP_COR_CITY");
 			String corrsState = kraDetails.getString("APP_COR_STATE");
-//			 String corrsCountry = kraDetails.getString("APP_COR_CTRY");
+			String corrsCountry = kraDetails.getString("APP_COR_CTRY");
 			int corrsPinCode = kraDetails.getInt("APP_COR_PINCD");
 			/*
 			 * Set communication adders from the KRA
@@ -222,16 +224,17 @@ public class KRAHelper {
 			addressEntity.setKraAddress3(corrsAdd3);
 			addressEntity.setKraCity(corrsCity);
 			addressEntity.setKraPin(corrsPinCode);
-//		org.json.JSONObject corssState = EKycDAO.getInstance().getKeyValueForKRA(EkycConstants.STATE_CODE, corrsState);
-			System.out.println(corrsState);
-			addressEntity.setKraState(keyValueRepository.getkeyValueForKra(Integer.toString(1), "STATE", corrsState));
 
+			addressEntity.setKraState(
+					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.STATEKEY + corrsState));
+			addressEntity.setKraCountry(
+					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.COUNTRYKEY + corrsCountry));
 			String perAddress1 = kraDetails.getString("APP_PER_ADD1");
 			String perAddress2 = kraDetails.getString("APP_PER_ADD2");
 			String perAddress3 = kraDetails.getString("APP_PER_ADD3");
 			String perCity = kraDetails.getString("APP_PER_CITY");
 			String perState = kraDetails.getString("APP_PER_STATE");
-			// String perCountry = kraDetails.getString("APP_PER_CTRY");
+			String perCountry = kraDetails.getString("APP_PER_CTRY");
 			int perPinCode = kraDetails.getInt("APP_PER_PINCD");
 			/*
 			 * Set Permanent address from the KRA
@@ -241,7 +244,29 @@ public class KRAHelper {
 			addressEntity.setKraPerAddress3(perAddress3);
 			addressEntity.setKraPerCity(perCity);
 			addressEntity.setKraPerPin(perPinCode);
-			addressEntity.setKraPerState(keyValueRepository.getkeyValueForKra(Integer.toString(1), "STATE", perState));
+			addressEntity.setKraPerState(
+					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.STATEKEY + perState));
+			addressEntity.setKraPerCountry(
+					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.COUNTRYKEY + perCountry));
+			String corrsIncome = kraDetails.getString("APP_INCOME");
+			System.out.println("corrsIncome - " + corrsIncome);
+			String corrsOcc = kraDetails.getString("APP_OCC");
+			System.out.println("corrsOcc - " + corrsOcc);
+			String corrsPolConn = kraDetails.getString("APP_POL_CONN");
+			System.out.println("corrsPolConn - " + corrsPolConn);
+			if (StringUtil.isNotNullOrEmpty(corrsIncome)) {
+				profileEntity.setAnnualIncome(
+						HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.INCOMEKEY + corrsIncome));
+			}
+			if (StringUtil.isNotNullOrEmpty(corrsOcc)) {
+				profileEntity.setOccupation(HazleCacheController.getInstance().getKraKeyValue()
+						.get(EkycConstants.OCCUPATIONKEY + corrsOcc));
+			}
+
+			if (StringUtil.isNotNullOrEmpty(corrsPolConn)) {
+				profileEntity.setPoliticalExposure(
+						HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.PEPKEY + corrsPolConn));
+			}
 			savedProfileEntity = profileRepository.save(profileEntity);
 			if (savedProfileEntity != null) {
 				commonMethods.UpdateStep(3, applicationId);

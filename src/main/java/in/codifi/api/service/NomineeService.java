@@ -97,6 +97,46 @@ public class NomineeService implements INomineeService {
 	public ResponseModel uploadDocNominee(NomineeDocModel fileModel) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
+			if (fileModel.getNomFile() != null && StringUtil.isNotNullOrEmpty(fileModel.getNomFile().contentType())) {
+				String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
+				if (OS.contains(EkycConstants.OS_WINDOWS)) {
+					slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
+				}
+				File dir = new File(props.getFileBasePath() + fileModel.getApplicationId());
+				if (!dir.exists()) {
+					dir.mkdirs();
+				}
+				FileUpload f = fileModel.getNomFile();
+				String ext = f.fileName().substring(f.fileName().indexOf("."), f.fileName().length());
+				String fileName = fileModel.getApplicationId() + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF
+						+ ext;
+				String filePath = props.getFileBasePath() + fileModel.getApplicationId() + slash + fileName;
+				Path path = Paths.get(filePath);
+				if (Files.exists(path)) {
+					Files.delete(path);
+				}
+				Files.copy(fileModel.getNomFile().filePath(), path);
+				responseModel = saveNomineeDetails(fileModel, filePath);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.NOM_FILE_NULL);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to upload Guardian Document
+	 * 
+	 * @author prade
+	 * @param fileModel
+	 * @param NomineID
+	 * @return
+	 */
+	public String uploadDocGuardian(NomineeDocModel fileModel, Long NomineID) {
+		String fileUrl = "";
+		try {
 			String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
 			if (OS.contains(EkycConstants.OS_WINDOWS)) {
 				slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
@@ -105,20 +145,21 @@ public class NomineeService implements INomineeService {
 			if (!dir.exists()) {
 				dir.mkdirs();
 			}
-			FileUpload f = fileModel.getFile();
+			FileUpload f = fileModel.getGuardFile();
 			String ext = f.fileName().substring(f.fileName().indexOf("."), f.fileName().length());
-			String fileName = fileModel.getApplicationId() + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF + ext;
+			String fileName = fileModel.getApplicationId() + EkycConstants.UNDERSCORE + EkycConstants.GUARDINA_PROOF
+					+ EkycConstants.UNDERSCORE + NomineID + ext;
 			String filePath = props.getFileBasePath() + fileModel.getApplicationId() + slash + fileName;
 			Path path = Paths.get(filePath);
 			if (Files.exists(path)) {
 				Files.delete(path);
 			}
-			Files.copy(fileModel.getFile().filePath(), path);
-			responseModel = saveNomineeDetails(fileModel, filePath);
+			Files.copy(fileModel.getGuardFile().filePath(), path);
+			fileUrl = filePath;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return responseModel;
+		return fileUrl;
 	}
 
 	/**
@@ -150,10 +191,17 @@ public class NomineeService implements INomineeService {
 					if (p.getYears() > 19) {
 						savingNominee = nomineeRepository.save(entity);
 					} else if (p.getYears() < 19 && entity.getGuardianEntity() != null) {
-						savingNominee = nomineeRepository.save(entity);
-						GuardianEntity guardian = entity.getGuardianEntity();
-						guardian.setNomineeId(savingNominee.getId());
-						guardianRepository.save(guardian);
+						if (nomineeEntity.getGuardFile() != null
+								&& StringUtil.isNotNullOrEmpty(nomineeEntity.getGuardFile().contentType())) {
+							savingNominee = nomineeRepository.save(entity);
+							String guardFilePath = uploadDocGuardian(nomineeEntity, savingNominee.getId());
+							GuardianEntity guardian = entity.getGuardianEntity();
+							guardian.setNomineeId(savingNominee.getId());
+							guardian.setAttachementUrl(guardFilePath);
+							guardianRepository.save(guardian);
+						} else {
+							return commonMethods.constructFailedMsg(MessageConstants.GUARD_FILE_NULL);
+						}
 					} else {
 						return commonMethods.constructFailedMsg(MessageConstants.GUARDIAN_REQUIRED);
 					}
@@ -230,6 +278,13 @@ public class NomineeService implements INomineeService {
 		return responseModel;
 	}
 
+	/**
+	 * Method to calculate Nominee Allocation percent
+	 * 
+	 * @param entity
+	 * @param countNominee
+	 * @return
+	 */
 	private int calculateNomineeAllocation(NomineeEntity entity, int countNominee) {
 		int allocationTally = 0;
 		if (countNominee == 1) {

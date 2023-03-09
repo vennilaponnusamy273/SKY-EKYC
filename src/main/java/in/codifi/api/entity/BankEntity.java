@@ -39,4 +39,7 @@ public class BankEntity extends CommonEntity {
 	@Column(name = "account_number")
 	private String accountNo;
 
+	@Column(name = "verify_acc_numr")
+	private String verifyAccNumber;
+
 }
