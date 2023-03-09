@@ -5,5 +5,7 @@ import in.codifi.api.entity.ResponseCkyc;
 
 public interface CkycResponseRepos extends CrudRepository<ResponseCkyc,Long> {
 
-	ResponseCkyc findByapplicationid(Long applicationid);
+	ResponseCkyc findByapplicationId(Long applicationid);
+	
+	void deleteByApplicationId(long applicationId);
 }

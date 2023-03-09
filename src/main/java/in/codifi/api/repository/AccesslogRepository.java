@@ -8,4 +8,6 @@ public interface AccesslogRepository extends CrudRepository<AccesslogEntity, Lon
 
 	AccesslogEntity findByApplicationIdAndType(long applicationId, String method);
 
+	void deleteByApplicationId(long applicationId);
+
 }

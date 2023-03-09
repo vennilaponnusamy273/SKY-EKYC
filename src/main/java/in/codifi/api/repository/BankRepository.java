@@ -7,4 +7,6 @@ import in.codifi.api.entity.BankEntity;
 public interface BankRepository extends CrudRepository<BankEntity, Long> {
 
 	BankEntity findByapplicationId(Long applicationId);
+	
+	void deleteByApplicationId(long applicationId);
 }

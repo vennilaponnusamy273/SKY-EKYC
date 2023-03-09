@@ -12,8 +12,11 @@ import lombok.Setter;
 @Setter
 public class NomineeDocModel {
 
-	@RestForm("file")
-	private FileUpload file;
+	@RestForm("nomFile")
+	private FileUpload nomFile;
+
+	@RestForm("guardFile")
+	private FileUpload guardFile;
 
 	@FormParam(value = "applicationId")
 	private long applicationId;

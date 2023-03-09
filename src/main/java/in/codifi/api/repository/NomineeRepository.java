@@ -11,5 +11,7 @@ public interface NomineeRepository extends CrudRepository<NomineeEntity, Long> {
 	Long countByApplicationId(Long applicationId);
 
 	List<NomineeEntity> findByapplicationId(Long applicationId);
+	
+	void deleteByApplicationId(long applicationId);
 
 }

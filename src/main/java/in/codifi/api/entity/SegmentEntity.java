@@ -21,78 +21,25 @@ public class SegmentEntity extends CommonEntity {
 	@Column(name = "application_id", nullable = false)
 	private Long applicationId;
 
-	@Column(name = "all_segment")
-	private int allSegment;
+	@Column(name = "equity_cash")
+	private int equCash;
 
-	@Column(name = "equity")
-	private int equity;
+	@Column(name = "mutual_funds")
+	private int mutFunds;
 
-	@Column(name = "derivatives")
-	private int derivatives;
+	@Column(name = "equity_derivatives")
+	private int ed;
 
-	@Column(name = "commodities")
-	private int commodities;
+	@Column(name = "currency_derivatives")
+	private int cd;
 
-	@Column(name = "aluminium")
-	private String aluminium;
+	@Column(name = "commodity")
+	private int comm;
 
-	@Column(name = "brass")
-	private String brass;
+	@Column(name = "category")
+	private String category;
 
-	@Column(name = "cardamom")
-	private String cardamom;
+	@Column(name = "consent")
+	private int consent;
 
-	@Column(name = "copper")
-	private String copper;
-
-	@Column(name = "cotton")
-	private String cotton;
-
-	@Column(name = "crupalmoil")
-	private String crupalmoil;
-
-	@Column(name = "crudeoil")
-	private String crudeoil;
-
-	@Column(name = "gold")
-	private String gold;
-
-	@Column(name = "menthaoil")
-	private String menthaoil;
-
-	@Column(name = "naturalgas")
-	private String naturalgas;
-
-	@Column(name = "nickel")
-	private String nickel;
-
-	@Column(name = "pepper")
-	private String pepper;
-
-	@Column(name = "rbdpmolein")
-	private String rbdpmolein;
-
-	@Column(name = "silver")
-	private String silver;
-
-	@Column(name = "zinc")
-	private String zinc;
-
-	@Column(name = "kapas")
-	private String kapas;
-
-	@Column(name = "rubber")
-	private String rubber;
-
-	@Column(name = "mcxbulldex")
-	private String mcxbulldex;
-
-	@Column(name = "mcxmetldex")
-	private String mcxmetldex;
-
-	@Column(name = "mcxcomdex")
-	private String mcxcomdex;
-
-	@Column(name = "leadsky")
-	public String lead;
 }

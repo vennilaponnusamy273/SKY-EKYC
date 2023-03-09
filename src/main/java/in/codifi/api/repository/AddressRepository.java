@@ -7,4 +7,6 @@ import in.codifi.api.entity.AddressEntity;
 public interface AddressRepository extends CrudRepository<AddressEntity, Long> {
 
 	AddressEntity findByapplicationId(Long applicationId);
+	
+	void deleteByApplicationId(long applicationId);
 }

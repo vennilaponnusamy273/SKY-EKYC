@@ -7,11 +7,13 @@ import javax.inject.Inject;
 
 import org.json.JSONObject;
 
+import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.helper.KRAHelper;
 import in.codifi.api.helper.PanHelper;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.service.spec.IPanService;
 import in.codifi.api.utilities.CommonMethods;
@@ -29,6 +31,10 @@ public class PanService implements IPanService {
 	CommonMethods commonMethods;
 	@Inject
 	KRAHelper kraHelper;
+	@Inject
+	AddressRepository addressRepository;
+	@Inject
+	CkycService ckycService;
 
 	/**
 	 * Method to get PAN details
@@ -124,11 +130,12 @@ public class PanService implements IPanService {
 				e.printStackTrace();
 				responseModel = commonMethods.constructFailedMsg(e.getMessage());
 			}
+			ckycService.getckyc(userEntity.getId());
 			if (profileEntity != null) {
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setResult(profileEntity);
-				responseModel.setPage(EkycConstants.PAGE_PROFILE);
+				responseModel.setPage(EkycConstants.PAGE_AADHAR);
 			} else if (savingEntity != null) {
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
@@ -153,5 +160,30 @@ public class PanService implements IPanService {
 			isPresent = true;
 		}
 		return isPresent;
+	}
+
+	/**
+	 * Method to Confirm KRA Address
+	 */
+	@Override
+	public ResponseModel confirmAddress(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
+		if (isUserPresent.isPresent()) {
+			AddressEntity savedEntity = addressRepository.findByapplicationId(applicationId);
+			if (savedEntity != null) {
+				savedEntity.setAddressConfirm(1);
+				addressRepository.save(savedEntity);
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setResult(savedEntity);
+				responseModel.setPage(EkycConstants.PAGE_PROFILE);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.ADDRESS_NOT_YET);
+			}
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+		}
+		return responseModel;
 	}
 }

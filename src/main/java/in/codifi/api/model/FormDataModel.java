@@ -1,5 +1,7 @@
 package in.codifi.api.model;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.FormParam;
 
 import org.jboss.resteasy.reactive.RestForm;
@@ -13,6 +15,8 @@ import lombok.Setter;
 public class FormDataModel {
 
 	@RestForm("file")
+	@Valid
+	@NotNull
 	private FileUpload file;
 
 	@FormParam(value = "applicationId")

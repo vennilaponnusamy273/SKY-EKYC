@@ -12,6 +12,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.jboss.resteasy.reactive.MultipartForm;
 import org.wildfly.common.annotation.NotNull;
 
+import in.codifi.api.entity.NomineeEntity;
 import in.codifi.api.model.NomineeDocModel;
 import in.codifi.api.model.ResponseModel;
 
@@ -44,6 +45,20 @@ public interface INomineeController {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@APIResponse(description = "Method to upload nominee file")
 	ResponseModel uploadNominee(@MultipartForm NomineeDocModel fileModel);
+
+	/**
+	 * Method to update Nominee Alloction
+	 * 
+	 * @author prade
+	 * @param paymentEntity
+	 * @return
+	 */
+	@Path("/updateNomAlloc")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to update Nominee allocation")
+	ResponseModel updateNomineeAllocation(NomineeEntity nomineeEntity);
 
 	/**
 	 * Method to delete Nominee

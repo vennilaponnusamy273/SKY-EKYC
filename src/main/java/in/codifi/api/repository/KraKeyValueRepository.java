@@ -14,4 +14,5 @@ public interface KraKeyValueRepository extends CrudRepository<KraKeyValueEntity,
 	@Query(value = " SELECT kraValue FROM tbl_kra_keyvalue_pair where masterId = :masterId and masterName = :masterName  and kraKey = :kraKey ")
 	String getkeyValueForKra(@Param("masterId") String masterId, @Param("masterName") String masterName,
 			@Param("kraKey") String kraKey);
+
 }

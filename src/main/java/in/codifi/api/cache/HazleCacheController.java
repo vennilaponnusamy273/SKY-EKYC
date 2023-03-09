@@ -33,6 +33,7 @@ public class HazleCacheController {
 	IMap<String, Integer> retryOtp = getHz().getMap("retryOtp"); // five minutes for both sms and email
 	IMap<String, Integer> verifyOtp = getHz().getMap("verifyOtp");
 	private Map<String, String> keycloakAdminSession = getHz().getMap("keycloakAdminSession");
+	private Map<String, String> kraKeyValue = getHz().getMap("kraKeyValue");
 
 	public IMap<String, Integer> getRetryOtp() {
 		return retryOtp;
@@ -64,6 +65,14 @@ public class HazleCacheController {
 
 	public void setKeycloakAdminSession(Map<String, String> keycloakAdminSession) {
 		this.keycloakAdminSession = keycloakAdminSession;
+	}
+
+	public Map<String, String> getKraKeyValue() {
+		return kraKeyValue;
+	}
+
+	public void setKraKeyValue(Map<String, String> kraKeyValue) {
+		this.kraKeyValue = kraKeyValue;
 	}
 
 }

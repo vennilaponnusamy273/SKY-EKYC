@@ -44,7 +44,8 @@ public class BankService implements IBankService {
 		ResponseModel responseModel = new ResponseModel();
 		BankEntity updatedEntity = null;
 		Optional<ApplicationUserEntity> user = applicationUserRepository.findById(bankEntity.getApplicationId());
-		if (user.isPresent() && user.get().getSmsVerified() > 0 && user.get().getEmailVerified() > 0) {
+		if (user.isPresent() && user.get().getSmsVerified() > 0 && user.get().getEmailVerified() > 0
+				&& StringUtil.isEqual(bankEntity.getAccountNo(), bankEntity.getVerifyAccNumber())) {
 			BankEntity savedBankEntity = bankRepository.findByapplicationId(bankEntity.getApplicationId());
 			if (savedBankEntity != null) {
 				bankEntity.setId(savedBankEntity.getId());
@@ -64,6 +65,8 @@ public class BankService implements IBankService {
 		} else {
 			if (user.isEmpty()) {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+			} else if (StringUtil.isNotEqual(bankEntity.getAccountNo(), bankEntity.getVerifyAccNumber())) {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.ACC_NUM_MISMATCH);
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_NOT_VERIFIED);
 			}

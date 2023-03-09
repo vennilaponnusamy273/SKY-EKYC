@@ -24,4 +24,13 @@ public interface IPanService {
 
 	ResponseModel saveDob(ApplicationUserEntity userEntity);
 
+	/**
+	 * Method to Confirm KRA Address
+	 * 
+	 * @author prade
+	 * @param pan
+	 * @return
+	 */
+	ResponseModel confirmAddress(long applicationId);
+
 }

@@ -7,5 +7,7 @@ import in.codifi.api.entity.GuardianEntity;
 public interface GuardianRepository extends CrudRepository<GuardianEntity, Long> {
 
 	GuardianEntity findByNomineeId(Long nomineeId);
+	
+	void deleteByApplicationId(long applicationId);
 
 }
