@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.entity.KraKeyValueEntity;
 import in.codifi.api.entity.PennyDropEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.entity.SegmentEntity;
@@ -22,6 +23,7 @@ import in.codifi.api.model.DocReqModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
+import in.codifi.api.repository.KraKeyValueRepository;
 import in.codifi.api.repository.PennyDropRepository;
 import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.repository.SegmentRepository;
@@ -52,6 +54,8 @@ public class UserService implements IUserService {
 	KeyCloakAdminRestService keyCloakAdminRestService;
 	@Inject
 	DeleteHelper deleteHelper;
+	@Inject
+	KraKeyValueRepository keyValueRepository;
 
 	/**
 	 * Method to send otp to mobile number
@@ -278,7 +282,15 @@ public class UserService implements IUserService {
 			Optional<ApplicationUserEntity> user = repository.findById(applicationId);
 			PennyDropEntity PennyUser = PennyRepository.findByapplicationId(applicationId);
 			SegmentEntity savedSegmentEntity = segmentRepository.findByapplicationId(applicationId);
+			List<KraKeyValueEntity> list = keyValueRepository.findByMasterIdAndMasterName("6", "DOCUMENT_UPLOAD");
+			List<String> proofType = new ArrayList<>();
+			if (StringUtil.isListNotNullOrEmpty(list)) {
+				list.forEach(a -> {
+					proofType.add(a.getKraValue());
+				});
+			}
 			DocReqModel docReqModel = new DocReqModel();
+			docReqModel.setProofTypes(proofType);
 			if (user != null) {
 				if (savedSegmentEntity != null) {
 					if (savedSegmentEntity.getEd() == 0 && savedSegmentEntity.getCd() == 0
