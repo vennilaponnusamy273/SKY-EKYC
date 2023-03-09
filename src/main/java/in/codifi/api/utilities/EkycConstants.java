@@ -209,7 +209,6 @@ public class EkycConstants {
 	// CKYC
 	public static final String CONST_APPLICATION_JSON = "application/json";
 	public static final String PAN_TYPE = "PAN";
-	public static final String CKYC_TOKEN = "9f20fbcbf7673dc0a478e5b71ad7ad18";
 
 	// Ivr
 	public static final String IVR_FAILED_MESSAGE = "Failed to generate short URL";

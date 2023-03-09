@@ -1,5 +1,9 @@
 package in.codifi.api.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Path;
@@ -10,8 +14,8 @@ import in.codifi.api.model.IvrModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IDocumentService;
 import in.codifi.api.utilities.CommonMethods;
+import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
-import in.codifi.api.utilities.StringUtil;
 
 @Path("/doc")
 public class DocUpController implements IDocUpController {
@@ -26,11 +30,15 @@ public class DocUpController implements IDocUpController {
 	@Override
 	public ResponseModel uploadDoc(FormDataModel fileModel) {
 		ResponseModel response = new ResponseModel();
-		if (fileModel != null && fileModel.getApplicationId() > 0) {
+		List<String> docType = new ArrayList<>(Arrays.asList(EkycConstants.DOC_CHEQUE, EkycConstants.DOC_PAN,
+				EkycConstants.DOC_INCOME, EkycConstants.DOC_SIGNATURE));
+		if (fileModel != null && fileModel.getApplicationId() > 0 && docType.contains(fileModel.getDocumentType())) {
 			response = docservice.uploadDoc(fileModel);
 		} else {
 			if (fileModel == null) {
 				response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
+			} else if (!docType.contains(fileModel.getDocumentType())) {
+				response = commonMethods.constructFailedMsg(MessageConstants.WRONG_DOCUMENT);
 			} else {
 				response = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 			}
@@ -74,28 +82,13 @@ public class DocUpController implements IDocUpController {
 	 * Method to check document present or not
 	 */
 	@Override
-	public ResponseModel checkDoc(@NotNull long applicationId) {
+	public ResponseModel getDocument(@NotNull long applicationId) {
 		ResponseModel response = new ResponseModel();
 		if (applicationId > 0) {
-			response = docservice.checkDocuments(applicationId);
+			response = docservice.getDocument(applicationId);
 		} else {
 			response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
 		}
 		return response;
 	}
-
-	/**
-	 * Method to get Document based on id and type
-	 */
-	@Override
-	public ResponseModel getDocument(@NotNull long applicationId, @NotNull String type) {
-		ResponseModel response = new ResponseModel();
-		if (applicationId > 0 && StringUtil.isNotNullOrEmpty(type)) {
-			response = docservice.getDocument(applicationId, type);
-		} else {
-			response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
-		}
-		return response;
-	}
-
 }

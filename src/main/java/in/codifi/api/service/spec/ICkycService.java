@@ -12,5 +12,5 @@ public interface ICkycService {
 	 * @return
 	 */
 	
-	ResponseModel getckyc(long ckyc);
+	ResponseModel saveCkycResponse(long ckyc);
 }

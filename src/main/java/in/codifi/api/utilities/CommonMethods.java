@@ -8,6 +8,8 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.ReqResEntity;
+import in.codifi.api.model.AddressModel;
 import in.codifi.api.model.BankAddressModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
@@ -361,6 +364,37 @@ public class CommonMethods {
 				+ "</a> .NIDHI</p>";
 		Mail mail = Mail.withHtml(emailId, getSubject, getText);
 		mailer.send(mail);
+	}
+
+	/**
+	 * Method to find Address via pincode
+	 * 
+	 * @author prade
+	 * @param ifscCode
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<AddressModel> findAddressByPinCode(String pincode) {
+		List<AddressModel> model = null;
+		try {
+			URL url = new URL(props.getAddressFetchUrl() + pincode);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			conn.setRequestProperty("Accept", "application/json");
+			if (conn.getResponseCode() != 200) {
+				return model;
+			}
+			BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+			String output;
+
+			while ((output = br1.readLine()) != null) {
+				ObjectMapper om = new ObjectMapper();
+				model = om.readValue(output, ArrayList.class);
+			}
+		} catch (Exception e) {
+			return model;
+		}
+		return model;
 	}
 
 }

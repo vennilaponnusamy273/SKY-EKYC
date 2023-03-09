@@ -275,6 +275,7 @@ public class PennyDropHelper {
 					pennyDropEntity.setPennyAmount(amount);
 					ObjectMapper mapper = new ObjectMapper();
 					pennyDropEntity.setRzReqPayoutJson(mapper.writeValueAsString(payOutJSON));
+					pennyDropEntity.setConfirmPenny(1);
 					PennyDropEntity savedPennyDrop = pennyDropRepository.save(pennyDropEntity);
 					if (savedPennyDrop != null && StringUtil.isNotNullOrEmpty(savedPennyDrop.getRzFundAccountId())) {
 						responseDTO.setStat(EkycConstants.SUCCESS_STATUS);

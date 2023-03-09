@@ -53,6 +53,7 @@ public class MessageConstants {
 	public static final String ERROR_WHILE_SAVING_BANK_DETAILS = "Error Occur While Saving Bank Details";
 	public static final String USER_NOT_VERIFIED = "You are not verified Customer please reverified";
 	public static final String IFSC_INVALID = "The given user IFSC Code is Invalid";
+	public static final String PINCODE_INVALID = "The given pincode is Invalid";
 	public static final String ACC_NUM_MISMATCH = "The given Account number are not same";
 	public static final String NOMINEE_AVAILABLE = "Nominee Details already Available";
 	public static final String ERROR_WHILE_SAVING_NOMINEE_DETAILS = "Error Occur While Saving Nominee Details";
@@ -94,7 +95,10 @@ public class MessageConstants {
 	public final static String ALLOCATION_NOT_TALLY = "please give correct allocation";
 	// KRA
 	public final static String KRA_FAILED = "YOUR REQUEST COULD NOT BE PROCESSED.";
-	public final static String PENNY_DETAILS_NULL = "Already Contact and account Created";
+	public final static String PENNY_DETAILS_NULL = "Penny Drop Details null";
+	public final static String PENNY_ACCOUNT_CREATED = "Already Contact and account Created";
+	public final static String PENNY_DROP_NOT_PROCEED = "Penny Drop Cannot be proceed";
+	public final static String PENNY_ALREADY_DONE = "Penny Drop already performed";
 	public final static String PENNY_CONTACT_ID_NULL = "Contact Id is Null ";
 	public final static String FUND_ACCOUNT_ID_NULL = "Fund account Id is Null ";
 	public final static String ACCOUNT_IFSC_NULL = "Bank account number or IFSC is null";
@@ -103,4 +107,7 @@ public class MessageConstants {
 	public static final String FILE_NULL = "please choose file";
 	public static final String NOM_FILE_NULL = "Nominee proof empty";
 	public static final String GUARD_FILE_NULL = "Guardian proof empty";
+	// STATUS OK
+	public static final String STATUS_OK = "OK";
+	public static final String WRONG_DOCUMENT = "The given document type is wrong";
 }

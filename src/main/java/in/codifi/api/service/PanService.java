@@ -110,6 +110,7 @@ public class PanService implements IPanService {
 											.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
 									responseModel.setPage(EkycConstants.PAGE_AADHAR);
 								}
+								ckycService.saveCkycResponse(userEntity.getId());
 							}
 						} else {
 							if (pancardResponse.has("ERROR_MSG")) {
@@ -130,7 +131,6 @@ public class PanService implements IPanService {
 				e.printStackTrace();
 				responseModel = commonMethods.constructFailedMsg(e.getMessage());
 			}
-			ckycService.getckyc(userEntity.getId());
 			if (profileEntity != null) {
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);

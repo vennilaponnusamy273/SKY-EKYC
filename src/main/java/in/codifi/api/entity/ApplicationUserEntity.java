@@ -56,7 +56,8 @@ public class ApplicationUserEntity extends CommonEntity {
 
 	@Column(name = "pan_number")
 	private String panNumber;
-
+	
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(name = "pwd")
 	private String password;
 

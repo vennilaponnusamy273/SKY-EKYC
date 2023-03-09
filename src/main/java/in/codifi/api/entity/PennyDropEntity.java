@@ -23,6 +23,9 @@ public class PennyDropEntity extends CommonEntity {
 	@Column(name = "application_id", nullable = false)
 	private Long applicationId;
 
+	@Column(name = "confirm_penny")
+	private int confirmPenny;
+
 	@Column(name = "email")
 	private String email;
 
@@ -79,9 +82,11 @@ public class PennyDropEntity extends CommonEntity {
 
 	@Column(name = "holder_name")
 	private String accountHolderName;
+
 	@Lob
 	@Column(name = "req_validation_json")
 	private String rzReqValidationJson;
+
 	@Lob
 	@Column(name = "res_validation_json")
 	private String rzResValidationJson;

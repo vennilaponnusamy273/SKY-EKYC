@@ -40,14 +40,6 @@ public interface IDocumentService {
 	 * @param ApplicationId
 	 * @return
 	 */
-	ResponseModel checkDocuments(@NotNull long applicationId);
+	ResponseModel getDocument(@NotNull long applicationId);
 
-	/**
-	 * Method to get Document based on id and type
-	 * 
-	 * @param ApplicationId
-	 * @param Type
-	 * @return
-	 */
-	ResponseModel getDocument(@NotNull long applicationId, @NotNull String type);
 }

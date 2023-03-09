@@ -76,12 +76,12 @@ public class PennyService implements IPennyService {
 			PennyDropEntity createdPenny = pennyDropRepository.findByapplicationId(applicationUserEntity.getId());
 			if (pennyDropEntity == null && StringUtil.isNotNullOrEmpty(createdPenny.getRzContactId())) {
 				responseModel = pennyDropHelper.addAccount(applicationUserEntity, createdPenny, bankEntity);
-				if (responseModel.getStat() == EkycConstants.SUCCESS_STATUS) {
-					createPayout(applicationUserEntity);
-				}
+//				if (responseModel.getStat() == EkycConstants.SUCCESS_STATUS) {
+//					createPayout(applicationUserEntity);
+//				}
 			} else {
 				if (pennyDropEntity != null) {
-					responseModel.setReason(MessageConstants.PENNY_DETAILS_NULL);
+					responseModel.setReason(MessageConstants.PENNY_ACCOUNT_CREATED);
 				} else {
 					responseModel.setReason(MessageConstants.PENNY_CONTACT_ID_NULL);
 				}
@@ -101,19 +101,37 @@ public class PennyService implements IPennyService {
 	 * Method to put some penny Amount
 	 */
 	@Override
-	public ResponseModel createPayout(ApplicationUserEntity applicationUserEntity) {
+	public ResponseModel createPayout(ApplicationUserEntity applicationUserEntity, int confirmPenny) {
 		ResponseModel responseModel = new ResponseModel();
 		PennyDropEntity pennyDropEntity = pennyDropRepository.findByapplicationId(applicationUserEntity.getId());
-		if (pennyDropEntity != null && StringUtil.isNotNullOrEmpty(pennyDropEntity.getRzFundAccountId())) {
-			responseModel = pennyDropHelper.createPayout(applicationUserEntity, pennyDropEntity);
+		PennyDropEntity oldDataEntity = pennyDropRepository.getPennyForContact(applicationUserEntity.getId(),
+				applicationUserEntity.getEmailId(), Long.toString(applicationUserEntity.getMobileNo()),
+				applicationUserEntity.getPanNumber());
+		if (oldDataEntity == null) {
+			if (pennyDropEntity != null && StringUtil.isNotNullOrEmpty(pennyDropEntity.getRzFundAccountId())) {
+				if (confirmPenny == 1) {
+					responseModel = pennyDropHelper.createPayout(applicationUserEntity, pennyDropEntity);
+				} else {
+					pennyDropEntity.setConfirmPenny(confirmPenny);
+					PennyDropEntity updatedEntity = pennyDropRepository.save(pennyDropEntity);
+					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+					responseModel.setReason(MessageConstants.PENNY_DROP_NOT_PROCEED);
+					responseModel.setResult(updatedEntity);
+				}
+			} else {
+				responseModel.setStat(EkycConstants.FAILED_STATUS);
+				responseModel.setMessage(EkycConstants.FAILED_MSG);
+				if (pennyDropEntity == null) {
+					responseModel.setReason(MessageConstants.PENNY_DETAILS_NULL);
+				} else {
+					responseModel.setReason(MessageConstants.FUND_ACCOUNT_ID_NULL);
+				}
+			}
 		} else {
 			responseModel.setStat(EkycConstants.FAILED_STATUS);
 			responseModel.setMessage(EkycConstants.FAILED_MSG);
-			if (pennyDropEntity == null) {
-				responseModel.setReason(MessageConstants.PENNY_DETAILS_NULL);
-			} else {
-				responseModel.setReason(MessageConstants.FUND_ACCOUNT_ID_NULL);
-			}
+			responseModel.setReason(MessageConstants.PENNY_ALREADY_DONE);
 		}
 		return responseModel;
 	}

@@ -60,4 +60,7 @@ public class ProfileEntity extends CommonEntity {
 	@Column(name = "settlement_cycle")
 	private String settlementCycle;
 
+	@Column(name = "net_worth")
+	private String netWorth;
+
 }

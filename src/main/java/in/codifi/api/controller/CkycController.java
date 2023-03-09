@@ -1,8 +1,7 @@
 package in.codifi.api.controller;
 
+import javax.inject.Inject;
 import javax.ws.rs.Path;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 import in.codifi.api.controller.spec.ICkycController;
 import in.codifi.api.model.ResponseModel;
@@ -11,7 +10,7 @@ import in.codifi.api.service.spec.ICkycService;
 @Path("/ckyc")
 public class CkycController implements ICkycController {
 
-	@Autowired
+	@Inject
 	ICkycService service;
 
 	/**
@@ -20,7 +19,7 @@ public class CkycController implements ICkycController {
 	@Override
 	public ResponseModel getckyc(long applicationID) {
 		ResponseModel responsemodel = new ResponseModel();
-		responsemodel = service.getckyc(applicationID);
+		responsemodel = service.saveCkycResponse(applicationID);
 		return responsemodel;
 	}
 }

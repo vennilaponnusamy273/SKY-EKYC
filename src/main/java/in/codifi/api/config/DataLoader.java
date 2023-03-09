@@ -33,4 +33,16 @@ public class DataLoader extends HttpServlet {
 		}
 		System.out.println(HazleCacheController.getInstance().getKraKeyValue().size());
 	}
+
+	public void reloadHazleCache() {
+		Iterable<KraKeyValueEntity> list = keyValueRepository.findAll();
+		for (KraKeyValueEntity entity : list) {
+			if (entity != null) {
+				HazleCacheController.getInstance().getKraKeyValue().put(
+						entity.getMasterId() + "_" + entity.getMasterName() + "_" + entity.getKraKey(),
+						entity.getKraValue());
+			}
+		}
+		System.out.println(HazleCacheController.getInstance().getKraKeyValue().size());
+	}
 }

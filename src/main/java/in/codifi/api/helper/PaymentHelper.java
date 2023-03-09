@@ -98,7 +98,7 @@ public class PaymentHelper {
 			Order order = null;
 			BankEntity bankEntity = bankRepository.findByapplicationId(paymentEntity.getApplicationId());
 			Optional<ApplicationUserEntity> userEntity = userRepository.findById(paymentEntity.getApplicationId());
-			if (userEntity.isPresent()) {
+			if (userEntity.isPresent() && bankEntity != null) {
 				JSONObject bankJson = new JSONObject();
 				if (StringUtil.isNotNullOrEmpty(bankEntity.getAccountNo())) {
 					bankJson.put(EkycConstants.CONST_BANK_ACCOUNT_NUMBER, bankEntity.getAccountNo());
