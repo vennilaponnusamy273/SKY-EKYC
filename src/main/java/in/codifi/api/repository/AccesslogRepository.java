@@ -6,8 +6,8 @@ import in.codifi.api.entity.AccesslogEntity;
 
 public interface AccesslogRepository extends CrudRepository<AccesslogEntity, Long> {
 
-	AccesslogEntity findByApplicationIdAndType(long applicationId, String method);
+	AccesslogEntity findByApplicationIdAndMethod(String applicationId, String method);
 
-	void deleteByApplicationId(long applicationId);
+	void deleteByApplicationId(String applicationId);
 
 }

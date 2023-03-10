@@ -12,7 +12,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Entity(name = "tbl_access_log_details")
+@Entity(name = "tbl_access_log")
 public class AccesslogEntity extends CommonEntity {
 
 	@Id
@@ -20,26 +20,36 @@ public class AccesslogEntity extends CommonEntity {
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "application_id", nullable = false)
-	private Long applicationId;
+	@Column(name = "application_id")
+	private String applicationId;
 
 	@Column(name = "uri")
 	private String uri;
 
+	@Column(name = "method")
+	private String method;
+
+	@Column(name = "req_id")
+	private String reqId;
+
+	@Lob
+	@Column(name = "req_body")
+	private String reqBody;
+
+	@Lob
+	@Column(name = "res_body")
+	private String resBody;
+
 	@Column(name = "user_agent")
-	private String user_agent;
+	private String userAgent;
 
 	@Column(name = "device_ip")
-	private String device_ip;
+	private String deviceIp;
 
-	@Column(name = "type")
-	private String type;
+	@Column(name = "content_type")
+	private String contentType;
 
-	@Lob
-	@Column(name = "response_data")
-	private String response_data;
+	@Column(name = "session")
+	private String session;
 
-	@Lob
-	@Column(name = "request_data")
-	private String request_data;
 }

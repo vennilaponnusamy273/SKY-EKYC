@@ -249,11 +249,8 @@ public class KRAHelper {
 			addressEntity.setKraPerCountry(
 					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.COUNTRYKEY + perCountry));
 			String corrsIncome = kraDetails.getString("APP_INCOME");
-			System.out.println("corrsIncome - " + corrsIncome);
 			String corrsOcc = kraDetails.getString("APP_OCC");
-			System.out.println("corrsOcc - " + corrsOcc);
 			String corrsPolConn = kraDetails.getString("APP_POL_CONN");
-			System.out.println("corrsPolConn - " + corrsPolConn);
 			if (StringUtil.isNotNullOrEmpty(corrsIncome)) {
 				profileEntity.setAnnualIncome(
 						HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.INCOMEKEY + corrsIncome));

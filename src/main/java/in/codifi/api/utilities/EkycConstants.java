@@ -71,6 +71,7 @@ public class EkycConstants {
 	public static final String LOG_MSG_VERSION = "::Version: ";
 	public static final String CONN_OUTPUT = "Output: ";
 	public static final String CONSTANT_CONTENT_TYPE = "Content-Type";
+	public static final String USER_AGENT = "User-Agent";
 	public static final String CONSTANT_URL_ENCODED = "application/x-www-form-urlencoded";
 	public static final String CONSTANT_APPLICATION_JSON = "application/json";
 	public static final String CONSTANT_CONTENT_LENGTH = "Content-Length";
@@ -223,9 +224,9 @@ public class EkycConstants {
 	public static final String IVR_MSG = " Dear user, your NIDHI eKYC Application IPV is pending. Kindly click here:";
 
 	public static final String STATEKEY = "1_STATE_";
-	public static final String COUNTRYKEY = "1_COUNTRY_";
-	public static final String INCOMEKEY = "1_INCOME_";
-	public static final String OCCUPATIONKEY = "1_OCCUPATION_";
-	public static final String PEPKEY = "1_PEP_";
+	public static final String COUNTRYKEY = "2_COUNTRY_";
+	public static final String INCOMEKEY = "3_INCOME_";
+	public static final String OCCUPATIONKEY = "4_OCCUPATION_";
+	public static final String PEPKEY = "5_PEP_";
 
 }

@@ -10,6 +10,7 @@ import in.codifi.api.config.DataLoader;
 import in.codifi.api.controller.spec.ICommonController;
 import in.codifi.api.model.AddressModel;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.service.spec.ICommonService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
@@ -22,6 +23,8 @@ public class CommonController implements ICommonController {
 	DataLoader dataLoader;
 	@Inject
 	CommonMethods commonMethods;
+	@Inject
+	ICommonService commonService;
 
 	/**
 	 * Method to reload KRA hazle cache
@@ -50,5 +53,12 @@ public class CommonController implements ICommonController {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.PINCODE_INVALID);
 		}
 		return responseModel;
+	}
+
+	/**
+	 * Method to get log details
+	 */
+	public ResponseModel getLogDetails() {
+		return commonService.getLogDetails();
 	}
 }

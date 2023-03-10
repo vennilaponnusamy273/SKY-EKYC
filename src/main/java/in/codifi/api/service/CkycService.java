@@ -51,6 +51,8 @@ public class CkycService implements ICkycService {
 		try {
 			Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
 			if (isUserPresent.isPresent()) {
+				ResponseCkyc checkExit = repos.findByApplicationId(applicationId);
+				ProfileEntity profileDetails = profileRepository.findByapplicationId(applicationId);
 				ExecutorService pool = Executors.newSingleThreadExecutor();
 				pool.execute(new Runnable() {
 					@Override
@@ -65,7 +67,6 @@ public class CkycService implements ICkycService {
 						ckycRequestApiModel.setReq_id(Long.toString(applicationId));
 						CkycResponse dto = aryaLivenessCheck.getCKycData(ckycRequestApiModel);
 						if (dto != null && dto.getResult().getPersonalDetails() != null) {
-							ResponseCkyc checkExit = repos.findByapplicationId(applicationId);
 							if (checkExit == null) {
 								PersonalDetails personalDetails = dto.getResult().getPersonalDetails();
 								ResponseCkyc response = new ResponseCkyc();
@@ -190,7 +191,6 @@ public class CkycService implements ICkycService {
 								responseModel.setResult(checkExit);
 							}
 							if (StringUtil.isNotNullOrEmpty(motherName)) {
-								ProfileEntity profileDetails = profileRepository.findByapplicationId(applicationId);
 								if (profileDetails != null
 										&& StringUtil.isNullOrEmpty(profileDetails.getMotherName())) {
 									profileDetails.setMotherName(motherName);

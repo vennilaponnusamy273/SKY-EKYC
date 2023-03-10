@@ -73,7 +73,7 @@ public class DeleteHelper {
 		applicationUserEntity.setUserName(null);
 		applicationUserEntity.setUpdatedOn(new Date());
 		repository.save(applicationUserEntity);
-		accesslogRepository.deleteByApplicationId(applicationUserEntity.getId());
+		accesslogRepository.deleteByApplicationId(applicationUserEntity.getId().toString());
 		addressRepository.deleteByApplicationId(applicationUserEntity.getId());
 		bankRepository.deleteByApplicationId(applicationUserEntity.getId());
 		ckycResponseRepos.deleteByApplicationId(applicationUserEntity.getId());
