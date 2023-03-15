@@ -57,7 +57,7 @@ public class BankService implements IBankService {
 				updatedEntity = bankRepository.save(bankEntity);
 			}
 			if (updatedEntity != null && updatedEntity.getId() > 0) {
-				commonMethods.UpdateStep(5, bankEntity.getApplicationId());
+				commonMethods.UpdateStep(EkycConstants.PAGE_BANK, bankEntity.getApplicationId());
 				iPennyController.addAccount(bankEntity.getApplicationId());
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
@@ -153,7 +153,7 @@ public class BankService implements IBankService {
 			if (isEqual) {
 				PaymentEntity savedEntity = paymentHelper.saveVerifyPayment(params);
 				if (savedEntity != null) {
-					commonMethods.UpdateStep(7, paymentEntity.getApplicationId());
+					commonMethods.UpdateStep(EkycConstants.PAGE_PAYMENT, paymentEntity.getApplicationId());
 					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 					responseModel.setPage(EkycConstants.PAGE_NOMINEE);

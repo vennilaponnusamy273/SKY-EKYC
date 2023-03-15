@@ -1,10 +1,12 @@
 package in.codifi.api.controller;
 
 import java.util.Optional;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
 import javax.ws.rs.Path;
 
+import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.controller.spec.IUserController;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.model.ResponseModel;
@@ -26,9 +28,18 @@ public class UserController implements IUserController {
 	/**
 	 * test Method
 	 */
-	public ResponseModel test() {
+	public ResponseModel test(int state) {
 		ResponseModel model = new ResponseModel();
 		model.setMessage("test");
+		int key = 0;
+		for (Entry<Integer, String> entry : HazleCacheController.getInstance().getPageDetail().entrySet()) {
+			if (state == entry.getKey()) {
+				key = entry.getKey();
+				break;
+			}
+		}
+		String nextValue = HazleCacheController.getInstance().getPageDetail().get(key + 1);
+		model.setResult(nextValue);
 		return model;
 	}
 
@@ -135,7 +146,7 @@ public class UserController implements IUserController {
 	public ResponseModel updateStage(long applicationId, double stage) {
 		ResponseModel responseModel = new ResponseModel();
 		if (applicationId > 0) {
-			commonMethods.UpdateStep(stage, applicationId);
+			commonMethods.UpdateStep(Double.toString(stage), applicationId);
 			responseModel = iUserService.getUserDetailsById(applicationId);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);

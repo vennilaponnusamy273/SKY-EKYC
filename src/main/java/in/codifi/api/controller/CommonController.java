@@ -32,7 +32,6 @@ public class CommonController implements ICommonController {
 	@Override
 	public String reloadKraKeyValue() {
 		if (HazleCacheController.getInstance().getKraKeyValue() != null) {
-			HazleCacheController.getInstance().getKraKeyValue().clear();
 			dataLoader.reloadHazleCache();
 		}
 		return MessageConstants.STATUS_OK;

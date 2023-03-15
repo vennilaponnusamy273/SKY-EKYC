@@ -35,6 +35,7 @@ public class EkycConstants {
 	public static final String EKYC_STATUS_INPROGRESS = "In-Progress";
 	public static final String EKYC_STATUS_PENDING = "Pending";
 	// PAGE STATUS
+	public static final String PAGE_SMS = "0.5";
 	public static final String PAGE_EMAIL = "1";
 	public static final String PAGE_PASSWORD = "1.1";
 	public static final String PAGE_PAN = "2";

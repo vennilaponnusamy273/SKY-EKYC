@@ -44,7 +44,7 @@ public class ProfileService implements IProfileService {
 				updatedEntity = profileRepository.save(userEntity);
 			}
 			if (updatedEntity != null && updatedEntity.getId() > 0) {
-				commonMethods.UpdateStep(4, userEntity.getApplicationId());
+				commonMethods.UpdateStep(EkycConstants.PAGE_PROFILE, userEntity.getApplicationId());
 				iPennyController.createContact(userEntity.getApplicationId());
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);

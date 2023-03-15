@@ -238,10 +238,11 @@ public class CommonMethods {
 	 * @return
 	 */
 
-	public void UpdateStep(double step, Long ApplicationID) {
+	public void UpdateStep(String step, Long ApplicationID) {
 		try {
 			Optional<ApplicationUserEntity> checkApplicationID = repos.findById(ApplicationID);
-			if (checkApplicationID.isPresent() && checkApplicationID.get().getStage() < step) {
+			if (checkApplicationID.isPresent()
+					&& Double.parseDouble(checkApplicationID.get().getStage()) < Double.parseDouble(step)) {
 				ApplicationUserEntity oldUserEntity = checkApplicationID.get();
 				oldUserEntity.setStage(step);
 				repos.save(oldUserEntity);

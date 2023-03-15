@@ -24,7 +24,7 @@ public interface IUserController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Test")
-	public ResponseModel test();
+	public ResponseModel test(@NotNull @QueryParam("state") int state);
 
 	/**
 	 * Method to send otp to mobile number

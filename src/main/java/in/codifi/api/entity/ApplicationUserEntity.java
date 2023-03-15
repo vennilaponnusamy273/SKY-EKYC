@@ -72,7 +72,7 @@ public class ApplicationUserEntity extends CommonEntity implements Serializable 
 	private String dob;
 
 	@Column(name = "stage")
-	private double stage;
+	private String stage;
 
 	@Column(name = "status")
 	private String status;

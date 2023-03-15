@@ -80,7 +80,7 @@ public interface IDocUpController {
 	 * @return
 	 */
 	@Path("/deleteDocument")
-	@POST
+	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to Delete document ")

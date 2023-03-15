@@ -101,12 +101,12 @@ public class DocumentService implements IDocumentService {
 							document.save(totalFileName);
 							document.close();
 							responseModel = saveDoc(fileModel, fileName, totalFileName);
-							commonMethods.UpdateStep(9, fileModel.getApplicationId());
+							commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
 						} else {
 							document.save(totalFileName);
 							document.close();
 							responseModel = saveDoc(fileModel, fileName, totalFileName);
-							commonMethods.UpdateStep(9, fileModel.getApplicationId());
+							commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
 						}
 
 					} else {
@@ -126,7 +126,7 @@ public class DocumentService implements IDocumentService {
 						}
 						Files.copy(fileModel.getFile().filePath(), path);
 						responseModel = saveDoc(fileModel, fileName, filePath);
-						commonMethods.UpdateStep(9, fileModel.getApplicationId());
+						commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
 					} else {
 						return commonMethods.constructFailedMsg(errorMsg);
 					}
@@ -270,7 +270,7 @@ public class DocumentService implements IDocumentService {
 						updatedDocEntity = docrepository.save(doc);
 					}
 					if (updatedDocEntity != null) {
-						commonMethods.UpdateStep(10, ivrModel.getApplicationId());
+						commonMethods.UpdateStep(EkycConstants.PAGE_IPV, ivrModel.getApplicationId());
 						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 						responseModel.setResult(updatedDocEntity);
 					} else {

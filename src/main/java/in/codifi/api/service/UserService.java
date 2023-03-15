@@ -2,6 +2,7 @@ package in.codifi.api.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -120,7 +121,7 @@ public class UserService implements IUserService {
 							responseModel = new ResponseModel();
 							responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 							responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-							responseModel.setPage(String.valueOf(updatedUserDetails.getStage() + 1));
+							responseModel.setPage(getPageNumber(updatedUserDetails));
 							responseModel.setResult(updatedUserDetails);
 						} else {
 							if (updatedUserDetails == null) {
@@ -128,6 +129,7 @@ public class UserService implements IUserService {
 										.constructFailedMsg(MessageConstants.ERROR_WHILE_VERIFY_OTP);
 							} else {
 								responseModel = new ResponseModel();
+								commonMethods.UpdateStep(EkycConstants.PAGE_SMS, updatedUserDetails.getId());
 								responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 								responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 								responseModel.setResult(updatedUserDetails);
@@ -218,7 +220,7 @@ public class UserService implements IUserService {
 				if (HazleCacheController.getInstance().getVerifyOtp().containsKey(mapKey)) {
 					if (HazleCacheController.getInstance().getVerifyOtp().get(mapKey) == userEntity.getEmailOtp()) {
 						oldUserEntity.setEmailVerified(1);
-						oldUserEntity.setStage(1);
+						oldUserEntity.setStage(EkycConstants.PAGE_EMAIL);
 						oldUserEntity.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
 						updatedUserDetails = repository.save(oldUserEntity);
 						if (updatedUserDetails != null) {
@@ -268,7 +270,7 @@ public class UserService implements IUserService {
 			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 			responseModel.setResult(isUserPresent);
-			responseModel.setPage(String.valueOf(isUserPresent.get().getStage() + 1));
+			responseModel.setPage(getPageNumber(isUserPresent.get()));
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
@@ -376,6 +378,17 @@ public class UserService implements IUserService {
 	public ResponseModel startOver(ApplicationUserEntity applicationUserEntity) {
 		ResponseModel responseModel = deleteHelper.DeleteAll(applicationUserEntity);
 		return responseModel;
+	}
+
+	public String getPageNumber(ApplicationUserEntity applicationUserEntity) {
+		int key = 0;
+		for (Entry<Integer, String> entry : HazleCacheController.getInstance().getPageDetail().entrySet()) {
+			if (applicationUserEntity.getStage().equals(entry.getValue())) {
+				key = entry.getKey();
+				break;
+			}
+		}
+		return HazleCacheController.getInstance().getPageDetail().get(key + 1);
 	}
 
 }
