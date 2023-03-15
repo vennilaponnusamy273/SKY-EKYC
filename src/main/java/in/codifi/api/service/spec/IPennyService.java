@@ -29,7 +29,7 @@ public interface IPennyService {
 	 * @param application id
 	 * @return
 	 */
-	ResponseModel createPayout(ApplicationUserEntity applicationUserEntity);
+	ResponseModel createPayout(ApplicationUserEntity applicationUserEntity, int confirmPenny);
 
 	/**
 	 * Method to Validate Penny Details

@@ -42,7 +42,7 @@ public class PanController implements IPanController {
 				}
 			}
 		}
-		commonMethods.Req_Res_Save_object(userEntity, responseModel, EkycConstants.PAN, userEntity.getId());
+		commonMethods.reqResSaveObject(userEntity, responseModel, EkycConstants.PAN, userEntity.getId());
 		return responseModel;
 	}
 
@@ -73,7 +73,7 @@ public class PanController implements IPanController {
 				}
 			}
 		}
-		commonMethods.Req_Res_Save_object(userEntity, responseModel, EkycConstants.PAN_DOB, userEntity.getId());
+		commonMethods.reqResSaveObject(userEntity, responseModel, EkycConstants.PAN_DOB, userEntity.getId());
 		return responseModel;
 	}
 
@@ -85,6 +85,20 @@ public class PanController implements IPanController {
 		ResponseModel responseModel = new ResponseModel();
 		if (applicationId > 0) {
 			responseModel = service.confirmAddress(applicationId);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to Confirm pan Details
+	 */
+	@Override
+	public ResponseModel confirmPan(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		if (applicationId > 0) {
+			responseModel = service.confirmPan(applicationId);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 		}

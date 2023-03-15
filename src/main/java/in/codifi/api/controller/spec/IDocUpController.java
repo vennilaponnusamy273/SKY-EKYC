@@ -65,25 +65,26 @@ public interface IDocUpController {
 	 * @param ApplicationId
 	 * @return
 	 */
-	@Path("/checkDoc")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	@APIResponse(description = "Method to check document ")
-	public ResponseModel checkDoc(@NotNull @QueryParam("applicationId") long applicationId);
-
-	/**
-	 * Method to get Document based on id and type
-	 * 
-	 * @param ApplicationId
-	 * @param Type
-	 * @return
-	 */
 	@Path("/getDocument")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	@APIResponse(description = "Method to get document ")
-	public ResponseModel getDocument(@NotNull @QueryParam("applicationId") long applicationId,
-			@NotNull @QueryParam("proofType") String Type);
+	@APIResponse(description = "Method to check document ")
+	public ResponseModel getDocument(@NotNull @QueryParam("applicationId") long applicationId);
+
+	/**
+	 * Method to delete uploaded documents
+	 * 
+	 * @param applicationId
+	 * @param Type
+	 * @return
+	 */
+	@Path("/deleteDocument")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to Delete document ")
+	public ResponseModel deleteDocument(@NotNull @QueryParam("applicationId") long applicationId,
+			@NotNull @QueryParam("documentType") String type);
+
 }

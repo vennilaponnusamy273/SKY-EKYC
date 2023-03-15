@@ -39,15 +39,15 @@ public class PersonalDetails {
 	@JsonProperty("FULLNAME")
 	private String fullname;
 	@JsonProperty("MAIDEN_PREFIX")
-	private Object maidenPrefix;
+	private String maidenPrefix;
 	@JsonProperty("MAIDEN_FNAME")
-	private Object maidenFname;
+	private String maidenFname;
 	@JsonProperty("MAIDEN_MNAME")
-	private Object maidenMname;
+	private String maidenMname;
 	@JsonProperty("MAIDEN_LNAME")
-	private Object maidenLname;
+	private String maidenLname;
 	@JsonProperty("MAIDEN_FULLNAME")
-	private Object maidenFullname;
+	private String maidenFullname;
 	@JsonProperty("FATHERSPOUSE_FLAG")
 	private Object fatherspouseFlag;
 	@JsonProperty("FATHER_PREFIX")
@@ -55,9 +55,9 @@ public class PersonalDetails {
 	@JsonProperty("FATHER_FNAME")
 	private String fatherFname;
 	@JsonProperty("FATHER_MNAME")
-	private Object fatherMname;
+	private String fatherMname;
 	@JsonProperty("FATHER_LNAME")
-	private Object fatherLname;
+	private String fatherLname;
 	@JsonProperty("FATHER_FULLNAME")
 	private String fatherFullname;
 	@JsonProperty("MOTHER_PREFIX")
@@ -65,9 +65,9 @@ public class PersonalDetails {
 	@JsonProperty("MOTHER_FNAME")
 	private String motherFname;
 	@JsonProperty("MOTHER_MNAME")
-	private Object motherMname;
+	private String motherMname;
 	@JsonProperty("MOTHER_LNAME")
-	private Object motherLname;
+	private String motherLname;
 	@JsonProperty("MOTHER_FULLNAME")
 	private String motherFullname;
 	@JsonProperty("GENDER")
@@ -242,52 +242,52 @@ public class PersonalDetails {
 	}
 
 	@JsonProperty("MAIDEN_PREFIX")
-	public Object getMaidenPrefix() {
+	public String getMaidenPrefix() {
 		return maidenPrefix;
 	}
 
 	@JsonProperty("MAIDEN_PREFIX")
-	public void setMaidenPrefix(Object maidenPrefix) {
+	public void setMaidenPrefix(String maidenPrefix) {
 		this.maidenPrefix = maidenPrefix;
 	}
 
 	@JsonProperty("MAIDEN_FNAME")
-	public Object getMaidenFname() {
+	public String getMaidenFname() {
 		return maidenFname;
 	}
 
 	@JsonProperty("MAIDEN_FNAME")
-	public void setMaidenFname(Object maidenFname) {
+	public void setMaidenFname(String maidenFname) {
 		this.maidenFname = maidenFname;
 	}
 
 	@JsonProperty("MAIDEN_MNAME")
-	public Object getMaidenMname() {
+	public String getMaidenMname() {
 		return maidenMname;
 	}
 
 	@JsonProperty("MAIDEN_MNAME")
-	public void setMaidenMname(Object maidenMname) {
+	public void setMaidenMname(String maidenMname) {
 		this.maidenMname = maidenMname;
 	}
 
 	@JsonProperty("MAIDEN_LNAME")
-	public Object getMaidenLname() {
+	public String getMaidenLname() {
 		return maidenLname;
 	}
 
 	@JsonProperty("MAIDEN_LNAME")
-	public void setMaidenLname(Object maidenLname) {
+	public void setMaidenLname(String maidenLname) {
 		this.maidenLname = maidenLname;
 	}
 
 	@JsonProperty("MAIDEN_FULLNAME")
-	public Object getMaidenFullname() {
+	public String getMaidenFullname() {
 		return maidenFullname;
 	}
 
 	@JsonProperty("MAIDEN_FULLNAME")
-	public void setMaidenFullname(Object maidenFullname) {
+	public void setMaidenFullname(String maidenFullname) {
 		this.maidenFullname = maidenFullname;
 	}
 
@@ -322,22 +322,22 @@ public class PersonalDetails {
 	}
 
 	@JsonProperty("FATHER_MNAME")
-	public Object getFatherMname() {
+	public String getFatherMname() {
 		return fatherMname;
 	}
 
 	@JsonProperty("FATHER_MNAME")
-	public void setFatherMname(Object fatherMname) {
+	public void setFatherMname(String fatherMname) {
 		this.fatherMname = fatherMname;
 	}
 
 	@JsonProperty("FATHER_LNAME")
-	public Object getFatherLname() {
+	public String getFatherLname() {
 		return fatherLname;
 	}
 
 	@JsonProperty("FATHER_LNAME")
-	public void setFatherLname(Object fatherLname) {
+	public void setFatherLname(String fatherLname) {
 		this.fatherLname = fatherLname;
 	}
 
@@ -372,22 +372,22 @@ public class PersonalDetails {
 	}
 
 	@JsonProperty("MOTHER_MNAME")
-	public Object getMotherMname() {
+	public String getMotherMname() {
 		return motherMname;
 	}
 
 	@JsonProperty("MOTHER_MNAME")
-	public void setMotherMname(Object motherMname) {
+	public void setMotherMname(String motherMname) {
 		this.motherMname = motherMname;
 	}
 
 	@JsonProperty("MOTHER_LNAME")
-	public Object getMotherLname() {
+	public String getMotherLname() {
 		return motherLname;
 	}
 
 	@JsonProperty("MOTHER_LNAME")
-	public void setMotherLname(Object motherLname) {
+	public void setMotherLname(String motherLname) {
 		this.motherLname = motherLname;
 	}
 

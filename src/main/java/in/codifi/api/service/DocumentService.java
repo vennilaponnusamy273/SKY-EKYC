@@ -150,21 +150,32 @@ public class DocumentService implements IDocumentService {
 	public ResponseModel saveDoc(FormDataModel data, String fileName, String filePath) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
+			String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
+			if (OS.contains(EkycConstants.OS_WINDOWS)) {
+				slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
+			}
 			DocumentEntity updatedDocEntity = null;
-			DocumentEntity oldRecord = docrepository.findByApplicationIdAndTypeOfProof(data.getApplicationId(),
+			DocumentEntity oldRecord = docrepository.findByApplicationIdAndDocumentType(data.getApplicationId(),
 					data.getTypeOfProof());
 			if (oldRecord != null) {
-				oldRecord.setAttachement(data.getFile().contentType());
-				oldRecord.setTypeOfProof(data.getTypeOfProof());
-				oldRecord.setAttachementUrl(filePath);
+				oldRecord.setAttachement(fileName);
+				oldRecord.setDocumentType(data.getDocumentType());
+				if (StringUtil.isNotNullOrEmpty(data.getTypeOfProof())) {
+					oldRecord.setTypeOfProof(data.getTypeOfProof());
+				}
+
+				oldRecord.setAttachementUrl(props.getImageUrlPath() + data.getApplicationId() + slash + fileName);
 				oldRecord.setPassword(data.getPassword());
 				updatedDocEntity = docrepository.save(oldRecord);
 			} else {
 				DocumentEntity doc = new DocumentEntity();
 				doc.setApplicationId(data.getApplicationId());
-				doc.setAttachement(data.getFile().contentType());
-				doc.setTypeOfProof(data.getTypeOfProof());
-				doc.setAttachementUrl(filePath);
+				doc.setDocumentType(data.getDocumentType());
+				doc.setAttachement(fileName);
+				if (StringUtil.isNotNullOrEmpty(data.getTypeOfProof())) {
+					doc.setTypeOfProof(data.getTypeOfProof());
+				}
+				doc.setAttachementUrl(props.getImageUrlPath() + data.getApplicationId() + slash + fileName);
 				doc.setPassword(data.getPassword());
 				updatedDocEntity = docrepository.save(doc);
 			}
@@ -217,6 +228,10 @@ public class DocumentService implements IDocumentService {
 	 */
 	@Override
 	public ResponseModel uploadIvr(IvrModel ivrModel) {
+		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
+		if (OS.contains(EkycConstants.OS_WINDOWS)) {
+			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
+		}
 		ResponseModel responseModel = new ResponseModel();
 		try {
 			List<String> errorList = checkIvrModel(ivrModel);
@@ -229,24 +244,27 @@ public class DocumentService implements IDocumentService {
 				System.out.println(mapper.writeValueAsString(model));
 				if (model != null && model.getDocJson() != null
 						&& Double.parseDouble(model.getDocJson().getReal()) >= 0.50) {
-					String url = documentHelper.convertBase64ToImage(ivrModel.getImageUrl(),
+					String ivrName = documentHelper.convertBase64ToImage(ivrModel.getImageUrl(),
 							ivrModel.getApplicationId());
 					DocumentEntity oldRecord = docrepository
-							.findByApplicationIdAndTypeOfProof(ivrModel.getApplicationId(), EkycConstants.DOC_IVR);
+							.findByApplicationIdAndDocumentType(ivrModel.getApplicationId(), EkycConstants.DOC_IVR);
 					DocumentEntity updatedDocEntity = null;
 					if (oldRecord != null) {
-						oldRecord.setAttachement(EkycConstants.DOC_IVR);
+						oldRecord.setAttachement(ivrName);
+						oldRecord.setDocumentType(EkycConstants.DOC_IVR);
 						oldRecord.setTypeOfProof(EkycConstants.DOC_IVR);
-						oldRecord.setAttachementUrl(url);
+						oldRecord.setAttachementUrl(
+								props.getImageUrlPath() + ivrModel.getApplicationId() + slash + ivrName);
 						oldRecord.setLatitude(ivrModel.getLatitude());
 						oldRecord.setLongitude(ivrModel.getLongitude());
 						updatedDocEntity = docrepository.save(oldRecord);
 					} else {
 						DocumentEntity doc = new DocumentEntity();
 						doc.setApplicationId(ivrModel.getApplicationId());
-						doc.setAttachement(EkycConstants.DOC_IVR);
+						doc.setAttachement(ivrName);
 						doc.setTypeOfProof(EkycConstants.DOC_IVR);
-						doc.setAttachementUrl(url);
+						doc.setDocumentType(EkycConstants.DOC_IVR);
+						doc.setAttachementUrl(props.getImageUrlPath() + ivrModel.getApplicationId() + slash + ivrName);
 						doc.setLatitude(ivrModel.getLatitude());
 						doc.setLongitude(ivrModel.getLongitude());
 						updatedDocEntity = docrepository.save(doc);
@@ -382,7 +400,7 @@ public class DocumentService implements IDocumentService {
 	 * Method to check document present or not
 	 */
 	@Override
-	public ResponseModel checkDocuments(@NotNull long applicationId) {
+	public ResponseModel getDocument(@NotNull long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		DocumentCheckModel documentCheckModel = null;
 		try {
@@ -392,16 +410,22 @@ public class DocumentService implements IDocumentService {
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				documentCheckModel = new DocumentCheckModel();
 				for (DocumentEntity docEntity : documents) {
-					if (docEntity != null && StringUtil.isNotNullOrEmpty(docEntity.getTypeOfProof())) {
-						if (StringUtil.isEqual(EkycConstants.DOC_IVR, docEntity.getTypeOfProof())) {
+					if (docEntity != null && StringUtil.isNotNullOrEmpty(docEntity.getDocumentType())) {
+						if (StringUtil.isEqual(EkycConstants.DOC_IVR, docEntity.getDocumentType())) {
 							documentCheckModel.setIpvPresent(true);
-						} else if (StringUtil.isEqual(EkycConstants.DOC_CHEQUE, docEntity.getTypeOfProof())) {
+							documentCheckModel.setIpvUrl(docEntity.getAttachementUrl());
+						} else if (StringUtil.isEqual(EkycConstants.DOC_CHEQUE, docEntity.getDocumentType())) {
 							documentCheckModel.setCancelledChequeOrStatement(true);
-						} else if (StringUtil.isEqual(EkycConstants.DOC_INCOME, docEntity.getTypeOfProof())) {
+							documentCheckModel.setChecqueName(docEntity.getAttachement());
+						} else if (StringUtil.isEqual(EkycConstants.DOC_INCOME, docEntity.getDocumentType())) {
 							documentCheckModel.setIncomeProofPresent(true);
-						} else if (StringUtil.isEqual(EkycConstants.DOC_SIGNATURE, docEntity.getTypeOfProof())) {
+							documentCheckModel.setIncomeProofName(docEntity.getAttachement());
+							documentCheckModel.setIncomeProofType(docEntity.getTypeOfProof());
+						} else if (StringUtil.isEqual(EkycConstants.DOC_SIGNATURE, docEntity.getDocumentType())) {
 							documentCheckModel.setSignaturePresent(true);
-						} else if (StringUtil.isEqual(EkycConstants.DOC_PAN, docEntity.getTypeOfProof())) {
+							documentCheckModel.setSignName(docEntity.getAttachement());
+						} else if (StringUtil.isEqual(EkycConstants.DOC_PAN, docEntity.getDocumentType())) {
+							documentCheckModel.setPanName(docEntity.getAttachement());
 							documentCheckModel.setPanCardPresent(true);
 						}
 					}
@@ -417,35 +441,28 @@ public class DocumentService implements IDocumentService {
 	}
 
 	/**
-	 * Method to get Document based on id and type
+	 * Method to delete uploaded documents
 	 */
 	@Override
-	public ResponseModel getDocument(@NotNull long applicationId, @NotNull String type) {
+	public ResponseModel deleteDocument(@NotNull long applicationId, @NotNull String type) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-			DocumentEntity documents = docrepository.findByApplicationIdAndTypeOfProof(applicationId, type);
+			DocumentEntity documents = docrepository.findByApplicationIdAndDocumentType(applicationId, type);
 			if (documents != null) {
-				DocumentCheckModel documentCheckModel = new DocumentCheckModel();
-				if (StringUtil.isEqual(EkycConstants.DOC_IVR, documents.getTypeOfProof())) {
-					documentCheckModel.setIpvPresent(true);
-				} else if (StringUtil.isEqual(EkycConstants.DOC_CHEQUE, documents.getTypeOfProof())) {
-					documentCheckModel.setCancelledChequeOrStatement(true);
-				} else if (StringUtil.isEqual(EkycConstants.DOC_INCOME, documents.getTypeOfProof())) {
-					documentCheckModel.setIncomeProofPresent(true);
-				} else if (StringUtil.isEqual(EkycConstants.DOC_SIGNATURE, documents.getTypeOfProof())) {
-					documentCheckModel.setSignaturePresent(true);
-				} else if (StringUtil.isEqual(EkycConstants.DOC_PAN, documents.getTypeOfProof())) {
-					documentCheckModel.setPanCardPresent(true);
-				}
-				documentCheckModel.setImageUrl(documents.getAttachementUrl());
+				docrepository.delete(documents);
+				responseModel.setMessage("Document deleted successfully");
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-				responseModel.setResult(documentCheckModel);
 			} else {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.NOT_FOUND_DATA);
+				responseModel.setStat(EkycConstants.FAILED_STATUS);
+				responseModel.setMessage(EkycConstants.FAILED_MSG);
+				responseModel.setMessage("Document not found");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			responseModel.setStat(EkycConstants.FAILED_STATUS);
+			responseModel.setMessage(EkycConstants.FAILED_MSG);
+			responseModel.setReason("Error deleting document");
 		}
 		return responseModel;
 	}

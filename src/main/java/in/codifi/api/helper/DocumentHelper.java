@@ -52,7 +52,8 @@ public class DocumentHelper {
 		}
 		// convert base64 string to binary data
 		byte[] data = DatatypeConverter.parseBase64Binary(strings[0]);
-		String path = location + slash + applicationId + "_ivrImage." + extension;
+		String fileName = applicationId + "_ivrImage." + extension;
+		String path = location + slash +applicationId + slash + fileName;
 		File file = new File(path);
 		File foldercheck = new File(location);
 		if (!foldercheck.exists()) {
@@ -63,7 +64,7 @@ public class DocumentHelper {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return path;
+		return fileName;
 	}
 
 }

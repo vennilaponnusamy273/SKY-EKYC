@@ -1,5 +1,7 @@
 package in.codifi.api.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,7 +15,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity(name = "tbl_penny_drop")
-public class PennyDropEntity extends CommonEntity {
+public class PennyDropEntity extends CommonEntity implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +29,9 @@ public class PennyDropEntity extends CommonEntity {
 
 	@Column(name = "application_id", nullable = false)
 	private Long applicationId;
+
+	@Column(name = "confirm_penny")
+	private int confirmPenny;
 
 	@Column(name = "email")
 	private String email;
@@ -79,9 +89,11 @@ public class PennyDropEntity extends CommonEntity {
 
 	@Column(name = "holder_name")
 	private String accountHolderName;
+
 	@Lob
 	@Column(name = "req_validation_json")
 	private String rzReqValidationJson;
+
 	@Lob
 	@Column(name = "res_validation_json")
 	private String rzResValidationJson;

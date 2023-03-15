@@ -22,6 +22,9 @@ public class FormDataModel {
 	@FormParam(value = "applicationId")
 	private long applicationId;
 
+	@FormParam(value = "documentType")
+	private String documentType;
+	
 	@FormParam(value = "typeOfProof")
 	private String typeOfProof;
 

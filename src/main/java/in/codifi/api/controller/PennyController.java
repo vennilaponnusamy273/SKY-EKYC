@@ -64,12 +64,12 @@ public class PennyController implements IPennyController {
 	 * Method to put some penny Amount
 	 */
 	@Override
-	public ResponseModel createPayout(long applicationId) {
+	public ResponseModel createPayout(long applicationId, int confirmPenny) {
 		ResponseModel responseModel = new ResponseModel();
 		if (applicationId > 0) {
 			Optional<ApplicationUserEntity> isUserPresent = userRepository.findById(applicationId);
 			if (isUserPresent.isPresent()) {
-				responseModel = iPennyService.createPayout(isUserPresent.get());
+				responseModel = iPennyService.createPayout(isUserPresent.get(), confirmPenny);
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 			}

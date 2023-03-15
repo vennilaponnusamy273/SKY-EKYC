@@ -8,6 +8,8 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.ReqResEntity;
+import in.codifi.api.model.AddressModel;
 import in.codifi.api.model.BankAddressModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
@@ -287,42 +290,35 @@ public class CommonMethods {
 	 * @param applicationId
 	 * @return
 	 */
-	public void Req_Res_Save_object(Object reqe, Object res, String type, long id) {
+	public void reqResSaveObject(Object request, Object response, String type, long id) {
+		ReqResEntity oldReqRes = reqResRepository.findByApplicationIdAndType(id, type);
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			String Req = mapper.writeValueAsString(reqe);
-			String Res;
-			Res = mapper.writeValueAsString(res);
-			System.out.println("req" + Req);
-			System.out.println("res" + Res);
-			saveRequestAndResposne(Req, Res, type, id);
+			String req = mapper.writeValueAsString(request);
+			String res = mapper.writeValueAsString(response);
+			if (StringUtil.isNotNullOrEmpty(req) && StringUtil.isNotNullOrEmpty(res)
+					&& StringUtil.isNotNullOrEmpty(type) && id > 0) {
+				ReqResEntity savingResult = new ReqResEntity();
+				savingResult.setApplicationId(id);
+				savingResult.setType(type);
+				savingResult.setRequest(req);
+				savingResult.setResponse(res);
+				if (oldReqRes != null) {
+					savingResult.setId(oldReqRes.getId());
+				}
+				reqResRepository.save(savingResult);
+			}
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void saveRequestAndResposne(String req, String res, String method, long applicationId) {
-//		ReqResEntity savedResult = null;
-		if (StringUtil.isNotNullOrEmpty(req) && StringUtil.isNotNullOrEmpty(res) && StringUtil.isNotNullOrEmpty(method)
-				&& applicationId > 0) {
-			ReqResEntity oldReqRes = reqResRepository.findByApplicationIdAndType(applicationId, method);
-			if (oldReqRes != null) {
-				oldReqRes.setRequest(req);
-				oldReqRes.setResponse(res);
-				reqResRepository.save(oldReqRes);
-			} else {
-				ReqResEntity savingResult = new ReqResEntity();
-				savingResult.setApplicationId(applicationId);
-				savingResult.setType(method);
-				savingResult.setRequest(req);
-				savingResult.setResponse(res);
-				reqResRepository.save(savingResult);
-			}
-
-		}
-
-	}
-
+	/**
+	 * Method to send IPV Link to mobile
+	 * 
+	 * @param Url
+	 * @param mobileNumber
+	 */
 	public void sendIvrLinktoMobile(String Url, long mobileNumber) {
 		try {
 			StringBuffer data = new StringBuffer();
@@ -355,12 +351,49 @@ public class CommonMethods {
 		}
 	}
 
+	/**
+	 * Method to send IPV Link to email
+	 * 
+	 * @param Url
+	 * @param mobileNumber
+	 */
 	public void sendMailIvr(String generateShortLink1, String emailId) throws MessagingException {
 		String getSubject = props.getMailSubject();
 		String getText = "<p>" + props.getBitText() + " <a href=\"" + generateShortLink1 + "\">" + generateShortLink1
 				+ "</a> .NIDHI</p>";
 		Mail mail = Mail.withHtml(emailId, getSubject, getText);
 		mailer.send(mail);
+	}
+
+	/**
+	 * Method to find Address via pincode
+	 * 
+	 * @author prade
+	 * @param ifscCode
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<AddressModel> findAddressByPinCode(String pincode) {
+		List<AddressModel> model = null;
+		try {
+			URL url = new URL(props.getAddressFetchUrl() + pincode);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			conn.setRequestProperty("Accept", "application/json");
+			if (conn.getResponseCode() != 200) {
+				return model;
+			}
+			BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+			String output;
+
+			while ((output = br1.readLine()) != null) {
+				ObjectMapper om = new ObjectMapper();
+				model = om.readValue(output, ArrayList.class);
+			}
+		} catch (Exception e) {
+			return model;
+		}
+		return model;
 	}
 
 }

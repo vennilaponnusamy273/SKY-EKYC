@@ -70,6 +70,8 @@ public class ApplicationProperties {
 	private String ivrLiveUrl;
 	@ConfigProperty(name = "appconfig.arya.token")
 	private String aryaAiToken;
+	@ConfigProperty(name = "appconfig.ckyc.token")
+	private String ckycAiToken;
 	@ConfigProperty(name = "appconfig.kra.username")
 	private String kraUsername;
 	@ConfigProperty(name = "appconfig.kra.poscode")
@@ -109,4 +111,8 @@ public class ApplicationProperties {
 	private String bitText;
 	@ConfigProperty(name = "quarkus.ivr_baseUrl")
 	private String ivrBaseUrl;
+	@ConfigProperty(name = "appconfig.file.urlpath")
+	private String imageUrlPath;
+	@ConfigProperty(name = "appconfig.address.url")
+	private String addressFetchUrl;
 }
