@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import in.codifi.api.entity.AccesslogEntity;
 import in.codifi.api.repository.AccesslogRepository;
 import in.codifi.api.utilities.EkycConstants;
+import in.codifi.api.utilities.StringUtil;
 import io.quarkus.arc.Priority;
 import io.vertx.core.http.HttpServerRequest;
 
@@ -57,7 +58,12 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 					logModel.setContentType(headers.getFirst(EkycConstants.CONSTANT_CONTENT_TYPE));
 					logModel.setDeviceIp(deviceIp);
 					logModel.setMethod(requestContext.getMethod());
-					logModel.setReqBody(objMapper.writeValueAsString(requestContext.getProperty("reqBody")));
+					String queryParams = uriInfo.getRequestUri().getQuery();
+					if (StringUtil.isNotNullOrEmpty(queryParams)) {
+						logModel.setReqBody(queryParams);
+					} else {
+						logModel.setReqBody(objMapper.writeValueAsString(requestContext.getProperty("reqBody")));
+					}
 					Object reponseObj = responseContext.getEntity();
 					logModel.setResBody(objMapper.writeValueAsString(reponseObj));
 					logModel.setUri(uriInfo.getPath().toString());

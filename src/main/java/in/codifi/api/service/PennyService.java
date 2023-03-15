@@ -43,9 +43,6 @@ public class PennyService implements IPennyService {
 			PennyDropEntity idNull = pennyDropRepository.findByapplicationId(applicationUserEntity.getId());
 			if (oldDataEntity == null && idNull == null) {
 				responseModel = pennyDropHelper.createContact(applicationUserEntity);
-				if (responseModel.getStat() == EkycConstants.SUCCESS_STATUS) {
-					addAccount(applicationUserEntity);
-				}
 			} else {
 				responseModel.setReason("already Present on this ID");
 			}
@@ -107,7 +104,7 @@ public class PennyService implements IPennyService {
 		PennyDropEntity oldDataEntity = pennyDropRepository.getPennyForContact(applicationUserEntity.getId(),
 				applicationUserEntity.getEmailId(), Long.toString(applicationUserEntity.getMobileNo()),
 				applicationUserEntity.getPanNumber());
-		if (oldDataEntity == null) {
+		if (oldDataEntity != null && oldDataEntity.getPennyAmount() == 0) {
 			if (pennyDropEntity != null && StringUtil.isNotNullOrEmpty(pennyDropEntity.getRzFundAccountId())) {
 				if (confirmPenny == 1) {
 					responseModel = pennyDropHelper.createPayout(applicationUserEntity, pennyDropEntity);
@@ -143,7 +140,7 @@ public class PennyService implements IPennyService {
 	public ResponseModel ValidateDetails(ApplicationUserEntity applicationUserEntity) {
 		ResponseModel responseDTO = new ResponseModel();
 		PennyDropEntity pennyDropEntity = pennyDropRepository.findByapplicationId(applicationUserEntity.getId());
-		if (pennyDropEntity != null) {
+		if (pennyDropEntity != null && StringUtil.isNullOrEmpty(pennyDropEntity.getAccountHolderName())) {
 			responseDTO = pennyDropHelper.ValidateDetails(pennyDropEntity);
 		}
 		return responseDTO;

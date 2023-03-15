@@ -1,5 +1,7 @@
 package in.codifi.api.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,7 +15,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity(name = "tbl_penny_drop")
-public class PennyDropEntity extends CommonEntity {
+public class PennyDropEntity extends CommonEntity implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

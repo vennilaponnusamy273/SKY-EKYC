@@ -1,5 +1,7 @@
 package in.codifi.api.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,7 +17,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity(name = "tbl_application_master")
-public class ApplicationUserEntity extends CommonEntity {
+public class ApplicationUserEntity extends CommonEntity implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,7 +63,7 @@ public class ApplicationUserEntity extends CommonEntity {
 
 	@Column(name = "pan_number")
 	private String panNumber;
-	
+
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(name = "pwd")
 	private String password;
@@ -69,6 +76,9 @@ public class ApplicationUserEntity extends CommonEntity {
 
 	@Column(name = "status")
 	private String status;
+
+	@Column(name = "pan_confirm")
+	private int panConfirm;
 
 	@Transient
 	private String gender;

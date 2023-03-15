@@ -3,8 +3,6 @@ package in.codifi.api.controller;
 import javax.inject.Inject;
 import javax.ws.rs.Path;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import in.codifi.api.controller.spec.IDigilockerController;
 import in.codifi.api.helper.DigilockerHelper;
 import in.codifi.api.model.ResponseModel;
@@ -57,10 +55,8 @@ public class DigilockerController implements IDigilockerController {
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.DIGI_STATE_NULL);
 				}
 			}
-			String Request_tble = "code:" + code + "state:" + state + "applicationId:" + applicationId;
-			ObjectMapper mapper = new ObjectMapper();
-			String Res = mapper.writeValueAsString(responseModel);
-			commonMethods.saveRequestAndResposne(Request_tble, Res, EkycConstants.DIGI, applicationId);
+			String request = "code:" + code + "state:" + state + "applicationId:" + applicationId;
+			commonMethods.reqResSaveObject(request, responseModel, EkycConstants.DIGI, applicationId);
 		} catch (Exception e) {
 			e.printStackTrace();
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());

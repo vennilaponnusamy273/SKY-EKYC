@@ -31,6 +31,19 @@ public interface IPanController {
 	public ResponseModel getPanDetails(@RequestBody ApplicationUserEntity userEntity);
 
 	/**
+	 * Method to Confirm Pan Details
+	 * 
+	 * @author prade
+	 * @param pan
+	 * @return
+	 */
+	@Path("/confirmPan")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to Confirm Pan Details")
+	public ResponseModel confirmPan(@NotNull @QueryParam("applicationId") long applicationId);
+
+	/**
 	 * Method to save DOB
 	 * 
 	 * @author prade

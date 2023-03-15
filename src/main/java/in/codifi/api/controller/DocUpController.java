@@ -16,6 +16,7 @@ import in.codifi.api.service.spec.IDocumentService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
+import in.codifi.api.utilities.StringUtil;
 
 @Path("/doc")
 public class DocUpController implements IDocUpController {
@@ -86,6 +87,20 @@ public class DocUpController implements IDocUpController {
 		ResponseModel response = new ResponseModel();
 		if (applicationId > 0) {
 			response = docservice.getDocument(applicationId);
+		} else {
+			response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
+		}
+		return response;
+	}
+
+	/**
+	 * Method to delete uploaded documents
+	 */
+	@Override
+	public ResponseModel deleteDocument(@NotNull long applicationId, @NotNull String type) {
+		ResponseModel response = new ResponseModel();
+		if (applicationId > 0 && StringUtil.isNotNullOrEmpty(type)) {
+			response = docservice.deleteDocument(applicationId, type);
 		} else {
 			response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
 		}

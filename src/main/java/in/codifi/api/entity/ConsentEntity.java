@@ -1,5 +1,6 @@
 package in.codifi.api.entity;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -21,7 +22,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity(name = "tbl_consent")
-public class ConsentEntity {
+public class ConsentEntity implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -376,7 +376,7 @@ public class PanHelper {
 					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 					responseModel.setResult(updatedUserDetails);
-					responseModel.setPage(EkycConstants.PAGE_PAN_NSDL_DATA_CONFIRM);
+					responseModel.setPage(EkycConstants.PAGE_PAN_CONFIRM);
 				}
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);

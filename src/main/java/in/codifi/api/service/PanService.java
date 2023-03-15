@@ -186,4 +186,26 @@ public class PanService implements IPanService {
 		}
 		return responseModel;
 	}
+
+	/**
+	 * Method to Confirm Pan Details
+	 */
+	@Override
+	public ResponseModel confirmPan(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
+		if (isUserPresent.isPresent()) {
+			ApplicationUserEntity savedUserEntity = isUserPresent.get();
+			savedUserEntity.setPanConfirm(1);
+			repository.save(savedUserEntity);
+			commonMethods.UpdateStep(2.2, applicationId);
+			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+			responseModel.setResult(savedUserEntity);
+			responseModel.setPage(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+		}
+		return responseModel;
+	}
 }

@@ -1,5 +1,7 @@
 package in.codifi.api.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,7 +14,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity(name = "tbl_profile_details")
-public class ProfileEntity extends CommonEntity {
+public class ProfileEntity extends CommonEntity implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
@@ -62,5 +69,8 @@ public class ProfileEntity extends CommonEntity {
 
 	@Column(name = "net_worth")
 	private String netWorth;
+
+	@Column(name = "net_worth_date")
+	private String netWorthDate;
 
 }

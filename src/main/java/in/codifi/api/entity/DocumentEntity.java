@@ -1,5 +1,7 @@
 package in.codifi.api.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,7 +16,12 @@ import lombok.Setter;
 @Entity(name = "tbl_document_details")
 @Getter
 @Setter
-public class DocumentEntity extends CommonEntity {
+public class DocumentEntity extends CommonEntity implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")

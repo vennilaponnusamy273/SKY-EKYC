@@ -42,4 +42,13 @@ public interface IDocumentService {
 	 */
 	ResponseModel getDocument(@NotNull long applicationId);
 
+	/**
+	 * Method to delete uploaded documents
+	 * 
+	 * @param applicationId
+	 * @param Type
+	 * @return
+	 */
+	ResponseModel deleteDocument(@NotNull long applicationId, @NotNull String type);
+
 }

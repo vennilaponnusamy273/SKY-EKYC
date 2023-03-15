@@ -39,7 +39,8 @@ public class EkycConstants {
 	public static final String PAGE_PASSWORD = "1.1";
 	public static final String PAGE_PAN = "2";
 	public static final String PAGE_PAN_NSDL_DATA_CONFIRM = "2.1";
-	public static final String PAGE_PAN_KRA_DOB_ENTRY = "2.2";
+	public static final String PAGE_PAN_CONFIRM = "2.2";
+	public static final String PAGE_PAN_KRA_DOB_ENTRY = "2.3";
 	public static final String PAGE_AADHAR = "3";
 	public static final String PAGE_PROFILE = "4";
 	public static final String PAGE_BANK = "5";
@@ -186,6 +187,7 @@ public class EkycConstants {
 	public static final String PAN = "PAN";
 	public static final String DIGI = "DIGI";
 	public static final String PAN_DOB = "PAN_DOB";
+	public static final String CKYC = "CKYC";
 
 	// ACCESS_REQ_RES_TBL
 	public static final String SMS_VERIFY = "SMS_VERIFIED";

@@ -72,4 +72,19 @@ public interface IDocUpController {
 	@APIResponse(description = "Method to check document ")
 	public ResponseModel getDocument(@NotNull @QueryParam("applicationId") long applicationId);
 
+	/**
+	 * Method to delete uploaded documents
+	 * 
+	 * @param applicationId
+	 * @param Type
+	 * @return
+	 */
+	@Path("/deleteDocument")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to Delete document ")
+	public ResponseModel deleteDocument(@NotNull @QueryParam("applicationId") long applicationId,
+			@NotNull @QueryParam("documentType") String type);
+
 }

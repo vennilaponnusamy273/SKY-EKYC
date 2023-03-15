@@ -9,6 +9,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import in.codifi.api.cache.HazleCacheController;
+import in.codifi.api.controller.spec.IPennyController;
 import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.KraKeyValueEntity;
@@ -56,6 +57,8 @@ public class UserService implements IUserService {
 	DeleteHelper deleteHelper;
 	@Inject
 	KraKeyValueRepository keyValueRepository;
+	@Inject
+	IPennyController iPennyController;
 
 	/**
 	 * Method to send otp to mobile number
@@ -279,6 +282,7 @@ public class UserService implements IUserService {
 	public ResponseModel docStatus(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
+			iPennyController.ValidateDetails(applicationId);
 			Optional<ApplicationUserEntity> user = repository.findById(applicationId);
 			PennyDropEntity PennyUser = PennyRepository.findByapplicationId(applicationId);
 			SegmentEntity savedSegmentEntity = segmentRepository.findByapplicationId(applicationId);

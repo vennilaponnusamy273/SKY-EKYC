@@ -417,18 +417,15 @@ public class DocumentService implements IDocumentService {
 						} else if (StringUtil.isEqual(EkycConstants.DOC_CHEQUE, docEntity.getDocumentType())) {
 							documentCheckModel.setCancelledChequeOrStatement(true);
 							documentCheckModel.setChecqueName(docEntity.getAttachement());
-							documentCheckModel.setChecqueUrl(docEntity.getAttachementUrl());
 						} else if (StringUtil.isEqual(EkycConstants.DOC_INCOME, docEntity.getDocumentType())) {
 							documentCheckModel.setIncomeProofPresent(true);
 							documentCheckModel.setIncomeProofName(docEntity.getAttachement());
-							documentCheckModel.setIncomeProofUrl(docEntity.getAttachementUrl());
+							documentCheckModel.setIncomeProofType(docEntity.getTypeOfProof());
 						} else if (StringUtil.isEqual(EkycConstants.DOC_SIGNATURE, docEntity.getDocumentType())) {
 							documentCheckModel.setSignaturePresent(true);
 							documentCheckModel.setSignName(docEntity.getAttachement());
-							documentCheckModel.setSignUrl(docEntity.getAttachementUrl());
 						} else if (StringUtil.isEqual(EkycConstants.DOC_PAN, docEntity.getDocumentType())) {
 							documentCheckModel.setPanName(docEntity.getAttachement());
-							documentCheckModel.setPanUrl(docEntity.getAttachementUrl());
 							documentCheckModel.setPanCardPresent(true);
 						}
 					}
@@ -442,4 +439,32 @@ public class DocumentService implements IDocumentService {
 		}
 		return responseModel;
 	}
+
+	/**
+	 * Method to delete uploaded documents
+	 */
+	@Override
+	public ResponseModel deleteDocument(@NotNull long applicationId, @NotNull String type) {
+		ResponseModel responseModel = new ResponseModel();
+		try {
+			DocumentEntity documents = docrepository.findByApplicationIdAndDocumentType(applicationId, type);
+			if (documents != null) {
+				docrepository.delete(documents);
+				responseModel.setMessage("Document deleted successfully");
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+			} else {
+				responseModel.setStat(EkycConstants.FAILED_STATUS);
+				responseModel.setMessage(EkycConstants.FAILED_MSG);
+				responseModel.setMessage("Document not found");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			responseModel.setStat(EkycConstants.FAILED_STATUS);
+			responseModel.setMessage(EkycConstants.FAILED_MSG);
+			responseModel.setReason("Error deleting document");
+		}
+		return responseModel;
+	}
+
 }

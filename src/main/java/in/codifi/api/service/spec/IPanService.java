@@ -33,4 +33,13 @@ public interface IPanService {
 	 */
 	ResponseModel confirmAddress(long applicationId);
 
+	/**
+	 * Method to Confirm Pan Details
+	 * 
+	 * @author prade
+	 * @param pan
+	 * @return
+	 */
+	ResponseModel confirmPan(long applicationId);
+
 }
