@@ -1,6 +1,7 @@
 package in.codifi.api.service.spec;
 
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.core.Response;
 
 import in.codifi.api.model.FormDataModel;
 import in.codifi.api.model.IvrModel;
@@ -50,5 +51,7 @@ public interface IDocumentService {
 	 * @return
 	 */
 	ResponseModel deleteDocument(@NotNull long applicationId, @NotNull String type);
+
+	Response downloadFile(@NotNull long applicationId, @NotNull String type);
 
 }

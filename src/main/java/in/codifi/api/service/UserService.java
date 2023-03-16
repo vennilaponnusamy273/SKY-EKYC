@@ -129,7 +129,6 @@ public class UserService implements IUserService {
 										.constructFailedMsg(MessageConstants.ERROR_WHILE_VERIFY_OTP);
 							} else {
 								responseModel = new ResponseModel();
-								commonMethods.UpdateStep(EkycConstants.PAGE_SMS, updatedUserDetails.getId());
 								responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 								responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 								responseModel.setResult(updatedUserDetails);
@@ -356,6 +355,7 @@ public class UserService implements IUserService {
 				String message = keyCloakAdminRestService.addNewUser(requestModel);
 				if (StringUtil.isNotNullOrEmpty(message)) {
 					responseModel.setReason(message);
+					commonMethods.UpdateStep(EkycConstants.PAGE_PASSWORD, userEntity.getId());
 					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 					responseModel.setPage(EkycConstants.PAGE_PAN);

@@ -7,6 +7,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 
 import in.codifi.api.controller.spec.IDocUpController;
 import in.codifi.api.model.FormDataModel;
@@ -105,5 +106,14 @@ public class DocUpController implements IDocUpController {
 			response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
 		}
 		return response;
+	}
+
+	@Override
+	public Response downloadFile(@NotNull long applicationId, @NotNull String type) {
+		if (applicationId > 0 && StringUtil.isNotNullOrEmpty(type)) {
+			return docservice.downloadFile(applicationId, type);
+		} else {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(MessageConstants.PARAMETER_NULL).build();
+		}
 	}
 }

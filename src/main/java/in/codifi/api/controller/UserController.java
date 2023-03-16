@@ -143,10 +143,10 @@ public class UserController implements IUserController {
 	 * Method to Update Stage to skip
 	 */
 	@Override
-	public ResponseModel updateStage(long applicationId, double stage) {
+	public ResponseModel updateStage(long applicationId, String stage) {
 		ResponseModel responseModel = new ResponseModel();
 		if (applicationId > 0) {
-			commonMethods.UpdateStep(Double.toString(stage), applicationId);
+			commonMethods.UpdateStep(stage, applicationId);
 			responseModel = iUserService.getUserDetailsById(applicationId);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
