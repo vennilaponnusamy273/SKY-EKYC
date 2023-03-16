@@ -371,7 +371,7 @@ public class PanHelper {
 					oldUserEntity.setPanNumber(panNumber);
 					oldUserEntity.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
 					updatedUserDetails = repository.save(oldUserEntity);
-					commonMethods.UpdateStep(2.1, userEntity.getId());
+					commonMethods.UpdateStep(EkycConstants.PAGE_PAN_NSDL_DATA_CONFIRM, userEntity.getId());
 					responseModel = new ResponseModel();
 					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 					responseModel.setStat(EkycConstants.SUCCESS_STATUS);

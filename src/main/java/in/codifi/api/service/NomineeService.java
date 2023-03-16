@@ -250,14 +250,14 @@ public class NomineeService implements INomineeService {
 				neList.setAllocation(100);
 			}
 			nomineeRepository.saveAll(nomineeEntities);
-			commonMethods.UpdateStep(8.1, ApplicationId);
+			commonMethods.UpdateStep(EkycConstants.PAGE_NOMINEE_1, ApplicationId);
 			responseModel.setPage(EkycConstants.PAGE_NOMINEE_2);
 		} else if (nomineeEntities.size() == 2) {
 			for (NomineeEntity neList : nomineeEntities) {
 				neList.setAllocation(50);
 			}
 			nomineeRepository.saveAll(nomineeEntities);
-			commonMethods.UpdateStep(8.2, ApplicationId);
+			commonMethods.UpdateStep(EkycConstants.PAGE_NOMINEE_2, ApplicationId);
 			responseModel.setPage(EkycConstants.PAGE_NOMINEE_3);
 		} else if (nomineeEntities.size() == 3) {
 			int count = 1;
@@ -270,7 +270,7 @@ public class NomineeService implements INomineeService {
 				count++;
 			}
 			nomineeRepository.saveAll(nomineeEntities);
-			commonMethods.UpdateStep(8.3, ApplicationId);
+			commonMethods.UpdateStep(EkycConstants.PAGE_NOMINEE_3, ApplicationId);
 			responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
 		}
 		List<NomineeEntity> updatedNomineeList = nomineeRepository.findByapplicationId(ApplicationId);
@@ -347,7 +347,7 @@ public class NomineeService implements INomineeService {
 				}
 			}
 			nomineeRepository.saveAll(nomineeEntities);
-			commonMethods.UpdateStep(8.3, entity.getApplicationId());
+			commonMethods.UpdateStep(EkycConstants.PAGE_NOMINEE_3, entity.getApplicationId());
 			responseModel.setResult(nomineeEntities);
 			responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
 		} else {

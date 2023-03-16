@@ -179,11 +179,12 @@ public class DigilockerHelper {
 									updatedAddEntity = addressRepository.save(checkExit);
 								}
 								if (updatedAddEntity != null) {
-									commonMethods.UpdateStep(3, applicationId);
+									commonMethods.UpdateStep(EkycConstants.PAGE_AADHAR, applicationId);
 									responseModel = new ResponseModel();
 									responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 									responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 									responseModel.setResult(updatedAddEntity);
+									//TODO
 									responseModel.setPage(EkycConstants.PAGE_PROFILE);
 								} else {
 									responseModel = commonMethods.constructFailedMsg(MessageConstants.ERR_SAVE_DIGI);

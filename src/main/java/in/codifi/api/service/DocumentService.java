@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,6 +22,9 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
@@ -101,12 +105,12 @@ public class DocumentService implements IDocumentService {
 							document.save(totalFileName);
 							document.close();
 							responseModel = saveDoc(fileModel, fileName, totalFileName);
-							commonMethods.UpdateStep(9, fileModel.getApplicationId());
+							commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
 						} else {
 							document.save(totalFileName);
 							document.close();
 							responseModel = saveDoc(fileModel, fileName, totalFileName);
-							commonMethods.UpdateStep(9, fileModel.getApplicationId());
+							commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
 						}
 
 					} else {
@@ -126,7 +130,7 @@ public class DocumentService implements IDocumentService {
 						}
 						Files.copy(fileModel.getFile().filePath(), path);
 						responseModel = saveDoc(fileModel, fileName, filePath);
-						commonMethods.UpdateStep(9, fileModel.getApplicationId());
+						commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
 					} else {
 						return commonMethods.constructFailedMsg(errorMsg);
 					}
@@ -270,7 +274,7 @@ public class DocumentService implements IDocumentService {
 						updatedDocEntity = docrepository.save(doc);
 					}
 					if (updatedDocEntity != null) {
-						commonMethods.UpdateStep(10, ivrModel.getApplicationId());
+						commonMethods.UpdateStep(EkycConstants.PAGE_IPV, ivrModel.getApplicationId());
 						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 						responseModel.setResult(updatedDocEntity);
 					} else {
@@ -465,6 +469,33 @@ public class DocumentService implements IDocumentService {
 			responseModel.setReason("Error deleting document");
 		}
 		return responseModel;
+	}
+
+	@Override
+	public Response downloadFile(@NotNull long applicationId, @NotNull String type) {
+		try {
+			String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
+			if (OS.contains(EkycConstants.OS_WINDOWS)) {
+				slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
+			}
+
+			DocumentEntity documents = docrepository.findByApplicationIdAndDocumentType(applicationId, type);
+			if (documents != null && StringUtil.isNotNullOrEmpty(documents.getAttachement())) {
+				String path = props.getFileBasePath() + applicationId + slash + documents.getAttachement();
+				String contentType = URLConnection.guessContentTypeFromName(documents.getAttachement());
+				File file = new File(path);
+				ResponseBuilder response = Response.ok((Object) file);
+				response.type(contentType);
+				response.header("Content-Disposition", "attachment;filename=" + file.getName());
+				return response.build();
+			} else {
+				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(MessageConstants.FILE_NOT_FOUND)
+						.build();
+			}
+		} catch (Exception e) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+					.entity("Failed to download file: " + e.getMessage()).build();
+		}
 	}
 
 }

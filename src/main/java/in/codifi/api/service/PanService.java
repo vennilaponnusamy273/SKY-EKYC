@@ -79,7 +79,7 @@ public class PanService implements IPanService {
 			ApplicationUserEntity oldUserEntity = isUserPresent.get();
 			oldUserEntity.setDob(userEntity.getDob());
 			ApplicationUserEntity savingEntity = repository.save(oldUserEntity);
-			commonMethods.UpdateStep(2.2, userEntity.getId());
+			commonMethods.UpdateStep(EkycConstants.PAGE_PAN_CONFIRM, userEntity.getId());
 			try {
 				if (StringUtil.isNotNullOrEmpty(savingEntity.getPanNumber())
 						&& StringUtil.isNotNullOrEmpty(savingEntity.getDob())) {
@@ -198,7 +198,7 @@ public class PanService implements IPanService {
 			ApplicationUserEntity savedUserEntity = isUserPresent.get();
 			savedUserEntity.setPanConfirm(1);
 			repository.save(savedUserEntity);
-			commonMethods.UpdateStep(2.2, applicationId);
+			commonMethods.UpdateStep(EkycConstants.PAGE_PAN_CONFIRM, applicationId);
 			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 			responseModel.setResult(savedUserEntity);

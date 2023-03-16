@@ -68,7 +68,7 @@ public class DeleteHelper {
 		applicationUserEntity.setCreatedOn(null);
 		applicationUserEntity.setUpdatedBy(null);
 		applicationUserEntity.setMiddleName(null);
-		applicationUserEntity.setStage(1);
+		applicationUserEntity.setStage("1");
 		applicationUserEntity.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
 		applicationUserEntity.setUserName(null);
 		applicationUserEntity.setUpdatedOn(new Date());

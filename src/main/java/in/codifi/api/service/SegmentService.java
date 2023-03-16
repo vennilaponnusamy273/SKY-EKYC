@@ -44,7 +44,7 @@ public class SegmentService implements ISegmentService {
 				updatedEntity = segmentRepository.save(segmentEntity);
 			}
 			if (updatedEntity != null && updatedEntity.getId() > 0) {
-				commonMethods.UpdateStep(6, segmentEntity.getApplicationId());
+				commonMethods.UpdateStep(EkycConstants.PAGE_SEGMENT, segmentEntity.getApplicationId());
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setResult(updatedEntity);

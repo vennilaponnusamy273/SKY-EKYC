@@ -24,7 +24,7 @@ public interface IUserController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Test")
-	public ResponseModel test();
+	public ResponseModel test(@NotNull @QueryParam("state") int state);
 
 	/**
 	 * Method to send otp to mobile number
@@ -107,7 +107,7 @@ public interface IUserController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to get Profile Details")
 	ResponseModel updateStage(@NotNull @QueryParam("applicationId") long applicationId,
-			@QueryParam("stage") double stage);
+			@QueryParam("stage") String stage);
 
 	/**
 	 * Method to get Documents that need to upload

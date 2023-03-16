@@ -8,6 +8,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.jboss.resteasy.reactive.MultipartForm;
@@ -80,11 +81,18 @@ public interface IDocUpController {
 	 * @return
 	 */
 	@Path("/deleteDocument")
-	@POST
+	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to Delete document ")
 	public ResponseModel deleteDocument(@NotNull @QueryParam("applicationId") long applicationId,
+			@NotNull @QueryParam("documentType") String type);
+
+	@Path("/getFile")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to Delete document ")
+	public Response downloadFile(@NotNull @QueryParam("applicationId") long applicationId,
 			@NotNull @QueryParam("documentType") String type);
 
 }

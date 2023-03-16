@@ -110,4 +110,6 @@ public class MessageConstants {
 	// STATUS OK
 	public static final String STATUS_OK = "OK";
 	public static final String WRONG_DOCUMENT = "The given document type is wrong";
+
+	public static final String FILE_NOT_FOUND = "File Not found on this ID";
 }
