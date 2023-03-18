@@ -52,6 +52,21 @@ public interface IDocumentService {
 	 */
 	ResponseModel deleteDocument(@NotNull long applicationId, @NotNull String type);
 
+	/**
+	 * Method to download uploaded file
+	 * 
+	 * @param applicationId
+	 * @param type
+	 * @return
+	 */
 	Response downloadFile(@NotNull long applicationId, @NotNull String type);
+
+	/**
+	 * Method to confirm document
+	 * 
+	 * @param ApplicationId
+	 * @return
+	 */
+	ResponseModel confirmDocument(@NotNull long applicationId);
 
 }

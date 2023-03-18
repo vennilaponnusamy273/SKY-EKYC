@@ -105,11 +105,11 @@ public class ApplicationProperties {
 	private String senderId;
 	@ConfigProperty(name = "quarkus.bitly.access_token")
 	private String bitlyAccessToken;
-	@ConfigProperty(name = "quarkus.bitly_baseUrl")
+	@ConfigProperty(name = "quarkus.bitly_baseurl")
 	private String bitlyBaseUrl;
 	@ConfigProperty(name = "appconfig.mail.ivr.text")
 	private String bitText;
-	@ConfigProperty(name = "quarkus.ivr_baseUrl")
+	@ConfigProperty(name = "quarkus.ivr_baseurl")
 	private String ivrBaseUrl;
 	@ConfigProperty(name = "appconfig.file.urlpath")
 	private String imageUrlPath;

@@ -1,16 +1,15 @@
 package in.codifi.api.controller;
 
 import java.util.Optional;
-import java.util.Map.Entry;
 
 import javax.inject.Inject;
 import javax.ws.rs.Path;
 
-import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.controller.spec.IUserController;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
+import in.codifi.api.restservice.keycloak.KeyCloakAdminRestService;
 import in.codifi.api.service.spec.IUserService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.MessageConstants;
@@ -24,22 +23,17 @@ public class UserController implements IUserController {
 	IUserService iUserService;
 	@Inject
 	ApplicationUserRepository applicationUserRepository;
+	@Inject
+	KeyCloakAdminRestService adminRestService;
 
 	/**
 	 * test Method
 	 */
-	public ResponseModel test(int state) {
+	public ResponseModel test(String email,String mobileNumber) {
 		ResponseModel model = new ResponseModel();
+		boolean present = adminRestService.checkUser(email, mobileNumber);
 		model.setMessage("test");
-		int key = 0;
-		for (Entry<Integer, String> entry : HazleCacheController.getInstance().getPageDetail().entrySet()) {
-			if (state == entry.getKey()) {
-				key = entry.getKey();
-				break;
-			}
-		}
-		String nextValue = HazleCacheController.getInstance().getPageDetail().get(key + 1);
-		model.setResult(nextValue);
+		model.setResult(present);
 		return model;
 	}
 

@@ -74,6 +74,19 @@ public interface IDocUpController {
 	public ResponseModel getDocument(@NotNull @QueryParam("applicationId") long applicationId);
 
 	/**
+	 * Method to confirm document
+	 * 
+	 * @param ApplicationId
+	 * @return
+	 */
+	@Path("/confirmDoc")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to check document ")
+	public ResponseModel confirmDocument(@NotNull @QueryParam("applicationId") long applicationId);
+
+	/**
 	 * Method to delete uploaded documents
 	 * 
 	 * @param applicationId
@@ -88,6 +101,13 @@ public interface IDocUpController {
 	public ResponseModel deleteDocument(@NotNull @QueryParam("applicationId") long applicationId,
 			@NotNull @QueryParam("documentType") String type);
 
+	/**
+	 * Method to download uploaded file
+	 * 
+	 * @param applicationId
+	 * @param type
+	 * @return
+	 */
 	@Path("/getFile")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

@@ -99,23 +99,23 @@ public class PaymentHelper {
 			BankEntity bankEntity = bankRepository.findByapplicationId(paymentEntity.getApplicationId());
 			Optional<ApplicationUserEntity> userEntity = userRepository.findById(paymentEntity.getApplicationId());
 			if (userEntity.isPresent() && bankEntity != null) {
-//				JSONObject bankJson = new JSONObject();
-//				if (StringUtil.isNotNullOrEmpty(bankEntity.getAccountNo())) {
-//					bankJson.put(EkycConstants.CONST_BANK_ACCOUNT_NUMBER, bankEntity.getAccountNo());
-//				}
-//				if (StringUtil.isNotNullOrEmpty(userEntity.get().getUserName())) {
-//					bankJson.put(EkycConstants.CONST_BANK_NAME, userEntity.get().getUserName());
-//				}
-//				if (StringUtil.isNotNullOrEmpty(bankEntity.getIfsc())) {
-//					bankJson.put(EkycConstants.CONST_BANK_IFSC, bankEntity.getIfsc());
-//				}
+				JSONObject bankJson = new JSONObject();
+				if (StringUtil.isNotNullOrEmpty(bankEntity.getAccountNo())) {
+					bankJson.put(EkycConstants.CONST_BANK_ACCOUNT_NUMBER, bankEntity.getAccountNo());
+				}
+				if (StringUtil.isNotNullOrEmpty(userEntity.get().getUserName())) {
+					bankJson.put(EkycConstants.CONST_BANK_NAME, userEntity.get().getUserName());
+				}
+				if (StringUtil.isNotNullOrEmpty(bankEntity.getIfsc())) {
+					bankJson.put(EkycConstants.CONST_BANK_IFSC, bankEntity.getIfsc());
+				}
 				CommonMethods.trustedManagement();
 				RazorpayClient razorpay = new RazorpayClient(props.getRazorpayKey(), props.getRazorpaySecret());
 				JSONObject orderRequest = new JSONObject();
 				orderRequest.put(EkycConstants.AMOUNT, paymentEntity.getAmount() * 100);
 				orderRequest.put(EkycConstants.CURRENCY, EkycConstants.RAZORPAY_CURRENCY_INR);
 				orderRequest.put(EkycConstants.RECEIPT, String.valueOf(paymentEntity.getApplicationId()));
-//				orderRequest.put(EkycConstants.CONST_BANK_ACCOUNT, bankModel);
+//				orderRequest.put(EkycConstants.CONST_BANK_ACCOUNT, bankJson);
 				order = razorpay.orders.create(orderRequest);
 				responseDTO.setStat(EkycConstants.SUCCESS_STATUS);
 				responseDTO.setOrder(order);
