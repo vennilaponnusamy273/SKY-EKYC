@@ -46,9 +46,9 @@ public class UserHelper {
 		userEntity.setSmsOtp(otp);
 		userEntity.setSmsVerified(0);
 		ApplicationUserEntity savedEntity = repository.save(userEntity);
-//		commonMethods.sendOTPtoMobile(otp, userEntity.getMobileNo());
+		commonMethods.sendOTPtoMobile(otp, userEntity.getMobileNo());
 		// alice Blue OTP
-		commonMethods.sendOTPMessage(Integer.toString(otp), userEntity.getMobileNo().toString());
+//		commonMethods.sendOTPMessage(Integer.toString(otp), userEntity.getMobileNo().toString());
 		HazleCacheController.getInstance().getVerifyOtp().put(mapKey, otp, 3600, TimeUnit.SECONDS);
 		HazleCacheController.getInstance().getResendOtp().put(mapKey, otp, 30, TimeUnit.SECONDS);
 		return savedEntity;
