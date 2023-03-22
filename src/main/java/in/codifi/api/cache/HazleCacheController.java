@@ -22,7 +22,7 @@ public class HazleCacheController {
 	public HazelcastInstance getHz() {
 		if (hz == null) {
 			ClientConfig clientConfig = new ClientConfig();
-			clientConfig.setClusterName("codifi"); // dev --default codifi
+			clientConfig.setClusterName("dev"); // dev --default codifi
 			clientConfig.getNetworkConfig().addAddress("127.0.0.1:5701");
 			hz = HazelcastClient.newHazelcastClient(clientConfig);
 		}
