@@ -15,11 +15,11 @@ public class MessageConstants {
 	public static final String ADDRESS_NOT_YET = "Address details not Yet";
 	public static final String MOBILE_NUMBER_WRONG = "The given Mobile Number is wrong";
 	public static final String EMAIL_ID_WRONG = "The given Email Id is wrong";
-	public static final String EMAIL_ID_ALREADY_AVAILABLE = "The given Email Id is already available for Different Number";
+	public static final String EMAIL_ID_ALREADY_AVAILABLE = "The given email ID already exists. Please try again with different email ID.";
 	public static final String PAN_ALREADY_AVAILABLE = "The given PAN Number is already available";
 	public static final String ERROR_WHILE_GENERATE_OTP = "Error Occur While Generating OTP";
 	public static final String ERROR_WHILE_VERIFY_OTP = "Error Occur While Verifying OTP";
-	public static final String INVALID_OTP = "You have taken too long to enter the OTP. Please regenerate new OTP";
+	public static final String INVALID_OTP = "Invalid OTP";
 	public static final String INVALID_OTP_TRY_AFTER = "The given otp is Invalid Try again after ";
 	public static final String AGE_RESTRICTION = "You Are Minor";
 	public static final String RETRY_OTP_TRY_AFTER = "Please request otp after ";

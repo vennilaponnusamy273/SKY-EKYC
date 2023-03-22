@@ -219,9 +219,9 @@ public class EkycConstants {
 	public static final String IVR_ACCEPT = "Accept";
 	public static final String URL = "url";
 	public static final String SHORT_URL = "shortLink";
-	public static final String IVR_KEY = "?key=";
-	public static final String IVPBASEURL = "ivpBaseURl";
-	public static final String IVR_SHORT = "&short=";
+	public static final String IVR_KEY = "&key=";
+//	public static final String IVPBASEURL = "applicationId=";
+	public static final String IVR_APPLICATIONID = "&applicationId=";
 	public static final String IVR_NAME = "&name=";
 	public static final String IVR_USER_DOMAIN_AND_RANDOMKEY = "&userDomain=1&randomKey=";
 	public static final String IVR_MSG = " Dear user, your NIDHI eKYC Application IPV is pending. Kindly click here:";

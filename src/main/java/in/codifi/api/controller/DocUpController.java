@@ -108,12 +108,30 @@ public class DocUpController implements IDocUpController {
 		return response;
 	}
 
+	/**
+	 * Method to download uploaded documents
+	 */
 	@Override
 	public Response downloadFile(@NotNull long applicationId, @NotNull String type) {
 		if (applicationId > 0 && StringUtil.isNotNullOrEmpty(type)) {
 			return docservice.downloadFile(applicationId, type);
 		} else {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(MessageConstants.PARAMETER_NULL).build();
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(MessageConstants.PARAMETER_NULL)
+					.build();
 		}
+	}
+
+	/**
+	 * Method to confirm document
+	 */
+	@Override
+	public ResponseModel confirmDocument(@NotNull long applicationId) {
+		ResponseModel response = new ResponseModel();
+		if (applicationId > 0) {
+			response = docservice.confirmDocument(applicationId);
+		} else {
+			response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
+		}
+		return response;
 	}
 }

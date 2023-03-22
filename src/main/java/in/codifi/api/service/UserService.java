@@ -174,7 +174,7 @@ public class UserService implements IUserService {
 					updatedUserDetails = repository.save(oldUserEntity);
 					commonMethods.sendMailOtp(otp, userEntity.getEmailId());
 					HazleCacheController.getInstance().getResendOtp().put(mapKey, otp, 30, TimeUnit.SECONDS);
-					HazleCacheController.getInstance().getVerifyOtp().put(mapKey, otp, 300, TimeUnit.SECONDS);
+					HazleCacheController.getInstance().getVerifyOtp().put(mapKey, otp, 3600, TimeUnit.SECONDS);
 					if (updatedUserDetails != null) {
 						responseModel = new ResponseModel();
 						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
@@ -305,11 +305,18 @@ public class UserService implements IUserService {
 				}
 				if (PennyUser != null && StringUtil.isNotNullOrEmpty(PennyUser.getAccountHolderName())) {
 					String accountHolderName = PennyUser.getAccountHolderName();
-					String fnLn = user.get().getFirstName() + user.get().getLastName();
-					String lnFn = user.get().getLastName() + user.get().getFirstName();
+					String firstname = user.get().getFirstName();
+					String lastname = user.get().getLastName();
+					String middleName = user.get().getMiddleName();
 					String fullName = user.get().getUserName();
-					if (accountHolderName.equalsIgnoreCase(fullName) || accountHolderName.equalsIgnoreCase(fnLn)
-							|| accountHolderName.equalsIgnoreCase(lnFn)) {
+					if ((StringUtil.isNotNullOrEmpty(firstname)
+							&& accountHolderName.toLowerCase().contains(firstname.toLowerCase()))
+							|| (StringUtil.isNotNullOrEmpty(lastname)
+									&& accountHolderName.toLowerCase().contains(lastname.toLowerCase()))
+							|| (StringUtil.isNotNullOrEmpty(middleName)
+									&& accountHolderName.toLowerCase().contains(middleName.toLowerCase()))
+							|| (StringUtil.isNotNullOrEmpty(fullName)
+									&& accountHolderName.toLowerCase().contains(fullName.toLowerCase()))) {
 						docReqModel.setChequeRequired(false);
 						docReqModel.setNameMismatch(false);
 					}

@@ -22,7 +22,6 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
@@ -105,12 +104,12 @@ public class DocumentService implements IDocumentService {
 							document.save(totalFileName);
 							document.close();
 							responseModel = saveDoc(fileModel, fileName, totalFileName);
-							commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
+//							commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
 						} else {
 							document.save(totalFileName);
 							document.close();
 							responseModel = saveDoc(fileModel, fileName, totalFileName);
-							commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
+//							commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
 						}
 
 					} else {
@@ -130,7 +129,7 @@ public class DocumentService implements IDocumentService {
 						}
 						Files.copy(fileModel.getFile().filePath(), path);
 						responseModel = saveDoc(fileModel, fileName, filePath);
-						commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
+//						commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
 					} else {
 						return commonMethods.constructFailedMsg(errorMsg);
 					}
@@ -330,11 +329,8 @@ public class DocumentService implements IDocumentService {
 					.encodeToString(UUID.randomUUID().toString().getBytes());
 			String baseUrl = props.getIvrBaseUrl();
 			String apiKey = props.getBitlyAccessToken();
-			// String url = baseUrl + "?key=" + apiKey + "&short=" + "ivpBaseURl" +
-			// ApplicationId + "&name=" + FirstName + "&userDomain=1&randomKey=" +
-			// RandomencodedUuid;
-			String url = baseUrl + EkycConstants.IVR_KEY + apiKey + EkycConstants.IVR_SHORT + EkycConstants.IVPBASEURL
-					+ applicationId + EkycConstants.IVR_NAME + FirstName + EkycConstants.IVR_USER_DOMAIN_AND_RANDOMKEY
+			String url = baseUrl + EkycConstants.IVR_KEY + apiKey + EkycConstants.IVR_APPLICATIONID + applicationId
+					+ EkycConstants.IVR_NAME + FirstName + EkycConstants.IVR_USER_DOMAIN_AND_RANDOMKEY
 					+ RandomencodedUuid;
 			try {
 				String generateShortLink = generateShortLink(url);
@@ -450,10 +446,16 @@ public class DocumentService implements IDocumentService {
 	@Override
 	public ResponseModel deleteDocument(@NotNull long applicationId, @NotNull String type) {
 		ResponseModel responseModel = new ResponseModel();
+		responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
 		try {
 			DocumentEntity documents = docrepository.findByApplicationIdAndDocumentType(applicationId, type);
 			if (documents != null) {
 				docrepository.delete(documents);
+				Optional<ApplicationUserEntity> checkApplicationID = userRepository.findById(applicationId);
+				ApplicationUserEntity oldUserEntity = checkApplicationID.get();
+				oldUserEntity.setStage(EkycConstants.PAGE_NOMINEE_3);
+				userRepository.save(oldUserEntity);
+
 				responseModel.setMessage("Document deleted successfully");
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
@@ -496,6 +498,28 @@ public class DocumentService implements IDocumentService {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 					.entity("Failed to download file: " + e.getMessage()).build();
 		}
+	}
+
+	/**
+	 * Method to confirm document
+	 */
+	@Override
+	public ResponseModel confirmDocument(@NotNull long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		Optional<ApplicationUserEntity> isUserPresent = userRepository.findById(applicationId);
+		if (isUserPresent.isPresent()) {
+			commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, applicationId);
+			responseModel.setPage(EkycConstants.PAGE_IPV);
+			responseModel.setReason("Document Confirmed successfully");
+			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+		} else {
+			responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
+			responseModel.setStat(EkycConstants.FAILED_STATUS);
+			responseModel.setMessage(EkycConstants.FAILED_MSG);
+			responseModel.setReason(MessageConstants.USER_ID_INVALID);
+		}
+		return responseModel;
 	}
 
 }
