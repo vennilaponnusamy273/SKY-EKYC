@@ -23,6 +23,7 @@ import in.codifi.api.entity.PennyDropEntity;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.BankRepository;
 import in.codifi.api.repository.PennyDropRepository;
+import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.StringUtil;
 
@@ -34,6 +35,8 @@ public class PennyDropHelper {
 	PennyDropRepository pennyDropRepository;
 	@Inject
 	BankRepository bankRepository;
+	@Inject
+	CommonMethods commonMethods;
 
 	/**
 	 * Method to Create Contact in razorpay
@@ -280,6 +283,7 @@ public class PennyDropHelper {
 					if (savedPennyDrop != null && StringUtil.isNotNullOrEmpty(savedPennyDrop.getRzFundAccountId())) {
 						responseDTO.setStat(EkycConstants.SUCCESS_STATUS);
 						responseDTO.setMessage(EkycConstants.SUCCESS_MSG);
+						commonMethods.UpdateStep(EkycConstants.PAGE_PENNY, applicationUserEntity.getId());
 						responseDTO.setResult(savedPennyDrop);
 					} else {
 						responseDTO.setStat(EkycConstants.FAILED_STATUS);

@@ -16,6 +16,9 @@
 		<surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
 		<version.maven-plugin-plugin>3.6.4</version.maven-plugin-plugin>
 		<wiremock.version>2.33.2</wiremock.version>
+		<!--<nsdl.path>${basedir}/src/main/resources/NSDL_e-Gov_eSign2.1_V-1.0.jar</nsdl.path>
+		<nsdl.path>D:/CodiFi/NSDL_e-Gov_eSign2.1_V-1.0.jar</nsdl.path>-->
+		<nsdl.path>D:/CodiFi/code/ekycService/src/main/resources/lib/NSDL_e-Gov_eSign2.1_V-1.0.jar</nsdl.path>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -180,6 +183,17 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-xml</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.nsdl</groupId>
+			<artifactId>nsdl-esign</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${nsdl.path}</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>javax.validation</groupId>
