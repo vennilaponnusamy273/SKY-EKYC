@@ -14,7 +14,6 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.jboss.resteasy.reactive.MultipartForm;
 
 import in.codifi.api.model.FormDataModel;
-import in.codifi.api.model.IvrModel;
 import in.codifi.api.model.ResponseModel;
 
 @SuppressWarnings("removal")
@@ -32,33 +31,6 @@ public interface IDocUpController {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@APIResponse(description = "Method to Upload proof Documnt")
 	public ResponseModel uploadDoc(@MultipartForm FormDataModel fileModel);
-
-	/**
-	 * Method to Upload Ivr Proof Details
-	 * 
-	 * @author Vennila Ponnusamy
-	 * @param documentEntity
-	 * @return
-	 */
-	@Path("/uploadIvr")
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	@APIResponse(description = "Method to Upload proof Documnt")
-	public ResponseModel uploadIvr(IvrModel ivrModel);
-
-	/**
-	 * Method to generate IVR Link
-	 * 
-	 * @param ApplicationId
-	 * @return
-	 */
-	@Path("/getIvrLink")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	@APIResponse(description = "Method to get ivr link")
-	public ResponseModel getIvrLink(@NotNull @QueryParam("applicationId") long applicationId);
 
 	/**
 	 * Method to check document present or not

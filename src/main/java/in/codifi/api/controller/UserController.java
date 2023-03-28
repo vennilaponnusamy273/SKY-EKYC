@@ -12,6 +12,7 @@ import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.restservice.keycloak.KeyCloakAdminRestService;
 import in.codifi.api.service.spec.IUserService;
 import in.codifi.api.utilities.CommonMethods;
+import in.codifi.api.utilities.Esign;
 import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
@@ -25,15 +26,18 @@ public class UserController implements IUserController {
 	ApplicationUserRepository applicationUserRepository;
 	@Inject
 	KeyCloakAdminRestService adminRestService;
+	@Inject
+	Esign esign;
 
 	/**
 	 * test Method
 	 */
 	public ResponseModel test(String email,String mobileNumber) {
 		ResponseModel model = new ResponseModel();
-		boolean present = adminRestService.checkUser(email, mobileNumber);
+//		boolean present = adminRestService.checkUser(email, mobileNumber);
 		model.setMessage("test");
-		model.setResult(present);
+//		model.setResult(present);
+		esign.runMethod();
 		return model;
 	}
 

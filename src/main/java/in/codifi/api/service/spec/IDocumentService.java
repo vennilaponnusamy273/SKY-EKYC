@@ -4,7 +4,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 
 import in.codifi.api.model.FormDataModel;
-import in.codifi.api.model.IvrModel;
 import in.codifi.api.model.ResponseModel;
 
 public interface IDocumentService {
@@ -17,23 +16,6 @@ public interface IDocumentService {
 	 */
 
 	ResponseModel uploadDoc(FormDataModel fileModel);
-
-	/**
-	 * Method to upload IVR Document
-	 * 
-	 * @author Vennila Ponnusamy
-	 * @param FormData
-	 * @return
-	 */
-	ResponseModel uploadIvr(IvrModel ivrModel);
-
-	/**
-	 * Method to generate IVR Link
-	 * 
-	 * @param ApplicationId
-	 * @return
-	 */
-	ResponseModel getLinkIvr(@NotNull long applicationId);
 
 	/**
 	 * Method to check document present or not

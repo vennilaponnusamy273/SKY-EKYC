@@ -6,7 +6,8 @@ public class EkycConstants {
 	public static final String FAILED_MSG = "Failed";
 	public static final String SUCCESS_MSG = "Success";
 	// SMS constants
-	public static final String OTP_MSG = " is Your OTP for Registration with SKY COMMODITIES INDIA PVT. LTD";
+//	public static final String OTP_MSG = " is Your OTP for Registration with SKY COMMODITIES INDIA PVT. LTD";
+	public static final String OTP_MSG = " is your OTP / verification code for Signup.-NIDHI";
 	public static final String CONST_SMS_FEEDID = "feedid=";
 	public static final String CONST_SMS_SENDERID = "senderid=";
 	public static final String CONST_SMS_USERNAME = "username=";
@@ -22,6 +23,8 @@ public class EkycConstants {
 	// OTP Validation
 	public static final String SMS_KEY = "_SMS";
 	public static final String EMAIL_KEY = "_EMAIL";
+	public static final String IVR_SMS_KEY = "SMS";
+	public static final String IVR_EMAIL_KEY = "EMAIL";
 	// ERP
 	public static final String ERP_MOBILE = "MOBILE";
 	public static final String ERP_PAN = "PAN";
@@ -45,6 +48,7 @@ public class EkycConstants {
 	public static final String PAGE_AADHAR = "3";
 	public static final String PAGE_PROFILE = "4";
 	public static final String PAGE_BANK = "5";
+	public static final String PAGE_PENNY = "5.1";
 	public static final String PAGE_SEGMENT = "6";
 	public static final String PAGE_PAYMENT = "7";
 	public static final String PAGE_NOMINEE = "8";

@@ -20,6 +20,8 @@ public class ApplicationProperties {
 	private String smsSenderId;
 	@ConfigProperty(name = "appconfig.sms.username")
 	private String smsUserName;
+	@ConfigProperty(name = "appconfig.sms.text")
+	private String smsText;
 	@ConfigProperty(name = "appconfig.sms.password")
 	private String smsPassword;
 	@ConfigProperty(name = "appconfig.mail.subject")
@@ -115,4 +117,19 @@ public class ApplicationProperties {
 	private String imageUrlPath;
 	@ConfigProperty(name = "appconfig.address.url")
 	private String addressFetchUrl;
+	// esign config
+	@ConfigProperty(name = "appconfig.esign.pfx.userid")
+	private String esignUserId;
+	@ConfigProperty(name = "appconfig.esign.pfx.password")
+	private String esignPassword;
+	@ConfigProperty(name = "appconfig.esign.pfx.aspid")
+	private String esignAspId;
+	@ConfigProperty(name = "appconfig.esign.pfx.alias")
+	private String esignAlias;
+	@ConfigProperty(name = "appconfig.esign.pfx.location")
+	private String esignLocation;
+	@ConfigProperty(name = "appconfig.esign.pfx.tickimage")
+	private String esignTickImage;
+	@ConfigProperty(name = "appconfig.esign.pfx.samplepdf")
+	private String esignSamplePDF;
 }

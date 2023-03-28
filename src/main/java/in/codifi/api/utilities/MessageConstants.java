@@ -70,6 +70,7 @@ public class MessageConstants {
 	public final static String IVR_INVALID_TOKEN = "Invalid Token";
 	public final static String INVALID_IVR_INVALID = "Your IVR Image is invalid";
 	public final static String ERROR_LIVENESS = "Error while check liveness";
+	public static final String LINK_TYPE_NULL = "The given type is null";
 	// Payment
 	public static final String AMOUNT_NULL = "Amount is Zero";
 	public static final String RECEIPT_NULL = "Receipt is null";
