@@ -23,6 +23,8 @@ public class EkycConstants {
 	// OTP Validation
 	public static final String SMS_KEY = "_SMS";
 	public static final String EMAIL_KEY = "_EMAIL";
+	public static final String IVR_SMS_KEY = "SMS";
+	public static final String IVR_EMAIL_KEY = "EMAIL";
 	// ERP
 	public static final String ERP_MOBILE = "MOBILE";
 	public static final String ERP_PAN = "PAN";

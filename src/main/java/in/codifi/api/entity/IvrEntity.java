@@ -13,10 +13,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity(name = "tbl_document_details")
+@Entity(name = "tbl_ivr_details")
 @Getter
 @Setter
-public class DocumentEntity extends CommonEntity implements Serializable {
+public class IvrEntity extends CommonEntity implements Serializable {
 
 	/**
 	 * 
@@ -27,8 +27,11 @@ public class DocumentEntity extends CommonEntity implements Serializable {
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "application_id", nullable = false)
+	@Column(name = "application_id")
 	private Long applicationId;
+
+	@Column(name = "url")
+	private String url;
 
 	@Column(name = "attachement")
 	private String attachement;
@@ -43,7 +46,11 @@ public class DocumentEntity extends CommonEntity implements Serializable {
 	private String documentType;
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-	@Column(name = "password")
-	private String password;
+	@Column(name = "latitude")
+	private String latitude;
+
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	@Column(name = "longitude")
+	private String longitude;
 
 }

@@ -61,7 +61,7 @@ public class DataLoader extends HttpServlet {
 		HazleCacheController.getInstance().getPageDetail().put(count++, "3");// PAGE_AADHAR
 		HazleCacheController.getInstance().getPageDetail().put(count++, "4");// PAGE_PROFILE
 		HazleCacheController.getInstance().getPageDetail().put(count++, "5");// PAGE_BANK
-//		HazleCacheController.getInstance().getPageDetail().put(count++, "5.1");// PAGE_PENNY
+		HazleCacheController.getInstance().getPageDetail().put(count++, "5.1");// PAGE_PENNY
 		HazleCacheController.getInstance().getPageDetail().put(count++, "6");// PAGE_SEGMENT
 		HazleCacheController.getInstance().getPageDetail().put(count++, "7");// PAGE_PAYMENT
 		HazleCacheController.getInstance().getPageDetail().put(count++, "8");// PAGE_NOMINEE

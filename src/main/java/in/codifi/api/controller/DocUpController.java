@@ -11,7 +11,6 @@ import javax.ws.rs.core.Response;
 
 import in.codifi.api.controller.spec.IDocUpController;
 import in.codifi.api.model.FormDataModel;
-import in.codifi.api.model.IvrModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IDocumentService;
 import in.codifi.api.utilities.CommonMethods;
@@ -44,38 +43,6 @@ public class DocUpController implements IDocUpController {
 			} else {
 				response = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 			}
-		}
-		return response;
-	}
-
-	/**
-	 * Method to Upload Ivr Proof Details
-	 */
-	@Override
-	public ResponseModel uploadIvr(IvrModel ivrModel) {
-		ResponseModel response = new ResponseModel();
-		if (ivrModel != null && ivrModel.getApplicationId() > 0) {
-			response = docservice.uploadIvr(ivrModel);
-		} else {
-			if (ivrModel == null) {
-				response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
-			} else {
-				response = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
-			}
-		}
-		return response;
-	}
-
-	/**
-	 * Method to generate IVR Link
-	 */
-	@Override
-	public ResponseModel getIvrLink(@NotNull long applicationId) {
-		ResponseModel response = new ResponseModel();
-		if (applicationId > 0) {
-			response = docservice.getLinkIvr(applicationId);
-		} else {
-			response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
 		}
 		return response;
 	}
