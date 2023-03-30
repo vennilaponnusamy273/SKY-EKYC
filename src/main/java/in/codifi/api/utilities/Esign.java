@@ -49,7 +49,7 @@ public class Esign {
 			String pdfReadServerPath = props.getEsignSamplePDF();
 			String aspId = props.getEsignAspId();
 			String authMode = "1";
-			String responseUrl = "";
+			String responseUrl = "https://ekyc.nidhihq.com/ekyc-rest/user/testEsign";
 			String p12CertificatePath = props.getEsignLocation();
 			String p12CertiPwd = props.getEsignPassword();
 			String tickImagePath = props.getEsignTickImage();
