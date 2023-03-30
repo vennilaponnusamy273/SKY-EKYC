@@ -24,7 +24,16 @@ public interface IUserController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Test")
-	public ResponseModel test(@NotNull @QueryParam("email") String email,@NotNull @QueryParam("mobileNumber") String mobileNumber);
+	public ResponseModel test();
+
+	/**
+	 * test Method
+	 */
+	@Path("/testEsign")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Test")
+	public void testEsign();
 
 	/**
 	 * Method to send otp to mobile number

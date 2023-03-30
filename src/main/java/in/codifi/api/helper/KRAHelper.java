@@ -215,7 +215,7 @@ public class KRAHelper {
 			String corrsCity = kraDetails.getString("APP_COR_CITY");
 			String corrsState = kraDetails.getString("APP_COR_STATE");
 			String corrsCountry = kraDetails.getString("APP_COR_CTRY");
-			int corrsPinCode = kraDetails.getInt("APP_COR_PINCD");
+			int corrsPinCode = kraDetails.optInt("APP_COR_PINCD");
 			/*
 			 * Set communication adders from the KRA
 			 */
@@ -235,7 +235,7 @@ public class KRAHelper {
 			String perCity = kraDetails.getString("APP_PER_CITY");
 			String perState = kraDetails.getString("APP_PER_STATE");
 			String perCountry = kraDetails.getString("APP_PER_CTRY");
-			int perPinCode = kraDetails.getInt("APP_PER_PINCD");
+			int perPinCode = kraDetails.optInt("APP_PER_PINCD");
 			/*
 			 * Set Permanent address from the KRA
 			 */
