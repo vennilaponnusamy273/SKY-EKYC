@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.ws.rs.Priorities;
@@ -14,13 +15,16 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.entity.AccesslogEntity;
 import in.codifi.api.repository.AccesslogRepository;
+import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.StringUtil;
 import io.quarkus.arc.Priority;
@@ -33,6 +37,8 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 	HttpServerRequest serverRequest;
 	@Inject
 	AccesslogRepository logRepository;
+	@Inject
+	CommonMethods commonMethods;
 
 	/**
 	 * Method to capture and single save request and response
@@ -43,9 +49,7 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 	@SuppressWarnings("unused")
 	private void caputureInSingleShot(ContainerRequestContext requestContext,
 			ContainerResponseContext responseContext) {
-
 		String deviceIp = serverRequest.remoteAddress().toString();
-
 		ExecutorService pool = Executors.newSingleThreadExecutor();
 		pool.execute(new Runnable() {
 			@Override
@@ -99,9 +103,43 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 			requestContext.setEntityStream(stream);
 			String formedReq = new String(body);
 			requestContext.setProperty("reqBody", formedReq);
+//			String authorizationHeader = null;
+//			String path = requestContext.getUriInfo().getPath();
+//			if (!path.endsWith("user/sendSmsOtp")) {
+//				authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+//				if (StringUtil.isNullOrEmpty(authorizationHeader)) {
+//					requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+//				} else {
+//					validateToken(requestContext, authorizationHeader);
+//				}
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	/**
+	 * Method to validate the authorization token
+	 * 
+	 * @author prade
+	 * 
+	 * @param requestContext
+	 * @param authorizationHeader
+	 */
+	public void validateToken(ContainerRequestContext requestContext, String authorizationHeader) {
+		String fullToken = authorizationHeader.substring("Bearer".length()).trim();
+		String token[] = fullToken.split(" ");
+		if (StringUtil.isNotNullOrEmpty(token[0]) && StringUtil.isNotNullOrEmpty(token[1])) {
+			String mobileNumber = commonMethods.decrypt(token[1]);
+			if (HazleCacheController.getInstance().getAuthToken().containsKey(mobileNumber) && StringUtil
+					.isEqual(HazleCacheController.getInstance().getAuthToken().get(mobileNumber), fullToken)) {
+				HazleCacheController.getInstance().getAuthToken().put(mobileNumber, fullToken, 3600, TimeUnit.SECONDS);
+			} else {
+				requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+			}
+		} else {
+			requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+		}
 	}
 }

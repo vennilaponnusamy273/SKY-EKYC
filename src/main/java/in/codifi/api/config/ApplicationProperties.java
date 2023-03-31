@@ -132,4 +132,12 @@ public class ApplicationProperties {
 	private String esignTickImage;
 	@ConfigProperty(name = "appconfig.esign.pfx.samplepdf")
 	private String esignSamplePDF;
+	@ConfigProperty(name = "quarkus.mailer.from")
+	private String mailfrom;
+	@ConfigProperty(name = "quarkus.encrypt.key")
+	private String encryptkey;
+	@ConfigProperty(name = "quarkus.encrypt.initVector")
+	private String encryptinitVector;
+	@ConfigProperty(name = "quarkus.token.encryption.key")
+	private String tokenEncryptKey;
 }

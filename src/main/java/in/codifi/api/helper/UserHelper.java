@@ -46,11 +46,14 @@ public class UserHelper {
 		userEntity.setSmsOtp(otp);
 		userEntity.setSmsVerified(0);
 		ApplicationUserEntity savedEntity = repository.save(userEntity);
+		String authToken = commonMethods.randomAlphaNumeric(savedEntity.getMobileNo());
+		HazleCacheController.getInstance().getAuthToken().put(savedEntity.getMobileNo().toString(), authToken, 300,
+				TimeUnit.SECONDS);
 		commonMethods.sendOTPtoMobile(otp, userEntity.getMobileNo());
 		// alice Blue OTP
 //		commonMethods.sendOTPMessage(Integer.toString(otp), userEntity.getMobileNo().toString());
 		HazleCacheController.getInstance().getVerifyOtp().put(mapKey, otp, 3600, TimeUnit.SECONDS);
-		HazleCacheController.getInstance().getResendOtp().put(mapKey, otp, 30, TimeUnit.SECONDS);
+		savedEntity.setAuthToken(authToken);
 		return savedEntity;
 	}
 
@@ -95,31 +98,49 @@ public class UserHelper {
 		ResponseModel response = null;
 		long seconds = 0;
 		if ((HazleCacheController.getInstance().getRetryOtp().containsKey(mapKey)
-				&& HazleCacheController.getInstance().getRetryOtp().get(mapKey) > 4)
-				|| HazleCacheController.getInstance().getResendOtp().containsKey(mapKey)) {
+				&& HazleCacheController.getInstance().getRetryOtp().get(mapKey) > 9)
+				|| HazleCacheController.getInstance().getResendOtp().containsKey(mapKey)
+						&& HazleCacheController.getInstance().getResendOtp().get(mapKey) > 4) {
 			if (HazleCacheController.getInstance().getRetryOtp().containsKey(mapKey)
-					&& HazleCacheController.getInstance().getRetryOtp().get(mapKey) > 4) {
+					&& HazleCacheController.getInstance().getRetryOtp().get(mapKey) > 9) {
 				long expiryTime = HazleCacheController.getInstance().getRetryOtp().getEntryView(mapKey)
 						.getExpirationTime();
 				seconds = (expiryTime - System.currentTimeMillis()) / 1000;
+				response = commonMethods
+						.constructFailedMsg(MessageConstants.RETRY_OTP_TRY_AFTER + seconds + MessageConstants.SECONDS);
 			} else {
 				long expiryTime = HazleCacheController.getInstance().getResendOtp().getEntryView(mapKey)
 						.getExpirationTime();
 				seconds = (expiryTime - System.currentTimeMillis()) / 1000;
+				response = commonMethods
+						.constructFailedMsg(MessageConstants.RETRY_OTP_TRY_AFTER + seconds + MessageConstants.SECONDS);
 			}
-			response = commonMethods
-					.constructFailedMsg(MessageConstants.RETRY_OTP_TRY_AFTER + seconds + MessageConstants.SECONDS);
-		} else if (HazleCacheController.getInstance().getRetryOtp().containsKey(mapKey)) {
-			if (HazleCacheController.getInstance().getRetryOtp().get(mapKey) == 4) {
-				HazleCacheController.getInstance().getRetryOtp().put(mapKey,
-						HazleCacheController.getInstance().getRetryOtp().get(mapKey) + 1, 300, TimeUnit.SECONDS);
-			} else {
-				HazleCacheController.getInstance().getRetryOtp().put(mapKey,
-						HazleCacheController.getInstance().getRetryOtp().get(mapKey) + 1);
-			}
+		} else if (HazleCacheController.getInstance().getResendOtp().containsKey(mapKey)
+				|| HazleCacheController.getInstance().getRetryOtp().containsKey(mapKey)) {
+			// resend sms check
+			if (HazleCacheController.getInstance().getResendOtp().containsKey(mapKey))
+				if (HazleCacheController.getInstance().getResendOtp().get(mapKey) == 4)
+					HazleCacheController.getInstance().getResendOtp().put(mapKey,
+							HazleCacheController.getInstance().getResendOtp().get(mapKey) + 1, 30, TimeUnit.SECONDS);
+				else
+					HazleCacheController.getInstance().getResendOtp().put(mapKey,
+							HazleCacheController.getInstance().getResendOtp().get(mapKey) + 1);
+			else
+				HazleCacheController.getInstance().getResendOtp().put(mapKey, 1);
+			// retry sms check
+			if (HazleCacheController.getInstance().getRetryOtp().containsKey(mapKey))
+				if (HazleCacheController.getInstance().getRetryOtp().get(mapKey) == 9)
+					HazleCacheController.getInstance().getRetryOtp().put(mapKey,
+							HazleCacheController.getInstance().getRetryOtp().get(mapKey) + 1, 300, TimeUnit.SECONDS);
+				else
+					HazleCacheController.getInstance().getRetryOtp().put(mapKey,
+							HazleCacheController.getInstance().getRetryOtp().get(mapKey) + 1);
+			else
+				HazleCacheController.getInstance().getRetryOtp().put(mapKey, 1);
 		} else {
 			HazleCacheController.getInstance().getRetryOtp().put(mapKey, 1);
-			HazleCacheController.getInstance().getResendOtp().put(mapKey, 1, 30, TimeUnit.SECONDS);
+			HazleCacheController.getInstance().getResendOtp().put(mapKey, 1);
+
 		}
 		return response;
 	}
