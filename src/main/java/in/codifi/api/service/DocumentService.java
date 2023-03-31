@@ -81,14 +81,11 @@ public class DocumentService implements IDocumentService {
 							document.save(totalFileName);
 							document.close();
 							responseModel = saveDoc(fileModel, fileName, totalFileName);
-//							commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
 						} else {
 							document.save(totalFileName);
 							document.close();
 							responseModel = saveDoc(fileModel, fileName, totalFileName);
-//							commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
 						}
-
 					} else {
 						return commonMethods.constructFailedMsg(errorMsg);
 					}
@@ -106,7 +103,6 @@ public class DocumentService implements IDocumentService {
 						}
 						Files.copy(fileModel.getFile().filePath(), path);
 						responseModel = saveDoc(fileModel, fileName, filePath);
-//						commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, fileModel.getApplicationId());
 					} else {
 						return commonMethods.constructFailedMsg(errorMsg);
 					}
@@ -127,6 +123,14 @@ public class DocumentService implements IDocumentService {
 		return responseModel;
 	}
 
+	/**
+	 * Method to save Document
+	 * 
+	 * @param data
+	 * @param fileName
+	 * @param filePath
+	 * @return
+	 */
 	public ResponseModel saveDoc(FormDataModel data, String fileName, String filePath) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
@@ -171,18 +175,26 @@ public class DocumentService implements IDocumentService {
 		return responseModel;
 	}
 
+	/**
+	 * Method to check file Validation
+	 * 
+	 * @param data
+	 * @return
+	 */
 	public String checkValidate(FormDataModel data) {
 		List<String> mimetype = Arrays.asList("image/jpg", "image/jpeg", "image/gif", "image/png");
 		if (!mimetype.contains(data.getFile().contentType())) {
 			return "File not suported";
 		}
-		if (data.getFile().size() > 1024 * 1024 * 4) {
-			return "File much large";
-		}
 		return "";
-
 	}
 
+	/**
+	 * Method to check file is password protected
+	 * 
+	 * @param fileModel
+	 * @return
+	 */
 	public String checkPasswordProtected(FormDataModel fileModel) {
 		String error = "";
 		try {
@@ -280,6 +292,9 @@ public class DocumentService implements IDocumentService {
 		return responseModel;
 	}
 
+	/**
+	 * Method to download file
+	 */
 	@Override
 	public Response downloadFile(@NotNull long applicationId, @NotNull String type) {
 		try {

@@ -96,6 +96,8 @@ public class EkycConstants {
 	public static final String PAN_CARD = "panCard";
 	public static final String PAN_CARD_STATUS = "panCardStatus";
 	public static final String PAN_TITLE = "panTittle";
+	public static final String CONSTANT_ERROR_MSG = "ERROR_MSG";
+	public static final String CONSTANT_ERROR_DESC = "APP_ERROR_DESC";
 	// Digi
 	public static final String DIGI_CONST_AUTH_CLIENT_ID = "authorize?client_id=";
 	public static final String DIGI_CONST_RES_TYPE = "&response_type=";

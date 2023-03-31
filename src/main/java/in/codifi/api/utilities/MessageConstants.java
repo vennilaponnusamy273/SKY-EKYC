@@ -113,4 +113,8 @@ public class MessageConstants {
 	public static final String WRONG_DOCUMENT = "The given document type is wrong";
 
 	public static final String FILE_NOT_FOUND = "File Not found on this ID";
+	public static final String AADHAR_NOT_AVAILABLE = "Aadhaar data is not available for this user. Please perform Aadhaar eKYC again.";
+	public static final String AADHAR_INTERNAL_SERVER_ERR = "Internal server error from Digilocker";
+	public static final String AADHAR_TOKEN_400 = "Bad request from Digilocker";
+	public static final String AADHAR_TOKEN_401 = "Token Expired from Digilocker";
 }

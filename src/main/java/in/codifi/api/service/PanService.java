@@ -79,7 +79,6 @@ public class PanService implements IPanService {
 			ApplicationUserEntity oldUserEntity = isUserPresent.get();
 			oldUserEntity.setDob(userEntity.getDob());
 			ApplicationUserEntity savingEntity = repository.save(oldUserEntity);
-			commonMethods.UpdateStep(EkycConstants.PAGE_PAN_CONFIRM, userEntity.getId());
 			try {
 				if (StringUtil.isNotNullOrEmpty(savingEntity.getPanNumber())
 						&& StringUtil.isNotNullOrEmpty(savingEntity.getDob())) {
@@ -94,60 +93,58 @@ public class PanService implements IPanService {
 									if (panCardDetails.has("APP_NAME")) {
 										profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
 												userEntity.getId());
+										ckycService.saveCkycResponse(userEntity.getId());
 									} else {
-										if (panCardDetails.has("ERROR_MSG")) {
-											responseModel = commonMethods
-													.constructFailedMsg(pancardResponse.getString("ERROR_MSG"));
-											responseModel.setPage(EkycConstants.PAGE_AADHAR);
+										if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_MSG)) {
+											responseModel = commonMethods.constructFailedMsg(
+													panCardDetails.getString(EkycConstants.CONSTANT_ERROR_MSG));
+
+										} else if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_DESC)) {
+											responseModel = commonMethods.constructFailedMsg(
+													panCardDetails.getString(EkycConstants.CONSTANT_ERROR_DESC));
+											responseModel.setPage(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY);
+											return responseModel;
 										} else {
 											responseModel = commonMethods
 													.constructFailedMsg(MessageConstants.KRA_FAILED);
-											responseModel.setPage(EkycConstants.PAGE_AADHAR);
 										}
 									}
 								} else {
 									responseModel = commonMethods
 											.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
-									responseModel.setPage(EkycConstants.PAGE_AADHAR);
 								}
-								ckycService.saveCkycResponse(userEntity.getId());
 							}
 						} else {
-							if (pancardResponse.has("ERROR_MSG")) {
-								responseModel = commonMethods
-										.constructFailedMsg(pancardResponse.getString("ERROR_MSG"));
-								responseModel.setPage(EkycConstants.PAGE_AADHAR);
+							if (pancardResponse.has(EkycConstants.CONSTANT_ERROR_MSG)) {
+								responseModel = commonMethods.constructFailedMsg(
+										pancardResponse.getString(EkycConstants.CONSTANT_ERROR_MSG));
 							} else {
 								responseModel = commonMethods.constructFailedMsg(MessageConstants.KRA_FAILED);
-								responseModel.setPage(EkycConstants.PAGE_AADHAR);
 							}
 						}
 					} else {
 						responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
-						responseModel.setPage(EkycConstants.PAGE_AADHAR);
 					}
 				}
+				responseModel.setPage(EkycConstants.PAGE_AADHAR);
+				responseModel
+						.setResult(savingEntity != null ? savingEntity : profileEntity != null ? profileEntity : "");
 			} catch (Exception e) {
 				e.printStackTrace();
 				responseModel = commonMethods.constructFailedMsg(e.getMessage());
 			}
-			if (profileEntity != null) {
-				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-				responseModel.setResult(profileEntity);
-				responseModel.setPage(EkycConstants.PAGE_AADHAR);
-			} else if (savingEntity != null) {
-				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-				responseModel.setResult(savingEntity);
-				responseModel.setPage(EkycConstants.PAGE_AADHAR);
-			} else {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVING_DOB);
+			if (StringUtil.isNullOrEmpty(responseModel.getMessage())) {
+				if (profileEntity != null || savingEntity != null) {
+					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVING_DOB);
+				}
 			}
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
-
+		commonMethods.UpdateStep(EkycConstants.PAGE_PAN_CONFIRM, userEntity.getId());
 		return responseModel;
 	}
 

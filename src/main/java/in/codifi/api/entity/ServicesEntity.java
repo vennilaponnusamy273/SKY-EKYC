@@ -11,9 +11,9 @@ import javax.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
+@Entity(name = "tbl_service_rules")
 @Getter
 @Setter
-@Entity(name = "tbl_services_rules")
 public class ServicesEntity extends CommonEntity implements Serializable {
 
 	/**
@@ -28,7 +28,7 @@ public class ServicesEntity extends CommonEntity implements Serializable {
 	@Column(name = "service", length = 100)
 	private String service;
 
-	@Column(name = "`access`", length = 6)
+	@Column(name = "access", length = 6)
 	private Integer access;
 
 	@Column(name = "order")

@@ -103,10 +103,9 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 			requestContext.setEntityStream(stream);
 			String formedReq = new String(body);
 			requestContext.setProperty("reqBody", formedReq);
-//			String authorizationHeader = null;
 //			String path = requestContext.getUriInfo().getPath();
 //			if (!path.endsWith("user/sendSmsOtp")) {
-//				authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+//				String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
 //				if (StringUtil.isNullOrEmpty(authorizationHeader)) {
 //					requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
 //				} else {
