@@ -112,6 +112,7 @@ public class UserService implements IUserService {
 					int savedOtp = HazleCacheController.getInstance().getVerifyOtp().get(mapKey);
 					if (savedOtp == userEntity.getSmsOtp()) {
 						oldUserEntity.setSmsVerified(1);
+						oldUserEntity.setStage(EkycConstants.PAGE_SMS);
 						updatedUserDetails = repository.save(oldUserEntity);
 						HazleCacheController.getInstance().getVerifyOtp().remove(mapKey);
 						HazleCacheController.getInstance().getRetryOtp().remove(mapKey);
