@@ -30,7 +30,7 @@ public interface IUserController {
 	 * test Method
 	 */
 	@Path("/testEsign")
-	@GET
+	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Test")
 	public void testEsign();
