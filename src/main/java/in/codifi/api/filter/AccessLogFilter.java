@@ -14,6 +14,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -66,7 +67,8 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 					if (StringUtil.isNotNullOrEmpty(queryParams)) {
 						logModel.setReqBody(queryParams);
 					} else {
-						logModel.setReqBody(objMapper.writeValueAsString(requestContext.getProperty("reqBody")));
+						logModel.setReqBody(
+								objMapper.writeValueAsString(requestContext.getProperty(EkycConstants.CONST_REQ_BODY)));
 					}
 					Object reponseObj = responseContext.getEntity();
 					logModel.setResBody(objMapper.writeValueAsString(reponseObj));
@@ -97,21 +99,23 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		try {
-			requestContext.setProperty("inTime", new Timestamp(System.currentTimeMillis()));
+			requestContext.setProperty(EkycConstants.CONST_IN_TIME, new Timestamp(System.currentTimeMillis()));
 			byte[] body = requestContext.getEntityStream().readAllBytes();
 			InputStream stream = new ByteArrayInputStream(body);
 			requestContext.setEntityStream(stream);
 			String formedReq = new String(body);
-			requestContext.setProperty("reqBody", formedReq);
-//			String path = requestContext.getUriInfo().getPath();
-//			if (!path.endsWith("user/sendSmsOtp")) {
-//				String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-//				if (StringUtil.isNullOrEmpty(authorizationHeader)) {
-//					requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
-//				} else {
-//					validateToken(requestContext, authorizationHeader);
-//				}
-//			}
+			requestContext.setProperty(EkycConstants.CONST_REQ_BODY, formedReq);
+			String path = requestContext.getUriInfo().getPath();
+			if (!path.endsWith(EkycConstants.PATH_SEND_SMS_OTP) && StringUtil.isEqual(
+					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.CONST_FILTER),
+					EkycConstants.TRUE)) {
+				String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+				if (StringUtil.isNullOrEmpty(authorizationHeader)) {
+					requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+				} else {
+					validateToken(requestContext, authorizationHeader);
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

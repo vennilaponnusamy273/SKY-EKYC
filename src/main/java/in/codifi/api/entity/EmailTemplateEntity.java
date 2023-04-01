@@ -7,30 +7,36 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity(name = "tbl_service_rules")
 @Getter
 @Setter
-public class ServicesEntity extends CommonEntity implements Serializable {
+@Entity(name = "tbl_email_template")
+public class EmailTemplateEntity extends CommonEntity implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "service_name", length = 100)
-	private String serviceName;
+	@Lob
+	@Column(name = "body")
+	private String body;
 
-	@Column(name = "access_allowed", length = 6)
-	private Integer accessAllowed;
+	@Column(name = "subject")
+	private String subject;
 
-	@Column(name = "order_value")
-	private String orderValue;
+	@Column(name = "keyData") // escaping "key" with backticks
+	private String keyData;
+
+	@Column(name = "value")
+	private Long value;
 }

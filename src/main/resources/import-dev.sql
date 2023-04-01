@@ -1,4 +1,4 @@
-INSERT INTO ekyc.tbl_kra_keyvalue_pair(master_id,master_name,kra_key,kra_value) values
+INSERT INTO ekyc.tbl_kra_keyvalue_pair(master_id,master_name,data_key,data_value) values
 ('1','STATE','001','Jammu and Kashmir'),
 ('1','STATE','002','Himachal Pradesh'),
 ('1','STATE','003','Punjab'),
@@ -332,4 +332,6 @@ INSERT INTO ekyc.tbl_kra_keyvalue_pair(master_id,master_name,kra_key,kra_value) 
 ('6','DOCUMENT_UPLOAD','5','FORM 16'),
 ('6','DOCUMENT_UPLOAD','6','Pay slip (Last 3 months)'),
 ('6','DOCUMENT_UPLOAD','7','Net worth Certificate'),
-('6','DOCUMENT_UPLOAD','8','Any other relevant documents');
+('6','DOCUMENT_UPLOAD','8','Any other relevant documents'),
+('7','ENCRYPT','01','false'),
+('8','FILTER','01','false');

@@ -31,10 +31,10 @@ public class KraKeyValueEntity implements Serializable {
 	@Column(name = "master_name")
 	private String masterName;
 
-	@Column(name = "kra_key")
+	@Column(name = "data_key")
 	private String kraKey;
 
-	@Column(name = "kra_value")
+	@Column(name = "data_value")
 	private String kraValue;
 
 }

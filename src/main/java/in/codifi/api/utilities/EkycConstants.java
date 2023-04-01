@@ -237,5 +237,11 @@ public class EkycConstants {
 	public static final String INCOMEKEY = "3_INCOME_";
 	public static final String OCCUPATIONKEY = "4_OCCUPATION_";
 	public static final String PEPKEY = "5_PEP_";
-
+	// Filter and Encryption
+	public static final String CONST_FILTER = "FILTER";
+	public static final String TRUE = "true";
+	public static final String FALSE = "false";
+	public static final String PATH_SEND_SMS_OTP = "user/sendSmsOtp";
+	public static final String CONST_REQ_BODY = "reqBody";
+	public static final String CONST_IN_TIME = "inTime";
 }

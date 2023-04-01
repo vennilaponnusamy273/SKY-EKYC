@@ -37,7 +37,8 @@ public class UserController implements IUserController {
 //		boolean present = adminRestService.checkUser(email, mobileNumber);
 		model.setMessage("test");
 //		model.setResult(present);
-		esign.runMethod();
+		String xml = esign.runMethod();
+		model.setResult(xml);
 		return model;
 	}
 

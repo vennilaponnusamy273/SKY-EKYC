@@ -74,26 +74,27 @@ public class PanService implements IPanService {
 	public ResponseModel saveDob(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
 		ProfileEntity profileEntity = null;
+		ApplicationUserEntity savingEntity = null;
 		Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
 		if (isUserPresent.isPresent()) {
 			ApplicationUserEntity oldUserEntity = isUserPresent.get();
 			oldUserEntity.setDob(userEntity.getDob());
-			ApplicationUserEntity savingEntity = repository.save(oldUserEntity);
 			try {
-				if (StringUtil.isNotNullOrEmpty(savingEntity.getPanNumber())
-						&& StringUtil.isNotNullOrEmpty(savingEntity.getDob())) {
-					JSONObject pancardResponse = kraHelper.getPanCardStatus(savingEntity.getPanNumber());
+				if (StringUtil.isNotNullOrEmpty(oldUserEntity.getPanNumber())
+						&& StringUtil.isNotNullOrEmpty(oldUserEntity.getDob())) {
+					JSONObject pancardResponse = kraHelper.getPanCardStatus(oldUserEntity.getPanNumber());
 					if (pancardResponse != null) {
 						if (pancardResponse.has("APP_NAME")) {
 							int panCardStatus = pancardResponse.getInt("APP_STATUS");
 							if (checkAppStatus(panCardStatus)) {
-								JSONObject panCardDetails = kraHelper.getPanCardDetails(savingEntity.getPanNumber(),
-										savingEntity.getDob(), panCardStatus);
+								JSONObject panCardDetails = kraHelper.getPanCardDetails(oldUserEntity.getPanNumber(),
+										userEntity.getDob(), panCardStatus);
 								if (panCardDetails != null) {
 									if (panCardDetails.has("APP_NAME")) {
+										savingEntity = repository.save(oldUserEntity);
 										profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
 												userEntity.getId());
-										ckycService.saveCkycResponse(userEntity.getId());
+										ckycService.saveCkycResponse(userEntity.getId());										
 									} else {
 										if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_MSG)) {
 											responseModel = commonMethods.constructFailedMsg(
@@ -144,7 +145,7 @@ public class PanService implements IPanService {
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
-		commonMethods.UpdateStep(EkycConstants.PAGE_PAN_CONFIRM, userEntity.getId());
+		commonMethods.UpdateStep(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY, userEntity.getId());
 		return responseModel;
 	}
 
