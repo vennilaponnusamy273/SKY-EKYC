@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -36,11 +34,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.entity.EmailTemplateEntity;
 import in.codifi.api.entity.ReqResEntity;
 import in.codifi.api.model.AddressModel;
 import in.codifi.api.model.BankAddressModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
+import in.codifi.api.repository.EmailTemplateRepository;
 import in.codifi.api.repository.ReqResRepository;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
@@ -56,6 +56,8 @@ public class CommonMethods {
 	ApplicationUserRepository repos;
 	@Inject
 	ReqResRepository reqResRepository;
+	@Inject
+	EmailTemplateRepository emailTemplateRepository;
 
 	/**
 	 * Method to generate OTP for Mobile number
@@ -184,19 +186,34 @@ public class CommonMethods {
 	 * @param user
 	 * @return
 	 */
+//	public void sendMailOtp(int otp, String emailId) throws MessagingException {
+//		ExecutorService pool = Executors.newSingleThreadExecutor();
+//		pool.execute(new Runnable() {
+//			@Override
+//			public void run() {
+//				String getSubject = props.getMailSubject();
+//				String getText = "Dear User, " + otp + " " + props.getMailText();
+//				Mail mail = Mail.withText(emailId, getSubject, getText);
+//				mailer.send(mail);
+//				System.out.print("the post mail" + mail);
+//			}
+//		});
+//		pool.shutdown();
+//	}
+
+	/**
+	 * Method to send mail
+	 * 
+	 * @param user
+	 * @return
+	 **/
 	public void sendMailOtp(int otp, String emailId) throws MessagingException {
-		ExecutorService pool = Executors.newSingleThreadExecutor();
-		pool.execute(new Runnable() {
-			@Override
-			public void run() {
-				String getSubject = props.getMailSubject();
-				String getText = "Dear User, " + otp + " " + props.getMailText();
-				Mail mail = Mail.withText(emailId, getSubject, getText);
-				mailer.send(mail);
-				System.out.print("the post mail" + mail);
-			}
-		});
-		pool.shutdown();
+		EmailTemplateEntity emailTempentity = emailTemplateRepository.findByKeyData("otp");
+		String body_Message = emailTempentity.getBody();
+		String body = body_Message.replace("{otp}", String.format("%06d", otp));
+		String subject = emailTempentity.getSubject().replace("{otp}", String.format("%06d", otp));
+		Mail mail = Mail.withHtml(emailId, subject, body);
+		mailer.send(mail);
 	}
 
 	/**
