@@ -9,11 +9,13 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -32,17 +34,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.entity.EmailTemplateEntity;
 import in.codifi.api.entity.ReqResEntity;
 import in.codifi.api.model.AddressModel;
 import in.codifi.api.model.BankAddressModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
+import in.codifi.api.repository.EmailTemplateRepository;
 import in.codifi.api.repository.ReqResRepository;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
 
 @ApplicationScoped
 public class CommonMethods {
+	private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	@Inject
 	ApplicationProperties props;
 	@Inject
@@ -51,6 +56,8 @@ public class CommonMethods {
 	ApplicationUserRepository repos;
 	@Inject
 	ReqResRepository reqResRepository;
+	@Inject
+	EmailTemplateRepository emailTemplateRepository;
 
 	/**
 	 * Method to generate OTP for Mobile number
@@ -179,19 +186,34 @@ public class CommonMethods {
 	 * @param user
 	 * @return
 	 */
+//	public void sendMailOtp(int otp, String emailId) throws MessagingException {
+//		ExecutorService pool = Executors.newSingleThreadExecutor();
+//		pool.execute(new Runnable() {
+//			@Override
+//			public void run() {
+//				String getSubject = props.getMailSubject();
+//				String getText = "Dear User, " + otp + " " + props.getMailText();
+//				Mail mail = Mail.withText(emailId, getSubject, getText);
+//				mailer.send(mail);
+//				System.out.print("the post mail" + mail);
+//			}
+//		});
+//		pool.shutdown();
+//	}
+
+	/**
+	 * Method to send mail
+	 * 
+	 * @param user
+	 * @return
+	 **/
 	public void sendMailOtp(int otp, String emailId) throws MessagingException {
-		ExecutorService pool = Executors.newSingleThreadExecutor();
-		pool.execute(new Runnable() {
-			@Override
-			public void run() {
-				String getSubject = props.getMailSubject();
-				String getText = "Dear User, " + otp + " " + props.getMailText();
-				Mail mail = Mail.withText(emailId, getSubject, getText);
-				mailer.send(mail);
-				System.out.print("the post mail" + mail);
-			}
-		});
-		pool.shutdown();
+		EmailTemplateEntity emailTempentity = emailTemplateRepository.findByKeyData("otp");
+		String body_Message = emailTempentity.getBody();
+		String body = body_Message.replace("{otp}", String.format("%06d", otp));
+		String subject = emailTempentity.getSubject().replace("{otp}", String.format("%06d", otp));
+		Mail mail = Mail.withHtml(emailId, subject, body);
+		mailer.send(mail);
 	}
 
 	/**
@@ -395,6 +417,56 @@ public class CommonMethods {
 			return model;
 		}
 		return model;
+	}
+
+	/**
+	 * Method to create bearer token
+	 * 
+	 * @author prade
+	 * @return
+	 */
+	public String randomAlphaNumeric(Long mobileNumer) {
+		int count = 256;
+		StringBuilder builder = new StringBuilder();
+		while (count-- != 0) {
+			int character = (int) (Math.random() * ALPHA_NUMERIC_STRING.length());
+			builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+		}
+		builder.append(" ");
+		builder.append(encrypt(mobileNumer.toString()));
+		System.out.println(builder.toString());
+		return builder.toString();
+	}
+
+	public String encrypt(String value) {
+		byte[] ivbuf = new byte[16];
+		String output = null;
+		try {
+			IvParameterSpec iv = new IvParameterSpec(ivbuf);
+			SecretKeySpec skeySpec = new SecretKeySpec(props.getTokenEncryptKey().getBytes("UTF-8"), "AES");
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+			cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+			byte[] encrypted = cipher.doFinal(value.getBytes());
+			output = Base64.getEncoder().encodeToString(encrypted);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return output;
+	}
+
+	public String decrypt(String encrypted) {
+		byte[] ivbuf = new byte[16];
+		try {
+			IvParameterSpec iv = new IvParameterSpec(ivbuf);
+			SecretKeySpec skeySpec = new SecretKeySpec(props.getTokenEncryptKey().getBytes("UTF-8"), "AES");
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+			cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+			byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+			return new String(original);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
 	}
 
 }

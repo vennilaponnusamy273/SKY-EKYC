@@ -266,7 +266,7 @@ public class KRAHelper {
 			}
 			savedProfileEntity = profileRepository.save(profileEntity);
 			if (savedProfileEntity != null) {
-				commonMethods.UpdateStep(EkycConstants.PAGE_AADHAR, applicationId);
+				commonMethods.UpdateStep(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY, applicationId);
 			}
 			addressEntity.setIsKra(1);
 			addressRepository.save(addressEntity);

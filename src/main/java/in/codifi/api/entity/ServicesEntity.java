@@ -11,10 +11,10 @@ import javax.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
+@Entity(name = "tbl_service_rules")
 @Getter
 @Setter
-@Entity(name = "tbl_kra_keyvalue_pair")
-public class KraKeyValueEntity implements Serializable {
+public class ServicesEntity extends CommonEntity implements Serializable {
 
 	/**
 	 * 
@@ -25,16 +25,12 @@ public class KraKeyValueEntity implements Serializable {
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "master_id")
-	private String masterId;
+	@Column(name = "service_name", length = 100)
+	private String serviceName;
 
-	@Column(name = "master_name")
-	private String masterName;
+	@Column(name = "access_allowed", length = 6)
+	private Integer accessAllowed;
 
-	@Column(name = "data_key")
-	private String kraKey;
-
-	@Column(name = "data_value")
-	private String kraValue;
-
+	@Column(name = "order_value")
+	private String orderValue;
 }

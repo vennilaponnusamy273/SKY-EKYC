@@ -96,6 +96,8 @@ public class EkycConstants {
 	public static final String PAN_CARD = "panCard";
 	public static final String PAN_CARD_STATUS = "panCardStatus";
 	public static final String PAN_TITLE = "panTittle";
+	public static final String CONSTANT_ERROR_MSG = "ERROR_MSG";
+	public static final String CONSTANT_ERROR_DESC = "APP_ERROR_DESC";
 	// Digi
 	public static final String DIGI_CONST_AUTH_CLIENT_ID = "authorize?client_id=";
 	public static final String DIGI_CONST_RES_TYPE = "&response_type=";
@@ -235,5 +237,11 @@ public class EkycConstants {
 	public static final String INCOMEKEY = "3_INCOME_";
 	public static final String OCCUPATIONKEY = "4_OCCUPATION_";
 	public static final String PEPKEY = "5_PEP_";
-
+	// Filter and Encryption
+	public static final String CONST_FILTER = "FILTER";
+	public static final String TRUE = "true";
+	public static final String FALSE = "false";
+	public static final String PATH_SEND_SMS_OTP = "user/sendSmsOtp";
+	public static final String CONST_REQ_BODY = "reqBody";
+	public static final String CONST_IN_TIME = "inTime";
 }

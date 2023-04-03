@@ -57,7 +57,7 @@ public class PanController implements IPanController {
 			LocalDate localDate = LocalDate.parse(userEntity.getDob(), formatter);
 			LocalDate today = LocalDate.now();
 			Period p = Period.between(localDate, today);
-			if (p.getYears() > 18) {
+			if (p.getYears() >= 18) {
 				responseModel = service.saveDob(userEntity);
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.AGE_RESTRICTION);

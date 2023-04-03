@@ -112,9 +112,13 @@ public class UserService implements IUserService {
 					int savedOtp = HazleCacheController.getInstance().getVerifyOtp().get(mapKey);
 					if (savedOtp == userEntity.getSmsOtp()) {
 						oldUserEntity.setSmsVerified(1);
+						if (oldUserEntity.getEmailVerified() == 0) {
+							oldUserEntity.setStage(EkycConstants.PAGE_SMS);
+						}
 						updatedUserDetails = repository.save(oldUserEntity);
 						HazleCacheController.getInstance().getVerifyOtp().remove(mapKey);
 						HazleCacheController.getInstance().getRetryOtp().remove(mapKey);
+						HazleCacheController.getInstance().getResendOtp().remove(mapKey);
 						if (updatedUserDetails != null && StringUtil.isNotNullOrEmpty(updatedUserDetails.getStatus())
 								&& StringUtil.isEqual(updatedUserDetails.getStatus(),
 										EkycConstants.EKYC_STATUS_INPROGRESS)) {
@@ -173,7 +177,7 @@ public class UserService implements IUserService {
 					oldUserEntity.setEmailVerified(0);
 					updatedUserDetails = repository.save(oldUserEntity);
 					commonMethods.sendMailOtp(otp, userEntity.getEmailId());
-					HazleCacheController.getInstance().getResendOtp().put(mapKey, otp, 30, TimeUnit.SECONDS);
+//					HazleCacheController.getInstance().getResendOtp().put(mapKey, otp, 30, TimeUnit.SECONDS);
 					HazleCacheController.getInstance().getVerifyOtp().put(mapKey, otp, 3600, TimeUnit.SECONDS);
 					if (updatedUserDetails != null) {
 						responseModel = new ResponseModel();

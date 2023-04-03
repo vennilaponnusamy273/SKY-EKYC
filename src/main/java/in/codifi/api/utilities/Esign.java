@@ -30,7 +30,7 @@ public class Esign {
 	public static void main(String[] args) throws IOException {
 	}
 
-	public void runMethod() {
+	public String runMethod() {
 		String getXml = getXmlForEsign();
 		long timeInmillsecods = System.currentTimeMillis();
 		String folderName = String.valueOf(timeInmillsecods);
@@ -39,6 +39,7 @@ public class Esign {
 			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
 		}
 		toGetTxnFromXMlpath(props.getFileBasePath() + slash + folderName, getXml);
+		return getXml;
 	}
 
 	private String getXmlForEsign() {

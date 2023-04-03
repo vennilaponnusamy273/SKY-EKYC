@@ -35,6 +35,8 @@ public class HazleCacheController {
 	private Map<String, String> keycloakAdminSession = getHz().getMap("keycloakAdminSession");
 	private Map<String, String> kraKeyValue = getHz().getMap("kraKeyValue");
 	private Map<Integer, String> pageDetail = getHz().getMap("pageDetail");
+	IMap<String, String> authToken = getHz().getMap("authToken");
+	private Map<String, Integer> extService = getHz().getMap("extService");
 
 	public IMap<String, Integer> getRetryOtp() {
 		return retryOtp;
@@ -82,6 +84,22 @@ public class HazleCacheController {
 
 	public void setPageDetail(Map<Integer, String> pageDetail) {
 		this.pageDetail = pageDetail;
+	}
+
+	public Map<String, Integer> getExtService() {
+		return extService;
+	}
+
+	public void setExtService(Map<String, Integer> extService) {
+		this.extService = extService;
+	}
+
+	public IMap<String, String> getAuthToken() {
+		return authToken;
+	}
+
+	public void setAuthToken(IMap<String, String> authToken) {
+		this.authToken = authToken;
 	}
 
 }

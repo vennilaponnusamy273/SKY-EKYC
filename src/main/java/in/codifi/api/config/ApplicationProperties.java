@@ -13,123 +13,131 @@ import lombok.Setter;
 public class ApplicationProperties {
 
 	@ConfigProperty(name = "appconfig.sms.url")
-	private String smsUrl;
+	String smsUrl;
 	@ConfigProperty(name = "appconfig.sms.feedid")
-	private String smsFeedId;
+	String smsFeedId;
 	@ConfigProperty(name = "appconfig.sms.senderid")
-	private String smsSenderId;
+	String smsSenderId;
 	@ConfigProperty(name = "appconfig.sms.username")
-	private String smsUserName;
+	String smsUserName;
 	@ConfigProperty(name = "appconfig.sms.text")
-	private String smsText;
+	String smsText;
 	@ConfigProperty(name = "appconfig.sms.password")
-	private String smsPassword;
+	String smsPassword;
 	@ConfigProperty(name = "appconfig.mail.subject")
-	private String mailSubject;
+	String mailSubject;
 	@ConfigProperty(name = "appconfig.mail.text")
-	private String mailText;
+	String mailText;
 	@ConfigProperty(name = "appconfig.erp.token")
-	private String erpToken;
+	String erpToken;
 	@ConfigProperty(name = "appconfig.pan.filepath")
-	private String panFilePath;
+	String panFilePath;
 	@ConfigProperty(name = "appconfig.pan.pfx.userid")
-	private String panPfxUserId;
+	String panPfxUserId;
 	@ConfigProperty(name = "appconfig.pan.pfx.password")
-	private String panPfxPassword;
+	String panPfxPassword;
 	@ConfigProperty(name = "appconfig.pan.pfx.filelocation")
-	private String panPfxFileLocation;
+	String panPfxFileLocation;
 	@ConfigProperty(name = "appconfig.pan.nsdlurl")
-	private String panNsdlUrl;
+	String panNsdlUrl;
 	@ConfigProperty(name = "appconfig.pan.logsurl")
-	private String panLogsUrl;
+	String panLogsUrl;
 	@ConfigProperty(name = "appconfig.pan.version")
-	private String panVersion;
+	String panVersion;
 	@ConfigProperty(name = "appconfig.digi.baseurl")
-	private String digiBaseUrl;
+	String digiBaseUrl;
 	@ConfigProperty(name = "appconfig.digi.clientid")
-	private String digiClientId;
+	String digiClientId;
 	@ConfigProperty(name = "appconfig.digi.responsecode")
-	private String digiResponseCode;
+	String digiResponseCode;
 	@ConfigProperty(name = "appconfig.digi.secret")
-	private String digiSecret;
+	String digiSecret;
 	@ConfigProperty(name = "appconfig.digi.redirecturl")
-	private String digiRedirectUrl;
+	String digiRedirectUrl;
 	@ConfigProperty(name = "appconfig.digi.issueddocumenturl")
-	private String digiIssuedDocUrl;
+	String digiIssuedDocUrl;
 	@ConfigProperty(name = "appconfig.digi.filefromurl")
-	private String digiFileFromUrl;
+	String digiFileFromUrl;
 	@ConfigProperty(name = "appconfig.digi.aadharurl")
-	private String digiAadharUrl;
+	String digiAadharUrl;
 	@ConfigProperty(name = "appconfig.razorpay.ifsc")
-	private String razorpayIfscUrl;
+	String razorpayIfscUrl;
 	@ConfigProperty(name = "appconfig.razorpay.key")
-	private String razorpayKey;
+	String razorpayKey;
 	@ConfigProperty(name = "appconfig.razorpay.secret")
-	private String razorpaySecret;
+	String razorpaySecret;
 	@ConfigProperty(name = "appconfig.file.basepath")
-	private String fileBasePath;
+	String fileBasePath;
 	@ConfigProperty(name = "appconfig.ivr.ivrlive")
-	private String ivrLiveUrl;
+	String ivrLiveUrl;
 	@ConfigProperty(name = "appconfig.arya.token")
-	private String aryaAiToken;
+	String aryaAiToken;
 	@ConfigProperty(name = "appconfig.ckyc.token")
-	private String ckycAiToken;
+	String ckycAiToken;
 	@ConfigProperty(name = "appconfig.kra.username")
-	private String kraUsername;
+	String kraUsername;
 	@ConfigProperty(name = "appconfig.kra.poscode")
-	private String kraPosCode;
+	String kraPosCode;
 	@ConfigProperty(name = "appconfig.kra.password")
-	private String kraPassword;
+	String kraPassword;
 	@ConfigProperty(name = "appconfig.kra.panstatus.url")
-	private String kraPanStatusUrl;
+	String kraPanStatusUrl;
 	@ConfigProperty(name = "appconfig.kra.detailsfetch.url")
-	private String kraDetailsFetchUrl;
+	String kraDetailsFetchUrl;
 	@ConfigProperty(name = "appconfig.check.erpnext")
-	private boolean checkErpNext;
+	boolean checkErpNext;
 	@ConfigProperty(name = "appconfig.razorpay.create.contact")
-	private String rzCreateContact;
+	String rzCreateContact;
 	@ConfigProperty(name = "appconfig.razorpay.add.account")
-	private String rzAddAccount;
+	String rzAddAccount;
 	@ConfigProperty(name = "appconfig.razorpay.payout.account")
-	private String rzPennyPayout;
+	String rzPennyPayout;
 	@ConfigProperty(name = "appconfig.razorpay.validate.account")
-	private String rzValidateAccount;
+	String rzValidateAccount;
 	@ConfigProperty(name = "appconfig.razorpay.acc.number")
-	private String rzAccountNumber;
+	String rzAccountNumber;
 	@ConfigProperty(name = "appconfig.ckyc.getdetails.url")
-	private String ckycapi;
+	String ckycapi;
 	// AliceBlue Msg Config
 	@ConfigProperty(name = "appconfig.sms.mtalkz.url")
-	private String url;
+	String url;
 	@ConfigProperty(name = "appconfig.sms.mtalkz.apikey")
-	private String apiKey;
+	String apiKey;
 	@ConfigProperty(name = "appconfig.sms.senderida")
-	private String senderId;
-	@ConfigProperty(name = "quarkus.bitly.access_token")
-	private String bitlyAccessToken;
-	@ConfigProperty(name = "quarkus.bitly_baseurl")
-	private String bitlyBaseUrl;
+	String senderId;
+	@ConfigProperty(name = "appconfig.bitly.access.token")
+	String bitlyAccessToken;
+	@ConfigProperty(name = "appconfig.bitly.base.url")
+	String bitlyBaseUrl;
 	@ConfigProperty(name = "appconfig.mail.ivr.text")
-	private String bitText;
-	@ConfigProperty(name = "quarkus.ivr_baseurl")
-	private String ivrBaseUrl;
+	String bitText;
+	@ConfigProperty(name = "appconfig.ipv.base.url")
+	String ivrBaseUrl;
 	@ConfigProperty(name = "appconfig.file.urlpath")
-	private String imageUrlPath;
+	String imageUrlPath;
 	@ConfigProperty(name = "appconfig.address.url")
-	private String addressFetchUrl;
+	String addressFetchUrl;
 	// esign config
 	@ConfigProperty(name = "appconfig.esign.pfx.userid")
-	private String esignUserId;
+	String esignUserId;
 	@ConfigProperty(name = "appconfig.esign.pfx.password")
-	private String esignPassword;
+	String esignPassword;
 	@ConfigProperty(name = "appconfig.esign.pfx.aspid")
-	private String esignAspId;
+	String esignAspId;
 	@ConfigProperty(name = "appconfig.esign.pfx.alias")
-	private String esignAlias;
+	String esignAlias;
 	@ConfigProperty(name = "appconfig.esign.pfx.location")
-	private String esignLocation;
+	String esignLocation;
 	@ConfigProperty(name = "appconfig.esign.pfx.tickimage")
-	private String esignTickImage;
+	String esignTickImage;
 	@ConfigProperty(name = "appconfig.esign.pfx.samplepdf")
-	private String esignSamplePDF;
+	String esignSamplePDF;
+	@ConfigProperty(name = "quarkus.mailer.from")
+	String mailfrom;
+	@ConfigProperty(name = "appconfig.encrypt.key")
+	String encryptkey;
+	@ConfigProperty(name = "appconfig.encrypt.vector")
+	String encryptinitVector;
+	@ConfigProperty(name = "appconfig.token.encryption.key")
+	String tokenEncryptKey;
 }

@@ -68,26 +68,33 @@ public class DigilockerHelper {
 			}
 			if (conn.getResponseCode() != 200) {
 				System.out.println(conn.getResponseMessage());
-				throw new RuntimeException(MessageConstants.FAILED_HTTP_CODE + conn.getResponseCode());
-			}
-			BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-			System.out.println(MessageConstants.DIGI_SYSOUT_BR + br1);
-			String output;
-			while ((output = br1.readLine()) != null) {
-				Object object = JSONValue.parse(output);
-				response = (JSONObject) object;
-			}
-			if (response != null) {
-				if (response.containsKey(EkycConstants.DIGI_CONST_ACCESS_TOKEN)) {
-					String accessToken = (String) response.get(EkycConstants.DIGI_CONST_ACCESS_TOKEN);
-					responseModel = getXMlAadhar(accessToken, applicationId);
+				if (conn.getResponseCode() == 400)
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_TOKEN_400);
+				else if (conn.getResponseCode() == 401) {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_TOKEN_401);
 				} else {
-					responseModel = commonMethods.constructFailedMsg(MessageConstants.ERR_NO_ACC_TOKEN);
+					responseModel = commonMethods.constructFailedMsg(Integer.toString(conn.getResponseCode()));
 				}
+				System.out.println(conn.getResponseMessage());
 			} else {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERR_ACC_TOKEN);
+				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+				System.out.println(MessageConstants.DIGI_SYSOUT_BR + br1);
+				String output;
+				while ((output = br1.readLine()) != null) {
+					Object object = JSONValue.parse(output);
+					response = (JSONObject) object;
+				}
+				if (response != null) {
+					if (response.containsKey(EkycConstants.DIGI_CONST_ACCESS_TOKEN)) {
+						String accessToken = (String) response.get(EkycConstants.DIGI_CONST_ACCESS_TOKEN);
+						responseModel = getXMlAadhar(accessToken, applicationId);
+					} else {
+						responseModel = commonMethods.constructFailedMsg(MessageConstants.ERR_NO_ACC_TOKEN);
+					}
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.ERR_ACC_TOKEN);
+				}
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			responseModel = commonMethods
@@ -118,84 +125,91 @@ public class DigilockerHelper {
 			conn.setDoOutput(true);
 			if (conn.getResponseCode() != 200) {
 				System.out.println(conn.getResponseMessage());
-				throw new RuntimeException(MessageConstants.FAILED_HTTP_CODE + conn.getResponseCode());
-			}
-			BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-			String output;
-			StringBuilder sb = new StringBuilder();
-			while ((output = br1.readLine()) != null) {
-				sb.append(output);
-			}
-			org.json.JSONObject result = XML.toJSONObject(sb.toString());
-			JSONParser parser = new JSONParser();
-			Object obj = parser.parse(result.toString());
-			JSONObject jsonOutput = (JSONObject) obj;
-			if (jsonOutput != null) {
-				if (jsonOutput.containsKey("KycRes")) {
-					JSONObject kycResponse = (JSONObject) jsonOutput.get("KycRes");
-					if (kycResponse != null) {
-						JSONObject userDetails = (JSONObject) kycResponse.get("UidData");
-						if (userDetails != null) {
-							JSONObject PoaDetails = (JSONObject) userDetails.get("Poa");
-							if (applicationId >= 0) {
-								AddressEntity checkExit = addressRepository.findByapplicationId(applicationId);
-								if (checkExit == null) {
-									AddressEntity entity = new AddressEntity();
-									entity.setApplicationId(applicationId);
-									entity.setIsdigi(1);
-									entity.setAccessToken(accessToken);
-									entity.setCo((String) PoaDetails.get("co"));
-									if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
-										entity.setFlatNo(PoaDetails.get("house").toString());
+				if (conn.getResponseCode() == 404)
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_NOT_AVAILABLE);
+				else
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_INTERNAL_SERVER_ERR);
+			} else {
+				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+				String output;
+				StringBuilder sb = new StringBuilder();
+				while ((output = br1.readLine()) != null) {
+					sb.append(output);
+				}
+				org.json.JSONObject result = XML.toJSONObject(sb.toString());
+				JSONParser parser = new JSONParser();
+				Object obj = parser.parse(result.toString());
+				JSONObject jsonOutput = (JSONObject) obj;
+				if (jsonOutput != null) {
+					if (jsonOutput.containsKey("KycRes")) {
+						JSONObject kycResponse = (JSONObject) jsonOutput.get("KycRes");
+						if (kycResponse != null) {
+							JSONObject userDetails = (JSONObject) kycResponse.get("UidData");
+							if (userDetails != null) {
+								JSONObject PoaDetails = (JSONObject) userDetails.get("Poa");
+								if (applicationId >= 0) {
+									AddressEntity checkExit = addressRepository.findByapplicationId(applicationId);
+									if (checkExit == null) {
+										AddressEntity entity = new AddressEntity();
+										entity.setApplicationId(applicationId);
+										entity.setIsdigi(1);
+										entity.setAccessToken(accessToken);
+										entity.setCo((String) PoaDetails.get("co"));
+										if (PoaDetails.containsKey("house")
+												&& PoaDetails.get("house") instanceof Long) {
+											entity.setFlatNo(PoaDetails.get("house").toString());
+										} else {
+											entity.setFlatNo((String) PoaDetails.get("house"));
+										}
+										entity.setAddress1((String) PoaDetails.get("vtc"));
+										entity.setAddress2((String) PoaDetails.get("loc"));
+										entity.setLandmark((String) PoaDetails.get("lm"));
+										entity.setStreet((String) PoaDetails.get("street"));
+										entity.setDistrict((String) PoaDetails.get("dist"));
+										entity.setState((String) PoaDetails.get("state"));
+										entity.setCountry((String) PoaDetails.get("country"));
+										entity.setPincode((Long) PoaDetails.get("pc"));
+										updatedAddEntity = addressRepository.save(entity);
 									} else {
-										entity.setFlatNo((String) PoaDetails.get("house"));
+										if (PoaDetails.containsKey("house")
+												&& PoaDetails.get("house") instanceof Long) {
+											checkExit.setFlatNo(PoaDetails.get("house").toString());
+										} else {
+											checkExit.setFlatNo((String) PoaDetails.get("house"));
+										}
+										checkExit.setCo((String) PoaDetails.get("co"));
+										checkExit.setAccessToken(accessToken);
+										checkExit.setIsdigi(1);
+										checkExit.setAddress1((String) PoaDetails.get("vtc"));
+										checkExit.setAddress2((String) PoaDetails.get("loc"));
+										checkExit.setLandmark((String) PoaDetails.get("lm"));
+										checkExit.setStreet((String) PoaDetails.get("street"));
+										checkExit.setDistrict((String) PoaDetails.get("dist"));
+										checkExit.setState((String) PoaDetails.get("state"));
+										checkExit.setCountry((String) PoaDetails.get("country"));
+										checkExit.setPincode((Long) PoaDetails.get("pc"));
+										updatedAddEntity = addressRepository.save(checkExit);
 									}
-									entity.setAddress1((String) PoaDetails.get("vtc"));
-									entity.setAddress2((String) PoaDetails.get("loc"));
-									entity.setLandmark((String) PoaDetails.get("lm"));
-									entity.setStreet((String) PoaDetails.get("street"));
-									entity.setDistrict((String) PoaDetails.get("dist"));
-									entity.setState((String) PoaDetails.get("state"));
-									entity.setCountry((String) PoaDetails.get("country"));
-									entity.setPincode((Long) PoaDetails.get("pc"));
-									updatedAddEntity = addressRepository.save(entity);
-								} else {
-									if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
-										checkExit.setFlatNo(PoaDetails.get("house").toString());
+									if (updatedAddEntity != null) {
+										commonMethods.UpdateStep(EkycConstants.PAGE_AADHAR, applicationId);
+										responseModel = new ResponseModel();
+										responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+										responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+										responseModel.setResult(updatedAddEntity);
+										// TODO
+										responseModel.setPage(EkycConstants.PAGE_PROFILE);
 									} else {
-										checkExit.setFlatNo((String) PoaDetails.get("house"));
+										responseModel = commonMethods
+												.constructFailedMsg(MessageConstants.ERR_SAVE_DIGI);
 									}
-									checkExit.setCo((String) PoaDetails.get("co"));
-									checkExit.setAccessToken(accessToken);
-									checkExit.setIsdigi(1);
-									checkExit.setAddress1((String) PoaDetails.get("vtc"));
-									checkExit.setAddress2((String) PoaDetails.get("loc"));
-									checkExit.setLandmark((String) PoaDetails.get("lm"));
-									checkExit.setStreet((String) PoaDetails.get("street"));
-									checkExit.setDistrict((String) PoaDetails.get("dist"));
-									checkExit.setState((String) PoaDetails.get("state"));
-									checkExit.setCountry((String) PoaDetails.get("country"));
-									checkExit.setPincode((Long) PoaDetails.get("pc"));
-									updatedAddEntity = addressRepository.save(checkExit);
 								}
-								if (updatedAddEntity != null) {
-									commonMethods.UpdateStep(EkycConstants.PAGE_AADHAR, applicationId);
-									responseModel = new ResponseModel();
-									responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-									responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-									responseModel.setResult(updatedAddEntity);
-									//TODO
-									responseModel.setPage(EkycConstants.PAGE_PROFILE);
-								} else {
-									responseModel = commonMethods.constructFailedMsg(MessageConstants.ERR_SAVE_DIGI);
-								}
+							} else {
+								responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 							}
-						} else {
-							responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 						}
 					}
+					return responseModel;
 				}
-				return responseModel;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

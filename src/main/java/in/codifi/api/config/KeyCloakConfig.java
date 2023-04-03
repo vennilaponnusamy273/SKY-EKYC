@@ -13,24 +13,30 @@ import lombok.Setter;
 public class KeyCloakConfig {
 
 	@ConfigProperty(name = "quarkus.oidc.auth-server-url")
-	private String authServerUrl;
+	String authServerUrl;
 
 	@ConfigProperty(name = "quarkus.oidc.client-id")
-	private String clientId;
+	String clientId;
 
 	@ConfigProperty(name = "quarkus.oidc.credentials.secret")
-	private String clientSecret;
+	String clientSecret;
 
 	@ConfigProperty(name = "auth.org.grant.type")
-	private String grantType;
+	String grantType;
 
 	@ConfigProperty(name = "auth.org.server.client-id")
-	private String adminClientId;
+	String adminClientId;
 
 	@ConfigProperty(name = "auth.org.server.client-secret")
-	private String adminSecret;
+	String adminSecret;
 
 	@ConfigProperty(name = "auth.org.server.grant-type")
-	private String adminGrantType;
+	String adminGrantType;
+
+	@ConfigProperty(name = "auth.org.server.url")
+	String authOrgServerUrl;
+
+	@ConfigProperty(name = "auth.org.server.realm")
+	String authOrgServerRealM;
 
 }

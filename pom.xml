@@ -16,8 +16,6 @@
 		<surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
 		<version.maven-plugin-plugin>3.6.4</version.maven-plugin-plugin>
 		<wiremock.version>2.33.2</wiremock.version>
-		<!--<nsdl.path>${basedir}/src/main/resources/NSDL_e-Gov_eSign2.1_V-1.0.jar</nsdl.path>
-		<nsdl.path>D:/CodiFi/NSDL_e-Gov_eSign2.1_V-1.0.jar</nsdl.path>-->
 		<nsdl.path>D:/CodiFi/code/ekycService/src/main/resources/lib/NSDL_e-Gov_eSign2.1_V-1.0.jar</nsdl.path>
 	</properties>
 	<dependencyManagement>
@@ -64,7 +62,10 @@
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-undertow</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-oidc</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -72,15 +73,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-scheduler</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
 			<version>3.0.5.RELEASE</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-web -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
@@ -142,13 +138,11 @@
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-mailer</artifactId>
 		</dependency>
-		<!-- new mail depandency -->
 		<dependency>
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
 			<version>1.6.2</version>
 		</dependency>
-		<!-- new mail depandency -->
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-rest-client-reactive-jackson</artifactId>
@@ -159,7 +153,6 @@
 			<version>${wiremock.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- nsdl pan -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcmail-jdk16</artifactId>
@@ -200,6 +193,11 @@
 			<artifactId>validation-api</artifactId>
 			<version>2.0.1.Final</version>
 		</dependency>
+		<!-- Scheduler dependencies -->
+		<!--<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-scheduler</artifactId>
+		</dependency-->
 	</dependencies>
 	<build>
 		<plugins>

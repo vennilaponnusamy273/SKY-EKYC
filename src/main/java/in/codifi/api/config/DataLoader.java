@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.entity.KraKeyValueEntity;
 import in.codifi.api.repository.KraKeyValueRepository;
+import in.codifi.api.repository.ServicesAccessRepository;
 import io.quarkus.runtime.StartupEvent;
 
 @ApplicationScoped
@@ -18,22 +19,17 @@ public class DataLoader extends HttpServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
 	@Inject
 	KraKeyValueRepository keyValueRepository;
+
+	@Inject
+	ServicesAccessRepository serviceAccessRepository;
 
 	public void init(@Observes StartupEvent ev) throws ServletException {
 		reloadHazleCache();
 		reloadPageDetails();
-//		Iterable<KraKeyValueEntity> list = keyValueRepository.findAll();
-//		for (KraKeyValueEntity entity : list) {
-//			if (entity != null) {
-//				HazleCacheController.getInstance().getKraKeyValue().put(
-//						entity.getMasterId() + "_" + entity.getMasterName() + "_" + entity.getKraKey(),
-//						entity.getKraValue());
-//			}
-//		}
-//		System.out.println(HazleCacheController.getInstance().getKraKeyValue().size());
-
+		getAllExternalEntities();
 	}
 
 	public void reloadHazleCache() {
@@ -74,5 +70,29 @@ public class DataLoader extends HttpServlet {
 		HazleCacheController.getInstance().getPageDetail().put(count++, "12");// PAGE_ESIGN
 		HazleCacheController.getInstance().getPageDetail().put(count++, "13");// PAGE_COMPLETED_EMAIL_ATTACHED
 		System.out.println(HazleCacheController.getInstance().getPageDetail().size());
-	};
+	}
+
+
+	public void getAllExternalEntities() {
+//		try {
+//			HazleCacheController.getInstance().getExtService().clear();
+//			Iterable<ServicesEntity> externalEntities = serviceAccessRepository.findAll();
+//			for (ServicesEntity entity : externalEntities) {
+//				if (entity != null) {
+//					String key = entity.getService();
+//					Integer value = entity.getAccess();
+//					if (HazleCacheController.getInstance().getExtService().containsKey(value.toString())) {
+//						System.out.println("Key " + value + " already exists. Value will be overwritten.");
+//					}
+//					Integer previousValue = HazleCacheController.getInstance().getExtService().put(key, value);
+//					System.out.println("Added key-value pair: " + key + " - " + value);
+//					if (previousValue != null) {
+//						System.out.println("Previous value: " + previousValue);
+//					}
+//				}
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+	}
 }

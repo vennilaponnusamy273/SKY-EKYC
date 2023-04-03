@@ -83,4 +83,6 @@ public class ApplicationUserEntity extends CommonEntity implements Serializable 
 	@Transient
 	private String gender;
 
+	@Transient
+	private String authToken;
 }

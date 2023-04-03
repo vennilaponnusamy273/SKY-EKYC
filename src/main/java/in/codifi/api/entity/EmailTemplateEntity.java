@@ -7,34 +7,36 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Entity(name = "tbl_kra_keyvalue_pair")
-public class KraKeyValueEntity implements Serializable {
+@Entity(name = "tbl_email_template")
+public class EmailTemplateEntity extends CommonEntity implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "master_id")
-	private String masterId;
+	@Lob
+	@Column(name = "body")
+	private String body;
 
-	@Column(name = "master_name")
-	private String masterName;
+	@Column(name = "subject")
+	private String subject;
 
-	@Column(name = "data_key")
-	private String kraKey;
+	@Column(name = "keyData") // escaping "key" with backticks
+	private String keyData;
 
-	@Column(name = "data_value")
-	private String kraValue;
-
+	@Column(name = "value")
+	private Long value;
 }
