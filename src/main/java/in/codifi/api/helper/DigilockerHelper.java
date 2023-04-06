@@ -113,7 +113,6 @@ public class DigilockerHelper {
 	 */
 	public ResponseModel getXMlAadhar(String accessToken, long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
-//		JSONObject response = new JSONObject();
 		AddressEntity updatedAddEntity = null;
 		try {
 			CommonMethods.trustedManagement();
@@ -196,7 +195,6 @@ public class DigilockerHelper {
 										responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 										responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 										responseModel.setResult(updatedAddEntity);
-										// TODO
 										responseModel.setPage(EkycConstants.PAGE_PROFILE);
 									} else {
 										responseModel = commonMethods

@@ -188,9 +188,9 @@ public class NomineeService implements INomineeService {
 							guardianRepository.deleteById(oldGuardianEntity.getId());
 						}
 					}
-					if (p.getYears() > 19) {
+					if (p.getYears() >= 18) {
 						savingNominee = nomineeRepository.save(entity);
-					} else if (p.getYears() < 19 && entity.getGuardianEntity() != null) {
+					} else if (p.getYears() < 18 && entity.getGuardianEntity() != null) {
 						if (nomineeEntity.getGuardFile() != null
 								&& StringUtil.isNotNullOrEmpty(nomineeEntity.getGuardFile().contentType())) {
 							savingNominee = nomineeRepository.save(entity);

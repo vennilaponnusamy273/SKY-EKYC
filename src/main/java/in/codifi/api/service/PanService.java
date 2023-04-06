@@ -94,7 +94,7 @@ public class PanService implements IPanService {
 										savingEntity = repository.save(oldUserEntity);
 										profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
 												userEntity.getId());
-										ckycService.saveCkycResponse(userEntity.getId());										
+										ckycService.saveCkycResponse(userEntity.getId());
 									} else {
 										if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_MSG)) {
 											responseModel = commonMethods.constructFailedMsg(
@@ -172,6 +172,7 @@ public class PanService implements IPanService {
 			if (savedEntity != null) {
 				savedEntity.setAddressConfirm(1);
 				addressRepository.save(savedEntity);
+				commonMethods.UpdateStep(EkycConstants.PAGE_AADHAR, applicationId);
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setResult(savedEntity);

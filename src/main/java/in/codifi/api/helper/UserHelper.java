@@ -17,6 +17,7 @@ import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.BankRepository;
 import in.codifi.api.repository.ProfileRepository;
+import in.codifi.api.restservice.SmsRestService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
@@ -33,6 +34,8 @@ public class UserHelper {
 	AddressRepository addressRepository;
 	@Inject
 	BankRepository bankRepository;
+	@Inject
+	SmsRestService smsRestService; 
 
 	/**
 	 * Method to save User Sms Otp in DB
@@ -46,14 +49,12 @@ public class UserHelper {
 		userEntity.setSmsOtp(otp);
 		userEntity.setSmsVerified(0);
 		ApplicationUserEntity savedEntity = repository.save(userEntity);
-		String authToken = commonMethods.randomAlphaNumeric(savedEntity.getMobileNo());
-		HazleCacheController.getInstance().getAuthToken().put(savedEntity.getMobileNo().toString(), authToken, 300,
-				TimeUnit.SECONDS);
-		commonMethods.sendOTPtoMobile(otp, userEntity.getMobileNo());
+//		commonMethods.sendOTPtoMobile(otp, userEntity.getMobileNo());
+		smsRestService.sendOTPtoMobile(otp, userEntity.getMobileNo());
 		// alice Blue OTP
 //		commonMethods.sendOTPMessage(Integer.toString(otp), userEntity.getMobileNo().toString());
 		HazleCacheController.getInstance().getVerifyOtp().put(mapKey, otp, 3600, TimeUnit.SECONDS);
-		savedEntity.setAuthToken(authToken);
+		
 		return savedEntity;
 	}
 

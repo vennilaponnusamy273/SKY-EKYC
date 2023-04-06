@@ -73,9 +73,6 @@ public class PennyService implements IPennyService {
 			PennyDropEntity createdPenny = pennyDropRepository.findByapplicationId(applicationUserEntity.getId());
 			if (pennyDropEntity == null && StringUtil.isNotNullOrEmpty(createdPenny.getRzContactId())) {
 				responseModel = pennyDropHelper.addAccount(applicationUserEntity, createdPenny, bankEntity);
-//				if (responseModel.getStat() == EkycConstants.SUCCESS_STATUS) {
-//					createPayout(applicationUserEntity);
-//				}
 			} else {
 				if (pennyDropEntity != null) {
 					responseModel.setReason(MessageConstants.PENNY_ACCOUNT_CREATED);

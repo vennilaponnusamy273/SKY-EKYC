@@ -1,6 +1,5 @@
 package in.codifi.api.helper;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,12 +7,8 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.ConnectException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
@@ -34,7 +29,6 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -50,7 +44,7 @@ import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
-import in.codifi.api.utilities.APIBased.DummyHostnameVerifier;
+import in.codifi.api.restservice.NsdlPanRestService;
 import in.codifi.api.utilities.APIBased.DummyTrustManager;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
@@ -66,6 +60,8 @@ public class PanHelper {
 	ApplicationUserRepository repository;
 	@Inject
 	CommonMethods commonMethods;
+	@Inject
+	NsdlPanRestService nsdlPanService;
 
 	public String getPanDetailsFromNSDL(String panCard, Long applicationId) {
 		/**
@@ -145,7 +141,6 @@ public class PanHelper {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// return MessageConstants.KEYSTORE_SUCS_MSG;
 	}
 
 	/**
@@ -240,7 +235,6 @@ public class PanHelper {
 				 */
 				signature = new String(Files.readAllBytes(Paths.get(props.getPanFilePath() + applicationId
 						+ EkycConstants.UBUNTU_FILE_SEPERATOR + EkycConstants.OUTPUT_SIG)));
-				// signature = CSEnvVariables.getProperty("signature");
 			} catch (Exception e) {
 				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
 						+ MessageConstants.PAN_PRG_NO + nonce;
@@ -277,68 +271,7 @@ public class PanHelper {
 				out.close();
 			}
 			SSLSocketFactory factory = sslcontext.getSocketFactory();
-			String urlParameters = EkycConstants.CONSTANT_URL_DATA;
-			try {
-				urlParameters = urlParameters + URLEncoder.encode(data, EkycConstants.CONSTANT_URL_UF8)
-						+ EkycConstants.CONSTANT_SIGNATURE
-						+ URLEncoder.encode(signature, EkycConstants.CONSTANT_URL_UF8) + EkycConstants.CONSTANT_VERSION
-						+ URLEncoder.encode(version, EkycConstants.CONSTANT_URL_UF8);
-			} catch (Exception e) {
-				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
-						+ MessageConstants.PAN_PRG_NO + nonce;
-				e.printStackTrace();
-				out.write(logMsg);
-				out.close();
-			}
-			try {
-				HttpsURLConnection connection;
-				InputStream is = null;
-				String ip = props.getPanNsdlUrl();
-				url = new URL(ip);
-				connection = (HttpsURLConnection) url.openConnection();
-				connection.setRequestMethod(EkycConstants.HTTP_POST);
-				connection.setRequestProperty(EkycConstants.CONSTANT_CONTENT_TYPE, EkycConstants.CONSTANT_URL_ENCODED);
-				connection.setRequestProperty(EkycConstants.CONSTANT_CONTENT_LENGTH,
-						"" + Integer.toString(urlParameters.getBytes().length));
-				connection.setRequestProperty(EkycConstants.CONSTANT_CONTENT_LENGTH,
-						"" + Integer.toString(urlParameters.getBytes().length));
-				connection.setRequestProperty(EkycConstants.CONSTANT_CONTENT_LANG, EkycConstants.LAG_ENG_US);
-				connection.setUseCaches(false);
-				connection.setDoInput(true);
-				connection.setDoOutput(true);
-				connection.setSSLSocketFactory(factory);
-				connection.setHostnameVerifier(new DummyHostnameVerifier());
-				OutputStream os = connection.getOutputStream();
-				OutputStreamWriter osw = new OutputStreamWriter(os);
-				osw.write(urlParameters);
-				osw.flush();
-				connectionStartTime = new Date();
-				logMsg += EkycConstants.LOG_MSG_REQ + connectionStartTime;
-				logMsg += EkycConstants.LOG_MSG_DATA + data;
-				logMsg += EkycConstants.LOG_MSG_VERSION + version;
-				osw.close();
-				is = connection.getInputStream();
-				BufferedReader in = new BufferedReader(new InputStreamReader(is));
-				String line = null;
-				line = in.readLine();
-				result = line;
-				System.out.println(EkycConstants.CONN_OUTPUT + line);
-				is.close();
-				in.close();
-			} catch (ConnectException e) {
-				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
-						+ MessageConstants.PAN_PRG_NO + nonce;
-				out.write(logMsg);
-				out.close();
-			} catch (Exception e) {
-				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
-						+ MessageConstants.PAN_PRG_NO + nonce;
-				out.write(logMsg);
-				out.close();
-				e.printStackTrace();
-			}
-			out.write(logMsg);
-			out.close();
+			result = nsdlPanService.GetNSdlDEtails(data, signature, version);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

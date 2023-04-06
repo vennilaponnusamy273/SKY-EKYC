@@ -189,9 +189,6 @@ public class PaymentHelper {
 	public boolean verifyPayment(PaymentEntity dto) {
 		boolean isEqual = false;
 		try {
-//			String result = getPaymentResult(dto.getVerifyUrl());
-//			ObjectMapper mapper = new ObjectMapper();
-//			RzVerifyPaymentModel paymentModel = mapper.readValue(result, RzVerifyPaymentModel.class);
 			JSONObject orderRequest = new JSONObject();
 			orderRequest.put(EkycConstants.AMOUNT, dto.getAmount());
 			orderRequest.put(EkycConstants.CURRENCY, EkycConstants.RAZORPAY_CURRENCY_INR);
@@ -205,33 +202,5 @@ public class PaymentHelper {
 		}
 		return isEqual;
 	}
-
-//	/**
-//	 * Method to reset Poa Status
-//	 * 
-//	 * @author Mithun CR
-//	 * @return
-//	 */
-//	public String getPaymentResult(String verifyUrl) {
-//		String result = "";
-//		HttpURLConnection conn = null;
-//		try {
-//			URL url = new URL(verifyUrl);
-//			conn = (HttpURLConnection) url.openConnection();
-//			conn.setRequestMethod("GET");
-//			conn.setDoOutput(true);
-//			if (conn.getResponseCode() != 200) {
-//				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
-//			}
-//			BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-//			String output;
-//			while ((output = br1.readLine()) != null) {
-//				result = output;
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return result;
-//	}
 
 }
