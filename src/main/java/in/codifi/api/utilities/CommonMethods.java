@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -32,12 +33,12 @@ import org.json.simple.JSONValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.EmailTemplateEntity;
 import in.codifi.api.entity.ReqResEntity;
 import in.codifi.api.model.AddressModel;
-import in.codifi.api.model.BankAddressModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.EmailTemplateRepository;
@@ -94,45 +95,6 @@ public class CommonMethods {
 	}
 
 	/**
-	 * Method to send otp to Mobile Number
-	 * 
-	 * @author prade
-	 * @param otp
-	 * @param mobile Number
-	 * @return
-	 */
-	public void sendOTPtoMobile(int otp, long mobileNumber) {
-		try {
-			StringBuffer data = new StringBuffer();
-			data.append(EkycConstants.CONST_SMS_FEEDID + props.getSmsFeedId());
-			data.append(EkycConstants.AND + EkycConstants.CONST_SMS_SENDERID + props.getSmsSenderId());
-			data.append(EkycConstants.AND + EkycConstants.CONST_SMS_USERNAME + props.getSmsUserName());
-			data.append(EkycConstants.AND + EkycConstants.CONST_SMS_PASSWORD + props.getSmsPassword());
-			data.append(EkycConstants.AND + EkycConstants.CONST_SMS_TO + mobileNumber);
-			String msg = EkycConstants.AND + EkycConstants.CONST_SMS_TEXT + otp
-					+ EkycConstants.OTP_MSG.replace(" ", "%20");
-			data.append(msg);
-			URL url = new URL(props.getSmsUrl() + data.toString());
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod(EkycConstants.HTTP_POST);
-			conn.setDoOutput(true);
-			conn.setDoInput(true);
-			conn.setUseCaches(false);
-			conn.connect();
-			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String line;
-			StringBuffer buffer = new StringBuffer();
-			while ((line = rd.readLine()) != null) {
-				buffer.append(line);
-			}
-			rd.close();
-			conn.disconnect();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * Method to send OTP to aliceBlue
 	 * 
 	 * @author Dinesh
@@ -179,27 +141,6 @@ public class CommonMethods {
 	public void MailService(Mailer javaMailSender) {
 		this.mailer = javaMailSender;
 	}
-
-	/**
-	 * Method to send mail
-	 * 
-	 * @param user
-	 * @return
-	 */
-//	public void sendMailOtp(int otp, String emailId) throws MessagingException {
-//		ExecutorService pool = Executors.newSingleThreadExecutor();
-//		pool.execute(new Runnable() {
-//			@Override
-//			public void run() {
-//				String getSubject = props.getMailSubject();
-//				String getText = "Dear User, " + otp + " " + props.getMailText();
-//				Mail mail = Mail.withText(emailId, getSubject, getText);
-//				mailer.send(mail);
-//				System.out.print("the post mail" + mail);
-//			}
-//		});
-//		pool.shutdown();
-//	}
 
 	/**
 	 * Method to send mail
@@ -275,36 +216,6 @@ public class CommonMethods {
 	}
 
 	/**
-	 * Method to find bank address by ifsc
-	 * 
-	 * @author prade
-	 * @param ifscCode
-	 * @return
-	 */
-	public BankAddressModel findBankAddressByIfsc(String ifscCode) {
-		BankAddressModel model = null;
-		try {
-			URL url = new URL(props.getRazorpayIfscUrl() + ifscCode);
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("GET");
-			conn.setRequestProperty("Accept", "application/json");
-			if (conn.getResponseCode() != 200) {
-				return model;
-			}
-			BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-			String output;
-
-			while ((output = br1.readLine()) != null) {
-				ObjectMapper om = new ObjectMapper();
-				model = om.readValue(output, BankAddressModel.class);
-			}
-		} catch (Exception e) {
-			return model;
-		}
-		return model;
-	}
-
-	/**
 	 * Method to save out rest service request and response
 	 * 
 	 * @author prade
@@ -337,54 +248,17 @@ public class CommonMethods {
 	}
 
 	/**
-	 * Method to send IPV Link to mobile
-	 * 
-	 * @param Url
-	 * @param mobileNumber
-	 */
-	public void sendIvrLinktoMobile(String Url, long mobileNumber) {
-		try {
-			StringBuffer data = new StringBuffer();
-			data.append(EkycConstants.CONST_SMS_FEEDID + props.getSmsFeedId());
-			data.append(EkycConstants.AND + EkycConstants.CONST_SMS_SENDERID + props.getSmsSenderId());
-			data.append(EkycConstants.AND + EkycConstants.CONST_SMS_USERNAME + props.getSmsUserName());
-			data.append(EkycConstants.AND + EkycConstants.CONST_SMS_PASSWORD + props.getSmsPassword());
-			data.append(EkycConstants.AND + EkycConstants.CONST_SMS_TO + mobileNumber);
-			String msg = EkycConstants.AND + EkycConstants.CONST_SMS_TEXT + EkycConstants.IVR_MSG.replace(" ", "%20")
-					+ Url + " .NIDHI".replace(" ", "%20");
-			data.append(msg);
-			URL url = new URL(props.getSmsUrl() + data.toString());
-			System.out.println("the url" + url);
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod(EkycConstants.HTTP_POST);
-			conn.setDoOutput(true);
-			conn.setDoInput(true);
-			conn.setUseCaches(false);
-			conn.connect();
-			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String line;
-			StringBuffer buffer = new StringBuffer();
-			while ((line = rd.readLine()) != null) {
-				buffer.append(line);
-			}
-			rd.close();
-			conn.disconnect();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * Method to send IPV Link to email
 	 * 
 	 * @param Url
 	 * @param mobileNumber
 	 */
 	public void sendMailIvr(String generateShortLink1, String emailId) throws MessagingException {
-		String getSubject = props.getMailSubject();
-		String getText = "<p>" + props.getBitText() + " <a href=\"" + generateShortLink1 + "\">" + generateShortLink1
-				+ "</a> .NIDHI</p>";
-		Mail mail = Mail.withHtml(emailId, getSubject, getText);
+		EmailTemplateEntity emailTempentity = emailTemplateRepository.findByKeyData("ivr");
+		String body_Message = emailTempentity.getBody();
+		String body = body_Message.replace("{generateShortLink1}", generateShortLink1);
+		String subject = emailTempentity.getSubject();
+		Mail mail = Mail.withHtml(emailId, subject, body);
 		mailer.send(mail);
 	}
 
@@ -425,7 +299,7 @@ public class CommonMethods {
 	 * @author prade
 	 * @return
 	 */
-	public String randomAlphaNumeric(Long mobileNumer) {
+	public String randomAlphaNumeric(Long mobileNumer, Long applicationId) {
 		int count = 256;
 		StringBuilder builder = new StringBuilder();
 		while (count-- != 0) {
@@ -433,7 +307,7 @@ public class CommonMethods {
 			builder.append(ALPHA_NUMERIC_STRING.charAt(character));
 		}
 		builder.append(" ");
-		builder.append(encrypt(mobileNumer.toString()));
+		builder.append(encrypt(mobileNumer.toString() + "_" + applicationId.toString()));
 		System.out.println(builder.toString());
 		return builder.toString();
 	}
@@ -467,6 +341,14 @@ public class CommonMethods {
 			ex.printStackTrace();
 		}
 		return null;
+	}
+
+	public ApplicationUserEntity generateAuthToken(ApplicationUserEntity updatedUserDetails) {
+		String authToken = randomAlphaNumeric(updatedUserDetails.getMobileNo(), updatedUserDetails.getId());
+		HazleCacheController.getInstance().getAuthToken().put(updatedUserDetails.getMobileNo().toString(), authToken,
+				300, TimeUnit.SECONDS);
+		updatedUserDetails.setAuthToken(authToken);
+		return updatedUserDetails;
 	}
 
 }

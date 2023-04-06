@@ -1,10 +1,5 @@
 package in.codifi.api.helper;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -24,9 +19,9 @@ import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.KraKeyValueRepository;
 import in.codifi.api.repository.ProfileRepository;
+import in.codifi.api.restservice.KraPanRestService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
-import in.codifi.api.utilities.MessageConstants;
 import in.codifi.api.utilities.StringUtil;
 
 @ApplicationScoped
@@ -41,6 +36,8 @@ public class KRAHelper {
 	CommonMethods commonMethods;
 	@Inject
 	KraKeyValueRepository keyValueRepository;
+	@Inject
+	KraPanRestService kraPanRestService;
 
 	/**
 	 * Method to get the pan card status from the kra
@@ -51,33 +48,12 @@ public class KRAHelper {
 	 */
 	public JSONObject getPanCardStatus(String panCard) {
 		try {
-			String inputParameter = "panNo=" + panCard + "&userName=" + properties.getKraUsername() + "&PosCode="
-					+ properties.getKraPosCode() + "&password=" + properties.getKraPassword() + "&PassKey=";
 			CommonMethods.trustedManagement();
-			URL url = new URL(properties.getKraPanStatusUrl());
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod(EkycConstants.HTTP_POST);
-			conn.setRequestProperty(EkycConstants.CONSTANT_CONTENT_TYPE, EkycConstants.CONSTANT_URL_ENCODED);
-			conn.setDoOutput(true);
-			try (OutputStream os = conn.getOutputStream()) {
-				byte[] input = inputParameter.getBytes(EkycConstants.CONSTANT_URL_UF8);
-				os.write(input, 0, input.length);
-			}
-			if (conn.getResponseCode() != 200) {
-				System.out.println(conn.getResponseMessage());
-				throw new RuntimeException(MessageConstants.FAILED_HTTP_CODE + conn.getResponseCode());
-			}
-			BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-			String output;
-			StringBuilder sb = new StringBuilder();
-			while ((output = br1.readLine()) != null) {
-				sb.append(output);
-			}
-			System.out.println(sb.toString());
 			/*
 			 * covert xml into json
 			 */
-			JSONObject result = XML.toJSONObject(sb.toString());
+			String panStatus = kraPanRestService.getpanStatus(panCard);
+			JSONObject result = XML.toJSONObject(panStatus);
 			if (result != null) {
 				JSONObject panRoot = (JSONObject) result.get(EkycConstants.CONST_KRA_APP_RES_ROOT);
 				JSONObject panInformation = (JSONObject) panRoot.get(EkycConstants.CONST_KRA_APP_PAN_INQ);
@@ -113,34 +89,11 @@ public class KRAHelper {
 					+ actualData + "</APP_DOB_INCORP><APP_POS_CODE>" + properties.getKraPosCode() + "</APP_POS_CODE>"
 					+ "<APP_RTA_CODE>" + properties.getKraPosCode() + "</APP_RTA_CODE><APP_KRA_CODE>" + appKRACode
 					+ "</APP_KRA_CODE><FETCH_TYPE>I</FETCH_TYPE>" + "</APP_PAN_INQ></APP_REQ_ROOT>";
-			String request = "InputXML=" + xmlCode + "&username=" + properties.getKraUsername() + "&PosCode="
-					+ properties.getKraPosCode() + "&password=" + properties.getKraPassword() + "&PassKey=";
-
 			CommonMethods.trustedManagement();
-			URL url = new URL(properties.getKraDetailsFetchUrl());
-
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod(EkycConstants.HTTP_POST);
-			conn.setRequestProperty(EkycConstants.CONSTANT_CONTENT_TYPE, EkycConstants.CONSTANT_URL_ENCODED);
-			conn.setDoOutput(true);
-			try (OutputStream os = conn.getOutputStream()) {
-				byte[] input = request.getBytes(EkycConstants.CONSTANT_URL_UF8);
-				os.write(input, 0, input.length);
-			}
-			if (conn.getResponseCode() != 200) {
-				System.out.println(conn.getResponseMessage());
-				throw new RuntimeException(MessageConstants.FAILED_HTTP_CODE + conn.getResponseCode());
-			}
-			BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-			String output;
-			StringBuilder sb = new StringBuilder();
-			while ((output = br1.readLine()) != null) {
-				sb.append(output);
-			}
+			String result = kraPanRestService.getPanKra(xmlCode);
 			ObjectMapper xmlMapper = new XmlMapper();
-			Object obj = xmlMapper.readValue(sb.toString(), Object.class);
+			Object obj = xmlMapper.readValue(result, Object.class);
 			ObjectMapper jsonMapper = new ObjectMapper();
-//		        jsonMapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN); // to write BigDecimal values as plain strings
 			String jsonString = jsonMapper.writeValueAsString(obj);
 			JSONObject jsonObject = new JSONObject(jsonString);
 			System.out.println(jsonObject.toString());

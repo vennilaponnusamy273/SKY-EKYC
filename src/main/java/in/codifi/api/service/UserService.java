@@ -139,6 +139,7 @@ public class UserService implements IUserService {
 								responseModel.setPage(EkycConstants.PAGE_EMAIL);
 							}
 						}
+						commonMethods.generateAuthToken(updatedUserDetails);
 					} else {
 						responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_OTP);
 					}
@@ -177,7 +178,6 @@ public class UserService implements IUserService {
 					oldUserEntity.setEmailVerified(0);
 					updatedUserDetails = repository.save(oldUserEntity);
 					commonMethods.sendMailOtp(otp, userEntity.getEmailId());
-//					HazleCacheController.getInstance().getResendOtp().put(mapKey, otp, 30, TimeUnit.SECONDS);
 					HazleCacheController.getInstance().getVerifyOtp().put(mapKey, otp, 3600, TimeUnit.SECONDS);
 					if (updatedUserDetails != null) {
 						responseModel = new ResponseModel();

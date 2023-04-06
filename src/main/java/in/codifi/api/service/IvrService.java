@@ -1,11 +1,5 @@
 package in.codifi.api.service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -15,8 +9,6 @@ import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-
-import org.json.JSONObject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -31,6 +23,8 @@ import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.IvrRepository;
 import in.codifi.api.restservice.AryaLivenessCheck;
+import in.codifi.api.restservice.CuttlyRestService;
+import in.codifi.api.restservice.SmsRestService;
 import in.codifi.api.service.spec.IIvrService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
@@ -52,6 +46,10 @@ public class IvrService implements IIvrService {
 	ApplicationProperties props;
 	@Inject
 	ApplicationUserRepository userRepository;
+	@Inject
+	SmsRestService smsRestService;
+	@Inject
+	CuttlyRestService cuttlyServiceCheck;
 
 	/**
 	 * Method to upload IVR Document
@@ -157,7 +155,7 @@ public class IvrService implements IIvrService {
 					+ EkycConstants.IVR_NAME + FirstName + EkycConstants.IVR_USER_DOMAIN_AND_RANDOMKEY
 					+ RandomencodedUuid;
 			try {
-				String generateShortLink = generateShortLink(url);
+				String generateShortLink = cuttlyServiceCheck.shortenUrl(url);
 				if (StringUtil.isNotNullOrEmpty(generateShortLink)) {
 					IvrEntity oldRecord = ivrRepository.findByApplicationId(applicationId);
 					if (oldRecord != null) {
@@ -181,58 +179,11 @@ public class IvrService implements IIvrService {
 			} catch (Exception e) {
 				responseModel.setStat(EkycConstants.FAILED_STATUS);
 				responseModel.setMessage(EkycConstants.FAILED_MSG);
-				responseModel.setReason(EkycConstants.IVR_FAILED_MESSAGE);
 				responseModel.setReason(e.getMessage());
 				e.printStackTrace();
 			}
 		}
 		return responseModel;
-	}
-
-	/**
-	 * Method to shorten the url
-	 * 
-	 * @param longUrl
-	 * @return
-	 */
-	public String generateShortLink(String longUrl) {
-		HttpURLConnection conn = null;
-		String shortUrl = "";
-		try {
-			String apiKey = props.getBitlyAccessToken();
-			String apiUrl = String.format(props.getBitlyBaseUrl(), apiKey,
-					URLEncoder.encode(longUrl, StandardCharsets.UTF_8));
-			URL url = new URL(apiUrl);
-			conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod(EkycConstants.HTTP_GET);
-			conn.setRequestProperty(EkycConstants.IVR_ACCEPT, EkycConstants.CONSTANT_APPLICATION_JSON);
-			if (conn.getResponseCode() != 200) {
-				BufferedReader errorReader = new BufferedReader(new InputStreamReader((conn.getErrorStream())));
-				String errorOutput;
-				StringBuilder errorResponseBuilder = new StringBuilder();
-				while ((errorOutput = errorReader.readLine()) != null) {
-					errorResponseBuilder.append(errorOutput);
-				}
-				throw new RuntimeException(MessageConstants.FAILED_HTTP_CODE + conn.getResponseCode() + " : "
-						+ errorResponseBuilder.toString());
-			}
-			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String output;
-			StringBuilder responseBuilder = new StringBuilder();
-			while ((output = in.readLine()) != null) {
-				responseBuilder.append(output);
-			}
-			JSONObject responseJson = new JSONObject(responseBuilder.toString());
-			JSONObject urlObj = responseJson.getJSONObject(EkycConstants.URL);
-			shortUrl = urlObj.getString(EkycConstants.SHORT_URL);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (conn != null) {
-				conn.disconnect();
-			}
-		}
-		return shortUrl;
 	}
 
 	@Override
@@ -252,7 +203,7 @@ public class IvrService implements IIvrService {
 			if (StringUtil.isNotNullOrEmpty(url)) {
 				if (type.equalsIgnoreCase(EkycConstants.IVR_SMS_KEY)) {
 					if (userEntity.getMobileNo() != null && userEntity.getMobileNo() > 0) {
-						commonMethods.sendIvrLinktoMobile(url, userEntity.getMobileNo());
+						smsRestService.sendIvrLinktoMobile(url, userEntity.getMobileNo());
 					} else {
 						responseModel = commonMethods.constructFailedMsg(MessageConstants.MOBILE_NUMBER_NULL);
 					}
