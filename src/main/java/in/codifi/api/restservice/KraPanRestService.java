@@ -22,11 +22,9 @@ public class KraPanRestService {
 			String passKey = "";
 			message = kraService.getKra(xmcode, props.getKraUsername(), props.getKraPosCode(), props.getKraPassword(),
 					passKey);
-			System.out.println("the message" + message);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		return message;
 	}
 

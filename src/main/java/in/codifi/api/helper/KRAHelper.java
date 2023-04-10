@@ -96,7 +96,6 @@ public class KRAHelper {
 			ObjectMapper jsonMapper = new ObjectMapper();
 			String jsonString = jsonMapper.writeValueAsString(obj);
 			JSONObject jsonObject = new JSONObject(jsonString);
-			System.out.println(jsonObject.toString());
 			JSONObject kycData = null;
 			if (jsonObject.has(EkycConstants.CONST_KYC_DATA)) {
 				kycData = jsonObject.getJSONObject(EkycConstants.CONST_KYC_DATA);

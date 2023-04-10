@@ -50,9 +50,8 @@ public class SmsRestService {
 	public void sendIvrLinktoMobile(String Url, long mobileNumber) {
 		try {
 			String Text = EkycConstants.IVR_MSG + Url + " " + " .NIDHI";
-			String message = iSmsRestService.SendLink(props.getSmsFeedId(), props.getSmsSenderId(),
-					props.getSmsUserName(), props.getSmsPassword(), String.valueOf(mobileNumber), Text);
-			System.out.println(message);
+			iSmsRestService.SendLink(props.getSmsFeedId(), props.getSmsSenderId(), props.getSmsUserName(),
+					props.getSmsPassword(), String.valueOf(mobileNumber), Text);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

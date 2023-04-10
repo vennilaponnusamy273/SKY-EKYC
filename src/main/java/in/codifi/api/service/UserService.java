@@ -69,16 +69,15 @@ public class UserService implements IUserService {
 		try {
 			ApplicationUserEntity updatedUserDetails = null;
 			ApplicationUserEntity oldUserEntity = repository.findByMobileNo(userEntity.getMobileNo());
-			int otp = commonMethods.generateOTP(userEntity.getMobileNo());
 			String mapKey = String.valueOf(userEntity.getMobileNo()) + EkycConstants.SMS_KEY;
 			if (oldUserEntity == null) {
 				// send OTP
-				updatedUserDetails = userHelper.saveOrUpdateSmsTrigger(otp, userEntity);
+				updatedUserDetails = userHelper.saveOrUpdateSmsTrigger(userEntity);
 			} else {
 				// resend OTP
 				ResponseModel timeValidation = userHelper.checkOtpTimeValidation(mapKey);
 				if (timeValidation == null) {
-					updatedUserDetails = userHelper.saveOrUpdateSmsTrigger(otp, oldUserEntity);
+					updatedUserDetails = userHelper.saveOrUpdateSmsTrigger(oldUserEntity);
 				} else {
 					return timeValidation;
 				}
