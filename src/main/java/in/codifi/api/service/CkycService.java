@@ -56,36 +56,40 @@ public class CkycService implements ICkycService {
 				CkycRequestApiModel ckycRequest = buildCkycRequest(isUserPresent.get());
 				CkycResponse ckycResponse = aryaLivenessCheck.getCKycData(ckycRequest);
 				commonMethods.reqResSaveObject(ckycRequest, ckycResponse, EkycConstants.CKYC, applicationId);
-				ExecutorService pool = Executors.newSingleThreadExecutor();
-				pool.execute(new Runnable() {
-					@Override
-					public void run() {
-						if (ckycResponse != null && ckycResponse.getResult().getPersonalDetails() != null) {
-							PersonalDetails personalDetails = ckycResponse.getResult().getPersonalDetails();
-							ResponseCkyc response = buildCkycResponse(personalDetails, applicationId, checkExit);
-							ResponseCkyc updatedNewList = repos.save(response);
-							responseModel.setResult(updatedNewList);
-							String motherName = "";
-							if (StringUtil.isNotNullOrEmpty(personalDetails.getMotherFname())
-									|| StringUtil.isNotNullOrEmpty(personalDetails.getMotherLname())) {
-								motherName = personalDetails.getMotherFname()
-										+ (StringUtil.isNotNullOrEmpty(personalDetails.getMotherLname())
-												? " " + personalDetails.getMotherLname()
-												: "");
-							} else if (StringUtil.isNotNullOrEmpty(personalDetails.getMotherFullname())) {
-								motherName = personalDetails.getMotherFullname();
-							}
-							if (StringUtil.isNotNullOrEmpty(motherName)) {
-								if (profileDetails != null
-										&& StringUtil.isNullOrEmpty(profileDetails.getMotherName())) {
-									profileDetails.setMotherName(motherName);
-									profileRepository.save(profileDetails);
+				if (ckycResponse.getSuccess()) {
+					ExecutorService pool = Executors.newSingleThreadExecutor();
+					pool.execute(new Runnable() {
+						@Override
+						public void run() {
+							if (ckycResponse != null && ckycResponse.getResult().getPersonalDetails() != null) {
+								PersonalDetails personalDetails = ckycResponse.getResult().getPersonalDetails();
+								ResponseCkyc response = buildCkycResponse(personalDetails, applicationId, checkExit);
+								repos.save(response);
+								String motherName = "";
+								if (StringUtil.isNotNullOrEmpty(personalDetails.getMotherFname())
+										|| StringUtil.isNotNullOrEmpty(personalDetails.getMotherLname())) {
+									motherName = personalDetails.getMotherFname()
+											+ (StringUtil.isNotNullOrEmpty(personalDetails.getMotherLname())
+													? " " + personalDetails.getMotherLname()
+													: "");
+								} else if (StringUtil.isNotNullOrEmpty(personalDetails.getMotherFullname())) {
+									motherName = personalDetails.getMotherFullname();
+								}
+								if (StringUtil.isNotNullOrEmpty(motherName)) {
+									if (profileDetails != null
+											&& StringUtil.isNullOrEmpty(profileDetails.getMotherName())) {
+										profileDetails.setMotherName(motherName);
+										profileRepository.save(profileDetails);
+									}
 								}
 							}
 						}
-					}
-				});
-				pool.shutdown();
+					});
+					pool.shutdown();
+				} else {
+					responseModel = commonMethods
+							.constructFailedMsg(ckycResponse.getAdditionalProperties().get("message").toString());
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

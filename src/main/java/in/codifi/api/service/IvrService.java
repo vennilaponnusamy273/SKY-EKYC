@@ -102,7 +102,9 @@ public class IvrService implements IIvrService {
 					}
 					if (updatedDocEntity != null) {
 						commonMethods.UpdateStep(EkycConstants.PAGE_IPV, ivrModel.getApplicationId());
+						responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+						responseModel.setPage(EkycConstants.PAGE_PDFDOWNLOAD);
 						responseModel.setResult(updatedDocEntity);
 					} else {
 						responseModel = commonMethods.constructFailedMsg(MessageConstants.FAILED_IVR_DOC_UPLOAD);
