@@ -9,7 +9,6 @@ public class DateUtil {
 	public static String currentTimeZone(long date) {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		df.setTimeZone(TimeZone.getTimeZone("Asia/Kolkata"));
-		System.out.println("Date and time in Madrid: " + df.format(date * 1000));
 		return df.format(date);
 	}
 

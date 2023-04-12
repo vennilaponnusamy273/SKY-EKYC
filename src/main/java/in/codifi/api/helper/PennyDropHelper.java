@@ -88,7 +88,6 @@ public class PennyDropHelper {
 				}
 				responseDTO.setStat(EkycConstants.FAILED_STATUS);
 				responseDTO.setMessage(EkycConstants.FAILED_MSG);
-				System.out.println(f);
 			} else {
 				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 				String output;
@@ -177,7 +176,6 @@ public class PennyDropHelper {
 				}
 				responseDTO.setStat(EkycConstants.FAILED_STATUS);
 				responseDTO.setMessage(EkycConstants.FAILED_MSG);
-				System.out.println(f);
 			} else {
 				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 				String output;
@@ -265,7 +263,6 @@ public class PennyDropHelper {
 				}
 				responseDTO.setStat(EkycConstants.FAILED_STATUS);
 				responseDTO.setMessage(EkycConstants.FAILED_MSG);
-				System.out.println(f);
 			} else {
 				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 				String output;
@@ -350,7 +347,6 @@ public class PennyDropHelper {
 				}
 				responseDTO.setStat(EkycConstants.FAILED_STATUS);
 				responseDTO.setMessage(EkycConstants.FAILED_MSG);
-				System.out.println(f);
 			} else {
 				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 				String output;

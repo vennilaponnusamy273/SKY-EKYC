@@ -71,11 +71,10 @@ public class CommonMethods {
 		int otp = 000000;
 		if (mobileNumber == 1234567890 || mobileNumber == 1111100000) {
 			otp = 000000;
-			System.out.println("OTP : " + otp);
 		} else {
 			otp = (int) (Math.random() * 900000) + 100000;
-			System.out.println("OTP : " + otp);
 		}
+		System.out.println("OTP : " + otp);
 		return otp;
 	}
 
@@ -308,7 +307,6 @@ public class CommonMethods {
 		}
 		builder.append(" ");
 		builder.append(encrypt(mobileNumer.toString() + "_" + applicationId.toString()));
-		System.out.println(builder.toString());
 		return builder.toString();
 	}
 

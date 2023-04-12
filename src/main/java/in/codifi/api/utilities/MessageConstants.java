@@ -49,6 +49,7 @@ public class MessageConstants {
 	public static final String ERR_NO_ACC_TOKEN = "No Access Token Generated From Digilocker";
 	public static final String ERR_ACC_TOKEN = "Error while generate access Token";
 	public static final String ERR_SAVE_DIGI = "Error while Saving address. Please contact system administrator";
+	public static final String ERR_NULL_DIGI = "Response null from digilocker";
 	public static final String ERROR_WHILE_SAVING_PROFILE = "Error Occur While Saving Profile";
 	public static final String ERROR_WHILE_SAVING_BANK_DETAILS = "Error Occur While Saving Bank Details";
 	public static final String USER_NOT_VERIFIED = "You are not verified Customer please reverified";

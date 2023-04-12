@@ -1,5 +1,11 @@
 package in.codifi.api.service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -10,7 +16,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONObject;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
@@ -68,8 +74,6 @@ public class IvrService implements IIvrService {
 				reqModel.setDoc_base64(ivrModel.getImageUrl());
 				reqModel.setReq_id(ivrModel.getApplicationId());
 				LivenessCheckResModel model = aryaLivenessCheck.livenessCheck(reqModel);
-				ObjectMapper mapper = new ObjectMapper();
-				System.out.println(mapper.writeValueAsString(model));
 				if (model != null && model.getDocJson() != null
 						&& Double.parseDouble(model.getDocJson().getReal()) >= 0.50) {
 					String ivrName = documentHelper.convertBase64ToImage(ivrModel.getImageUrl(),
@@ -98,7 +102,9 @@ public class IvrService implements IIvrService {
 					}
 					if (updatedDocEntity != null) {
 						commonMethods.UpdateStep(EkycConstants.PAGE_IPV, ivrModel.getApplicationId());
+						responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+						responseModel.setPage(EkycConstants.PAGE_PDFDOWNLOAD);
 						responseModel.setResult(updatedDocEntity);
 					} else {
 						responseModel = commonMethods.constructFailedMsg(MessageConstants.FAILED_IVR_DOC_UPLOAD);
@@ -155,7 +161,8 @@ public class IvrService implements IIvrService {
 					+ EkycConstants.IVR_NAME + FirstName + EkycConstants.IVR_USER_DOMAIN_AND_RANDOMKEY
 					+ RandomencodedUuid;
 			try {
-				String generateShortLink = cuttlyServiceCheck.shortenUrl(url);
+//				String generateShortLink1 = cuttlyServiceCheck.shortenUrl(url);
+				String generateShortLink = generateShortLink(url);
 				if (StringUtil.isNotNullOrEmpty(generateShortLink)) {
 					IvrEntity oldRecord = ivrRepository.findByApplicationId(applicationId);
 					if (oldRecord != null) {
@@ -184,6 +191,52 @@ public class IvrService implements IIvrService {
 			}
 		}
 		return responseModel;
+	}
+
+	/**
+	 * Method to shorten the url
+	 * 
+	 * @param longUrl
+	 * @return
+	 */
+	public String generateShortLink(String longUrl) {
+		HttpURLConnection conn = null;
+		String shortUrl = "";
+		try {
+			String apiKey = props.getBitlyAccessToken();
+			String apiUrl = String.format(props.getBitlyBaseUrl(), apiKey,
+					URLEncoder.encode(longUrl, StandardCharsets.UTF_8));
+			URL url = new URL(apiUrl);
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod(EkycConstants.HTTP_GET);
+			conn.setRequestProperty(EkycConstants.IVR_ACCEPT, EkycConstants.CONSTANT_APPLICATION_JSON);
+			if (conn.getResponseCode() != 200) {
+				BufferedReader errorReader = new BufferedReader(new InputStreamReader((conn.getErrorStream())));
+				String errorOutput;
+				StringBuilder errorResponseBuilder = new StringBuilder();
+				while ((errorOutput = errorReader.readLine()) != null) {
+					errorResponseBuilder.append(errorOutput);
+				}
+				throw new RuntimeException(MessageConstants.FAILED_HTTP_CODE + conn.getResponseCode() + " : "
+						+ errorResponseBuilder.toString());
+			}
+			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String output;
+			StringBuilder responseBuilder = new StringBuilder();
+			while ((output = in.readLine()) != null) {
+				responseBuilder.append(output);
+			}
+			JSONObject responseJson = new JSONObject(responseBuilder.toString());
+			JSONObject urlObj = responseJson.getJSONObject(EkycConstants.URL);
+			shortUrl = urlObj.getString(EkycConstants.SHORT_URL);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (conn != null) {
+				conn.disconnect();
+			}
+		}
+		return shortUrl;
 	}
 
 	@Override

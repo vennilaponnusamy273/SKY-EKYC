@@ -9,6 +9,7 @@ import java.net.URL;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.json.XML;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -18,9 +19,11 @@ import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AddressRepository;
+import in.codifi.api.restservice.DigilockerRestService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
+import in.codifi.api.utilities.StringUtil;
 
 @ApplicationScoped
 public class DigilockerHelper {
@@ -30,6 +33,8 @@ public class DigilockerHelper {
 	CommonMethods commonMethods;
 	@Inject
 	AddressRepository addressRepository;
+	@Inject
+	DigilockerRestService digilockerRestService;
 
 	/**
 	 * Method to save address from digi
@@ -67,7 +72,6 @@ public class DigilockerHelper {
 				os.write(input, 0, input.length);
 			}
 			if (conn.getResponseCode() != 200) {
-				System.out.println(conn.getResponseMessage());
 				if (conn.getResponseCode() == 400)
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_TOKEN_400);
 				else if (conn.getResponseCode() == 401) {
@@ -75,10 +79,9 @@ public class DigilockerHelper {
 				} else {
 					responseModel = commonMethods.constructFailedMsg(Integer.toString(conn.getResponseCode()));
 				}
-				System.out.println(conn.getResponseMessage());
 			} else {
 				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-				System.out.println(MessageConstants.DIGI_SYSOUT_BR + br1);
+//			String response1 = digil/ockerRestService.getAccessToken(code);
 				String output;
 				while ((output = br1.readLine()) != null) {
 					Object object = JSONValue.parse(output);
@@ -116,102 +119,87 @@ public class DigilockerHelper {
 		AddressEntity updatedAddEntity = null;
 		try {
 			CommonMethods.trustedManagement();
-			URL url = new URL(props.getDigiAadharUrl());
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod(EkycConstants.HTTP_GET);
-			conn.setRequestProperty(EkycConstants.CONSTANT_CONTENT_TYPE, EkycConstants.CONSTANT_URL_ENCODED);
-			conn.setRequestProperty(EkycConstants.AUTH, EkycConstants.BEARER_TOKEN + accessToken);
-			conn.setDoOutput(true);
-			if (conn.getResponseCode() != 200) {
-				System.out.println(conn.getResponseMessage());
-				if (conn.getResponseCode() == 404)
-					responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_NOT_AVAILABLE);
-				else
-					responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_INTERNAL_SERVER_ERR);
-			} else {
-				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-				String output;
-				StringBuilder sb = new StringBuilder();
-				while ((output = br1.readLine()) != null) {
-					sb.append(output);
-				}
-				org.json.JSONObject result = XML.toJSONObject(sb.toString());
+			String response = digilockerRestService.getXml(accessToken);
+			if (StringUtil.isNotNullOrEmpty(response)) {
+				org.json.JSONObject result = XML.toJSONObject(response);
 				JSONParser parser = new JSONParser();
 				Object obj = parser.parse(result.toString());
 				JSONObject jsonOutput = (JSONObject) obj;
-				if (jsonOutput != null) {
-					if (jsonOutput.containsKey("KycRes")) {
-						JSONObject kycResponse = (JSONObject) jsonOutput.get("KycRes");
-						if (kycResponse != null) {
-							JSONObject userDetails = (JSONObject) kycResponse.get("UidData");
-							if (userDetails != null) {
-								JSONObject PoaDetails = (JSONObject) userDetails.get("Poa");
-								if (applicationId >= 0) {
-									AddressEntity checkExit = addressRepository.findByapplicationId(applicationId);
-									if (checkExit == null) {
-										AddressEntity entity = new AddressEntity();
-										entity.setApplicationId(applicationId);
-										entity.setIsdigi(1);
-										entity.setAccessToken(accessToken);
-										entity.setCo((String) PoaDetails.get("co"));
-										if (PoaDetails.containsKey("house")
-												&& PoaDetails.get("house") instanceof Long) {
-											entity.setFlatNo(PoaDetails.get("house").toString());
-										} else {
-											entity.setFlatNo((String) PoaDetails.get("house"));
-										}
-										entity.setAddress1((String) PoaDetails.get("vtc"));
-										entity.setAddress2((String) PoaDetails.get("loc"));
-										entity.setLandmark((String) PoaDetails.get("lm"));
-										entity.setStreet((String) PoaDetails.get("street"));
-										entity.setDistrict((String) PoaDetails.get("dist"));
-										entity.setState((String) PoaDetails.get("state"));
-										entity.setCountry((String) PoaDetails.get("country"));
-										entity.setPincode((Long) PoaDetails.get("pc"));
-										updatedAddEntity = addressRepository.save(entity);
+				if (jsonOutput != null && jsonOutput.containsKey("KycRes")) {
+					JSONObject kycResponse = (JSONObject) jsonOutput.get("KycRes");
+					if (kycResponse != null && kycResponse.containsKey("UidData")) {
+						JSONObject userDetails = (JSONObject) kycResponse.get("UidData");
+						if (userDetails != null && userDetails.containsKey("Poa")) {
+							JSONObject PoaDetails = (JSONObject) userDetails.get("Poa");
+							if (applicationId >= 0) {
+								AddressEntity checkExit = addressRepository.findByapplicationId(applicationId);
+								if (checkExit == null) {
+									AddressEntity entity = new AddressEntity();
+									entity.setApplicationId(applicationId);
+									entity.setIsdigi(1);
+									entity.setAccessToken(accessToken);
+									entity.setCo((String) PoaDetails.get("co"));
+									if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
+										entity.setFlatNo(PoaDetails.get("house").toString());
 									} else {
-										if (PoaDetails.containsKey("house")
-												&& PoaDetails.get("house") instanceof Long) {
-											checkExit.setFlatNo(PoaDetails.get("house").toString());
-										} else {
-											checkExit.setFlatNo((String) PoaDetails.get("house"));
-										}
-										checkExit.setCo((String) PoaDetails.get("co"));
-										checkExit.setAccessToken(accessToken);
-										checkExit.setIsdigi(1);
-										checkExit.setAddress1((String) PoaDetails.get("vtc"));
-										checkExit.setAddress2((String) PoaDetails.get("loc"));
-										checkExit.setLandmark((String) PoaDetails.get("lm"));
-										checkExit.setStreet((String) PoaDetails.get("street"));
-										checkExit.setDistrict((String) PoaDetails.get("dist"));
-										checkExit.setState((String) PoaDetails.get("state"));
-										checkExit.setCountry((String) PoaDetails.get("country"));
-										checkExit.setPincode((Long) PoaDetails.get("pc"));
-										updatedAddEntity = addressRepository.save(checkExit);
+										entity.setFlatNo((String) PoaDetails.get("house"));
 									}
-									if (updatedAddEntity != null) {
-										commonMethods.UpdateStep(EkycConstants.PAGE_AADHAR, applicationId);
-										responseModel = new ResponseModel();
-										responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-										responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-										responseModel.setResult(updatedAddEntity);
-										responseModel.setPage(EkycConstants.PAGE_PROFILE);
+									entity.setAddress1((String) PoaDetails.get("vtc"));
+									entity.setAddress2((String) PoaDetails.get("loc"));
+									entity.setLandmark((String) PoaDetails.get("lm"));
+									entity.setStreet((String) PoaDetails.get("street"));
+									entity.setDistrict((String) PoaDetails.get("dist"));
+									entity.setState((String) PoaDetails.get("state"));
+									entity.setCountry((String) PoaDetails.get("country"));
+									entity.setPincode((Long) PoaDetails.get("pc"));
+									updatedAddEntity = addressRepository.save(entity);
+								} else {
+									if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
+										checkExit.setFlatNo(PoaDetails.get("house").toString());
 									} else {
-										responseModel = commonMethods
-												.constructFailedMsg(MessageConstants.ERR_SAVE_DIGI);
+										checkExit.setFlatNo((String) PoaDetails.get("house"));
 									}
+									checkExit.setCo((String) PoaDetails.get("co"));
+									checkExit.setAccessToken(accessToken);
+									checkExit.setIsdigi(1);
+									checkExit.setAddress1((String) PoaDetails.get("vtc"));
+									checkExit.setAddress2((String) PoaDetails.get("loc"));
+									checkExit.setLandmark((String) PoaDetails.get("lm"));
+									checkExit.setStreet((String) PoaDetails.get("street"));
+									checkExit.setDistrict((String) PoaDetails.get("dist"));
+									checkExit.setState((String) PoaDetails.get("state"));
+									checkExit.setCountry((String) PoaDetails.get("country"));
+									checkExit.setPincode((Long) PoaDetails.get("pc"));
+									updatedAddEntity = addressRepository.save(checkExit);
 								}
-							} else {
-								responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+								if (updatedAddEntity != null) {
+									commonMethods.UpdateStep(EkycConstants.PAGE_AADHAR, applicationId);
+									responseModel = new ResponseModel();
+									responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+									responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+									responseModel.setResult(updatedAddEntity);
+									responseModel.setPage(EkycConstants.PAGE_PROFILE);
+								} else {
+									responseModel = commonMethods.constructFailedMsg(MessageConstants.ERR_SAVE_DIGI);
+								}
 							}
+						} else {
+							responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 						}
 					}
 					return responseModel;
 				}
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERR_NULL_DIGI);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		} catch (ClientWebApplicationException e) {
+			if (e.getResponse().getStatus() == 404)
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_NOT_AVAILABLE);
+			else
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_INTERNAL_SERVER_ERR);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			responseModel = commonMethods.constructFailedMsg(ex.getMessage());
 		}
 		return responseModel;
 	}

@@ -35,7 +35,7 @@ public class UserHelper {
 	@Inject
 	BankRepository bankRepository;
 	@Inject
-	SmsRestService smsRestService; 
+	SmsRestService smsRestService;
 
 	/**
 	 * Method to save User Sms Otp in DB
@@ -44,17 +44,17 @@ public class UserHelper {
 	 * @param userEntity
 	 * @return
 	 */
-	public ApplicationUserEntity saveOrUpdateSmsTrigger(int otp, ApplicationUserEntity userEntity) {
+	public ApplicationUserEntity saveOrUpdateSmsTrigger(ApplicationUserEntity userEntity) {
 		String mapKey = String.valueOf(userEntity.getMobileNo()) + EkycConstants.SMS_KEY;
+		int otp = 0;
+		otp = commonMethods.generateOTP(userEntity.getMobileNo());
+		HazleCacheController.getInstance().getVerifyOtp().put(mapKey, otp, 3600, TimeUnit.SECONDS);
 		userEntity.setSmsOtp(otp);
 		userEntity.setSmsVerified(0);
 		ApplicationUserEntity savedEntity = repository.save(userEntity);
-//		commonMethods.sendOTPtoMobile(otp, userEntity.getMobileNo());
 		smsRestService.sendOTPtoMobile(otp, userEntity.getMobileNo());
 		// alice Blue OTP
 //		commonMethods.sendOTPMessage(Integer.toString(otp), userEntity.getMobileNo().toString());
-		HazleCacheController.getInstance().getVerifyOtp().put(mapKey, otp, 3600, TimeUnit.SECONDS);
-		
 		return savedEntity;
 	}
 

@@ -114,6 +114,9 @@ public class PanService implements IPanService {
 									responseModel = commonMethods
 											.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
 								}
+							} else {
+								savingEntity = repository.save(oldUserEntity);
+								ckycService.saveCkycResponse(userEntity.getId());
 							}
 						} else {
 							if (pancardResponse.has(EkycConstants.CONSTANT_ERROR_MSG)) {
