@@ -4,6 +4,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
 import in.codifi.api.config.ApplicationProperties;
 
@@ -43,14 +44,14 @@ public class DigilockerRestService {
 	 * @param authHeader
 	 * @return
 	 */
-	public String getXml(String accessToken) {
+	public String getXml(String accessToken) throws ClientWebApplicationException {
 		String Message = null;
-		try {
-			String authorizationHeader = "Bearer " + accessToken;
-			Message = IdigiService.GetXmlAAthar(authorizationHeader);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+		String authorizationHeader = "Bearer " + accessToken;
+		Message = IdigiService.GetXmlAAthar(authorizationHeader);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		return Message;
 	}
 }

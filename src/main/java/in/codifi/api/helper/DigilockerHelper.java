@@ -9,6 +9,7 @@ import java.net.URL;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.json.XML;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -22,6 +23,7 @@ import in.codifi.api.restservice.DigilockerRestService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
+import in.codifi.api.utilities.StringUtil;
 
 @ApplicationScoped
 public class DigilockerHelper {
@@ -118,16 +120,16 @@ public class DigilockerHelper {
 		try {
 			CommonMethods.trustedManagement();
 			String response = digilockerRestService.getXml(accessToken);
-			org.json.JSONObject result = XML.toJSONObject(response);
-			JSONParser parser = new JSONParser();
-			Object obj = parser.parse(result.toString());
-			JSONObject jsonOutput = (JSONObject) obj;
-			if (jsonOutput != null) {
-				if (jsonOutput.containsKey("KycRes")) {
+			if (StringUtil.isNotNullOrEmpty(response)) {
+				org.json.JSONObject result = XML.toJSONObject(response);
+				JSONParser parser = new JSONParser();
+				Object obj = parser.parse(result.toString());
+				JSONObject jsonOutput = (JSONObject) obj;
+				if (jsonOutput != null && jsonOutput.containsKey("KycRes")) {
 					JSONObject kycResponse = (JSONObject) jsonOutput.get("KycRes");
-					if (kycResponse != null) {
+					if (kycResponse != null && kycResponse.containsKey("UidData")) {
 						JSONObject userDetails = (JSONObject) kycResponse.get("UidData");
-						if (userDetails != null) {
+						if (userDetails != null && userDetails.containsKey("Poa")) {
 							JSONObject PoaDetails = (JSONObject) userDetails.get("Poa");
 							if (applicationId >= 0) {
 								AddressEntity checkExit = addressRepository.findByapplicationId(applicationId);
@@ -185,13 +187,17 @@ public class DigilockerHelper {
 							responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
 						}
 					}
+					return responseModel;
 				}
-				return responseModel;
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERR_NULL_DIGI);
 			}
-//			}
-		} catch (Exception e) {
+		} catch (ClientWebApplicationException e) {
 			e.printStackTrace();
-			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getResponse().getStatus() + " - " + e.getMessage());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			responseModel = commonMethods.constructFailedMsg(ex.getMessage());
 		}
 		return responseModel;
 	}
