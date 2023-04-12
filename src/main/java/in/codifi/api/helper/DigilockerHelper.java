@@ -9,6 +9,8 @@ import java.net.URL;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.json.XML;
 import org.json.simple.JSONObject;
@@ -36,6 +38,7 @@ public class DigilockerHelper {
 	@Inject
 	DigilockerRestService digilockerRestService;
 
+	private static final Logger logger = LogManager.getLogger(DigilockerHelper.class);
 	/**
 	 * Method to save address from digi
 	 * 
@@ -99,7 +102,7 @@ public class DigilockerHelper {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 			responseModel = commonMethods
 					.constructFailedMsg(MessageConstants.ERR_NO_ACC_TOKEN + " - " + e.getMessage());
 		}
@@ -198,7 +201,7 @@ public class DigilockerHelper {
 			else
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_INTERNAL_SERVER_ERR);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("An error occurred: " + ex.getMessage());
 			responseModel = commonMethods.constructFailedMsg(ex.getMessage());
 		}
 		return responseModel;

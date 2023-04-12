@@ -3,6 +3,9 @@ package in.codifi.api.service;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.PennyDropEntity;
@@ -27,12 +30,14 @@ public class PennyService implements IPennyService {
 	@Inject
 	PennyDropRepository pennyDropRepository;
 
+	private static final Logger logger = LogManager.getLogger(PennyService.class);
 	/**
 	 * Method to Create Contact for penny drop
 	 */
 	@Override
 	public ResponseModel createContact(ApplicationUserEntity applicationUserEntity) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		responseModel.setStat(EkycConstants.FAILED_STATUS);
 		responseModel.setMessage(EkycConstants.FAILED_MSG);
 		if (StringUtil.isNotNullOrEmpty(applicationUserEntity.getEmailId()) && applicationUserEntity.getMobileNo() != 0
@@ -53,8 +58,12 @@ public class PennyService implements IPennyService {
 				responseModel.setReason(MessageConstants.RZ_MOBILE_NUMBER_NULL);
 			}
 		}
-		return responseModel;
+	} catch (Exception e) {
+		logger.error("An error occurred: " + e.getMessage());
+		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
+	return responseModel;
+}
 
 	/**
 	 * Method to add Account in created Contact
@@ -62,6 +71,7 @@ public class PennyService implements IPennyService {
 	@Override
 	public ResponseModel addAccount(ApplicationUserEntity applicationUserEntity) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		responseModel.setStat(EkycConstants.FAILED_STATUS);
 		responseModel.setMessage(EkycConstants.FAILED_MSG);
 		BankEntity bankEntity = bankRepository.findByapplicationId(applicationUserEntity.getId());
@@ -88,8 +98,12 @@ public class PennyService implements IPennyService {
 				responseModel.setReason(MessageConstants.ACCOUNT_IFSC_NULL);
 			}
 		}
-		return responseModel;
+	} catch (Exception e) {
+		logger.error("An error occurred: " + e.getMessage());
+		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
+	return responseModel;
+}
 
 	/**
 	 * Method to put some penny Amount
@@ -97,6 +111,7 @@ public class PennyService implements IPennyService {
 	@Override
 	public ResponseModel createPayout(ApplicationUserEntity applicationUserEntity, int confirmPenny) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		PennyDropEntity pennyDropEntity = pennyDropRepository.findByapplicationId(applicationUserEntity.getId());
 		PennyDropEntity oldDataEntity = pennyDropRepository.getPennyForContact(applicationUserEntity.getId(),
 				applicationUserEntity.getEmailId(), Long.toString(applicationUserEntity.getMobileNo()),
@@ -127,8 +142,12 @@ public class PennyService implements IPennyService {
 			responseModel.setMessage(EkycConstants.FAILED_MSG);
 			responseModel.setReason(MessageConstants.PENNY_ALREADY_DONE);
 		}
-		return responseModel;
+	} catch (Exception e) {
+		logger.error("An error occurred: " + e.getMessage());
+		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
+	return responseModel;
+}
 
 	/**
 	 * Method to Validate Penny Details
@@ -136,9 +155,14 @@ public class PennyService implements IPennyService {
 	@Override
 	public ResponseModel ValidateDetails(ApplicationUserEntity applicationUserEntity) {
 		ResponseModel responseDTO = new ResponseModel();
+		try {
 		PennyDropEntity pennyDropEntity = pennyDropRepository.findByapplicationId(applicationUserEntity.getId());
 		if (pennyDropEntity != null && StringUtil.isNullOrEmpty(pennyDropEntity.getAccountHolderName())) {
 			responseDTO = pennyDropHelper.ValidateDetails(pennyDropEntity);
+		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseDTO = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseDTO;
 	}

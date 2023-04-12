@@ -10,6 +10,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
@@ -22,6 +25,7 @@ public class DocumentHelper {
 	@Inject
 	CommonMethods commonMethods;
 
+	private static final Logger logger = LogManager.getLogger(DocumentHelper.class);
 	/**
 	 * Convert base 64 to image and save in location
 	 * 
@@ -59,10 +63,11 @@ public class DocumentHelper {
 		if (!foldercheck.exists()) {
 			foldercheck.mkdirs();
 		}
+		
 		try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file))) {
 			outputStream.write(data);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return fileName;
 	}

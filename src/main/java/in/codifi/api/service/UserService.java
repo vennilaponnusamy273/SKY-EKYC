@@ -9,6 +9,9 @@ import java.util.concurrent.TimeUnit;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.controller.spec.IPennyController;
 import in.codifi.api.entity.AddressEntity;
@@ -60,6 +63,9 @@ public class UserService implements IUserService {
 	KraKeyValueRepository keyValueRepository;
 	@Inject
 	IPennyController iPennyController;
+	
+	
+	private static final Logger logger = LogManager.getLogger(UserService.class);
 
 	/**
 	 * Method to send otp to mobile number
@@ -90,12 +96,14 @@ public class UserService implements IUserService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_GENERATE_OTP);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+		//	e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage(), e);
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
 
+	
 	/**
 	 * Method to validate Sms OTP
 	 */
@@ -149,7 +157,8 @@ public class UserService implements IUserService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.MOBILE_NUMBER_WRONG);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage(), e);
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -202,7 +211,7 @@ public class UserService implements IUserService {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage(), e);
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -244,7 +253,7 @@ public class UserService implements IUserService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.EMAIL_ID_WRONG);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage(), e);
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -257,6 +266,7 @@ public class UserService implements IUserService {
 	@Override
 	public ResponseModel getUserDetailsById(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
 		AddressEntity isAddressisPresent = repos.findByapplicationId(applicationId);
 		if (isAddressisPresent != null) {
@@ -275,9 +285,14 @@ public class UserService implements IUserService {
 			responseModel.setPage(getPageNumber(isUserPresent.get()));
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+		} 
+		}catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage(), e);
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
+
 
 	/**
 	 * Method to get Documents that need to upload
@@ -331,7 +346,7 @@ public class UserService implements IUserService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage(), e);
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -343,6 +358,7 @@ public class UserService implements IUserService {
 	@Override
 	public ResponseModel userCreation(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
 		if (isUserPresent.isPresent()) {
 			ApplicationUserEntity savingEntity = isUserPresent.get();
@@ -378,8 +394,12 @@ public class UserService implements IUserService {
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
-		return responseModel;
+	} catch (Exception e) {
+		logger.error("An error occurred: " + e.getMessage(), e);
+		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
+	return responseModel;
+}
 
 	/**
 	 * Method to star over the application
@@ -392,12 +412,16 @@ public class UserService implements IUserService {
 
 	public String getPageNumber(ApplicationUserEntity applicationUserEntity) {
 		int key = 0;
+		try {
 		for (Entry<Integer, String> entry : HazleCacheController.getInstance().getPageDetail().entrySet()) {
 			if (applicationUserEntity.getStage().equals(entry.getValue())) {
 				key = entry.getKey();
 				break;
 			}
 		}
+	} catch (Exception e) {
+		logger.error("An error occurred: " + e.getMessage(), e);
+	}
 		return HazleCacheController.getInstance().getPageDetail().get(key + 1);
 	}
 

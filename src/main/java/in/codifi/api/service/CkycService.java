@@ -6,6 +6,8 @@ import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import in.codifi.api.config.ApplicationProperties;
@@ -46,6 +48,8 @@ public class CkycService implements ICkycService {
 	@Inject
 	AryaLivenessCheck aryaLivenessCheck;
 
+	private static final Logger logger = LogManager.getLogger(CkycService.class);
+	
 	public ResponseModel saveCkycResponse(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
@@ -92,7 +96,8 @@ public class CkycService implements ICkycService {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
@@ -105,12 +110,16 @@ public class CkycService implements ICkycService {
 	 */
 	public CkycRequestApiModel buildCkycRequest(ApplicationUserEntity userEntity) {
 		CkycRequestApiModel ckycRequestApiModel = new CkycRequestApiModel();
+		try {
 		ckycRequestApiModel.setId_type(EkycConstants.PAN_TYPE);
 		ckycRequestApiModel.setId_num(userEntity.getPanNumber());
 		ckycRequestApiModel.setFull_name(userEntity.getUserName());
 		ckycRequestApiModel.setGender(userEntity.getGender());
 		ckycRequestApiModel.setDob(userEntity.getDob());
 		ckycRequestApiModel.setReq_id(Long.toString(userEntity.getId()));
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+		}
 		return ckycRequestApiModel;
 	}
 
@@ -124,6 +133,8 @@ public class CkycService implements ICkycService {
 	 */
 	public ResponseCkyc buildCkycResponse(PersonalDetails personalDetails, long applicationId, ResponseCkyc checkExit) {
 		ResponseCkyc response = new ResponseCkyc();
+		try
+		{
 		response.setApplicationId(applicationId);
 		response.setAccType(personalDetails.getAccType());
 		response.setCkycNo(personalDetails.getCkycNo());
@@ -179,6 +190,9 @@ public class CkycService implements ICkycService {
 		response.setUpdatedDate(personalDetails.getUpdatedDate());
 		if (checkExit != null && checkExit.getId() != null && checkExit.getId() > 0) {
 			response.setId(checkExit.getId());
+		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return response;
 	}

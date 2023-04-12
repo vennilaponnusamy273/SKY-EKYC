@@ -5,6 +5,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.model.ResponseModel;
@@ -23,12 +26,14 @@ public class DigilockerService implements IDigilockerService {
 	@Inject
 	CommonMethods commonMethods;
 
+	private static final Logger logger = LogManager.getLogger(DigilockerService.class);
 	/**
 	 * Method to intialize digi locker
 	 */
 	@Override
 	public ResponseModel iniDigilocker(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
 		if (isUserPresent.isPresent()) {
 			String redirectUrl = props.getDigiBaseUrl() + EkycConstants.DIGI_CONST_AUTH_CLIENT_ID
@@ -41,6 +46,10 @@ public class DigilockerService implements IDigilockerService {
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
+	} catch (Exception e) {
+		logger.error("An error occurred: " + e.getMessage());
+		responseModel = commonMethods.constructFailedMsg(e.getMessage());
+	}
 		return responseModel;
 	}
 }

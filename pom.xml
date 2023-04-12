@@ -16,7 +16,7 @@
 		<surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
 		<version.maven-plugin-plugin>3.6.4</version.maven-plugin-plugin>
 		<wiremock.version>2.33.2</wiremock.version>
-		<nsdl.path>D:/CodiFi/code/ekycService/src/main/resources/lib/NSDL_e-Gov_eSign2.1_V-1.0.jar</nsdl.path>
+		 <nsdl.path>D:/CodiFi/code/ekycService/src/main/resources/lib/NSDL_e-Gov_eSign2.1_V-1.0.jar</nsdl.path> 
 	</properties>
 	<dependencyManagement>
 		<dependencies>

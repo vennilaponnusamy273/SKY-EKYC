@@ -7,6 +7,8 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import com.razorpay.Order;
@@ -38,9 +40,12 @@ public class PaymentHelper {
 	BankRepository bankRepository;
 	@Inject
 	ApplicationUserRepository userRepository;
+	
+	private static final Logger logger = LogManager.getLogger(PaymentHelper.class);
 
 	public List<String> validateCreatePayment(PaymentEntity paymentEntity) {
 		List<String> errorMsg = new ArrayList<>();
+		try {
 		if (paymentEntity != null) {
 			PaymentEntity entity = paymentRepository.findByApplicationId(paymentEntity.getApplicationId());
 			if (entity != null) {
@@ -56,11 +61,15 @@ public class PaymentHelper {
 		} else {
 			errorMsg.add(MessageConstants.PARAMETER_NULL);
 		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+		}
 		return errorMsg;
 	}
 
 	public List<String> validateVerifyPayment(PaymentEntity paymentEntity) {
 		List<String> errorMsg = new ArrayList<>();
+		try {
 		if (paymentEntity != null) {
 			if (paymentEntity.getApplicationId() == null || paymentEntity.getApplicationId() <= 0) {
 				errorMsg.add(MessageConstants.USER_ID_NULL);
@@ -82,6 +91,9 @@ public class PaymentHelper {
 			}
 		} else {
 			errorMsg.add(MessageConstants.PARAMETER_NULL);
+		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return errorMsg;
 	}
@@ -126,9 +138,9 @@ public class PaymentHelper {
 				responseDTO.setMessage(MessageConstants.BANK_DETAILS_NULL);
 			}
 		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
 			responseDTO.setStat(EkycConstants.FAILED_STATUS);
 			responseDTO.setMessage(e.toString());
-			e.printStackTrace();
 		}
 		return responseDTO;
 	}
@@ -198,7 +210,7 @@ public class PaymentHelper {
 			orderRequest.put(EkycConstants.RAZORPAY_SIGNATURE, dto.getRazorpaySignature());
 			isEqual = Utils.verifyPaymentSignature(orderRequest, props.getRazorpaySecret());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return isEqual;
 	}

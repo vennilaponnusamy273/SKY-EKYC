@@ -10,6 +10,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
@@ -37,7 +39,7 @@ public class PennyDropHelper {
 	BankRepository bankRepository;
 	@Inject
 	CommonMethods commonMethods;
-
+	private static final Logger logger = LogManager.getLogger(PennyDropHelper.class);
 	/**
 	 * Method to Create Contact in razorpay
 	 * 
@@ -122,9 +124,9 @@ public class PennyDropHelper {
 				br1.close();
 			}
 		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
 			responseDTO.setStat(EkycConstants.FAILED_STATUS);
 			responseDTO.setMessage(EkycConstants.FAILED_MSG);
-			e.printStackTrace();
 		}
 		return responseDTO;
 	}
@@ -203,9 +205,9 @@ public class PennyDropHelper {
 				br1.close();
 			}
 		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
 			responseDTO.setStat(EkycConstants.FAILED_STATUS);
 			responseDTO.setMessage(EkycConstants.FAILED_MSG);
-			e.printStackTrace();
 		}
 		return responseDTO;
 	}
@@ -291,9 +293,9 @@ public class PennyDropHelper {
 				br1.close();
 			}
 		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
 			responseDTO.setStat(EkycConstants.FAILED_STATUS);
 			responseDTO.setMessage(EkycConstants.FAILED_MSG);
-			e.printStackTrace();
 		}
 		return responseDTO;
 	}
@@ -377,7 +379,8 @@ public class PennyDropHelper {
 				br1.close();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
+			responseDTO = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseDTO;
 	}
