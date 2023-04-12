@@ -15,6 +15,8 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,7 +50,7 @@ public class NomineeService implements INomineeService {
 	CommonMethods commonMethods;
 	@Inject
 	ApplicationProperties props;
-
+	private static final Logger logger = LogManager.getLogger(NomineeService.class);
 	/**
 	 * Method to get Nominee Details
 	 * 
@@ -57,6 +59,7 @@ public class NomineeService implements INomineeService {
 	@Override
 	public ResponseModel getNominee(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		List<NomineeEntity> savedEntity = populateNomineeAndGuardian(applicationId);
 		if (StringUtil.isListNotNullOrEmpty(savedEntity)) {
 			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
@@ -65,6 +68,10 @@ public class NomineeService implements INomineeService {
 			responseModel.setPage(EkycConstants.PAGE_NOMINEE);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
@@ -78,10 +85,14 @@ public class NomineeService implements INomineeService {
 	 */
 	public List<NomineeEntity> populateNomineeAndGuardian(long applicationId) {
 		List<NomineeEntity> savedEntity = nomineeRepository.findByapplicationId(applicationId);
+		try {
 		if (StringUtil.isListNotNullOrEmpty(savedEntity)) {
 			savedEntity.forEach(entity -> {
 				entity.setGuardianEntity(guardianRepository.findByNomineeId(entity.getId()));
 			});
+		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return savedEntity;
 	}
@@ -121,7 +132,8 @@ public class NomineeService implements INomineeService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.NOM_FILE_NULL);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
@@ -157,7 +169,7 @@ public class NomineeService implements INomineeService {
 			Files.copy(fileModel.getGuardFile().filePath(), path);
 			fileUrl = filePath;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return fileUrl;
 	}
@@ -223,7 +235,8 @@ public class NomineeService implements INomineeService {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
@@ -237,6 +250,7 @@ public class NomineeService implements INomineeService {
 	 */
 	public ResponseModel allocationForNomiee(Long ApplicationId, Long id) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 		responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 		List<NomineeEntity> nomineeEntities = nomineeRepository.findByapplicationId(ApplicationId);
@@ -275,6 +289,10 @@ public class NomineeService implements INomineeService {
 		}
 		List<NomineeEntity> updatedNomineeList = nomineeRepository.findByapplicationId(ApplicationId);
 		responseModel.setResult(updatedNomineeList);
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
 		return responseModel;
 	}
 
@@ -287,6 +305,7 @@ public class NomineeService implements INomineeService {
 	 */
 	private int calculateNomineeAllocation(NomineeEntity entity, int countNominee) {
 		int allocationTally = 0;
+		try {
 		if (countNominee == 1) {
 			allocationTally = 100;
 		} else if (countNominee == 2 && entity.getNomOneAllocation() > 0 && entity.getNomTwoAllocation() > 0) {
@@ -295,6 +314,9 @@ public class NomineeService implements INomineeService {
 				&& entity.getNomThreeAllocation() > 0) {
 			allocationTally = entity.getNomOneAllocation() + entity.getNomTwoAllocation()
 					+ entity.getNomThreeAllocation();
+		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return allocationTally;
 	}
@@ -309,6 +331,7 @@ public class NomineeService implements INomineeService {
 	 */
 	public ResponseModel updateNomineeAllocation(NomineeEntity entity) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 		responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 		List<NomineeEntity> nomineeEntities = nomineeRepository.findByapplicationId(entity.getApplicationId());
@@ -353,7 +376,10 @@ public class NomineeService implements INomineeService {
 		} else {
 			return commonMethods.constructFailedMsg(MessageConstants.ALLOCATION_NOT_TALLY);
 		}
-
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
 		return responseModel;
 	}
 
@@ -363,6 +389,7 @@ public class NomineeService implements INomineeService {
 	@Override
 	public ResponseModel deleteNom(long id) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		Optional<NomineeEntity> nominee = nomineeRepository.findById(id);
 		if (nominee.isPresent()) {
 			GuardianEntity savedGuardianEntity = guardianRepository.findByNomineeId(id);
@@ -374,6 +401,10 @@ public class NomineeService implements INomineeService {
 			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
 		return responseModel;
 	}
 
@@ -382,6 +413,7 @@ public class NomineeService implements INomineeService {
 	 */
 	public void updateAllocaionAfterDelete(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 		responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 		List<NomineeEntity> nomineeEntities = nomineeRepository.findByapplicationId(applicationId);
@@ -396,6 +428,11 @@ public class NomineeService implements INomineeService {
 			responseModel.setResult(nomineeEntities);
 		}
 		nomineeRepository.saveAll(nomineeEntities);
+	
+	} catch (Exception e) {
+		logger.error("An error occurred: " + e.getMessage());
+		responseModel = commonMethods.constructFailedMsg(e.getMessage());
+	}
 	}
 
 }

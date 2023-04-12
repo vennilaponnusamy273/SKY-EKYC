@@ -34,6 +34,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
@@ -63,6 +65,7 @@ public class PanHelper {
 	@Inject
 	NsdlPanRestService nsdlPanService;
 
+	private static final Logger logger = LogManager.getLogger(PanHelper.class);
 	public String getPanDetailsFromNSDL(String panCard, Long applicationId) {
 		/**
 		 * To create the create the jks file for the given application id
@@ -139,7 +142,7 @@ public class PanHelper {
 			out.close();
 			System.out.println(MessageConstants.PAN_KEYSTORE_SUC_MSG);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 		}
 	}
 
@@ -203,7 +206,7 @@ public class PanHelper {
 			System.out.println(MessageConstants.PAN_SIGN_OUT + args1[EkycConstants.FILE_ARGS]);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 		}
 	}
 
@@ -273,7 +276,7 @@ public class PanHelper {
 			SSLSocketFactory factory = sslcontext.getSocketFactory();
 			result = nsdlPanService.GetNSdlDEtails(data, signature, version);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 		} finally {
 
 		}
@@ -282,6 +285,7 @@ public class PanHelper {
 
 	public ResponseModel saveResult(String result, ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		if (result != null && !result.isEmpty()) {
 			JSONObject tempResult = stringToJson(result);
 			if (tempResult.containsKey(EkycConstants.PAN_FIRSTNAME)) {
@@ -315,6 +319,10 @@ public class PanHelper {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);
 			}
 		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
 		return responseModel;
 	}
 
@@ -324,6 +332,7 @@ public class PanHelper {
 
 	public static JSONObject stringToJson(String nsdlResponse) {
 		JSONObject response = new JSONObject();
+		try {
 		String[] resp = null;
 		if (nsdlResponse.lastIndexOf("^") == nsdlResponse.length() - 1) {
 			resp = nsdlResponse.split("\\^");
@@ -373,6 +382,9 @@ public class PanHelper {
 			response.put("responseCode", resp[0]);
 			response.put("panCard", resp[1]);
 			response.put("panCardStatus", MessageConstants.INVALID_PAN_MSG);
+		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return response;
 	}

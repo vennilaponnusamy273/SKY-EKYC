@@ -5,6 +5,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import in.codifi.api.controller.spec.IPennyController;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.ProfileEntity;
@@ -27,12 +30,14 @@ public class ProfileService implements IProfileService {
 	@Inject
 	IPennyController iPennyController;
 
+	private static final Logger logger = LogManager.getLogger(ProfileService.class);
 	/**
 	 * Method to save Profile Details
 	 */
 	@Override
 	public ResponseModel saveProfile(ProfileEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		ProfileEntity updatedEntity = null;
 		Optional<ApplicationUserEntity> user = applicationUserRepository.findById(userEntity.getApplicationId());
 		if (user.isPresent() && user.get().getSmsVerified() > 0 && user.get().getEmailVerified() > 0) {
@@ -60,15 +65,19 @@ public class ProfileService implements IProfileService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_NOT_VERIFIED);
 			}
 		}
-		return responseModel;
+	} catch (Exception e) {
+		logger.error("An error occurred: " + e.getMessage());
+		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
-
+	return responseModel;
+}
 	/**
 	 * Method to get Profile Details
 	 */
 	@Override
 	public ResponseModel getProfileByAppId(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		ProfileEntity savedProfileEntity = profileRepository.findByapplicationId(applicationId);
 		if (savedProfileEntity != null) {
 			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
@@ -78,7 +87,11 @@ public class ProfileService implements IProfileService {
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
-		return responseModel;
+	} catch (Exception e) {
+		logger.error("An error occurred: " + e.getMessage());
+		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
+	return responseModel;
+}
 
 }

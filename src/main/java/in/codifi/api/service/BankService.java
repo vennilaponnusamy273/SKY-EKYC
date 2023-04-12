@@ -6,6 +6,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import com.razorpay.Order;
 
@@ -44,12 +46,15 @@ public class BankService implements IBankService {
 	@Inject
 	RazorpayIfscRestService commonRestService;
 
+	
+	private static final Logger logger = LogManager.getLogger(BankService.class);
 	/**
 	 * Method to save Bank Details
 	 */
 	@Override
 	public ResponseModel saveBank(BankEntity bankEntity) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		BankEntity updatedEntity = null;
 		Optional<ApplicationUserEntity> user = applicationUserRepository.findById(bankEntity.getApplicationId());
 		if (user.isPresent() && user.get().getSmsVerified() > 0 && user.get().getEmailVerified() > 0
@@ -80,6 +85,10 @@ public class BankService implements IBankService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_NOT_VERIFIED);
 			}
 		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
 		return responseModel;
 	}
 
@@ -89,6 +98,7 @@ public class BankService implements IBankService {
 	@Override
 	public ResponseModel getBankByAppId(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		BankEntity savedBankEntity = bankRepository.findByapplicationId(applicationId);
 		if (savedBankEntity != null) {
 			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
@@ -97,6 +107,10 @@ public class BankService implements IBankService {
 			responseModel.setPage(EkycConstants.PAGE_BANK);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
@@ -111,6 +125,7 @@ public class BankService implements IBankService {
 		try {
 			model = commonRestService.getBankAddressByIfsc(ifsc);
 		} catch (ClientWebApplicationException e) {
+			logger.error("An error occurred: " + e.getMessage());
 			if (e.getResponse().getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.IFSC_INVALID);
 				return responseModel;
@@ -121,6 +136,7 @@ public class BankService implements IBankService {
 			}
 		}
 		if (model != null) {
+			
 			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 			responseModel.setResult(model);
@@ -136,6 +152,7 @@ public class BankService implements IBankService {
 	@Override
 	public ResponseModel createPayment(PaymentEntity paymentEntity) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		RazorpayModel rzpayModel = paymentHelper.createPayment(paymentEntity);
 		if (rzpayModel.getStat() == 1) {
 			Order order = rzpayModel.getOrder();
@@ -155,6 +172,10 @@ public class BankService implements IBankService {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.PAYMENT_CREATION_FAILED);
 			responseModel.setReason(rzpayModel.getMessage());
 		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
 		return responseModel;
 	}
 
@@ -164,6 +185,7 @@ public class BankService implements IBankService {
 	@Override
 	public ResponseModel verifyPayment(PaymentEntity params) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		PaymentEntity paymentEntity = paymentRepository.findByApplicationId(params.getApplicationId());
 		if (paymentEntity != null) {
 			boolean isEqual = paymentHelper.verifyPayment(params);
@@ -184,6 +206,10 @@ public class BankService implements IBankService {
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.NOT_FOUND_DATA);
 		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
 		return responseModel;
 	}
 
@@ -193,6 +219,7 @@ public class BankService implements IBankService {
 	@Override
 	public ResponseModel checkPayment(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		PaymentEntity paymentDTO = paymentRepository.findByApplicationId(applicationId);
 		if (paymentDTO != null) {
 			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
@@ -205,6 +232,10 @@ public class BankService implements IBankService {
 		} else {
 			responseModel.setStat(EkycConstants.FAILED_STATUS);
 			responseModel.setMessage(MessageConstants.PAYMENT_NOT_CREATED);
+		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}

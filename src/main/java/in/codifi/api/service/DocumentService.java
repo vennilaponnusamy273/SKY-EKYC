@@ -16,6 +16,8 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
@@ -49,6 +51,7 @@ public class DocumentService implements IDocumentService {
 	@Inject
 	ApplicationUserRepository userRepository;
 
+	private static final Logger logger = LogManager.getLogger(DocumentService.class);
 	/**
 	 * Method to upload file
 	 */
@@ -118,7 +121,7 @@ public class DocumentService implements IDocumentService {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return responseModel;
 	}
@@ -170,7 +173,8 @@ public class DocumentService implements IDocumentService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.FAILED_DOC_UPLOAD);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
@@ -208,9 +212,10 @@ public class DocumentService implements IDocumentService {
 				error = "";
 			}
 		} catch (InvalidPasswordException e) {
+			logger.error("invalid Password " + e.getMessage());
 			error = "invalid Password";
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return error;
 	}
@@ -254,7 +259,7 @@ public class DocumentService implements IDocumentService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.NOT_FOUND_DATA);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return responseModel;
 	}
@@ -284,7 +289,7 @@ public class DocumentService implements IDocumentService {
 				responseModel.setMessage("Document not found");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 			responseModel.setStat(EkycConstants.FAILED_STATUS);
 			responseModel.setMessage(EkycConstants.FAILED_MSG);
 			responseModel.setReason("Error deleting document");
@@ -317,6 +322,7 @@ public class DocumentService implements IDocumentService {
 						.build();
 			}
 		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 					.entity("Failed to download file: " + e.getMessage()).build();
 		}
@@ -328,6 +334,7 @@ public class DocumentService implements IDocumentService {
 	@Override
 	public ResponseModel confirmDocument(@NotNull long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		Optional<ApplicationUserEntity> isUserPresent = userRepository.findById(applicationId);
 		if (isUserPresent.isPresent()) {
 			commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, applicationId);
@@ -340,6 +347,9 @@ public class DocumentService implements IDocumentService {
 			responseModel.setStat(EkycConstants.FAILED_STATUS);
 			responseModel.setMessage(EkycConstants.FAILED_MSG);
 			responseModel.setReason(MessageConstants.USER_ID_INVALID);
+		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return responseModel;
 	}

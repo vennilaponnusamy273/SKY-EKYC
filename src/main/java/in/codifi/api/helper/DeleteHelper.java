@@ -5,6 +5,9 @@ import java.util.Date;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AccesslogRepository;
@@ -20,6 +23,7 @@ import in.codifi.api.repository.PennyDropRepository;
 import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.repository.ReqResRepository;
 import in.codifi.api.repository.SegmentRepository;
+import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 
 @ApplicationScoped
@@ -50,7 +54,11 @@ public class DeleteHelper {
 	ReqResRepository reqResRepository;
 	@Inject
 	SegmentRepository segmentRepository;
-
+	
+	@Inject
+	CommonMethods commonMethods;
+	
+	private static final Logger logger = LogManager.getLogger(DeleteHelper.class);
 	/**
 	 * Method to star over the application
 	 * 
@@ -60,6 +68,7 @@ public class DeleteHelper {
 	 */
 	public ResponseModel DeleteAll(ApplicationUserEntity applicationUserEntity) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		applicationUserEntity.setPanNumber(null);
 		applicationUserEntity.setFirstName(null);
 		applicationUserEntity.setLastName(null);
@@ -89,6 +98,10 @@ public class DeleteHelper {
 		responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 		responseModel.setPage(EkycConstants.PAGE_PAN);
 		responseModel.setResult("User Details deleted SuccessFully");
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
 		return responseModel;
 	}
 }

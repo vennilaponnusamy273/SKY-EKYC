@@ -5,6 +5,8 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import in.codifi.api.entity.AddressEntity;
@@ -36,6 +38,7 @@ public class PanService implements IPanService {
 	@Inject
 	CkycService ckycService;
 
+	private static final Logger logger = LogManager.getLogger(PanService.class);
 	/**
 	 * Method to get PAN details
 	 */
@@ -61,7 +64,7 @@ public class PanService implements IPanService {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -73,6 +76,7 @@ public class PanService implements IPanService {
 	@Override
 	public ResponseModel saveDob(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		ProfileEntity profileEntity = null;
 		ApplicationUserEntity savingEntity = null;
 		Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
@@ -149,9 +153,12 @@ public class PanService implements IPanService {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
 		commonMethods.UpdateStep(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY, userEntity.getId());
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
 		return responseModel;
 	}
-
 	public boolean checkAppStatus(int appStatuscode) {
 		boolean isPresent = false;
 		if (appStatuscode == 2 || appStatuscode == 002 || appStatuscode == 102 || appStatuscode == 202
@@ -169,6 +176,7 @@ public class PanService implements IPanService {
 	@Override
 	public ResponseModel confirmAddress(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
 		if (isUserPresent.isPresent()) {
 			AddressEntity savedEntity = addressRepository.findByapplicationId(applicationId);
@@ -186,6 +194,10 @@ public class PanService implements IPanService {
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
 		return responseModel;
 	}
 
@@ -195,6 +207,7 @@ public class PanService implements IPanService {
 	@Override
 	public ResponseModel confirmPan(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
 		if (isUserPresent.isPresent()) {
 			ApplicationUserEntity savedUserEntity = isUserPresent.get();
@@ -207,6 +220,10 @@ public class PanService implements IPanService {
 			responseModel.setPage(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+		}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}

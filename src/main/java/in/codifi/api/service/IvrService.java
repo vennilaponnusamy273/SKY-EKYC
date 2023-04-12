@@ -16,6 +16,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import in.codifi.api.config.ApplicationProperties;
@@ -57,6 +59,7 @@ public class IvrService implements IIvrService {
 	@Inject
 	CuttlyRestService cuttlyServiceCheck;
 
+	private static final Logger logger = LogManager.getLogger(IvrService.class);
 	/**
 	 * Method to upload IVR Document
 	 */
@@ -124,8 +127,9 @@ public class IvrService implements IIvrService {
 				responseModel.setResult(errorList);
 			}
 		} catch (Exception e) {
+			
+			logger.error("An error occurred: " + e.getMessage());
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
-			e.printStackTrace();
 		}
 		return responseModel;
 	}
@@ -184,10 +188,10 @@ public class IvrService implements IIvrService {
 					responseModel.setReason(EkycConstants.IVR_FAILED_MESSAGE);
 				}
 			} catch (Exception e) {
+				logger.error("An error occurred: " + e.getMessage());
 				responseModel.setStat(EkycConstants.FAILED_STATUS);
 				responseModel.setMessage(EkycConstants.FAILED_MSG);
 				responseModel.setReason(e.getMessage());
-				e.printStackTrace();
 			}
 		}
 		return responseModel;
@@ -230,7 +234,7 @@ public class IvrService implements IIvrService {
 			JSONObject urlObj = responseJson.getJSONObject(EkycConstants.URL);
 			shortUrl = urlObj.getString(EkycConstants.SHORT_URL);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 		} finally {
 			if (conn != null) {
 				conn.disconnect();
@@ -275,7 +279,7 @@ public class IvrService implements IIvrService {
 				responseModel.setReason(EkycConstants.IVR_FAILED_MESSAGE);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 			responseModel.setStat(EkycConstants.FAILED_STATUS);
 			responseModel.setMessage(EkycConstants.FAILED_MSG);
 			responseModel.setReason(e.getMessage());

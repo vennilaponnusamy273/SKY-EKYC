@@ -6,6 +6,8 @@ import java.util.Date;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.json.XML;
 
@@ -39,6 +41,7 @@ public class KRAHelper {
 	@Inject
 	KraPanRestService kraPanRestService;
 
+	private static final Logger logger = LogManager.getLogger(KRAHelper.class);
 	/**
 	 * Method to get the pan card status from the kra
 	 * 
@@ -67,7 +70,7 @@ public class KRAHelper {
 				return null;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 			return null;
 		}
 	}
@@ -105,7 +108,7 @@ public class KRAHelper {
 				return kycData;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 			return null;
 		}
 	}
@@ -223,7 +226,7 @@ public class KRAHelper {
 			addressEntity.setIsKra(1);
 			addressRepository.save(addressEntity);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
 		}
 		return savedProfileEntity;
 

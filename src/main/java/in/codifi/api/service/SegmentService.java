@@ -5,6 +5,9 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import in.codifi.api.controller.spec.IPennyController;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.SegmentEntity;
@@ -27,12 +30,14 @@ public class SegmentService implements ISegmentService {
 	@Inject
 	IPennyController iPennyController;
 
+	private static final Logger logger = LogManager.getLogger(SegmentService.class);
 	/**
 	 * Method to save Segment Details
 	 */
 	@Override
 	public ResponseModel saveSegment(SegmentEntity segmentEntity) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		SegmentEntity updatedEntity = null;
 		Optional<ApplicationUserEntity> user = applicationUserRepository.findById(segmentEntity.getApplicationId());
 		if (user.isPresent() && user.get().getSmsVerified() > 0 && user.get().getEmailVerified() > 0) {
@@ -59,6 +64,10 @@ public class SegmentService implements ISegmentService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_NOT_VERIFIED);
 			}
 		}
+	} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage(), e);
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
 		return responseModel;
 	}
 
@@ -68,6 +77,7 @@ public class SegmentService implements ISegmentService {
 	@Override
 	public ResponseModel getSegmentByAppId(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
+		try {
 		SegmentEntity savedSegmentEntity = segmentRepository.findByapplicationId(applicationId);
 		if (savedSegmentEntity != null) {
 			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
@@ -77,6 +87,10 @@ public class SegmentService implements ISegmentService {
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
-		return responseModel;
+	} catch (Exception e) {
+		logger.error("An error occurred: " + e.getMessage(), e);
+		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
+	return responseModel;
+}
 }
