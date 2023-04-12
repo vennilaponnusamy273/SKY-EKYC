@@ -193,8 +193,10 @@ public class DigilockerHelper {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERR_NULL_DIGI);
 			}
 		} catch (ClientWebApplicationException e) {
-			e.printStackTrace();
-			responseModel = commonMethods.constructFailedMsg(e.getResponse().getStatus() + " - " + e.getMessage());
+			if (e.getResponse().getStatus() == 404)
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_NOT_AVAILABLE);
+			else
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_INTERNAL_SERVER_ERR);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			responseModel = commonMethods.constructFailedMsg(ex.getMessage());
