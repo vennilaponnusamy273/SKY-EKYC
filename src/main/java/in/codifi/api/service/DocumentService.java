@@ -122,6 +122,8 @@ public class DocumentService implements IDocumentService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In uploadDoc.","ERR-001");
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
@@ -174,6 +176,7 @@ public class DocumentService implements IDocumentService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In saveDoc.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -213,9 +216,11 @@ public class DocumentService implements IDocumentService {
 			}
 		} catch (InvalidPasswordException e) {
 			logger.error("invalid Password " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In checkPasswordProtected.","ERR-001");
 			error = "invalid Password";
 		} catch (IOException e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In checkPasswordProtected.","ERR-001");
 		}
 		return error;
 	}
@@ -260,6 +265,7 @@ public class DocumentService implements IDocumentService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In getDocument.","ERR-001");
 		}
 		return responseModel;
 	}
@@ -290,6 +296,7 @@ public class DocumentService implements IDocumentService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In deleteDocument.","ERR-001");
 			responseModel.setStat(EkycConstants.FAILED_STATUS);
 			responseModel.setMessage(EkycConstants.FAILED_MSG);
 			responseModel.setReason("Error deleting document");
@@ -323,6 +330,7 @@ public class DocumentService implements IDocumentService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In downloadFile.","ERR-001");
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 					.entity("Failed to download file: " + e.getMessage()).build();
 		}
@@ -350,6 +358,7 @@ public class DocumentService implements IDocumentService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In confirmDocument.","ERR-001");
 		}
 		return responseModel;
 	}

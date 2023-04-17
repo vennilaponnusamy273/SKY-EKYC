@@ -47,6 +47,7 @@ import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
 
 @ApplicationScoped
+@SuppressWarnings("null")
 public class CommonMethods {
 	private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	@Inject
@@ -152,7 +153,7 @@ public class CommonMethods {
 	    EmailTemplateEntity emailTempentity = emailTemplateRepository.findByKeyData("otp");
 	    try {
 	    // check if email template is null or empty
-	    if ( emailTempentity==null||emailTempentity.getBody() == null || emailTempentity.getSubject() == null) {
+	    if (emailTempentity==null&&emailTempentity.getBody() == null || emailTempentity.getSubject() == null) {
 	    	SendMailOTP(otp,emailId);
 	    } else {
 	        String body_Message = emailTempentity.getBody();
@@ -163,21 +164,19 @@ public class CommonMethods {
 	        System.out.println("The email was sent in Template: " + mail);
 	    }
 	    } catch (Exception e) {
-	    
 			e.printStackTrace();
 		}
 	}
 
-//	sendErrorMail("An error occurred while processing your request. Please try again later.",1L,"ERR-001");
-	@SuppressWarnings("null")
-	public void sendErrorMail(String errorMessage, Long applicationId, String errorCode) {
+
+	
+	public void sendErrorMail(String errorMessage, String errorCode) {
 	    EmailTemplateEntity emailTemplateEntity = emailTemplateRepository.findByKeyData("error");
-	    Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
-	    if (emailTemplateEntity != null && emailTemplateEntity.getBody() != null && emailTemplateEntity.getSubject() != null && isUserPresent.isPresent()) {
+	    if (emailTemplateEntity != null && emailTemplateEntity.getBody() != null && emailTemplateEntity.getSubject() != null&&emailTemplateEntity.getToAddress()!=null) {
 	        String bodyMessage = emailTemplateEntity.getBody();
 	        String body = bodyMessage.replace("{errorMessage}", errorMessage).replace("{errorCode}", errorCode);
 	        String subject = emailTemplateEntity.getSubject();
-	        Mail mail = Mail.withHtml(isUserPresent.get().getEmailId(), subject, body);
+	        Mail mail = Mail.withHtml(emailTemplateEntity.getToAddress(), subject, body);
 	     
 	        if (emailTemplateEntity.getCc() != null) {
 	        	String[] ccAddresses = emailTemplateEntity.getCc().split(",");

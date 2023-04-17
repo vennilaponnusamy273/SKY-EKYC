@@ -61,6 +61,7 @@ public class PanHelper {
 	@Inject
 	ApplicationUserRepository repository;
 	@Inject
+	static
 	CommonMethods commonMethods;
 	@Inject
 	NsdlPanRestService nsdlPanService;
@@ -143,6 +144,7 @@ public class PanHelper {
 			System.out.println(MessageConstants.PAN_KEYSTORE_SUC_MSG);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In pfx2JksFile.","ERR-001");
 		}
 	}
 
@@ -207,6 +209,7 @@ public class PanHelper {
 
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In pkcs7Generate.","ERR-001");
 		}
 	}
 
@@ -277,6 +280,7 @@ public class PanHelper {
 			result = nsdlPanService.GetNSdlDEtails(data, signature, version);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation.","ERR-001");
 		} finally {
 
 		}
@@ -321,6 +325,7 @@ public class PanHelper {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In saveResult.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -385,6 +390,7 @@ public class PanHelper {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In stringToJson.","ERR-001");
 		}
 		return response;
 	}

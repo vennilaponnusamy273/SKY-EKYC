@@ -65,6 +65,7 @@ public class PanService implements IPanService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanDetails.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -155,6 +156,7 @@ public class PanService implements IPanService {
 		commonMethods.UpdateStep(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY, userEntity.getId());
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In saveDob.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -196,6 +198,7 @@ public class PanService implements IPanService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In confirmAddress.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -223,6 +226,7 @@ public class PanService implements IPanService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In confirmPan.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;

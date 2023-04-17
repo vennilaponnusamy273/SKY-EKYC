@@ -103,6 +103,7 @@ public class DigilockerHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In getDigiAcessToken.","ERR-001");
 			responseModel = commonMethods
 					.constructFailedMsg(MessageConstants.ERR_NO_ACC_TOKEN + " - " + e.getMessage());
 		}
@@ -202,6 +203,7 @@ public class DigilockerHelper {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_INTERNAL_SERVER_ERR);
 		} catch (Exception ex) {
 			logger.error("An error occurred: " + ex.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In getXMlAadhar.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(ex.getMessage());
 		}
 		return responseModel;
