@@ -59,7 +59,8 @@ public class CommonMethods {
 	ReqResRepository reqResRepository;
 	@Inject
 	EmailTemplateRepository emailTemplateRepository;
-
+	@Inject
+	ApplicationUserRepository repository;
 	/**
 	 * Method to generate OTP for Mobile number
 	 * 
@@ -148,12 +149,65 @@ public class CommonMethods {
 	 * @return
 	 **/
 	public void sendMailOtp(int otp, String emailId) throws MessagingException {
-		EmailTemplateEntity emailTempentity = emailTemplateRepository.findByKeyData("otp");
-		String body_Message = emailTempentity.getBody();
-		String body = body_Message.replace("{otp}", String.format("%06d", otp));
-		String subject = emailTempentity.getSubject().replace("{otp}", String.format("%06d", otp));
-		Mail mail = Mail.withHtml(emailId, subject, body);
-		mailer.send(mail);
+	    EmailTemplateEntity emailTempentity = emailTemplateRepository.findByKeyData("otp");
+	    try {
+	    // check if email template is null or empty
+	    if ( emailTempentity==null||emailTempentity.getBody() == null || emailTempentity.getSubject() == null) {
+	    	SendMailOTP(otp,emailId);
+	    } else {
+	        String body_Message = emailTempentity.getBody();
+	        String body = body_Message.replace("{otp}", String.format("%06d", otp));
+	        String subject = emailTempentity.getSubject().replace("{otp}", String.format("%06d", otp));
+	        Mail mail = Mail.withHtml(emailId, subject, body);
+	        mailer.send(mail);
+	        System.out.println("The email was sent in Template: " + mail);
+	    }
+	    } catch (Exception e) {
+	    
+			e.printStackTrace();
+		}
+	}
+
+//	sendErrorMail("An error occurred while processing your request. Please try again later.",1L,"ERR-001");
+	@SuppressWarnings("null")
+	public void sendErrorMail(String errorMessage, Long applicationId, String errorCode) {
+	    EmailTemplateEntity emailTemplateEntity = emailTemplateRepository.findByKeyData("error");
+	    Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
+	    if (emailTemplateEntity != null && emailTemplateEntity.getBody() != null && emailTemplateEntity.getSubject() != null && isUserPresent.isPresent()) {
+	        String bodyMessage = emailTemplateEntity.getBody();
+	        String body = bodyMessage.replace("{errorMessage}", errorMessage).replace("{errorCode}", errorCode);
+	        String subject = emailTemplateEntity.getSubject();
+	        Mail mail = Mail.withHtml(isUserPresent.get().getEmailId(), subject, body);
+	     
+	        if (emailTemplateEntity.getCc() != null) {
+	        	String[] ccAddresses = emailTemplateEntity.getCc().split(",");
+	        	for (String ccAddress : ccAddresses) {
+	                mail = mail.addCc(ccAddress.trim());
+	            }
+	        }
+	        mailer.send(mail);
+	        System.out.println("The email was sent in error message: " + mail);
+	    }
+	}
+	
+	public void SendMailOTP(int otp, String emailId)
+	{
+		 String body_Message ="<html><body><div style=\"background-color:#9eb0b747;width:70%\">"
+		 		+ "<br><div class=\"container\" style=\"background-color: white; margin:30px; padding: 15px\">"
+		 		+ "<div style=\"display:flex;justify-content:center\"><img src=\"https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg\" width=\"150\" height=\"50\"/>"
+		 		+ "</div><br /><div style=\"font-weight: bold; text-align: center; font-size: 20px\">OTP - {otp} </div>"
+		 		+ "<br /><br /><div>Dear user,</div><br /><div>Your one-time password (OTP) is<span style=\"font-weight: bold\"> {otp} </span>.</div>"
+		 		+ " <br /><div>Copy-paste the above OTP to log in to your account.</div> <br /> <div>This OTP is valid for 5 minutes only &amp; usable only once.</div> <br /><div>Regards,</div>"
+		 		+ "<div style=\"font-weight: bold; display: flex\"><img src=\"https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg\" width=\"55\" height=\"30\" /> </div><br /></div><div style=\"color: green; text-align: center\">"
+		 		+ "<div>ⓒ Sky Commodities India Pvt Ltd</div><br /><div>About Us | Terms &amp; Conditions | Privacy Policy</div> <br /><div> 1st Floor, Proms Complex, SBI Colony, 1A Koramangala, 560034</div>  <br /> "
+		 		+ "<div>This is an auto-generated email. You received this email because you are subscribed to NIDHI.</div><br /><div>Need assistance? Visit our <a href=\"https://web.nidhihq.com/\"> help center </a>."
+		 		+ "</div><br><br></div></div></div></body></html>";
+		 String body = body_Message.replace("{otp}", String.format("%06d", otp));
+		 String getSubject="{otp} is your OTP for email verification on Nidhi";
+		 String subject = getSubject.replace("{otp}", String.format("%06d", otp));
+		 Mail mail = Mail.withHtml(emailId, subject, body);
+	     mailer.send(mail);
+	     System.out.println("The email was sent: " + mail);
 	}
 
 	/**
