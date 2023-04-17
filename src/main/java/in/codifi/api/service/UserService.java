@@ -97,7 +97,8 @@ public class UserService implements IUserService {
 			}
 		} catch (Exception e) {
 		//	e.printStackTrace();
-			logger.error("An error occurred: " + e.getMessage(), e);
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In sendSmsOtp.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -158,7 +159,8 @@ public class UserService implements IUserService {
 			}
 		} catch (Exception e) {
 			//e.printStackTrace();
-			logger.error("An error occurred: " + e.getMessage(), e);
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In verifySmsOtp.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -211,7 +213,8 @@ public class UserService implements IUserService {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("An error occurred: " + e.getMessage(), e);
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In sendMailOtp.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -253,7 +256,8 @@ public class UserService implements IUserService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.EMAIL_ID_WRONG);
 			}
 		} catch (Exception e) {
-			logger.error("An error occurred: " + e.getMessage(), e);
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In verifyEmailOtp.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -287,7 +291,8 @@ public class UserService implements IUserService {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		} 
 		}catch (Exception e) {
-			logger.error("An error occurred: " + e.getMessage(), e);
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In getUserDetailsById.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -346,7 +351,8 @@ public class UserService implements IUserService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 			}
 		} catch (Exception e) {
-			logger.error("An error occurred: " + e.getMessage(), e);
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In docStatus.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -395,7 +401,8 @@ public class UserService implements IUserService {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
 	} catch (Exception e) {
-		logger.error("An error occurred: " + e.getMessage(), e);
+		logger.error("An error occurred: " + e.getMessage());
+		commonMethods.sendErrorMail("An error occurred while processing your request, In userCreation.","ERR-001");
 		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
 	return responseModel;
@@ -420,7 +427,8 @@ public class UserService implements IUserService {
 			}
 		}
 	} catch (Exception e) {
-		logger.error("An error occurred: " + e.getMessage(), e);
+		logger.error("An error occurred: " + e.getMessage());
+		commonMethods.sendErrorMail("An error occurred while processing your request, In getPageNumber.","ERR-001");
 	}
 		return HazleCacheController.getInstance().getPageDetail().get(key + 1);
 	}

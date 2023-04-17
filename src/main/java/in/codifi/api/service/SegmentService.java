@@ -65,7 +65,8 @@ public class SegmentService implements ISegmentService {
 			}
 		}
 	} catch (Exception e) {
-			logger.error("An error occurred: " + e.getMessage(), e);
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In saveSegment.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -88,7 +89,8 @@ public class SegmentService implements ISegmentService {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 		}
 	} catch (Exception e) {
-		logger.error("An error occurred: " + e.getMessage(), e);
+		logger.error("An error occurred: " + e.getMessage());
+		commonMethods.sendErrorMail("An error occurred while processing your request, In getSegmentByAppId.","ERR-001");
 		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
 	return responseModel;

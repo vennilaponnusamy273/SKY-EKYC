@@ -125,6 +125,7 @@ public class PennyDropHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In createContact.","ERR-001");
 			responseDTO.setStat(EkycConstants.FAILED_STATUS);
 			responseDTO.setMessage(EkycConstants.FAILED_MSG);
 		}
@@ -206,6 +207,7 @@ public class PennyDropHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In addAccount.","ERR-001");
 			responseDTO.setStat(EkycConstants.FAILED_STATUS);
 			responseDTO.setMessage(EkycConstants.FAILED_MSG);
 		}
@@ -294,6 +296,7 @@ public class PennyDropHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In createPayout.","ERR-001");
 			responseDTO.setStat(EkycConstants.FAILED_STATUS);
 			responseDTO.setMessage(EkycConstants.FAILED_MSG);
 		}
@@ -380,6 +383,7 @@ public class PennyDropHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In ValidateDetails.","ERR-001");
 			responseDTO = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseDTO;

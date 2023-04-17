@@ -21,7 +21,6 @@ import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.BankRepository;
 import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.restservice.SmsRestService;
-import in.codifi.api.service.BankService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
@@ -65,6 +64,7 @@ public class UserHelper {
 		
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In saveOrUpdateSmsTrigger.","ERR-001");
 		}
 		return savedEntity;
 	}
@@ -99,6 +99,7 @@ public class UserHelper {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In populateAllRecord.","ERR-001");
 		}
 		return model;
 	}
@@ -161,6 +162,7 @@ try {
 		}
 } catch (Exception e) {
 	logger.error("An error occurred: " + e.getMessage());
+	commonMethods.sendErrorMail("An error occurred while processing your request, In checkOtpTimeValidation.","ERR-001");
 	response = commonMethods.constructFailedMsg(e.getMessage());
 }
 		return response;
@@ -198,6 +200,7 @@ try {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In varifyOtpValidation.","ERR-001");
 			response = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return response;

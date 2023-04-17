@@ -4,17 +4,25 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.nsdl.esign.preverifiedNo.controller.EsignApplication;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IEsignGeneratorService;
+import in.codifi.api.utilities.CommonMethods;
 
 @ApplicationScoped
 public class EsignGeneratorService implements IEsignGeneratorService {
 	@Inject
 	ApplicationProperties props;
 
+	@Inject
+	CommonMethods commonMethods;
+	
+	private static final Logger logger = LogManager.getLogger(DocumentService.class);
 	/**
 	 * Method to get xml for E sign
 	 */
@@ -55,7 +63,9 @@ public class EsignGeneratorService implements IEsignGeneratorService {
 				e.printStackTrace();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In xmlGenerator.","ERR-001");
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		responseModel.setResult(response);
 		return responseModel;
