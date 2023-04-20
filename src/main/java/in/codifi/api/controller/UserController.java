@@ -5,15 +5,11 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.Path;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import in.codifi.api.controller.spec.IUserController;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.restservice.keycloak.KeyCloakAdminRestService;
-import in.codifi.api.service.UserService;
 import in.codifi.api.service.spec.IUserService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.Esign;

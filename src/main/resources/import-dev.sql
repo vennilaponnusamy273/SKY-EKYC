@@ -338,3 +338,24 @@ INSERT INTO tbl_kra_keyvalue_pair(master_id,master_name,data_key,data_value) val
 INSERT INTO tbl_email_template(keyData,subject,value,body,active_status)
 VALUES ('ivr','NITHIHQ-IPV LINK', '1','<html> <body><div><div>Dear user,</div><br>Your NIDHI eKYC Application IPV is pending. Kindly click here:<a href={generateShortLink1}>{generateShortLink1}</a><br><br><div>Regards,<br> </div><div style="font-weight:bold;font-size:15px;">NIDHIHQ</div> </div></div></body></html></body></html><br>',1),
 ('otp', '{otp} is your OTP for email verification on Nidhi', '2', '<html><body><div style="background-color:#9eb0b747;"><br><div class="container" style="background-color: white; margin:30px; padding: 15px"><div style="display:flex;justify-content:center"><img src="https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg" width="150" height="50"/></div><br /><div style="font-weight: bold; text-align: center; font-size: 20px">OTP - {otp} </div><br /><br /><div>Dear user,</div><br /><div>Your one-time password (OTP) is<span style="font-weight: bold"> {otp} </span>.</div> <br /><div>Copy-paste the above OTP to log in to your account.</div> <br /> <div>This OTP is valid for 5 minutes only &amp; usable only once.</div> <br /><div>Regards,</div><div style="font-weight: bold; display: flex"><img src="https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg" width="55" height="30" /> </div><br /></div><div style="color: green; text-align: center"><div>ⓒ Sky Commodities India Pvt Ltd</div><br /><div>About Us | Terms &amp; Conditions | Privacy Policy</div> <br /><div> 1st Floor, Proms Complex, SBI Colony, 1A Koramangala, 560034</div>  <br /> <div>This is an auto-generated email. You received this email because you are subscribed to NIDHI.</div><br /><div>Need assistance? Visit our <a href="https://web.nidhihq.com/"> help center </a>.</div><br><br></div></div></div></body></html>',1);
+INSERT INTO tbl_email_template(keyData,cc,toAddress,subject,value,body,active_status)
+VALUES ('error','pradeep.r@codifi.in','sangeethanila44@gmail.com','ERROR PROCESSING REQUEST', '3','<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Error Message Email</title>
+</head>
+<body>
+<div style="background-color:#9eb0b747; width: 100%; height: 100%; padding: 40px;">
+<p>Dear User,</p>
+<p>We are sorry to inform you that an error has occurred while processing your request. The error message is as follows:</p>
+<div style="font-weight: bold;color:red ;">
+<p>{errorMessage}</p><center>
+<div class="container" style="background-color: white; margin:20px; padding: 25px; text-align: center; width:30%;">
+<p>{errorCode}</p></div></center>
+</div>
+<p>We apologize for any inconvenience this may have caused. Our team is working to resolve the issue as quickly as possible.</p>
+<p>If you have any questions or concerns, please dont hesitate to contact us.</p>
+<p>Thank you for your understanding.</p>
+<p>Regards,</p>
+<p><div style="font-weight: bold; display: flex"><img src="https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg" width="55" height="30" /></p></div></div></body></html>','1');

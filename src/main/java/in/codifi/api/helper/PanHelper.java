@@ -61,7 +61,6 @@ public class PanHelper {
 	@Inject
 	ApplicationUserRepository repository;
 	@Inject
-	static
 	CommonMethods commonMethods;
 	@Inject
 	NsdlPanRestService nsdlPanService;
@@ -335,7 +334,7 @@ public class PanHelper {
 	 * method to convert the StringToJson Response
 	 */
 
-	public static JSONObject stringToJson(String nsdlResponse) {
+	public JSONObject stringToJson(String nsdlResponse) {
 		JSONObject response = new JSONObject();
 		try {
 		String[] resp = null;
