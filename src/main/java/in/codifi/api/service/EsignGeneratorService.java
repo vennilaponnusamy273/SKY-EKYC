@@ -65,11 +65,13 @@ public class EsignGeneratorService implements IEsignGeneratorService {
 				System.out.println(response);
 			} catch (Exception e) {
 				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.SaveLog(applicationId,"EsignGeneratorService","xmlGenerator",e.getMessage());
 				commonMethods.sendErrorMail("An error occurred while processing your request, In xmlGenerator for the Error: " + e.getMessage(),"ERR-001");
 				e.printStackTrace();
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId,"EsignGeneratorService","xmlGenerator",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In xmlGenerator for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -96,6 +98,7 @@ public class EsignGeneratorService implements IEsignGeneratorService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(null,"EsignGeneratorService","toGetTxnFromXMlpath",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In toGetTxnFromXMlpath for the Error: " + e.getMessage(),"ERR-001");
 			e.printStackTrace();
 		}

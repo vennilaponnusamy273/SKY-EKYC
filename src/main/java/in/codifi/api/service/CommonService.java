@@ -43,6 +43,7 @@ public class CommonService implements ICommonService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(null,"CommonService","getLogDetails",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In getLogDetails for the Error: " + e.getMessage(),"ERR-001");
 			response = commonMethods.constructFailedMsg(e.getMessage());
 		}

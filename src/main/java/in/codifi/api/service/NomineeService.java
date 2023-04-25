@@ -71,6 +71,7 @@ public class NomineeService implements INomineeService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId,"NomineeService","getNominee",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In getNominee for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -95,6 +96,7 @@ public class NomineeService implements INomineeService {
 		} catch (Exception e) {
 			commonMethods.sendErrorMail("An error occurred while processing your request, In populateNomineeAndGuardian for the Error: " + e.getMessage(),"ERR-001");
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId,"NomineeService","populateNomineeAndGuardian",e.getMessage());
 		}
 		return savedEntity;
 	}
@@ -135,6 +137,7 @@ public class NomineeService implements INomineeService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(fileModel.getApplicationId(),"NomineeService","uploadDocNominee",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In uploadDocNominee for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -173,6 +176,7 @@ public class NomineeService implements INomineeService {
 			fileUrl = filePath;
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(fileModel.getApplicationId(),"NomineeService","uploadDocGuardian",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In uploadDocGuardian for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return fileUrl;
@@ -240,6 +244,7 @@ public class NomineeService implements INomineeService {
 
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(nomineeEntity.getApplicationId(),"NomineeService","saveNomineeDetails",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In saveNomineeDetails for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -296,6 +301,7 @@ public class NomineeService implements INomineeService {
 		responseModel.setResult(updatedNomineeList);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(ApplicationId,"NomineeService","allocationForNomiee",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In allocationForNomiee for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -323,6 +329,7 @@ public class NomineeService implements INomineeService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(entity.getApplicationId(),"NomineeService","calculateNomineeAllocation",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In calculateNomineeAllocation for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return allocationTally;
@@ -385,6 +392,7 @@ public class NomineeService implements INomineeService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(entity.getApplicationId(),"NomineeService","updateNomineeAllocation",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In updateNomineeAllocation for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -411,6 +419,7 @@ public class NomineeService implements INomineeService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(id,"NomineeService","deleteNom",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In deleteNom for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -440,6 +449,7 @@ public class NomineeService implements INomineeService {
 	
 	} catch (Exception e) {
 		logger.error("An error occurred: " + e.getMessage());
+		commonMethods.SaveLog(applicationId,"NomineeService","updateAllocaionAfterDelete",e.getMessage());
 		commonMethods.sendErrorMail("An error occurred while processing your request, In updateAllocaionAfterDelete for the Error: " + e.getMessage(),"ERR-001");
 		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}

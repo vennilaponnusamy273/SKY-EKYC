@@ -65,6 +65,7 @@ public class PanService implements IPanService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(userEntity.getId(),"PanService","getPanDetails",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanDetails for this Error :"+e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -141,6 +142,7 @@ public class PanService implements IPanService {
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.SaveLog(userEntity.getId(),"PanService","saveDob",e.getMessage());
 				commonMethods.sendErrorMail("An error occurred while processing your request, In saveDob for the Error: " + e.getMessage(),"ERR-001");
 				responseModel = commonMethods.constructFailedMsg(e.getMessage());
 			}
@@ -158,6 +160,7 @@ public class PanService implements IPanService {
 		commonMethods.UpdateStep(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY, userEntity.getId());
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(userEntity.getId(),"PanService","saveDob",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In saveDob for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -200,6 +203,7 @@ public class PanService implements IPanService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId,"PanService","confirmAddress",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In confirmAddress for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -228,6 +232,7 @@ public class PanService implements IPanService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId,"PanService","confirmPan",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In confirmPan.","ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}

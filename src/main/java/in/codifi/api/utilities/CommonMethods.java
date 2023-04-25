@@ -37,11 +37,13 @@ import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.EmailTemplateEntity;
+import in.codifi.api.entity.ErrorLogEntity;
 import in.codifi.api.entity.ReqResEntity;
 import in.codifi.api.model.AddressModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.EmailTemplateRepository;
+import in.codifi.api.repository.ErrorLogRepository;
 import in.codifi.api.repository.ReqResRepository;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
@@ -62,6 +64,9 @@ public class CommonMethods {
 	EmailTemplateRepository emailTemplateRepository;
 	@Inject
 	ApplicationUserRepository repository;
+	
+	@Inject
+	ErrorLogRepository errorLogRepository;
 	/**
 	 * Method to generate OTP for Mobile number
 	 * 
@@ -402,4 +407,18 @@ public class CommonMethods {
 		return updatedUserDetails;
 	}
 
+	
+	public void SaveLog(Long applicationId, String className, String methodName, String reason) {
+	    ErrorLogEntity errorLogEntity = errorLogRepository.findByApplicationIdAndClassNameAndMethodName(applicationId, className, methodName);
+	    if (errorLogEntity == null) {
+	        errorLogEntity = new ErrorLogEntity();
+	        errorLogEntity.setApplicationId(applicationId);
+	        errorLogEntity.setClassName(className);
+	        errorLogEntity.setMethodName(methodName);
+	    }
+	    errorLogEntity.setReason(reason);
+	    if(errorLogEntity != null) {
+	        errorLogRepository.save(errorLogEntity);
+	    }
+	}
 }

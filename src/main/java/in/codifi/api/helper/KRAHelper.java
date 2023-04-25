@@ -40,7 +40,7 @@ public class KRAHelper {
 	KraKeyValueRepository keyValueRepository;
 	@Inject
 	KraPanRestService kraPanRestService;
-
+	
 	private static final Logger logger = LogManager.getLogger(KRAHelper.class);
 	/**
 	 * Method to get the pan card status from the kra
@@ -71,6 +71,7 @@ public class KRAHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(null,"KRAHelper","getPanCardStatus",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanCardStatus for the Error: " + e.getMessage(),"ERR-001");
 			return null;
 		}
@@ -110,7 +111,8 @@ public class KRAHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanCardDetailsfor the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(null,"KRAHelper","getPanCardDetails",e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanCardDetails for the Error: " + e.getMessage(),"ERR-001");
 			return null;
 		}
 	}
@@ -229,7 +231,8 @@ public class KRAHelper {
 			addressRepository.save(addressEntity);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In updateDetailsFromKRAfor the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId,"KRAHelper","updateDetailsFromKRA",e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In updateDetailsFromKRA for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return savedProfileEntity;
 

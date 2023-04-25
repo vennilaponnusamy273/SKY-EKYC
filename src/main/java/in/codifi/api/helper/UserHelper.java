@@ -39,7 +39,7 @@ public class UserHelper {
 	BankRepository bankRepository;
 	@Inject
 	SmsRestService smsRestService;
-
+	
 	private static final Logger logger = LogManager.getLogger(UserHelper.class);
 	/**
 	 * Method to save User Sms Otp in DB
@@ -64,6 +64,7 @@ public class UserHelper {
 		
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(userEntity.getId(),"UserHelper","saveOrUpdateSmsTrigger",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In saveOrUpdateSmsTrigger for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return savedEntity;
@@ -99,6 +100,7 @@ public class UserHelper {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId,"UserHelper","populateAllRecord",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In populateAllRecord for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return model;
@@ -162,6 +164,7 @@ try {
 		}
 } catch (Exception e) {
 	logger.error("An error occurred: " + e.getMessage());
+	commonMethods.SaveLog(null,"UserHelper","checkOtpTimeValidation",e.getMessage());
 	commonMethods.sendErrorMail("An error occurred while processing your request, In checkOtpTimeValidation for the Error: " + e.getMessage(),"ERR-001");
 	response = commonMethods.constructFailedMsg(e.getMessage());
 }
@@ -200,6 +203,7 @@ try {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(null,"UserHelper","varifyOtpValidation",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In varifyOtpValidation for the Error: " + e.getMessage(),"ERR-001");
 			response = commonMethods.constructFailedMsg(e.getMessage());
 		}

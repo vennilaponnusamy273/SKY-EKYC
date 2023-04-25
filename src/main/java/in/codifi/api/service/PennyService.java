@@ -60,6 +60,7 @@ public class PennyService implements IPennyService {
 		}
 	} catch (Exception e) {
 		logger.error("An error occurred: " + e.getMessage());
+		commonMethods.SaveLog(applicationUserEntity.getId(),"PennyService","createContact",e.getMessage());
 		commonMethods.sendErrorMail("An error occurred while processing your request, In createContact for the Error: " + e.getMessage(),"ERR-001");
 		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
@@ -101,6 +102,7 @@ public class PennyService implements IPennyService {
 		}
 	} catch (Exception e) {
 		logger.error("An error occurred: " + e.getMessage());
+		commonMethods.SaveLog(applicationUserEntity.getId(),"PennyService","addAccount",e.getMessage());
 		commonMethods.sendErrorMail("An error occurred while processing your request, In addAccount for the Error: " + e.getMessage(),"ERR-001");
 		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
@@ -146,6 +148,7 @@ public class PennyService implements IPennyService {
 		}
 	} catch (Exception e) {
 		logger.error("An error occurred: " + e.getMessage());
+		commonMethods.SaveLog(applicationUserEntity.getId(),"PennyService","createPayout",e.getMessage());
 		commonMethods.sendErrorMail("An error occurred while processing your request, In createPayout for the Error: " + e.getMessage(),"ERR-001");
 		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
@@ -165,6 +168,7 @@ public class PennyService implements IPennyService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationUserEntity.getId(),"PennyService","ValidateDetails",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In ValidateDetails for the Error: " + e.getMessage(),"ERR-001");
 			responseDTO = commonMethods.constructFailedMsg(e.getMessage());
 		}
