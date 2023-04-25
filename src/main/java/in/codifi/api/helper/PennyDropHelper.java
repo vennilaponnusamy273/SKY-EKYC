@@ -74,6 +74,8 @@ public class PennyDropHelper {
 				byte[] input = createContactJSON.toJSONString().getBytes(EkycConstants.CONSTANT_URL_UF8);
 				os.write(input, 0, input.length);
 			} catch (Exception e) {
+				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.sendErrorMail("An error occurred while processing your request, In createContact.","ERR-001");
 				e.printStackTrace();
 			}
 			if (conn.getResponseCode() != 200 && conn.getResponseCode() != 201) {
@@ -163,6 +165,8 @@ public class PennyDropHelper {
 				byte[] input = addAccountJSON.toJSONString().getBytes(EkycConstants.CONSTANT_URL_UF8);
 				os.write(input, 0, input.length);
 			} catch (Exception e) {
+				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.sendErrorMail("An error occurred while processing your request, In addAccount.","ERR-001");
 				e.printStackTrace();
 			}
 			if (conn.getResponseCode() != 200 && conn.getResponseCode() != 201) {
@@ -251,6 +255,8 @@ public class PennyDropHelper {
 				byte[] input = payOutJSON.toJSONString().getBytes(EkycConstants.CONSTANT_URL_UF8);
 				os.write(input, 0, input.length);
 			} catch (Exception e) {
+				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.sendErrorMail("An error occurred while processing your request, In createPayout.","ERR-001");
 				e.printStackTrace();
 			}
 			if (conn.getResponseCode() != 200 && conn.getResponseCode() != 201) {
@@ -336,6 +342,8 @@ public class PennyDropHelper {
 				byte[] input = fundAccountJSON.toJSONString().getBytes(EkycConstants.CONSTANT_URL_UF8);
 				os.write(input, 0, input.length);
 			} catch (Exception e) {
+				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.sendErrorMail("An error occurred while processing your request, In ValidateDetails.","ERR-001");
 				e.printStackTrace();
 			}
 			if (conn.getResponseCode() != 200 && conn.getResponseCode() != 201) {

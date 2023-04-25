@@ -67,7 +67,7 @@ public class ProfileService implements IProfileService {
 		}
 	} catch (Exception e) {
 		logger.error("An error occurred: " + e.getMessage());
-		commonMethods.sendErrorMail("An error occurred while processing your request, In saveProfile.","ERR-001");
+		commonMethods.sendErrorMail("An error occurred while processing your request, In saveProfile for the Error: " + e.getMessage(),"ERR-001");
 		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
 	return responseModel;
@@ -90,7 +90,7 @@ public class ProfileService implements IProfileService {
 		}
 	} catch (Exception e) {
 		logger.error("An error occurred: " + e.getMessage());
-		commonMethods.sendErrorMail("An error occurred while processing your request, In getProfileByAppId.","ERR-001");
+		commonMethods.sendErrorMail("An error occurred while processing your request, In getProfileByAppId for the Error: " + e.getMessage(),"ERR-001");
 		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
 	return responseModel;

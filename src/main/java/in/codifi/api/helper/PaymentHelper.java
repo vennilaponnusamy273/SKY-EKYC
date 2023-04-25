@@ -63,7 +63,7 @@ public class PaymentHelper {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In validateCreatePayment.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In validateCreatePayment for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return errorMsg;
 	}
@@ -95,7 +95,7 @@ public class PaymentHelper {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In validateVerifyPayment.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In validateVerifyPayment for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return errorMsg;
 	}
@@ -141,7 +141,7 @@ public class PaymentHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In createPayment.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In createPayment for the Error: " + e.getMessage(),"ERR-001");
 			responseDTO.setStat(EkycConstants.FAILED_STATUS);
 			responseDTO.setMessage(e.toString());
 		}
@@ -214,7 +214,7 @@ public class PaymentHelper {
 			isEqual = Utils.verifyPaymentSignature(orderRequest, props.getRazorpaySecret());
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In verifyPayment.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In verifyPayment for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return isEqual;
 	}

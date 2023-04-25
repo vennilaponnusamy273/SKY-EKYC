@@ -64,7 +64,7 @@ public class UserHelper {
 		
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In saveOrUpdateSmsTrigger.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In saveOrUpdateSmsTrigger for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return savedEntity;
 	}
@@ -99,7 +99,7 @@ public class UserHelper {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In populateAllRecord.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In populateAllRecord for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return model;
 	}
@@ -162,7 +162,7 @@ try {
 		}
 } catch (Exception e) {
 	logger.error("An error occurred: " + e.getMessage());
-	commonMethods.sendErrorMail("An error occurred while processing your request, In checkOtpTimeValidation.","ERR-001");
+	commonMethods.sendErrorMail("An error occurred while processing your request, In checkOtpTimeValidation for the Error: " + e.getMessage(),"ERR-001");
 	response = commonMethods.constructFailedMsg(e.getMessage());
 }
 		return response;
@@ -200,7 +200,7 @@ try {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In varifyOtpValidation.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In varifyOtpValidation for the Error: " + e.getMessage(),"ERR-001");
 			response = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return response;

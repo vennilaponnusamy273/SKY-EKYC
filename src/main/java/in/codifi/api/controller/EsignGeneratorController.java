@@ -33,4 +33,17 @@ public class EsignGeneratorController implements IEsignGeneratorController {
 		return response;
 	}
 
+	@Override
+	public ResponseModel ToGetTxnFromXMlpath(@NotNull String xmlPath, @NotNull String XmlCode) {
+		ResponseModel response = new ResponseModel();
+		if (xmlPath!=null&&XmlCode!=null) {
+			response=esignGeneratorService.toGetTxnFromXMlpath(xmlPath, XmlCode);
+		}
+		else {
+			response = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
+		}
+		return response;
+	}
+	
+
 }

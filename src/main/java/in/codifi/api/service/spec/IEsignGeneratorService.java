@@ -14,4 +14,12 @@ public interface IEsignGeneratorService {
 	 */
 	ResponseModel xmlGenerator(@NotNull long applicationId);
 
+	/**
+	 * Method to get xml for E sign
+	 * 
+	 * @author prade
+	 * @param xmlPath,getXml
+	 * @return
+	 */
+	ResponseModel toGetTxnFromXMlpath(String xmlPath, String getXml);
 }

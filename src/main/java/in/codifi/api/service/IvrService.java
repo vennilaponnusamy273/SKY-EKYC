@@ -129,7 +129,7 @@ public class IvrService implements IIvrService {
 		} catch (Exception e) {
 			
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In uploadIvr.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In uploadIvr for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -190,7 +190,7 @@ public class IvrService implements IIvrService {
 				}
 			} catch (Exception e) {
 				logger.error("An error occurred: " + e.getMessage());
-				commonMethods.sendErrorMail("An error occurred while processing your request, In getIvrLink.","ERR-001");
+				commonMethods.sendErrorMail("An error occurred while processing your request, In getIvrLink for the Error: " + e.getMessage(),"ERR-001");
 				responseModel.setStat(EkycConstants.FAILED_STATUS);
 				responseModel.setMessage(EkycConstants.FAILED_MSG);
 				responseModel.setReason(e.getMessage());
@@ -236,7 +236,7 @@ public class IvrService implements IIvrService {
 			JSONObject urlObj = responseJson.getJSONObject(EkycConstants.URL);
 			shortUrl = urlObj.getString(EkycConstants.SHORT_URL);
 		} catch (Exception e) {
-			commonMethods.sendErrorMail("An error occurred while processing your request, In generateShortLink.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In generateShortLink for the Error: " + e.getMessage(),"ERR-001");
 			logger.error("An error occurred: " + e.getMessage());
 		} finally {
 			if (conn != null) {
@@ -283,7 +283,7 @@ public class IvrService implements IIvrService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In sendLink.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In sendLink for the Error: " + e.getMessage(),"ERR-001");
 			responseModel.setStat(EkycConstants.FAILED_STATUS);
 			responseModel.setMessage(EkycConstants.FAILED_MSG);
 			responseModel.setReason(e.getMessage());

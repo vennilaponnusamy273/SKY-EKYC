@@ -45,5 +45,11 @@ public class DocumentEntity extends CommonEntity implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(name = "password")
 	private String password;
+	
+	@Column(name = "isApproval")
+	private int isApproval;
+	
+	@Column(name = "isRejected")
+	private int isRejected;
 
 }

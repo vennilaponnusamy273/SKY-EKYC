@@ -48,7 +48,7 @@ public class DigilockerService implements IDigilockerService {
 		}
 	} catch (Exception e) {
 		logger.error("An error occurred: " + e.getMessage());
-		commonMethods.sendErrorMail("An error occurred while processing your request, In iniDigilocker.","ERR-001");
+		commonMethods.sendErrorMail("An error occurred while processing your request, In iniDigilocker for the Error: " + e.getMessage(),"ERR-001");
 		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
 		return responseModel;

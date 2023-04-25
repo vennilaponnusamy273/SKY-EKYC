@@ -71,7 +71,7 @@ public class KRAHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanCardStatus.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanCardStatus for the Error: " + e.getMessage(),"ERR-001");
 			return null;
 		}
 	}
@@ -110,7 +110,7 @@ public class KRAHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanCardDetails.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanCardDetailsfor the Error: " + e.getMessage(),"ERR-001");
 			return null;
 		}
 	}
@@ -229,7 +229,7 @@ public class KRAHelper {
 			addressRepository.save(addressEntity);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In updateDetailsFromKRA.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In updateDetailsFromKRAfor the Error: " + e.getMessage(),"ERR-001");
 		}
 		return savedProfileEntity;
 

@@ -98,7 +98,7 @@ public class UserService implements IUserService {
 		} catch (Exception e) {
 		//	e.printStackTrace();
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In sendSmsOtp.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In sendSmsOtp for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -160,7 +160,7 @@ public class UserService implements IUserService {
 		} catch (Exception e) {
 			//e.printStackTrace();
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In verifySmsOtp.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In verifySmsOtp for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -214,7 +214,7 @@ public class UserService implements IUserService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In sendMailOtp.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In sendMailOtp for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -257,7 +257,7 @@ public class UserService implements IUserService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In verifyEmailOtp.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In verifyEmailOtp for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -292,7 +292,7 @@ public class UserService implements IUserService {
 		} 
 		}catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getUserDetailsById.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In getUserDetailsById for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -352,7 +352,7 @@ public class UserService implements IUserService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In docStatus.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In docStatus for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -402,7 +402,7 @@ public class UserService implements IUserService {
 		}
 	} catch (Exception e) {
 		logger.error("An error occurred: " + e.getMessage());
-		commonMethods.sendErrorMail("An error occurred while processing your request, In userCreation.","ERR-001");
+		commonMethods.sendErrorMail("An error occurred while processing your request, In userCreation for the Error: " + e.getMessage(),"ERR-001");
 		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}
 	return responseModel;
@@ -428,7 +428,7 @@ public class UserService implements IUserService {
 		}
 	} catch (Exception e) {
 		logger.error("An error occurred: " + e.getMessage());
-		commonMethods.sendErrorMail("An error occurred while processing your request, In getPageNumber.","ERR-001");
+		commonMethods.sendErrorMail("An error occurred while processing your request, In getPageNumber for the Error: " + e.getMessage(),"ERR-001");
 	}
 		return HazleCacheController.getInstance().getPageDetail().get(key + 1);
 	}
