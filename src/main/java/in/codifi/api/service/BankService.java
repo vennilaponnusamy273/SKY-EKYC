@@ -87,6 +87,7 @@ public class BankService implements IBankService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(bankEntity.getApplicationId(),"BankService","saveBank",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request. In SaveBankDetails for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -111,6 +112,7 @@ public class BankService implements IBankService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId,"BankService","getBankByAppId",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request. In getBankByAppId for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -128,6 +130,7 @@ public class BankService implements IBankService {
 			model = commonRestService.getBankAddressByIfsc(ifsc);
 		} catch (ClientWebApplicationException e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(null,"BankService","getBankAdd",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request. In getBankAdd for the Error: " + e.getMessage(), "ERR-001");
 			if (e.getResponse().getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.IFSC_INVALID);
@@ -135,6 +138,7 @@ public class BankService implements IBankService {
 			} else {
 				e.printStackTrace();
 				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.SaveLog(null,"BankService","getBankAdd",e.getMessage());
 				commonMethods.sendErrorMail("An error occurred while processing your request. In getBankAdd for the Error: " + e.getMessage(), "ERR-001");
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
 				return responseModel;
@@ -179,6 +183,7 @@ public class BankService implements IBankService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(paymentEntity.getApplicationId(),"BankService","createPayment",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request. In createPayment for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -214,6 +219,7 @@ public class BankService implements IBankService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(params.getApplicationId(),"BankService","verifyPayment",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request. In verifyPayment for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -242,6 +248,7 @@ public class BankService implements IBankService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId,"BankService","checkPayment",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request. In checkPayment for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}

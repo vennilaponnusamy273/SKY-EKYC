@@ -129,6 +129,7 @@ public class IvrService implements IIvrService {
 		} catch (Exception e) {
 			
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(ivrModel.getApplicationId(),"IvrService","uploadIvr",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In uploadIvr for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -190,6 +191,7 @@ public class IvrService implements IIvrService {
 				}
 			} catch (Exception e) {
 				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.SaveLog(applicationId,"IvrService","getIvrLink",e.getMessage());
 				commonMethods.sendErrorMail("An error occurred while processing your request, In getIvrLink for the Error: " + e.getMessage(),"ERR-001");
 				responseModel.setStat(EkycConstants.FAILED_STATUS);
 				responseModel.setMessage(EkycConstants.FAILED_MSG);
@@ -237,6 +239,7 @@ public class IvrService implements IIvrService {
 			shortUrl = urlObj.getString(EkycConstants.SHORT_URL);
 		} catch (Exception e) {
 			commonMethods.sendErrorMail("An error occurred while processing your request, In generateShortLink for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(null,"IvrService","generateShortLink",e.getMessage());
 			logger.error("An error occurred: " + e.getMessage());
 		} finally {
 			if (conn != null) {
@@ -283,6 +286,7 @@ public class IvrService implements IIvrService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(userEntity.getId(),"IvrService","sendLink",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In sendLink for the Error: " + e.getMessage(),"ERR-001");
 			responseModel.setStat(EkycConstants.FAILED_STATUS);
 			responseModel.setMessage(EkycConstants.FAILED_MSG);

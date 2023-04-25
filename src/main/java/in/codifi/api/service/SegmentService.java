@@ -29,7 +29,7 @@ public class SegmentService implements ISegmentService {
 	CommonMethods commonMethods;
 	@Inject
 	IPennyController iPennyController;
-
+	
 	private static final Logger logger = LogManager.getLogger(SegmentService.class);
 	/**
 	 * Method to save Segment Details
@@ -66,6 +66,7 @@ public class SegmentService implements ISegmentService {
 		}
 	} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(segmentEntity.getApplicationId(),"SegmentService","saveSegment",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In saveSegment for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -90,6 +91,7 @@ public class SegmentService implements ISegmentService {
 		}
 	} catch (Exception e) {
 		logger.error("An error occurred: " + e.getMessage());
+		commonMethods.SaveLog(applicationId,"SegmentService","getSegmentByAppId",e.getMessage());
 		commonMethods.sendErrorMail("An error occurred while processing your request, In getSegmentByAppId for the Error: " + e.getMessage(),"ERR-001");
 		responseModel = commonMethods.constructFailedMsg(e.getMessage());
 	}

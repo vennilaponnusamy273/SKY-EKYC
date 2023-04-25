@@ -143,6 +143,7 @@ public class PanHelper {
 			System.out.println(MessageConstants.PAN_KEYSTORE_SUC_MSG);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId,"PanHelper","pfx2JksFile",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In pfx2JksFile for the Error:" + e.getMessage(),"ERR-001");
 		}
 	}
@@ -172,6 +173,7 @@ public class PanHelper {
 				keystore.load(input, password);
 			} catch (IOException e) {
 				commonMethods.sendErrorMail("An error occurred while processing your request, In pkcs7Generate.","ERR-001");
+				commonMethods.SaveLog(applicationId,"PanHelper","pkcs7Generate",e.getMessage());
 				logger.error("An error occurred: " + e.getMessage());
 			} finally {
 
@@ -210,6 +212,7 @@ public class PanHelper {
 
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId,"PanHelper","pkcs7Generate",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In pkcs7Generate for the Error: " + e.getMessage(),"ERR-001");
 		}
 	}
@@ -246,6 +249,7 @@ public class PanHelper {
 				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
 						+ MessageConstants.PAN_PRG_NO + nonce;
 				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
 				commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation  for the Error: " + e.getMessage(),"ERR-001");
 			}
 			try {
@@ -257,6 +261,7 @@ public class PanHelper {
 				out = new BufferedWriter(fstream);
 			} catch (Exception e) {
 				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
 				commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation for the Error: " + e.getMessage(),"ERR-001");
 				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
 						+ MessageConstants.PAN_PRG_NO + nonce;
@@ -273,6 +278,7 @@ public class PanHelper {
 						+ MessageConstants.PAN_PRG_NO + nonce;
 				e.printStackTrace(System.err);
 				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
 				commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation.","ERR-001");
 				out.write(logMsg);
 				out.close();
@@ -287,6 +293,7 @@ public class PanHelper {
 			result = nsdlPanService.GetNSdlDEtails(data, signature, version);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation for the Error: " + e.getMessage(),"ERR-001");
 		} finally {
 
@@ -332,6 +339,7 @@ public class PanHelper {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(userEntity.getId(),"PanHelper","saveResult",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In saveResult for the Error:" + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
@@ -397,6 +405,7 @@ public class PanHelper {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(null,"PanHelper","stringToJson",e.getMessage());
 			commonMethods.sendErrorMail("An error occurred while processing your request, In stringToJson for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return response;
