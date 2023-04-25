@@ -43,7 +43,7 @@ public class PanService implements IPanService {
 	 * Method to get PAN details
 	 */
 	@Override
-	public ResponseModel getPanDetails(ApplicationUserEntity userEntity) {
+	public  ResponseModel getPanDetails(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
 			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
@@ -65,7 +65,7 @@ public class PanService implements IPanService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanDetails.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanDetails for this Error :"+e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -140,6 +140,8 @@ public class PanService implements IPanService {
 						.setResult(savingEntity != null ? savingEntity : profileEntity != null ? profileEntity : "");
 			} catch (Exception e) {
 				e.printStackTrace();
+				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.sendErrorMail("An error occurred while processing your request, In saveDob for the Error: " + e.getMessage(),"ERR-001");
 				responseModel = commonMethods.constructFailedMsg(e.getMessage());
 			}
 			if (StringUtil.isNullOrEmpty(responseModel.getMessage())) {
@@ -156,7 +158,7 @@ public class PanService implements IPanService {
 		commonMethods.UpdateStep(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY, userEntity.getId());
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In saveDob.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In saveDob for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -198,7 +200,7 @@ public class PanService implements IPanService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In confirmAddress.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In confirmAddress for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;

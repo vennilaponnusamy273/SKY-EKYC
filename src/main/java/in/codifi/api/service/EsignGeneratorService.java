@@ -1,5 +1,8 @@
 package in.codifi.api.service;
 
+import java.io.File;
+import java.io.FileWriter;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -13,6 +16,7 @@ import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IEsignGeneratorService;
 import in.codifi.api.utilities.CommonMethods;
+import in.codifi.api.utilities.EkycConstants;
 
 @ApplicationScoped
 public class EsignGeneratorService implements IEsignGeneratorService {
@@ -21,7 +25,7 @@ public class EsignGeneratorService implements IEsignGeneratorService {
 
 	@Inject
 	CommonMethods commonMethods;
-	
+	private static String OS = System.getProperty("os.name").toLowerCase();
 	private static final Logger logger = LogManager.getLogger(DocumentService.class);
 	/**
 	 * Method to get xml for E sign
@@ -60,14 +64,42 @@ public class EsignGeneratorService implements IEsignGeneratorService {
 						reasonForSign, xCo_ordinates, yCo_ordinates, signatureWidth, signatureHeight, pdfPassword, txn);
 				System.out.println(response);
 			} catch (Exception e) {
+				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.sendErrorMail("An error occurred while processing your request, In xmlGenerator for the Error: " + e.getMessage(),"ERR-001");
 				e.printStackTrace();
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In xmlGenerator.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In xmlGenerator for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		responseModel.setResult(response);
+		return responseModel;
+	}
+	@Override
+	public ResponseModel toGetTxnFromXMlpath(String xmlPath, String getXml) {
+		ResponseModel responseModel = new ResponseModel();
+		try {
+			String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
+			if (OS.contains(EkycConstants.OS_WINDOWS)) {
+				slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
+			}
+			File chekcFile = new File(xmlPath);
+			File myObj = new File(xmlPath + slash + "FirstResponse.xml");
+			if (!chekcFile.exists()) {
+				chekcFile.mkdirs();
+			}
+			if (myObj.createNewFile()) {
+				FileWriter myWriter = new FileWriter(xmlPath + slash + "FirstResponse.xml");
+				myWriter.write(getXml);
+				myWriter.close();
+			}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In toGetTxnFromXMlpath for the Error: " + e.getMessage(),"ERR-001");
+			e.printStackTrace();
+		}
+		responseModel.setResult(getXml);
 		return responseModel;
 	}
 

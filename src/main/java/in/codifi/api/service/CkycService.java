@@ -97,7 +97,7 @@ public class CkycService implements ICkycService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In saveCkycResponse.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In saveCkycResponse for the Error: " + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -120,7 +120,7 @@ public class CkycService implements ICkycService {
 		ckycRequestApiModel.setReq_id(Long.toString(userEntity.getId()));
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In buildCkycRequest.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In buildCkycRequest for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return ckycRequestApiModel;
 	}
@@ -195,7 +195,7 @@ public class CkycService implements ICkycService {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In buildCkycResponse.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In buildCkycResponse for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return response;
 	}

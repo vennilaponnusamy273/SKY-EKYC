@@ -83,7 +83,7 @@ public interface IDocUpController {
 	@Path("/getFile")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@APIResponse(description = "Method to Delete document ")
+	@APIResponse(description = "Method to downloadFile document ")
 	public Response downloadFile(@NotNull @QueryParam("applicationId") long applicationId,
 			@NotNull @QueryParam("documentType") String type);
 

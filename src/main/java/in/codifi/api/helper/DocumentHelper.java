@@ -68,7 +68,7 @@ public class DocumentHelper {
 			outputStream.write(data);
 		} catch (IOException e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In convertBase64ToImage.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In convertBase64ToImage for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return fileName;
 	}

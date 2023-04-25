@@ -143,7 +143,7 @@ public class PanHelper {
 			System.out.println(MessageConstants.PAN_KEYSTORE_SUC_MSG);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In pfx2JksFile.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In pfx2JksFile for the Error:" + e.getMessage(),"ERR-001");
 		}
 	}
 
@@ -171,6 +171,8 @@ public class PanHelper {
 				char[] password = args1[1].toCharArray();
 				keystore.load(input, password);
 			} catch (IOException e) {
+				commonMethods.sendErrorMail("An error occurred while processing your request, In pkcs7Generate.","ERR-001");
+				logger.error("An error occurred: " + e.getMessage());
 			} finally {
 
 			}
@@ -208,7 +210,7 @@ public class PanHelper {
 
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In pkcs7Generate.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In pkcs7Generate for the Error: " + e.getMessage(),"ERR-001");
 		}
 	}
 
@@ -243,6 +245,8 @@ public class PanHelper {
 			} catch (Exception e) {
 				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
 						+ MessageConstants.PAN_PRG_NO + nonce;
+				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation  for the Error: " + e.getMessage(),"ERR-001");
 			}
 			try {
 				File f = new File(props.getPanLogsUrl());
@@ -252,6 +256,8 @@ public class PanHelper {
 				fstream = new FileWriter(props.getPanLogsUrl(), true);
 				out = new BufferedWriter(fstream);
 			} catch (Exception e) {
+				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation for the Error: " + e.getMessage(),"ERR-001");
 				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
 						+ MessageConstants.PAN_PRG_NO + nonce;
 				System.out.println(logMsg);
@@ -266,6 +272,8 @@ public class PanHelper {
 				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
 						+ MessageConstants.PAN_PRG_NO + nonce;
 				e.printStackTrace(System.err);
+				logger.error("An error occurred: " + e.getMessage());
+				commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation.","ERR-001");
 				out.write(logMsg);
 				out.close();
 			} catch (KeyManagementException e) {
@@ -279,7 +287,7 @@ public class PanHelper {
 			result = nsdlPanService.GetNSdlDEtails(data, signature, version);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation for the Error: " + e.getMessage(),"ERR-001");
 		} finally {
 
 		}
@@ -324,7 +332,7 @@ public class PanHelper {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In saveResult.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In saveResult for the Error:" + e.getMessage(),"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -389,7 +397,7 @@ public class PanHelper {
 		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In stringToJson.","ERR-001");
+			commonMethods.sendErrorMail("An error occurred while processing your request, In stringToJson for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return response;
 	}

@@ -24,4 +24,20 @@ public interface IEsignGeneratorController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to generator xml for E sign")
 	public ResponseModel xmlGenerator(@NotNull @QueryParam("applicationId") long applicationId);
+	
+	
+	
+	/**
+	 * Method to get xml path
+	 * 
+	 * @author prade
+	 * @param applicationId
+	 * @return
+	 */
+	@Path("/Getxml")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to generator xml for E sign")
+	public ResponseModel ToGetTxnFromXMlpath(@NotNull @QueryParam("xmlPath") String xmlPath,@NotNull @QueryParam("XmlCode") String XmlCode);
+	
 }
