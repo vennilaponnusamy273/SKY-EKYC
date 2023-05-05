@@ -1,7 +1,6 @@
 package in.codifi.api.service;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,7 +18,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
 import in.codifi.api.config.ApplicationProperties;
@@ -52,6 +50,7 @@ public class DocumentService implements IDocumentService {
 	ApplicationUserRepository userRepository;
 
 	private static final Logger logger = LogManager.getLogger(DocumentService.class);
+
 	/**
 	 * Method to upload file
 	 */
@@ -122,8 +121,10 @@ public class DocumentService implements IDocumentService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(fileModel.getApplicationId(),"DocumentService","uploadDoc",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In uploadDoc for the Error: " + e.getMessage(), "ERR-001");
+			commonMethods.SaveLog(fileModel.getApplicationId(), "DocumentService", "uploadDoc", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In uploadDoc for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -177,8 +178,10 @@ public class DocumentService implements IDocumentService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(data.getApplicationId(),"DocumentService","saveDoc",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In saveDoc for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(data.getApplicationId(), "DocumentService", "saveDoc", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In saveDoc for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -216,15 +219,14 @@ public class DocumentService implements IDocumentService {
 			} else {
 				error = "";
 			}
-		} catch (InvalidPasswordException e) {
-			logger.error("invalid Password " + e.getMessage());
-			commonMethods.SaveLog(fileModel.getApplicationId(),"DocumentService","checkPasswordProtected",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In checkPasswordProtected for the Error: " + e.getMessage(),"ERR-001");
-			error = "invalid Password";
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(fileModel.getApplicationId(),"DocumentService","checkPasswordProtected",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In checkPasswordProtected for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(fileModel.getApplicationId(), "DocumentService", "checkPasswordProtected",
+					e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In checkPasswordProtected for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 		}
 		return error;
 	}
@@ -269,8 +271,10 @@ public class DocumentService implements IDocumentService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"DocumentService","getDocument",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getDocument for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId, "DocumentService", "getDocument", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In getDocument for the Error: " + e.getMessage(),
+					"ERR-001");
 		}
 		return responseModel;
 	}
@@ -301,8 +305,10 @@ public class DocumentService implements IDocumentService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"DocumentService","deleteDocument",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In deleteDocument for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId, "DocumentService", "deleteDocument", e.getMessage());
+			commonMethods
+					.sendErrorMail("An error occurred while processing your request, In deleteDocument for the Error: "
+							+ e.getMessage(), "ERR-001");
 			responseModel.setStat(EkycConstants.FAILED_STATUS);
 			responseModel.setMessage(EkycConstants.FAILED_MSG);
 			responseModel.setReason("Error deleting document");
@@ -336,8 +342,10 @@ public class DocumentService implements IDocumentService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"DocumentService","downloadFile",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In downloadFile for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId, "DocumentService", "downloadFile", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In downloadFile for the Error: " + e.getMessage(),
+					"ERR-001");
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 					.entity("Failed to download file: " + e.getMessage()).build();
 		}
@@ -350,23 +358,24 @@ public class DocumentService implements IDocumentService {
 	public ResponseModel confirmDocument(@NotNull long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-		Optional<ApplicationUserEntity> isUserPresent = userRepository.findById(applicationId);
-		if (isUserPresent.isPresent()) {
-			commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, applicationId);
-			responseModel.setPage(EkycConstants.PAGE_IPV);
-			responseModel.setReason("Document Confirmed successfully");
-			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-		} else {
-			responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
-			responseModel.setStat(EkycConstants.FAILED_STATUS);
-			responseModel.setMessage(EkycConstants.FAILED_MSG);
-			responseModel.setReason(MessageConstants.USER_ID_INVALID);
-		}
+			Optional<ApplicationUserEntity> isUserPresent = userRepository.findById(applicationId);
+			if (isUserPresent.isPresent()) {
+				commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, applicationId);
+				responseModel.setPage(EkycConstants.PAGE_IPV);
+				responseModel.setReason("Document Confirmed successfully");
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+			} else {
+				responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
+				responseModel.setStat(EkycConstants.FAILED_STATUS);
+				responseModel.setMessage(EkycConstants.FAILED_MSG);
+				responseModel.setReason(MessageConstants.USER_ID_INVALID);
+			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"DocumentService","confirmDocument",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In confirmDocument.","ERR-001");
+			commonMethods.SaveLog(applicationId, "DocumentService", "confirmDocument", e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In confirmDocument.",
+					"ERR-001");
 		}
 		return responseModel;
 	}

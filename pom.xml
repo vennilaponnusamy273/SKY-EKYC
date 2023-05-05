@@ -16,7 +16,8 @@
 		<surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
 		<version.maven-plugin-plugin>3.6.4</version.maven-plugin-plugin>
 		<wiremock.version>2.33.2</wiremock.version>
-		<nsdl.path>D:/CodiFi/code/ekycService/src/main/resources/lib/NSDL_e-Gov_eSign2.1_V-1.0.jar</nsdl.path>  
+		<nsdl.path>D:/CodiFi/code/ekycService/src/main/resources/lib/v1.0_Nsdl_eSign2.1_MultiO.jar</nsdl.path>
+		<pdf.path>D:/CodiFi/code/ekycService/src/main/resources/lib/v1.4_pdfbox-2.0.8_MultiO.jar</pdf.path>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -164,11 +165,6 @@
 			<version>20090211</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.pdfbox</groupId>
-			<artifactId>pdfbox</artifactId>
-			<version>2.0.15 </version>
-		</dependency>
-		<dependency>
 			<groupId>com.razorpay</groupId>
 			<artifactId>razorpay-java</artifactId>
 			<version>1.4.3</version>
@@ -183,6 +179,18 @@
 			<version>1.0</version>
 			<scope>system</scope>
 			<systemPath>${nsdl.path}</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>pdf.path</groupId>
+			<artifactId>pdfbox1</artifactId>
+			<version>2.0.8</version>
+			<scope>system</scope>
+			<systemPath>${pdf.path}</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>2.0.24</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
