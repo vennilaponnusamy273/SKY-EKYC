@@ -29,18 +29,7 @@ public class UserController implements IUserController {
 	@Inject
 	Esign esign;
 
-	/**
-	 * test Method
-	 */
-	public ResponseModel test() {
-		ResponseModel model = new ResponseModel();
-//		boolean present = adminRestService.checkUser(email, mobileNumber);
-		model.setMessage("test");
-//		model.setResult(present);
-		String xml = esign.runMethod();
-		model.setResult(xml);
-		return model;
-	}
+	
 
 	public void testEsign() {
 		System.out.println("test Esign");
