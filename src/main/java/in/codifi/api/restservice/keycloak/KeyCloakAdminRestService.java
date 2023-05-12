@@ -8,6 +8,9 @@ import javax.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.config.KeyCloakConfig;
 import in.codifi.api.model.CreateUserRequestModel;
@@ -35,7 +38,14 @@ public class KeyCloakAdminRestService {
 	public String addNewUser(CreateUserRequestModel user) throws ClientWebApplicationException {
 		String message = "User Created";
 		int count = 1;
+		ObjectMapper mapper = new ObjectMapper();
 		try {
+			try {
+				System.out.println(mapper.writeValueAsString(user));
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			String token = "Bearer " + getAccessToken();
 			iKeyCloakAdminRestService.addNewUser(token, user);
 		} catch (ClientWebApplicationException e) {

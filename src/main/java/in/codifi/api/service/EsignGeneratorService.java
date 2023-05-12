@@ -2,6 +2,8 @@ package in.codifi.api.service;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -13,7 +15,9 @@ import org.apache.logging.log4j.Logger;
 import com.nsdl.esign.preverifiedNo.controller.EsignApplication;
 
 import in.codifi.api.config.ApplicationProperties;
+import in.codifi.api.entity.PdfDataCoordinatesEntity;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.PdfDataCoordinatesrepository;
 import in.codifi.api.service.spec.IEsignGeneratorService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
@@ -22,11 +26,13 @@ import in.codifi.api.utilities.EkycConstants;
 public class EsignGeneratorService implements IEsignGeneratorService {
 	@Inject
 	ApplicationProperties props;
-
+	@Inject
+	PdfDataCoordinatesrepository pdfDataCoordinatesrepository;
 	@Inject
 	CommonMethods commonMethods;
 	private static String OS = System.getProperty("os.name").toLowerCase();
 	private static final Logger logger = LogManager.getLogger(DocumentService.class);
+
 	/**
 	 * Method to get xml for E sign
 	 */
@@ -45,39 +51,53 @@ public class EsignGeneratorService implements IEsignGeneratorService {
 			String tickImagePath = props.getEsignTickImage();
 			int serverTime = 15;
 			String alias = props.getEsignAlias();
-			int pageNumberToInsertSignatureStamp = 1;
-			String nameToShowOnSignatureStamp = "Test";
-			String locationToShowOnSignatureStamp = "Madurai";
-			String reasonForSign = "";
-			int xCo_ordinates = 110;
-			int yCo_ordinates = 100;
-			int signatureWidth = 150;
-			int signatureHeight = 100;
 			String pdfPassword = "";
 			String txn = "";
-//			String respSignatureType  = ""; 
+			String reasonForSign = "";
+			String nameToShowOnSignatureStamp = "Test";
+			String locationToShowOnSignatureStamp = "Madurai";
 			try {
 				EsignApplication eSignApp = new EsignApplication();
+				ArrayList<Integer> xCoordinatesList = new ArrayList<>();
+				ArrayList<Integer> yCoordinatesList = new ArrayList<>();
+				ArrayList<Integer> PageNo = new ArrayList<>();
+				ArrayList<Integer> height = new ArrayList<>();
+				ArrayList<Integer> width = new ArrayList<>();
+				List<PdfDataCoordinatesEntity> coordinatesList = pdfDataCoordinatesrepository
+						.findByColumnNamesAndActiveStatus("esign", 1);
+				if (coordinatesList != null) {
+					for (PdfDataCoordinatesEntity entity : coordinatesList) {
+						int xCoordinate = Integer.parseInt(entity.getXCoordinate());
+						int yCoordinate = Integer.parseInt(entity.getYCoordinate());
+						int pageNumber = Integer.parseInt(entity.getPageNo());
+						xCoordinatesList.add(xCoordinate);
+						yCoordinatesList.add(yCoordinate);
+						PageNo.add(pageNumber + 1);
+						height.add(35); // Change this to the actual height value
+						width.add(90); // Change this to the actual width value
+					}
+				}
 				response = eSignApp.getEsignRequestXml(ekycID, pdfReadServerPath, aspId, authMode, responseUrl,
-						p12CertificatePath, p12CertiPwd, tickImagePath, serverTime, alias,
-						pageNumberToInsertSignatureStamp, nameToShowOnSignatureStamp, locationToShowOnSignatureStamp,
-						reasonForSign, xCo_ordinates, yCo_ordinates, signatureWidth, signatureHeight, pdfPassword, txn);
+						p12CertificatePath, p12CertiPwd, tickImagePath, serverTime, alias, nameToShowOnSignatureStamp,
+						locationToShowOnSignatureStamp, reasonForSign, pdfPassword, txn, PageNo, xCoordinatesList,
+						yCoordinatesList, height, width);
+				
 				System.out.println(response);
 			} catch (Exception e) {
-				logger.error("An error occurred: " + e.getMessage());
-				commonMethods.SaveLog(applicationId,"EsignGeneratorService","xmlGenerator",e.getMessage());
-				commonMethods.sendErrorMail("An error occurred while processing your request, In xmlGenerator for the Error: " + e.getMessage(),"ERR-001");
 				e.printStackTrace();
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"EsignGeneratorService","xmlGenerator",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In xmlGenerator for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId, "EsignGeneratorService", "xmlGenerator", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In xmlGenerator for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		responseModel.setResult(response);
 		return responseModel;
 	}
+
 	@Override
 	public ResponseModel toGetTxnFromXMlpath(String xmlPath, String getXml) {
 		ResponseModel responseModel = new ResponseModel();
@@ -98,8 +118,11 @@ public class EsignGeneratorService implements IEsignGeneratorService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(null,"EsignGeneratorService","toGetTxnFromXMlpath",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In toGetTxnFromXMlpath for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(null, "EsignGeneratorService", "toGetTxnFromXMlpath", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In toGetTxnFromXMlpath for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 			e.printStackTrace();
 		}
 		responseModel.setResult(getXml);
