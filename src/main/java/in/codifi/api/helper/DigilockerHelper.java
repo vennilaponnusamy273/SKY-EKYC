@@ -134,6 +134,7 @@ public class DigilockerHelper {
 					JSONObject kycResponse = (JSONObject) jsonOutput.get("KycRes");
 					if (kycResponse != null && kycResponse.containsKey("UidData")) {
 						JSONObject userDetails = (JSONObject) kycResponse.get("UidData");
+						String AatharNo=(String) userDetails.get("uid");
 						if (userDetails != null && userDetails.containsKey("Poa")) {
 							JSONObject PoaDetails = (JSONObject) userDetails.get("Poa");
 							if (applicationId >= 0) {
@@ -157,6 +158,7 @@ public class DigilockerHelper {
 									entity.setState((String) PoaDetails.get("state"));
 									entity.setCountry((String) PoaDetails.get("country"));
 									entity.setPincode((Long) PoaDetails.get("pc"));
+									entity.setAatharNo(AatharNo);
 									updatedAddEntity = addressRepository.save(entity);
 								} else {
 									if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {

@@ -140,4 +140,13 @@ public class ApplicationProperties {
 	String encryptinitVector;
 	@ConfigProperty(name = "appconfig.token.encryption.key")
 	String tokenEncryptKey;
+	
+	@ConfigProperty(name = "quarkus.pdf.pdfsamplepdf")
+	String pdfsamplePdf;
+	@ConfigProperty(name = "quarkus.pdf.outpupdf")
+	String outputPdf;
+	@ConfigProperty(name = "quarkus.pdf.pdffontfile")
+	String pdfFontFile;
+	@ConfigProperty(name = "quarkus.pdf.pdfstrfile")
+	String pdfStrfile;
 }

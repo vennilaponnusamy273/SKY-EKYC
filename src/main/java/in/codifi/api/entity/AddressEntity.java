@@ -111,5 +111,8 @@ public class AddressEntity extends CommonEntity implements Serializable {
 
 	@Column(name = "kra_per_country")
 	private String kraPerCountry;
+	
+	@Column(name = "aatharNo")
+	private String aatharNo;
 
 }

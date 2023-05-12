@@ -17,14 +17,6 @@ import in.codifi.api.model.ResponseModel;
 
 public interface IUserController {
 
-	/**
-	 * test Method
-	 */
-	@Path("/testMethod")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@APIResponse(description = "Test")
-	public ResponseModel test();
 
 	/**
 	 * test Method
