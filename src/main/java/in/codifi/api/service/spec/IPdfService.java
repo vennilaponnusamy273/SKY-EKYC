@@ -13,12 +13,5 @@ public interface IPdfService {
 	 */
 	ResponseModel savePdf(PdfApplicationDataModel pdfModel);
 
-	/**
-	 * Method to save PDF data coordinates
-	 * 
-	 * @author gowthaman
-	 * @return
-	 */
-	ResponseModel saveDataCoordinates();
 
 }
