@@ -1,15 +1,12 @@
 package in.codifi.api.service;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -26,8 +23,6 @@ import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.rendering.PDFRenderer;
-
-import com.opencsv.CSVReader;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
@@ -57,7 +52,6 @@ import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.repository.SegmentRepository;
 import in.codifi.api.restservice.RazorpayIfscRestService;
 import in.codifi.api.service.spec.IPdfService;
-import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.Esign;
 
 
@@ -803,54 +797,5 @@ public void addDocument(PDDocument document, long applicationNo) {
 
 		return map;
 	}
-
-	/**
-	 * method to save user details
-	 * 
-	 * @author Gowthaman M
-	 * @return
-	 */
-	public ResponseModel saveDataCoordinates() {
-		ResponseModel responseEntity = new ResponseModel();
-		try {
-			String strFile = props.getPdfStrfile();
-			CSVReader reader = new CSVReader(new FileReader(strFile));
-			List<PdfDataCoordinatesEntity> pdfData = new ArrayList<PdfDataCoordinatesEntity>();
-			String[] nextLine;
-			int lineNumber = 0;
-			while ((nextLine = reader.readNext()) != null) {
-				PdfDataCoordinatesEntity data = new PdfDataCoordinatesEntity();
-				lineNumber++;
-				if (lineNumber != 1 && nextLine.length != 1) {
-					String pageNo = nextLine[0];
-					String contentName = nextLine[1];
-					String xCoordinate = nextLine[2];
-					String yCoordinate = nextLine[3];
-					String colulmnType = nextLine[4];
-
-					data.setPageNo(pageNo);
-					data.setColumnNames(contentName);
-					data.setXCoordinate(xCoordinate);
-					data.setYCoordinate(yCoordinate);
-					data.setColumnType(colulmnType);
-					pdfData.add(data);
-				}
-
-			}
-			List<PdfDataCoordinatesEntity> insertUser = (List<PdfDataCoordinatesEntity>) pdfDataCoordinatesrepository
-					.saveAll(pdfData);
-			if (insertUser != null) {
-				responseEntity.setStat(EkycConstants.SUCCESS_STATUS);
-				responseEntity.setMessage(EkycConstants.SUCCESS_MSG);
-			} else {
-				responseEntity.setStat(EkycConstants.FAILED_STATUS);
-				responseEntity.setMessage(EkycConstants.FAILED_MSG);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return responseEntity;
-	}
-
 	
 }

@@ -29,17 +29,4 @@ public class PdfController implements IPdfController {
 		return responseModel;
 	}
 
-	/**
-	 * Method to save PDF data coordinates
-	 * 
-	 * @author gowthaman
-	 * @return
-	 */
-	@Override
-	public ResponseModel saveDataCoordinates() {
-		ResponseModel responseModel = new ResponseModel();
-		iPdfService.saveDataCoordinates();
-		return responseModel;
-	}
-
 }

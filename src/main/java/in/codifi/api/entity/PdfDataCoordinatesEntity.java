@@ -28,19 +28,19 @@ public class PdfDataCoordinatesEntity implements Serializable {
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "COLUMN_NAMES")
+	@Column(name = "column_names")
 	private String columnNames;
 
-	@Column(name = "COLUMN_TYPE")
+	@Column(name = "column_type")
 	private String columnType;
 
-	@Column(name = "X_COORDINATE")
+	@Column(name = "x_coordinate")
 	private String xCoordinate;
 
-	@Column(name = "Y_COORDINATE")
+	@Column(name = "y_coordinate")
 	private String yCoordinate;
 
-	@Column(name = "PAGE_NO")
+	@Column(name = "page_no")
 	private String pageNo;
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
