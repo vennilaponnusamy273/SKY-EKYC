@@ -138,10 +138,9 @@ public class ApplicationProperties {
 	String encryptinitVector;
 	@ConfigProperty(name = "appconfig.token.encryption.key")
 	String tokenEncryptKey;
-	@ConfigProperty(name = "appconfig.esign.pdf.pdfsamplepdf")
-	String pdfsamplePdf;
-	@ConfigProperty(name = "appconfig.esign.pdf.outpupdf")
-	String outputPdf;
-	@ConfigProperty(name = "appconfig.esign.pdf.pdffontfile")
+	@ConfigProperty(name = "appconfig.esign.pdf")
+	String PdfPath;
+	@ConfigProperty(name = "appconfig.esign.pdf.fontfile")
 	String pdfFontFile;
+
 }

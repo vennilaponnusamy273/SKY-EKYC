@@ -1,5 +1,7 @@
 package in.codifi.api.service.spec;
 
+import javax.ws.rs.core.Response;
+
 import in.codifi.api.model.PdfApplicationDataModel;
 import in.codifi.api.model.ResponseModel;
 
@@ -11,7 +13,14 @@ public interface IPdfService {
 	 * @author gowthaman
 	 * @return
 	 */
-	ResponseModel savePdf(PdfApplicationDataModel pdfModel);
+	Response savePdf(long applicationId);
 
-
+	/**
+	 * Method to generate Esign
+	 * 
+	 * @author Pradeep
+	 * @param pdfModel
+	 * @return
+	 */
+	ResponseModel generateEsign(PdfApplicationDataModel pdfModel);
 }

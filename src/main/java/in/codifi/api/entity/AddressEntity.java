@@ -113,6 +113,6 @@ public class AddressEntity extends CommonEntity implements Serializable {
 	private String kraPerCountry;
 	
 	@Column(name = "aatharNo")
-	private String aatharNo;
+	private String aadharNo;
 
 }
