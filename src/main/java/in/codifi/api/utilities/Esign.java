@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -11,11 +12,16 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.springframework.stereotype.Service;
+
 import com.nsdl.esign.preverifiedNo.controller.EsignApplication;
 
 import in.codifi.api.config.ApplicationProperties;
+import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.PdfDataCoordinatesEntity;
+import in.codifi.api.entity.SegmentEntity;
+import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.PdfDataCoordinatesrepository;
+import in.codifi.api.repository.SegmentRepository;
 
 
 @ApplicationScoped
@@ -24,13 +30,18 @@ public class Esign {
 	private static String OS = System.getProperty("os.name").toLowerCase();
 	@Inject
 	ApplicationProperties props;
-
+	@Inject
+	SegmentRepository segmentRepository;
+	@Inject
+	ApplicationUserRepository applicationUserRepository;
 	@Inject
 	PdfDataCoordinatesrepository pdfDataCoordinatesrepository;
 	public static void main(String[] args) throws IOException {
 	}
 	public String runMethod( String OutPutPath, @NotNull long applicationId) {
-		String getXml = getXmlForEsignSinglePage(OutPutPath,applicationId);
+		Optional<ApplicationUserEntity> applicationData = applicationUserRepository.findById(applicationId);
+		//String getXml = getXmlForEsignSinglePage(OutPutPath,applicationId);
+		String getXml = getXmlForEsignSinglePage(OutPutPath+applicationId+EkycConstants.WINDOWS_FILE_SEPERATOR+applicationData.get().getPanNumber()+".pdf",applicationId);
 		long timeInmillsecods = System.currentTimeMillis();
 		String folderName = String.valueOf(timeInmillsecods);
 		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
@@ -69,7 +80,64 @@ public class Esign {
 	            ArrayList<Integer> PageNo = new ArrayList<>();
 	            ArrayList<Integer> height = new ArrayList<>();
 	            ArrayList<Integer> width = new ArrayList<>();
-	            
+	            SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationId);
+		         // Segment Esign
+		    		int pageNoSegment = 12; // Change this to the desired page number
+		    		int heightValue = 40; // Change this to the actual height value
+		    		int widthValue = 100; // Change this to the actual width value
+		    		if (segmentEntity.getComm() > 0) {
+		    			xCoordinatesList.add(40);
+		    		    yCoordinatesList.add(120);
+		    		    PageNo.add(pageNoSegment);
+		    		    height.add(heightValue);
+		    		    width.add(widthValue);
+		    		    xCoordinatesList.add(40);
+		    		    yCoordinatesList.add(85);
+		    		    PageNo.add(pageNoSegment);
+		    		    height.add(heightValue);
+		    		    width.add(widthValue);
+		    		}
+		    		if (segmentEntity.getConsent() > 0) {
+		    			xCoordinatesList.add(160);
+		    		    yCoordinatesList.add(120);
+		    		    PageNo.add(pageNoSegment);
+		    		    height.add(heightValue);
+		    		    width.add(widthValue);
+		    		    xCoordinatesList.add(160);
+		    		    yCoordinatesList.add(85);
+		    		    PageNo.add(pageNoSegment);
+		    		    height.add(heightValue);
+		    		    width.add(widthValue);
+		    		} 
+		    		if (segmentEntity.getEd() > 0) {
+		    			xCoordinatesList.add(280);
+		    		    yCoordinatesList.add(120);
+		    		    PageNo.add(pageNoSegment);
+		    		    height.add(heightValue);
+		    		    width.add(widthValue);
+		    		    xCoordinatesList.add(280);
+		    		    yCoordinatesList.add(85);
+		    		    PageNo.add(pageNoSegment);
+		    		    height.add(heightValue);
+		    		    width.add(widthValue);
+		    		    xCoordinatesList.add(280);
+		    		    yCoordinatesList.add(40);
+		    		    PageNo.add(pageNoSegment);
+		    		    height.add(heightValue);
+		    		    width.add(widthValue);
+		    		} 
+		    		if (segmentEntity.getEquCash() > 0) {
+		    			xCoordinatesList.add(390);
+		    		    yCoordinatesList.add(120);
+		    		    PageNo.add(pageNoSegment);
+		    		    height.add(heightValue);
+		    		    width.add(widthValue);
+		    		    xCoordinatesList.add(390);
+		    		    yCoordinatesList.add(85);
+		    		    PageNo.add(pageNoSegment);
+		    		    height.add(heightValue);
+		    		    width.add(widthValue);
+		    		}
 	            // Loop through coordinates and add to respective lists
 	            for (PdfDataCoordinatesEntity entity : coordinatesList) {
 	                int xCoordinate = Integer.parseInt(entity.getXCoordinate());

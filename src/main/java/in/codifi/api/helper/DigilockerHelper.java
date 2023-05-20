@@ -158,7 +158,7 @@ public class DigilockerHelper {
 									entity.setState((String) PoaDetails.get("state"));
 									entity.setCountry((String) PoaDetails.get("country"));
 									entity.setPincode((Long) PoaDetails.get("pc"));
-									entity.setAatharNo(AatharNo);
+									entity.setAadharNo(AatharNo);
 									updatedAddEntity = addressRepository.save(entity);
 								} else {
 									if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
@@ -177,6 +177,7 @@ public class DigilockerHelper {
 									checkExit.setState((String) PoaDetails.get("state"));
 									checkExit.setCountry((String) PoaDetails.get("country"));
 									checkExit.setPincode((Long) PoaDetails.get("pc"));
+									checkExit.setAadharNo(AatharNo);
 									updatedAddEntity = addressRepository.save(checkExit);
 								}
 								if (updatedAddEntity != null) {
