@@ -18,6 +18,7 @@ public class PdfController implements IPdfController {
 	IPdfService iPdfService;
 	@Inject
 	CommonMethods commonMethods;
+
 	/**
 	 * Method to save PDF
 	 * 
@@ -27,7 +28,7 @@ public class PdfController implements IPdfController {
 	public Response savePdf(long applicationId) {
 		if (applicationId > 0) {
 			return iPdfService.savePdf(applicationId);
-			} else {
+		} else {
 			if (applicationId <= 0) {
 				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(MessageConstants.USER_ID_NULL)
 						.build();
@@ -48,7 +49,7 @@ public class PdfController implements IPdfController {
 	public ResponseModel generateEsign(PdfApplicationDataModel pdfModel) {
 		ResponseModel responseModel = new ResponseModel();
 		if (pdfModel != null && pdfModel.getApplicationNo() > 0) {
-			iPdfService.generateEsign(pdfModel);
+			responseModel = iPdfService.generateEsign(pdfModel);
 		} else {
 			if (pdfModel != null) {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
@@ -58,6 +59,5 @@ public class PdfController implements IPdfController {
 		}
 		return responseModel;
 	}
-
 
 }

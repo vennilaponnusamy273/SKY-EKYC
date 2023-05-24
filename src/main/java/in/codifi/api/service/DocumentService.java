@@ -155,7 +155,7 @@ public class DocumentService implements IDocumentService {
 					oldRecord.setTypeOfProof(data.getTypeOfProof());
 				}
 
-				oldRecord.setAttachementUrl(props.getImageUrlPath() + data.getApplicationId() + slash + fileName);
+				oldRecord.setAttachementUrl(props.getFileBasePath() + data.getApplicationId() + slash + fileName);
 				oldRecord.setPassword(data.getPassword());
 				updatedDocEntity = docrepository.save(oldRecord);
 			} else {
@@ -166,7 +166,7 @@ public class DocumentService implements IDocumentService {
 				if (StringUtil.isNotNullOrEmpty(data.getTypeOfProof())) {
 					doc.setTypeOfProof(data.getTypeOfProof());
 				}
-				doc.setAttachementUrl(props.getImageUrlPath() + data.getApplicationId() + slash + fileName);
+				doc.setAttachementUrl(props.getFileBasePath() + data.getApplicationId() + slash + fileName);
 				doc.setPassword(data.getPassword());
 				updatedDocEntity = docrepository.save(doc);
 			}

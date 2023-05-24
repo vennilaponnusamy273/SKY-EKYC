@@ -88,7 +88,7 @@ public class IvrService implements IIvrService {
 						oldRecord.setDocumentType(EkycConstants.DOC_IVR);
 						oldRecord.setTypeOfProof(EkycConstants.DOC_IVR);
 						oldRecord.setAttachementUrl(
-								props.getImageUrlPath() + ivrModel.getApplicationId() + slash + ivrName);
+								props.getFileBasePath() + ivrModel.getApplicationId() + slash + ivrName);
 						oldRecord.setLatitude(ivrModel.getLatitude());
 						oldRecord.setLongitude(ivrModel.getLongitude());
 						updatedDocEntity = ivrRepository.save(oldRecord);
@@ -98,7 +98,7 @@ public class IvrService implements IIvrService {
 						doc.setAttachement(ivrName);
 						doc.setTypeOfProof(EkycConstants.DOC_IVR);
 						doc.setDocumentType(EkycConstants.DOC_IVR);
-						doc.setAttachementUrl(props.getImageUrlPath() + ivrModel.getApplicationId() + slash + ivrName);
+						doc.setAttachementUrl(props.getFileBasePath() + ivrModel.getApplicationId() + slash + ivrName);
 						doc.setLatitude(ivrModel.getLatitude());
 						doc.setLongitude(ivrModel.getLongitude());
 						updatedDocEntity = ivrRepository.save(doc);
