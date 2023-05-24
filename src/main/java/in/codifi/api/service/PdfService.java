@@ -261,18 +261,15 @@ public class PdfService implements IPdfService {
 				} else if (pdfDatas.get(i).getColumnType().equalsIgnoreCase("image")) {
 					String image = map.get(pdfDatas.get(i).getColumnNames());
 					if (StringUtil.isNotNullOrEmpty(image)) {
-						String imageOne = map.get(image);
-						if (StringUtil.isNotNullOrEmpty(imageOne)) {
-							BufferedImage bimg = ImageIO.read(new File(imageOne));
+							BufferedImage bimg = ImageIO.read(new File(image));
 							// Adjust the width and height as needed
-							float width = 100;
-							float height = 100;
+							float width = 72;
+							float height = 70;
 							PDImageXObject pdImage = JPEGFactory.createFromImage(document, bimg, 0.5f);
 							contentStream.drawImage(pdImage, x, y, width, height);
-						}
 					}
 				}
-
+				
 				contentStream.close();
 			}
 			System.out.println("Completed");
