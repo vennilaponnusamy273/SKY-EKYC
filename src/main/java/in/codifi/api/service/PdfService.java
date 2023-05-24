@@ -58,6 +58,7 @@ import in.codifi.api.service.spec.IPdfService;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.Esign;
 import in.codifi.api.utilities.MessageConstants;
+import in.codifi.api.utilities.StringUtil;
 
 @ApplicationScoped
 public class PdfService implements IPdfService {
@@ -77,8 +78,6 @@ public class PdfService implements IPdfService {
 	ProfileRepository profileRepository;
 	@Inject
 	NomineeRepository nomineeRepository;
-	@Inject
-	DocumentRepository documentRepository;
 	@Inject
 	SegmentRepository segmentRepository;
 	@Inject
@@ -148,133 +147,141 @@ public class PdfService implements IPdfService {
 	}
 
 	public void addDocument(PDDocument document, long applicationNo) {
-	    try {
-	        // Add a new page to the document
-	        String attachmentUrl = null;
-	        List<DocumentEntity> documents = docrepository.findByApplicationId(applicationNo);
-	        for (DocumentEntity entity : documents) {
-	            attachmentUrl = entity.getAttachementUrl();
-	            if (attachmentUrl.endsWith(".pdf")) {
-	                try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
-	                    PDFRenderer renderer = new PDFRenderer(attachment);
-	                    for (int i = 0; i < attachment.getNumberOfPages(); i++) {
-	                        PDPage page = new PDPage();
-	                        document.addPage(page);
-	                        BufferedImage image = renderer.renderImage(i);
-	                        PDRectangle pageSize = page.getMediaBox();
-	                        float imageWidth = image.getWidth();
-	                        float imageHeight = image.getHeight();
-	                        float centerX = (pageSize.getWidth() - imageWidth) / 2f;
-	                        float centerY = (pageSize.getHeight() - imageHeight) / 2f;
-	                        PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
-	                        try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-	                            contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
-	                        }
-	                    }
-	                }
-	            } else {
-	                BufferedImage image = ImageIO.read(new File(attachmentUrl));
-	                PDPage page = new PDPage();
-	                document.addPage(page);
-	                PDRectangle pageSize = page.getMediaBox();
+		try {
+			// Add a new page to the document
+			String attachmentUrl = null;
+			List<DocumentEntity> documents = docrepository.findByApplicationId(applicationNo);
+			for (DocumentEntity entity : documents) {
+				attachmentUrl = entity.getAttachementUrl();
+				if (attachmentUrl.endsWith(".pdf")) {
+					try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
+						PDFRenderer renderer = new PDFRenderer(attachment);
+						for (int i = 0; i < attachment.getNumberOfPages(); i++) {
+							PDPage page = new PDPage();
+							document.addPage(page);
+							BufferedImage image = renderer.renderImage(i);
+							PDRectangle pageSize = page.getMediaBox();
+							float imageWidth = image.getWidth();
+							float imageHeight = image.getHeight();
+							float centerX = (pageSize.getWidth() - imageWidth) / 2f;
+							float centerY = (pageSize.getHeight() - imageHeight) / 2f;
+							PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
+							try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+								contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
+							}
+						}
+					}
+				} else {
+					BufferedImage image = ImageIO.read(new File(attachmentUrl));
+					PDPage page = new PDPage();
+					document.addPage(page);
+					PDRectangle pageSize = page.getMediaBox();
 
-	                // Calculate the maximum width and height that the image can occupy on the page
-	                float maxWidth = pageSize.getWidth() * 0.8f;
-	                float maxHeight = pageSize.getHeight() * 0.8f;
+					// Calculate the maximum width and height that the image can occupy on the page
+					float maxWidth = pageSize.getWidth() * 0.8f;
+					float maxHeight = pageSize.getHeight() * 0.8f;
 
-	                // Calculate the aspect ratio of the image
-	                float aspectRatio = (float) image.getWidth() / (float) image.getHeight();
+					// Calculate the aspect ratio of the image
+					float aspectRatio = (float) image.getWidth() / (float) image.getHeight();
 
-	                // Calculate the width and height of the image based on its aspect ratio and maximum size
-	                float imageWidth = Math.min(maxWidth, maxHeight * aspectRatio);
-	                float imageHeight = Math.min(maxHeight, maxWidth / aspectRatio);
+					// Calculate the width and height of the image based on its aspect ratio and
+					// maximum size
+					float imageWidth = Math.min(maxWidth, maxHeight * aspectRatio);
+					float imageHeight = Math.min(maxHeight, maxWidth / aspectRatio);
 
-	                // Calculate the position of the image on the page
-	                float centerX = (pageSize.getWidth() - imageWidth) / 2f;
-	                float centerY = (pageSize.getHeight() - imageHeight) / 2f;
+					// Calculate the position of the image on the page
+					float centerX = (pageSize.getWidth() - imageWidth) / 2f;
+					float centerY = (pageSize.getHeight() - imageHeight) / 2f;
 
-	                PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
-	                try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-	                    contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
-	                }
-	            }
-	        }
-	      //  document.save(props.getOutputPdf());
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+					PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
+					try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+						contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
+					}
+				}
+			}
+			// document.save(props.getOutputPdf());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@SuppressWarnings({ "deprecation" })
-	public void pdfInsertCoordinates(PDDocument document, List<PdfDataCoordinatesEntity> pdfDatas, HashMap<String, String> map) {
-	    try {
-	        File fontFile = new File(props.getPdfFontFile());
-	        PDFont font = PDTrueTypeFont.loadTTF(document, fontFile);
+	public void pdfInsertCoordinates(PDDocument document, List<PdfDataCoordinatesEntity> pdfDatas,
+			HashMap<String, String> map) {
+		try {
+			File fontFile = new File(props.getPdfFontFile());
+			PDFont font = PDTrueTypeFont.loadTTF(document, fontFile);
 
-	        for (int i = 0; i < pdfDatas.size(); i++) {
-	            Float a = new Float(pdfDatas.get(i).getXCoordinate());
-	            float x = a.floatValue();
-	            Float b = new Float(pdfDatas.get(i).getYCoordinate());
-	            float y = b.floatValue();
-	            int pageNo = Integer.parseInt(pdfDatas.get(i).getPageNo());
-	            PDPage page = document.getPage(pageNo);
-	            PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true);
-	            contentStream.setFont(font, 7);
-	            PDExtendedGraphicsState graphicsState = new PDExtendedGraphicsState();
-	            graphicsState.setNonStrokingAlphaConstant(1f); // Set the alpha value to 1 (opaque)
-	            contentStream.setGraphicsStateParameters(graphicsState);
-	            contentStream.setCharacterSpacing(0.4f);
+			for (int i = 0; i < pdfDatas.size(); i++) {
+				Float a = new Float(pdfDatas.get(i).getXCoordinate());
+				float x = a.floatValue();
+				Float b = new Float(pdfDatas.get(i).getYCoordinate());
+				float y = b.floatValue();
+				int pageNo = Integer.parseInt(pdfDatas.get(i).getPageNo());
+				PDPage page = document.getPage(pageNo);
+				PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true);
+				contentStream.setFont(font, 7);
+				PDExtendedGraphicsState graphicsState = new PDExtendedGraphicsState();
+				graphicsState.setNonStrokingAlphaConstant(1f); // Set the alpha value to 1 (opaque)
+				contentStream.setGraphicsStateParameters(graphicsState);
+				contentStream.setCharacterSpacing(0.4f);
+				if (pdfDatas.get(i).getColumnType().equalsIgnoreCase("text")
+						|| pdfDatas.get(i).getColumnType().equalsIgnoreCase("line")) {
+					contentStream.beginText();
+					contentStream.setNonStrokingColor(0, 0, 0);
+					contentStream.newLineAtOffset(x, y);
 
-	            if (pdfDatas.get(i).getColumnType().equalsIgnoreCase("text") || pdfDatas.get(i).getColumnType().equalsIgnoreCase("line")) {
-	                contentStream.beginText();
-	                contentStream.setNonStrokingColor(0, 0, 0);
-	                contentStream.newLineAtOffset(x, y);
+					String inputText;
+					if (pdfDatas.get(i).getColumnNames().equals("notApplicableMessage")) {
+						inputText = map.get("notApplicableMessage");
+						contentStream.setFont(PDType1Font.HELVETICA_BOLD, 60);
+						contentStream.setTextMatrix(Math.cos(Math.PI / 4), Math.sin(Math.PI / 4),
+								-Math.sin(Math.PI / 4), Math.cos(Math.PI / 4), 100, 280);
+					} else {
+						inputText = map.get(pdfDatas.get(i).getColumnNames());
+					}
+					if (inputText != null) {
+						inputText = inputText.replaceAll("\n", " ");
+						contentStream.showText(inputText.toUpperCase());
+					}
 
-	                String inputText;
-	                if (pdfDatas.get(i).getColumnNames().equals("notApplicableMessage")) {
-	                    inputText = map.get("notApplicableMessage");
-	                    contentStream.setFont(PDType1Font.HELVETICA_BOLD, 60);
-	                    contentStream.setTextMatrix(Math.cos(Math.PI/4), Math.sin(Math.PI/4), -Math.sin(Math.PI/4), Math.cos(Math.PI/4), 100, 280);
-	                } else {
-	                    inputText = map.get(pdfDatas.get(i).getColumnNames());
-	                }
-	                if (inputText != null) {
-	                    inputText = inputText.replaceAll("\n", " ");
-	                    contentStream.showText(inputText.toUpperCase());
-	                }
+					contentStream.endText();
+				} else if (pdfDatas.get(i).getColumnType().equalsIgnoreCase("tick")
+						|| pdfDatas.get(i).getColumnType().equalsIgnoreCase("check box")) {
+					String tick = "\u2713";
+					String inputText = map.get(pdfDatas.get(i).getColumnNames());
+					if (inputText != null) {
+						contentStream.beginText();
+						contentStream.setFont(PDType1Font.ZAPF_DINGBATS, 12);
+						contentStream.setNonStrokingColor(0, 0, 0);
+						contentStream.newLineAtOffset(x, y);
+						contentStream.showText(tick);
+						contentStream.endText();
+					}
+				} else if (pdfDatas.get(i).getColumnType().equalsIgnoreCase("image")) {
+					String image = map.get(pdfDatas.get(i).getColumnNames());
+					if (StringUtil.isNotNullOrEmpty(image)) {
+						String imageOne = map.get(image);
+						if (StringUtil.isNotNullOrEmpty(imageOne)) {
+							BufferedImage bimg = ImageIO.read(new File(imageOne));
+							// Adjust the width and height as needed
+							float width = 100;
+							float height = 100;
+							PDImageXObject pdImage = JPEGFactory.createFromImage(document, bimg, 0.5f);
+							contentStream.drawImage(pdImage, x, y, width, height);
+						}
+					}
+				}
 
-	                contentStream.endText();
-	            } else if (pdfDatas.get(i).getColumnType().equalsIgnoreCase("tick") || pdfDatas.get(i).getColumnType().equalsIgnoreCase("check box")) {
-	                String tick = "\u2713";
-	                String inputText = map.get(pdfDatas.get(i).getColumnNames());
-	                if (inputText != null) {
-	                    contentStream.beginText();
-	                    contentStream.setFont(PDType1Font.ZAPF_DINGBATS, 12);
-	                    contentStream.setNonStrokingColor(0, 0, 0);
-	                    contentStream.newLineAtOffset(x, y);
-	                    contentStream.showText(tick);
-	                    contentStream.endText();
-	                }
-	            } else if (pdfDatas.get(i).getColumnType().equalsIgnoreCase("image")) {
-	                String image = map.get(pdfDatas.get(i).getColumnNames());
-	                File imageFile = new File(image);
-	                BufferedImage bimg = ImageIO.read(imageFile);
-	                // Adjust the width and height as needed
-	                float width = 100;
-	                float height = 100;
-	                PDImageXObject pdImage = JPEGFactory.createFromImage(document, bimg, 0.5f);
-	                contentStream.drawImage(pdImage, x, y, width, height);
-	            }
-
-	            contentStream.close();
-	        }
-	        System.out.println("Completed");
-	        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-	        Date date = new Date();
-	        System.out.println(formatter.format(date));
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+				contentStream.close();
+			}
+			System.out.println("Completed");
+			SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+			Date date = new Date();
+			System.out.println(formatter.format(date));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/** Method to put datas in HashMap */
@@ -357,10 +364,12 @@ public class PdfService implements IPdfService {
 			if (profileEntity.getPoliticalExposure().contains("yes")) {
 				map.put("Please Tick, as Applicable Politcally Exposed Person (PEP) /",
 						profileEntity.getPoliticalExposure());
-				map.put("Please Tick, as Applicable Related to a Politcally Exposed Person (PEP)", profileEntity.getPoliticalExposure());
+				map.put("Please Tick, as Applicable Related to a Politcally Exposed Person (PEP)",
+						profileEntity.getPoliticalExposure());
 			} else {
 				map.put("Not a Politically Exposed Person :No", profileEntity.getPoliticalExposure());
-				map.put("Please Tick, as Applicable Not a Related to a Politcally Exposed Person (PEP)", profileEntity.getPoliticalExposure());
+				map.put("Please Tick, as Applicable Not a Related to a Politcally Exposed Person (PEP)",
+						profileEntity.getPoliticalExposure());
 			}
 			map.put("SettlementCycle", profileEntity.getSettlementCycle());
 			map.put("Title", profileEntity.getTitle());
@@ -370,151 +379,154 @@ public class PdfService implements IPdfService {
 				map.put("No prior Experience", profileEntity.getTradingExperience());
 			} else {
 				map.put("years in Commodites", profileEntity.getTradingExperience());
-				map.put("years in CommoditesTick","Yes");
+				map.put("years in CommoditesTick", "Yes");
 			}
 		}
 
 		AddressEntity address = addressRepository.findByapplicationId(applicationId);
-		if (address.getIsKra() == 1) {
-			// For page 7 current address
-			if (address.getKraAddress1() != null)
-				map.put("CurrentAddressLine1", address.getKraAddress1());
-			else {
-				map.put("CurrentAddressLine1", address.getAddress1());
+		if (address != null) {
+			if (address.getIsKra() == 1) {
+				// For page 7 current address
+				if (address.getKraAddress1() != null)
+					map.put("CurrentAddressLine1", address.getKraAddress1());
+				else {
+					map.put("CurrentAddressLine1", address.getAddress1());
+				}
+				if (address.getKraAddress2() != null) {
+					map.put("CurrentAddressLine2", address.getKraAddress2());
+				} else {
+					map.put("CurrentAddressLine2", address.getAddress2());
+				}
+				map.put("CurrentAddressLine3", address.getKraAddress3());
+				if (address.getKraCity() != null) {
+					map.put("CurrentCity", address.getKraCity());
+				} else {
+					map.put("CurrentCity", address.getStreet());
+				}
+				if (address.getDistrict() != null) {
+					map.put("CurrentDistrict", address.getDistrict());// TODO
+				} else {
+					map.put("CurrentDistrict", address.getDistrict());// TODO
+				}
+				map.put("Place", address.getDistrict());
+				if (address.getPincode() != null) {
+					map.put("CurrentPincode", address.getPincode().toString());
+				} else {
+					map.put("CurrentPincode", Integer.toString(address.getKraPerPin()));
+				}
+				map.put("CurrentState", address.getState());
+				map.put("CurrentCountry", "INDIA");
+				// For Page
+				map.put("PermenentAddress1", address.getKraPerAddress1());
+				map.put("PermenentAddress2", address.getKraPerAddress2());
+				map.put("PermenentAddress3", address.getKraPerAddress3());
+				map.put("PermenentCity", address.getKraPerCity());
+				map.put("Aadhaar Number", address.getAadharNo());
+				map.put("Sole / First Holder’s Name UID", address.getAadharNo());
+				map.put("PermenentDistrict", address.getDistrict());// TODO
+				if (address.getKraPerPin() > 0) {
+					map.put("PermenentPincode", Integer.toString(address.getKraPerPin()));
+				} else {
+					map.put("PermenentPincode", null);
+				}
+				if (address.getKraPerState() != null) {
+					map.put("PermenentState", address.getKraPerState());
+				} else {
+					map.put("PermenentState", address.getKraState());
+				}
+				map.put("PermenentCountry", "INDIA");
+			} else if (address.getIsdigi() == 1) {
+				map.put("PermenentAddress1", address.getKraAddress1());
+				map.put("PermenentAddress2", address.getKraAddress2());
+				map.put("PermenentAddress3", address.getKraAddress3());
+				map.put("PermenentCity", address.getKraCity());
+				map.put("PermenentDistrict", address.getDistrict());
+				map.put("Place", address.getDistrict());
+				if (address.getPincode() != null) {
+					map.put("PermenentPincode", address.getPincode().toString());
+				} else {
+					map.put("PermenentPincode", null);
+				}
+				map.put("PermenentState", address.getState());
+				map.put("PermenentCountry", "INDIA");
 			}
-			if (address.getKraAddress2() != null) {
-				map.put("CurrentAddressLine2", address.getKraAddress2());
-			} else {
-				map.put("CurrentAddressLine2", address.getAddress2());
-			}
-			map.put("CurrentAddressLine3", address.getKraAddress3());
-			if (address.getKraCity() != null) {
-				map.put("CurrentCity", address.getKraCity());
-			} else {
-				map.put("CurrentCity", address.getStreet());
-			}
-			if (address.getDistrict() != null) {
-				map.put("CurrentDistrict", address.getDistrict());// TODO
-			} else {
-				map.put("CurrentDistrict", address.getDistrict());// TODO
-			}
-			map.put("Place", address.getDistrict());
-			if (address.getPincode() != null) {
-				map.put("CurrentPincode", address.getPincode().toString());
-			} else {
-				map.put("CurrentPincode", Integer.toString(address.getKraPerPin()));
-			}
-			map.put("CurrentState", address.getState());
-			map.put("CurrentCountry", "INDIA");
-			// For Page
-			map.put("PermenentAddress1", address.getKraPerAddress1());
-			map.put("PermenentAddress2", address.getKraPerAddress2());
-			map.put("PermenentAddress3", address.getKraPerAddress3());
-			map.put("PermenentCity", address.getKraPerCity());
-			map.put("Aadhaar Number", address.getAadharNo());
-			map.put("Sole / First Holder’s Name UID", address.getAadharNo());
-			map.put("PermenentDistrict", address.getDistrict());// TODO
-			if (address.getKraPerPin() > 0) {
-				map.put("PermenentPincode", Integer.toString(address.getKraPerPin()));
-			} else {
-				map.put("PermenentPincode", null);
-			}
-			if (address.getKraPerState() != null) {
-				map.put("PermenentState", address.getKraPerState());
-			} else {
-				map.put("PermenentState", address.getKraState());
-			}
-			map.put("PermenentCountry", "INDIA");
-		} else if (address.getIsdigi() == 1) {
-			map.put("PermenentAddress1", address.getKraAddress1());
-			map.put("PermenentAddress2", address.getKraAddress2());
-			map.put("PermenentAddress3", address.getKraAddress3());
-			map.put("PermenentCity", address.getKraCity());
-			map.put("PermenentDistrict", address.getDistrict());
-			map.put("Place", address.getDistrict());
-			if (address.getPincode() != null) {
-				map.put("PermenentPincode", address.getPincode().toString());
-			} else {
-				map.put("PermenentPincode", null);
-			}
-			map.put("PermenentState", address.getState());
-			map.put("PermenentCountry", "INDIA");
-		}
 
-		 if (address.getIsdigi() == 1) {
-			 map.put("OthersProof",Integer.toString(address.getIsdigi()));
-			 map.put("Others(Please Specify)","AADHAR CARD");
+			if (address.getIsdigi() == 1) {
+				map.put("OthersProof", Integer.toString(address.getIsdigi()));
+				map.put("Others(Please Specify)", "AADHAR CARD");
+			}
 		}
 		map.put("ISO 3166 Country code", "IN");
 
 		Optional<ApplicationUserEntity> applicationData = applicationUserRepository.findById(applicationId);
-		if (applicationData!=null) {
-		map.put("Applicaton Form No.", applicationId.toString());
-		map.put("DP Internal Reference No", applicationId.toString());
-		map.put("UserNameP2", applicationData.get().getUserName());
-		map.put("Signature", applicationData.get().getUserName());
-		map.put("Client Name", applicationData.get().getUserName());
-		map.put("PanNumberP2", applicationData.get().getPanNumber());
-		map.put("emailIDP2", applicationData.get().getEmailId());
-		map.put("MobileNumberP2", applicationData.get().getMobileNo().toString());
-		map.put("DOBP2", applicationData.get().getDob());
+		if (applicationData != null) {
+			map.put("Applicaton Form No.", applicationId.toString());
+			map.put("DP Internal Reference No", applicationId.toString());
+			map.put("UserNameP2", applicationData.get().getUserName());
+			map.put("Signature", applicationData.get().getUserName());
+			map.put("Client Name", applicationData.get().getUserName());
+			map.put("PanNumberP2", applicationData.get().getPanNumber());
+			map.put("emailIDP2", applicationData.get().getEmailId());
+			map.put("MobileNumberP2", applicationData.get().getMobileNo().toString());
+			map.put("DOBP2", applicationData.get().getDob());
 
-		map.put("FirstName", applicationData.get().getFirstName());
-		map.put("MiddleName", applicationData.get().getMiddleName());
-		map.put("LastName", applicationData.get().getLastName());
-		map.put("MobileNumber", applicationData.get().getMobileNo().toString());
-		map.put("PanNumber", applicationData.get().getPanNumber());
-		map.put("emailID", applicationData.get().getEmailId());
-		map.put("DOB", applicationData.get().getDob());
+			map.put("FirstName", applicationData.get().getFirstName());
+			map.put("MiddleName", applicationData.get().getMiddleName());
+			map.put("LastName", applicationData.get().getLastName());
+			map.put("MobileNumber", applicationData.get().getMobileNo().toString());
+			map.put("PanNumber", applicationData.get().getPanNumber());
+			map.put("emailID", applicationData.get().getEmailId());
+			map.put("DOB", applicationData.get().getDob());
 		}
 		BankEntity bankDetails = bankRepository.findByapplicationId(applicationId);
-		if (bankDetails!=null) {
-		map.put("Bank A/C Number*", bankDetails.getAccountNo());
-		map.put("Bank Branch Address", bankDetails.getAddress());
-		map.put("BranchName", bankDetails.getBranchName());
-		map.put("RTGS/NEFT/IFSC Code", bankDetails.getIfsc());
-		map.put("MICR", bankDetails.getMicr());
-		map.put("VerifyAccNumber", bankDetails.getVerifyAccNumber());
-		map.put("BankPincode", bankDetails.getPincode());
+		if (bankDetails != null) {
+			map.put("Bank A/C Number*", bankDetails.getAccountNo());
+			map.put("Bank Branch Address", bankDetails.getAddress());
+			map.put("BranchName", bankDetails.getBranchName());
+			map.put("RTGS/NEFT/IFSC Code", bankDetails.getIfsc());
+			map.put("MICR", bankDetails.getMicr());
+			map.put("VerifyAccNumber", bankDetails.getVerifyAccNumber());
+			map.put("BankPincode", bankDetails.getPincode());
+			BankAddressModel model = commonRestService.getBankAddressByIfsc(bankDetails.getIfsc());
+			if (model != null) {
+				map.put("Bank Name", model.getBank());
+				map.put("City", model.getCity());
+				map.put("State", model.getState());
+				map.put("Country", "INDIA");
+				map.put("Branch Name", model.getBranch());
+			}
 		}
-		BankAddressModel model = commonRestService.getBankAddressByIfsc(bankDetails.getIfsc());
-		if (model!=null) {
-		map.put("Bank Name", model.getBank());
-		map.put("City", model.getCity());
-		map.put("State", model.getState());
-		map.put("Country", "INDIA");
-		map.put("Branch Name", model.getBranch());
-		}
+
 		IvrEntity ivrEntity = ivrRepository.findByApplicationId(applicationId);
-		if (ivrEntity!=null) {
-		map.put("latitude", ivrEntity.getLatitude());
-		map.put("longitude", ivrEntity.getLongitude());
-		map.put("ipvDoneOn", ivrEntity.getUpdatedOn().toString());
-		map.put("Photo", ivrEntity.getAttachementUrl());
-		map.put("image", ivrEntity.getAttachementUrl());
-		if (ivrEntity.getAttachementUrl() != null) {
-			map.put("IPV DONE", "yes");
-			map.put("eSignDateOn", formatter.format(date));
-		}
+		if (ivrEntity != null) {
+			map.put("latitude", ivrEntity.getLatitude());
+			map.put("longitude", ivrEntity.getLongitude());
+			map.put("ipvDoneOn", ivrEntity.getUpdatedOn().toString());
+			map.put("Photo", ivrEntity.getAttachementUrl());
+			map.put("image", ivrEntity.getAttachementUrl());
+			if (ivrEntity.getAttachementUrl() != null) {
+				map.put("IPV DONE", "yes");
+				map.put("eSignDateOn", formatter.format(date));
+			}
 		}
 		ResponseCkyc responseCkyc = ckycResponseRepos.findByApplicationId(applicationId);
-		if (responseCkyc!=null) {
-		map.put("Father's / Spouse Name - Prefix", responseCkyc.getFatherPrefix());
-		if (responseCkyc.getFatherFname() != null) {
-			map.put("i)FFirst Name", responseCkyc.getFatherFname());
-			map.put("ii)FMiddle Name", responseCkyc.getFatherMname());
-			map.put("iii)FLast Name", responseCkyc.getFatherLname());
-		} else {
-			map.put("i)FFirst Name", profileEntity.getFatherName());
-		}
-		map.put("Mother Name - Prefix", responseCkyc.getMotherPrefix());
-		if (responseCkyc.getMotherFname() != null) {
-			map.put("i)MFirst Name", responseCkyc.getMotherFname());
-			map.put("ii)MMiddle Name", responseCkyc.getMotherMname());
-			map.put("iii)MLast Name", responseCkyc.getMotherLname());
-		} else {
-			map.put("i)MFirst Name", profileEntity.getMotherName());
-		}
+		if (responseCkyc != null) {
+			map.put("Father's / Spouse Name - Prefix", responseCkyc.getFatherPrefix());
+			if (responseCkyc.getFatherFname() != null) {
+				map.put("i)FFirst Name", responseCkyc.getFatherFname());
+				map.put("ii)FMiddle Name", responseCkyc.getFatherMname());
+				map.put("iii)FLast Name", responseCkyc.getFatherLname());
+			} else {
+				map.put("i)FFirst Name", profileEntity.getFatherName());
+			}
+			map.put("Mother Name - Prefix", responseCkyc.getMotherPrefix());
+			if (responseCkyc.getMotherFname() != null) {
+				map.put("i)MFirst Name", responseCkyc.getMotherFname());
+				map.put("ii)MMiddle Name", responseCkyc.getMotherMname());
+				map.put("iii)MLast Name", responseCkyc.getMotherLname());
+			} else {
+				map.put("i)MFirst Name", profileEntity.getMotherName());
+			}
 		}
 		List<NomineeEntity> nomineeEntity = nomineeRepository.findByapplicationId(applicationId);
 		if (!nomineeEntity.isEmpty()) {
@@ -705,9 +717,10 @@ public class PdfService implements IPdfService {
 		}
 		return map;
 	}
+
 	@Override
 	public ResponseModel generateEsign(PdfApplicationDataModel pdfModel) {
-		esign.runMethod(props.getFileBasePath(), pdfModel.getApplicationNo());
-		return null;
+		ResponseModel model = esign.runMethod(props.getFileBasePath(), pdfModel.getApplicationNo());
+		return model;
 	}
 }

@@ -1,4 +1,5 @@
 package in.codifi.api.utilities;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,9 +10,13 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.nsdl.esign.preverifiedNo.controller.EsignApplication;
 
@@ -19,10 +24,12 @@ import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.PdfDataCoordinatesEntity;
 import in.codifi.api.entity.SegmentEntity;
+import in.codifi.api.entity.TxnDetailsEntity;
+import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.PdfDataCoordinatesrepository;
 import in.codifi.api.repository.SegmentRepository;
-
+import in.codifi.api.repository.TxnDetailsRepository;
 
 @ApplicationScoped
 @Service
@@ -36,148 +43,179 @@ public class Esign {
 	ApplicationUserRepository applicationUserRepository;
 	@Inject
 	PdfDataCoordinatesrepository pdfDataCoordinatesrepository;
+	@Inject
+	TxnDetailsRepository txnDetailsRepository;
+	@Inject
+	CommonMethods commonMethods;
+
 	public static void main(String[] args) throws IOException {
 	}
-	public String runMethod( String OutPutPath, @NotNull long applicationId) {
-		Optional<ApplicationUserEntity> applicationData = applicationUserRepository.findById(applicationId);
-		//String getXml = getXmlForEsignSinglePage(OutPutPath,applicationId);
-		String getXml = getXmlForEsignSinglePage(OutPutPath+applicationId+EkycConstants.WINDOWS_FILE_SEPERATOR+applicationData.get().getPanNumber()+".pdf",applicationId);
-		long timeInmillsecods = System.currentTimeMillis();
-		String folderName = String.valueOf(timeInmillsecods);
+
+	public ResponseModel runMethod(String OutPutPath, @NotNull long applicationId) {
+
+		ResponseModel responseModel = new ResponseModel();
+		System.out.println("the OutPutPath" + OutPutPath);
 		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
 		if (OS.contains(EkycConstants.OS_WINDOWS)) {
 			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
 		}
-		toGetTxnFromXMlpath(props.getFileBasePath() + slash + folderName, getXml);
-		return getXml;
-	}
-	private String getXmlForEsignSinglePage(String outPutPath, long applicationId) {
-	    String response = "";
-	    try {
-	        // Set up eSign application parameters
-	        String ekycID = Long.toString(applicationId);
-	        String pdfReadServerPath = outPutPath;
-	        String aspId = props.getEsignAspId();
-	        String authMode = "1";
-	        String responseUrl = "https://ekyc.nidhihq.com/ekyc-rest/user/testEsign";
-	        String p12CertificatePath = props.getEsignLocation();
-	        String p12CertiPwd = props.getEsignPassword();
-	        String tickImagePath = props.getEsignTickImage();
-	        int serverTime = 15;
-	        String alias = props.getEsignAlias();
-	        String pdfPassword = "";
-	        String txn = "";
-	        String reasonForSign = "";
-	        String nameToShowOnSignatureStamp = "Test";
-	        String locationToShowOnSignatureStamp = "Madurai";
-	        
-	        // Get PDF data coordinates from database
-	        List<PdfDataCoordinatesEntity> coordinatesList = pdfDataCoordinatesrepository.findByColumnNamesAndActiveStatus("esign", 1);
-	        if (coordinatesList != null) {
-	            // Set up lists for coordinates, page numbers, height and width
-	            ArrayList<Integer> xCoordinatesList = new ArrayList<>();
-	            ArrayList<Integer> yCoordinatesList = new ArrayList<>();
-	            ArrayList<Integer> PageNo = new ArrayList<>();
-	            ArrayList<Integer> height = new ArrayList<>();
-	            ArrayList<Integer> width = new ArrayList<>();
-	            SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationId);
-		         // Segment Esign
-		    		int pageNoSegment = 12; // Change this to the desired page number
-		    		int heightValue = 40; // Change this to the actual height value
-		    		int widthValue = 100; // Change this to the actual width value
-		    		if (segmentEntity.getComm() > 0) {
-		    			xCoordinatesList.add(40);
-		    		    yCoordinatesList.add(120);
-		    		    PageNo.add(pageNoSegment);
-		    		    height.add(heightValue);
-		    		    width.add(widthValue);
-		    		    xCoordinatesList.add(40);
-		    		    yCoordinatesList.add(85);
-		    		    PageNo.add(pageNoSegment);
-		    		    height.add(heightValue);
-		    		    width.add(widthValue);
-		    		}
-		    		if (segmentEntity.getConsent() > 0) {
-		    			xCoordinatesList.add(160);
-		    		    yCoordinatesList.add(120);
-		    		    PageNo.add(pageNoSegment);
-		    		    height.add(heightValue);
-		    		    width.add(widthValue);
-		    		    xCoordinatesList.add(160);
-		    		    yCoordinatesList.add(85);
-		    		    PageNo.add(pageNoSegment);
-		    		    height.add(heightValue);
-		    		    width.add(widthValue);
-		    		} 
-		    		if (segmentEntity.getEd() > 0) {
-		    			xCoordinatesList.add(280);
-		    		    yCoordinatesList.add(120);
-		    		    PageNo.add(pageNoSegment);
-		    		    height.add(heightValue);
-		    		    width.add(widthValue);
-		    		    xCoordinatesList.add(280);
-		    		    yCoordinatesList.add(85);
-		    		    PageNo.add(pageNoSegment);
-		    		    height.add(heightValue);
-		    		    width.add(widthValue);
-		    		    xCoordinatesList.add(280);
-		    		    yCoordinatesList.add(40);
-		    		    PageNo.add(pageNoSegment);
-		    		    height.add(heightValue);
-		    		    width.add(widthValue);
-		    		} 
-		    		if (segmentEntity.getEquCash() > 0) {
-		    			xCoordinatesList.add(390);
-		    		    yCoordinatesList.add(120);
-		    		    PageNo.add(pageNoSegment);
-		    		    height.add(heightValue);
-		    		    width.add(widthValue);
-		    		    xCoordinatesList.add(390);
-		    		    yCoordinatesList.add(85);
-		    		    PageNo.add(pageNoSegment);
-		    		    height.add(heightValue);
-		    		    width.add(widthValue);
-		    		}
-	            // Loop through coordinates and add to respective lists
-	            for (PdfDataCoordinatesEntity entity : coordinatesList) {
-	                int xCoordinate = Integer.parseInt(entity.getXCoordinate());
-	                int yCoordinate = Integer.parseInt(entity.getYCoordinate());
-	                int pageNumber = Integer.parseInt(entity.getPageNo());
-	                xCoordinatesList.add(xCoordinate);
-	                yCoordinatesList.add(yCoordinate);
-	                PageNo.add(pageNumber + 1);
-	                height.add(40); // Change this to the actual height value
-	                width.add(100); // Change this to the actual width value
-	            }
-	            
-	            // Apply default coordinates to pages after the 38th page
-	            PDDocument document = PDDocument.load(new File(outPutPath));
-	            int pageCount = document.getNumberOfPages();
-	            if (pageCount > 38) {
-	                for (int i = 38; i < pageCount; i++) {
-	                    xCoordinatesList.add(60);
-	                    yCoordinatesList.add(300);
-	                    PageNo.add(i + 1);
-	                    height.add(40); // Change this to the actual height value
-	                    width.add(100); // Change this to the actual width value
-	                }
-	            }
-	            
-	            // Generate eSign request XML using coordinates and other parameters
-	            EsignApplication eSignApp = new EsignApplication();
-	            response = eSignApp.getEsignRequestXml(ekycID, pdfReadServerPath, aspId, authMode, responseUrl, p12CertificatePath,
-	                    p12CertiPwd, tickImagePath, serverTime, alias, nameToShowOnSignatureStamp,
-	                    locationToShowOnSignatureStamp, reasonForSign, pdfPassword, txn, PageNo, xCoordinatesList,
-	                    yCoordinatesList, height, width);
-	            System.out.println(response);
-	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    return response;
+		Optional<ApplicationUserEntity> applicationData = applicationUserRepository.findById(applicationId);
+		String getXml = getXmlForEsignSinglePage(
+				OutPutPath + applicationId + slash + applicationData.get().getPanNumber() + EkycConstants.PDF_EXTENSION,
+				applicationId);
+		System.out.println("the getXml" + getXml);
+		long timeInmillsecods = System.currentTimeMillis();
+		String folderName = String.valueOf(timeInmillsecods);
+		if (getXml != null) {
+			String filePath = props.getFileBasePath() + applicationId + slash + folderName;
+			toCreateNewXMLFile(filePath, getXml);
+			String txnId = toGetTxnFromXMlpath(filePath + slash + "FirstResponse.xml");
+			if (StringUtil.isNotNullOrEmpty(txnId)) {
+				TxnDetailsEntity savingEntity = new TxnDetailsEntity();
+				savingEntity.setApplicationId(applicationId);
+				savingEntity.setTxnId(txnId);
+				savingEntity.setFolderLocation(filePath);
+				TxnDetailsEntity savedEntity = txnDetailsRepository.save(savingEntity);
+				if (savedEntity != null) {
+					responseModel.setResult(getXml);
+					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_CREATING_XML);
+				}
+			}
+		}
+		return responseModel;
 	}
 
-	private static String toGetTxnFromXMlpath(String xmlPath, String getXml) {
+	private String getXmlForEsignSinglePage(String outPutPath, long applicationId) {
+		String response = "";
+		try {
+			// Set up eSign application parameters
+			String ekycID = Long.toString(applicationId);
+			String pdfReadServerPath = outPutPath;
+			String aspId = props.getEsignAspId();
+			String authMode = "1";
+			String responseUrl = "https://ekyc.nidhihq.com/ekyc-rest/user/testEsign";
+			String p12CertificatePath = props.getEsignLocation();
+			String p12CertiPwd = props.getEsignPassword();
+			String tickImagePath = props.getEsignTickImage();
+			int serverTime = 15;
+			String alias = props.getEsignAlias();
+			String pdfPassword = "";
+			String txn = "";
+			String reasonForSign = "";
+			String nameToShowOnSignatureStamp = "Test";
+			String locationToShowOnSignatureStamp = "Madurai";
+
+			// Get PDF data coordinates from database
+			List<PdfDataCoordinatesEntity> coordinatesList = pdfDataCoordinatesrepository
+					.findByColumnNamesAndActiveStatus("esign", 1);
+			if (coordinatesList != null) {
+				// Set up lists for coordinates, page numbers, height and width
+				ArrayList<Integer> xCoordinatesList = new ArrayList<>();
+				ArrayList<Integer> yCoordinatesList = new ArrayList<>();
+				ArrayList<Integer> PageNo = new ArrayList<>();
+				ArrayList<Integer> height = new ArrayList<>();
+				ArrayList<Integer> width = new ArrayList<>();
+				SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationId);
+				// Segment Esign
+				int pageNoSegment = 12; // Change this to the desired page number
+				int heightValue = 40; // Change this to the actual height value
+				int widthValue = 100; // Change this to the actual width value
+				if (segmentEntity.getComm() > 0) {
+					xCoordinatesList.add(40);
+					yCoordinatesList.add(120);
+					PageNo.add(pageNoSegment);
+					height.add(heightValue);
+					width.add(widthValue);
+					xCoordinatesList.add(40);
+					yCoordinatesList.add(85);
+					PageNo.add(pageNoSegment);
+					height.add(heightValue);
+					width.add(widthValue);
+				}
+				if (segmentEntity.getConsent() > 0) {
+					xCoordinatesList.add(160);
+					yCoordinatesList.add(120);
+					PageNo.add(pageNoSegment);
+					height.add(heightValue);
+					width.add(widthValue);
+					xCoordinatesList.add(160);
+					yCoordinatesList.add(85);
+					PageNo.add(pageNoSegment);
+					height.add(heightValue);
+					width.add(widthValue);
+				}
+				if (segmentEntity.getEd() > 0) {
+					xCoordinatesList.add(280);
+					yCoordinatesList.add(120);
+					PageNo.add(pageNoSegment);
+					height.add(heightValue);
+					width.add(widthValue);
+					xCoordinatesList.add(280);
+					yCoordinatesList.add(85);
+					PageNo.add(pageNoSegment);
+					height.add(heightValue);
+					width.add(widthValue);
+					xCoordinatesList.add(280);
+					yCoordinatesList.add(40);
+					PageNo.add(pageNoSegment);
+					height.add(heightValue);
+					width.add(widthValue);
+				}
+				if (segmentEntity.getEquCash() > 0) {
+					xCoordinatesList.add(390);
+					yCoordinatesList.add(120);
+					PageNo.add(pageNoSegment);
+					height.add(heightValue);
+					width.add(widthValue);
+					xCoordinatesList.add(390);
+					yCoordinatesList.add(85);
+					PageNo.add(pageNoSegment);
+					height.add(heightValue);
+					width.add(widthValue);
+				}
+				// Loop through coordinates and add to respective lists
+				for (PdfDataCoordinatesEntity entity : coordinatesList) {
+					int xCoordinate = Integer.parseInt(entity.getXCoordinate());
+					int yCoordinate = Integer.parseInt(entity.getYCoordinate());
+					int pageNumber = Integer.parseInt(entity.getPageNo());
+					xCoordinatesList.add(xCoordinate);
+					yCoordinatesList.add(yCoordinate);
+					PageNo.add(pageNumber + 1);
+					height.add(40); // Change this to the actual height value
+					width.add(100); // Change this to the actual width value
+				}
+
+				// Apply default coordinates to pages after the 38th page
+				PDDocument document = PDDocument.load(new File(outPutPath));
+				int pageCount = document.getNumberOfPages();
+				if (pageCount > 38) {
+					for (int i = 38; i < pageCount; i++) {
+						xCoordinatesList.add(60);
+						yCoordinatesList.add(300);
+						PageNo.add(i + 1);
+						height.add(40); // Change this to the actual height value
+						width.add(100); // Change this to the actual width value
+					}
+				}
+
+				// Generate eSign request XML using coordinates and other parameters
+				EsignApplication eSignApp = new EsignApplication();
+				response = eSignApp.getEsignRequestXml(ekycID, pdfReadServerPath, aspId, authMode, responseUrl,
+						p12CertificatePath, p12CertiPwd, tickImagePath, serverTime, alias, nameToShowOnSignatureStamp,
+						locationToShowOnSignatureStamp, reasonForSign, pdfPassword, txn, PageNo, xCoordinatesList,
+						yCoordinatesList, height, width);
+				System.out.println(response);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+	}
+
+	private static String toCreateNewXMLFile(String xmlPath, String getXml) {
 		try {
 			String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
 			if (OS.contains(EkycConstants.OS_WINDOWS)) {
@@ -197,6 +235,22 @@ public class Esign {
 			e.printStackTrace();
 		}
 		return getXml;
+	}
+
+	public static String toGetTxnFromXMlpath(String xmlPath) {
+		String txnId = "";
+		try {
+			File fXmlFile = new File(xmlPath);
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(fXmlFile);
+			doc.getDocumentElement().normalize();
+			Element eElement = doc.getDocumentElement();
+			txnId = eElement.getAttribute("txn");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return txnId;
 	}
 
 }

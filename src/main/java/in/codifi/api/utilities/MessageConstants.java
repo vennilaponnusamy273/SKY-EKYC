@@ -118,4 +118,5 @@ public class MessageConstants {
 	public static final String AADHAR_INTERNAL_SERVER_ERR = "Internal server error from Digilocker";
 	public static final String AADHAR_TOKEN_400 = "Bad request from Digilocker";
 	public static final String AADHAR_TOKEN_401 = "Token Expired from Digilocker";
+	public static final String ERROR_WHILE_CREATING_XML = "Error Occur While Creating XML file";
 }

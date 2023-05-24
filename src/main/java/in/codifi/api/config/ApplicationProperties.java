@@ -112,9 +112,7 @@ public class ApplicationProperties {
 	@ConfigProperty(name = "appconfig.mail.ivr.text")
 	String bitText;
 	@ConfigProperty(name = "appconfig.ipv.base.url")
-	String ivrBaseUrl;
-	@ConfigProperty(name = "appconfig.file.urlpath")
-	String imageUrlPath;
+	String ivrBaseUrl;	
 	@ConfigProperty(name = "appconfig.address.url")
 	String addressFetchUrl;
 	// esign config
