@@ -119,4 +119,8 @@ public class MessageConstants {
 	public static final String AADHAR_TOKEN_400 = "Bad request from Digilocker";
 	public static final String AADHAR_TOKEN_401 = "Token Expired from Digilocker";
 	public static final String ERROR_WHILE_CREATING_XML = "Error Occur While Creating XML file";
+	public static final String INVAILD_EMAILID_MOBILEBO = "Invalid EmailID and MobileNO";
+	
+	public static final String UPDATESTAGE_STATUS_MSG="CHECK STATUS EAITHER ONLINE OR OFFINE";
 }
+
