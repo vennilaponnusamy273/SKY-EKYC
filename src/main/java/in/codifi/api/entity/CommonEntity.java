@@ -16,10 +16,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CommonEntity {
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-	@Column(name = "created_on", insertable = false, updatable = false)
+	@Column(name = "created_on", insertable = true, updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	@CreationTimestamp
 	private Date createdOn;
+	
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(name = "updated_on")
