@@ -18,7 +18,7 @@ public interface IErpController {
 	 * @return
 	 */
 	
-	@Path("/UserCreation")
+/**	@Path("/UserCreation")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -30,5 +30,15 @@ public interface IErpController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@APIResponse(description = "Method to get USer records")
-	ResponseModel DocumentUpload(@NotNull @QueryParam("documentType")String documentType, @NotNull @QueryParam("userId")String userId, @NotNull @QueryParam("base64Content") String base64Content);
+	ResponseModel DocumentUpload(@NotNull @QueryParam("documentType")String documentType, @NotNull @QueryParam("userId")String userId, @NotNull @QueryParam("base64Content") String base64Content);**/
+	
+	
+	@Path("/Scheduler")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to get USer records from last 5 nimts")
+	ResponseModel Schedular();
 }
+
+
