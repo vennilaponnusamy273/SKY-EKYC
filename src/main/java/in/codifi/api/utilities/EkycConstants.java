@@ -118,6 +118,7 @@ public class EkycConstants {
 	public static final String DOC_INCOME = "INCOME_PROOF";
 	public static final String DOC_SIGNATURE = "SIGNATURE";
 	public static final String DOC_PAN = "PAN";
+	public static final String DOC_PAN_ERP = "Pan Card";
 	public static final String DOC_PHOTO = "Photo";
 	// Razorpay
 	public static final String AMOUNT = "amount";
