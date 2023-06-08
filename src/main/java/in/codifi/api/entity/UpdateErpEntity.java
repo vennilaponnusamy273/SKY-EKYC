@@ -15,7 +15,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Entity(name = "tbl_erpupdate_master")
+@Entity(name = "tbl_erp_update_master")
 public class UpdateErpEntity extends CommonEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -38,12 +38,12 @@ public class UpdateErpEntity extends CommonEntity implements Serializable {
 	@Column(name = "mobile_number")
 	private Long mobileNo;
 	
-	@Column(name = "ErpResponse")
+	@Column(name = "erpResponse")
 	private String erpResponse;
 	
 	@Column(name = "docType")
 	private String doctype;
 	
-	@Column(name = "ErpResponsedoc")
-	private String erpResponsedoc;
+	@Column(name = "erpapiType")
+	private String erpApiType;
 }

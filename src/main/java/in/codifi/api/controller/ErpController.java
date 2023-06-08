@@ -2,7 +2,6 @@ package in.codifi.api.controller;
 import javax.inject.Inject;
 import javax.ws.rs.Path;
 import in.codifi.api.controller.spec.IErpController;
-import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IErpService;
 import in.codifi.api.utilities.CommonMethods;
 import io.quarkus.scheduler.Scheduled;
@@ -38,7 +37,7 @@ public class ErpController implements IErpController {
 		}
 			return response;
 		}**/
-	@Override
+	/**@Override
 	 public ResponseModel Schedular() {
         ResponseModel response = iErpService.getScheduledResponse();
         if (response != null) {
@@ -48,7 +47,7 @@ public class ErpController implements IErpController {
             response = commonMethods.constructFailedMsg("No data available");
             return response;
         }
-    }
+    }**/
 
     @Scheduled(every = "5m")
     public void schedulerTask() {
