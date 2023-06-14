@@ -28,4 +28,15 @@ public interface IerpRestService {
         @FormParam("base64content") String base64Content
     );
 
+    @POST
+    @Path("sky_broking.ekyc_apis.opportunity.update_opportunity_details")
+    @Produces(MediaType.APPLICATION_JSON)
+    String uploadAllDetails(
+        @HeaderParam("Authorization") String authorizationHeader,
+        @QueryParam("data") String requestData,
+        @FormParam("nominee1_base64content") String base64Content1,
+        @FormParam("nominee2_base64content") String base64Content2,
+        @FormParam("nominee3_base64content") String base64Content3
+    );
+
 }

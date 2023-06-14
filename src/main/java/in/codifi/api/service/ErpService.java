@@ -112,10 +112,10 @@ public class ErpService implements IErpService{
 	            for (ApplicationUserEntity user : recentlyCreatedUsers) {
 	                if (updateErpRepository.findByMobileNo(user.getMobileNo()) == null) {
 	                    String responseMessage = erpRestService.UserCreation(user.getMobileNo(), user.getId().toString(), user.getEmailId(), "");
+	                    System.out.println("the responseMessage"+responseMessage);
 	                    saveResponseErpuser(user.getMobileNo(), user.getId().toString(), user.getEmailId(), user.getPassword(), responseMessage);
 	                }
 	            }
-
 	            List<DocumentEntity> recentlyCreatedUsersDoc = docrepository.findRecentlyDocUsers();
 
 	            for (DocumentEntity entity : recentlyCreatedUsersDoc) {
@@ -129,6 +129,12 @@ public class ErpService implements IErpService{
 	                String responseMessage = erpRestService.uploadDocument(docTypeInErp, entity.getApplicationId().toString(), base64String);
 	                saveResponseErpdoc(entity.getApplicationId().toString(), docTypeInErp, responseMessage);
 	            }}
+	            List<ApplicationUserEntity> recentlyCreatedUsersAll = repository.findRecentlyCreatedUsersAll();	            
+	            for (ApplicationUserEntity userAll : recentlyCreatedUsersAll) {
+	            	String AllMEssage=erpRestService.updatefulldetails(userAll.getId());
+	            	System.out.println("the AllMEssage"+AllMEssage);
+	            	saveResponseErpuserAll(userAll.getId().toString(),AllMEssage);
+	            }
 	        } catch (Exception e) {
 	            response = commonMethods.constructFailedMsg(e.getMessage());
 	            response.setMessage(EkycConstants.FAILED_MSG);
@@ -155,5 +161,11 @@ public class ErpService implements IErpService{
 	        updateErpEntitydoc.setErpApiType("DocumentUpload");
 	        updateErpRepository.save(updateErpEntitydoc);
 	    }
-
+	    public void saveResponseErpuserAll(String userId,String erpResponse) {
+	        UpdateErpEntity updateErpEntityUser = new UpdateErpEntity();
+	        updateErpEntityUser.setUserId(userId);
+	        updateErpEntityUser.setErpResponse(erpResponse);
+	        updateErpEntityUser.setErpApiType("update full details");
+	        updateErpRepository.save(updateErpEntityUser);
+	    }
 }
