@@ -22,6 +22,11 @@ public interface ApplicationUserRepository extends CrudRepository<ApplicationUse
 	@Query(value = "SELECT u FROM tbl_application_master u WHERE TIMESTAMPDIFF(MINUTE, u.createdOn, CURRENT_TIMESTAMP) < 5 and email_verified=1 and sms_verified=1")
     List<ApplicationUserEntity> findRecentlyCreatedUsers();
 	
+	@Transactional 
+	@Query(value = "SELECT u FROM tbl_application_master u WHERE TIMESTAMPDIFF(MINUTE, u.createdOn, CURRENT_TIMESTAMP) < 5 and email_verified=1 and sms_verified=1 and stage=9")
+    List<ApplicationUserEntity> findRecentlyCreatedUsersAll();
+	
+	
 	
 	
 	
