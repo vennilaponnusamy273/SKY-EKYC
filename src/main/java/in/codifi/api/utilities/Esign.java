@@ -77,7 +77,9 @@ public class Esign {
 				savingEntity.setFolderLocation(filePath);
 				TxnDetailsEntity savedEntity = txnDetailsRepository.save(savingEntity);
 				if (savedEntity != null) {
-					responseModel.setResult(getXml);
+					StringBuilder buff = new StringBuilder();
+					buff.append(getXml);
+					responseModel.setResult(buff);
 					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				} else {
@@ -96,7 +98,7 @@ public class Esign {
 			String pdfReadServerPath = outPutPath;
 			String aspId = props.getEsignAspId();
 			String authMode = "1";
-			String responseUrl = "https://ekyc.nidhihq.com/ekyc-rest/user/testEsign";
+			String responseUrl = props.getESignReturnUrl();
 			String p12CertificatePath = props.getEsignLocation();
 			String p12CertiPwd = props.getEsignPassword();
 			String tickImagePath = props.getEsignTickImage();
@@ -214,7 +216,122 @@ public class Esign {
 		}
 		return response;
 	}
+	public String getSignFromNsdl(String documentLocation, String documentToBeSavedLocation, String receivedXml,
+			String applicantName, String city, long applicationID) {
+		String responseText = null;
+		try {
+			String pathToPDF = documentLocation;
+			String tickImagePath = props.getEsignTickImage();
+			;
+			int serverTime = 10;
+//			PDDocument pdDoc = PDDocument.load(new File(pathToPDF));
+//			int pageNumberToInsertSignatureStamp = pdDoc.getNumberOfPages();
+			String nameToShowOnSignatureStamp = applicantName.toUpperCase();
+			String locationToShowOnSignatureStamp = city.toUpperCase();
+			String reasonForSign = "";
+			// int xCo_ordinates = 10;
+			// int yCo_ordinates = 190;
+			// int signatureWidth = 200;
+			// int signatureHeight = 50;
+			String pdfPassword = "";
+			String esignXml = receivedXml;
+			String returnPath = documentToBeSavedLocation;
+			try {
+				EsignApplication eSignApp = new EsignApplication();
+				List<PdfDataCoordinatesEntity> coordinatesList = pdfDataCoordinatesrepository
+						.findByColumnNamesAndActiveStatus("esign", 1);
+				if (coordinatesList != null) {
+					// Set up lists for coordinates, page numbers, height and width
+					ArrayList<Integer> xCoordinatesList = new ArrayList<>();
+					ArrayList<Integer> yCoordinatesList = new ArrayList<>();
+					ArrayList<Integer> PageNo = new ArrayList<>();
+					ArrayList<Integer> height = new ArrayList<>();
+					ArrayList<Integer> width = new ArrayList<>();
 
+					SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationID);
+					// Segment Esign
+					int pageNoSegment = 12; // Change this to the desired page number
+					int heightValue = 40; // Change this to the actual height value
+					int widthValue = 100; // Change this to the actual width value
+					if (segmentEntity.getComm() > 0) {
+						xCoordinatesList.add(40);
+						yCoordinatesList.add(120);
+						PageNo.add(pageNoSegment);
+						height.add(heightValue);
+						width.add(widthValue);
+						xCoordinatesList.add(40);
+						yCoordinatesList.add(85);
+						PageNo.add(pageNoSegment);
+						height.add(heightValue);
+						width.add(widthValue);
+					}
+					if (segmentEntity.getConsent() > 0) {
+						xCoordinatesList.add(160);
+						yCoordinatesList.add(120);
+						PageNo.add(pageNoSegment);
+						height.add(heightValue);
+						width.add(widthValue);
+						xCoordinatesList.add(160);
+						yCoordinatesList.add(85);
+						PageNo.add(pageNoSegment);
+						height.add(heightValue);
+						width.add(widthValue);
+					}
+					if (segmentEntity.getEd() > 0) {
+						xCoordinatesList.add(280);
+						yCoordinatesList.add(120);
+						PageNo.add(pageNoSegment);
+						height.add(heightValue);
+						width.add(widthValue);
+						xCoordinatesList.add(280);
+						yCoordinatesList.add(85);
+						PageNo.add(pageNoSegment);
+						height.add(heightValue);
+						width.add(widthValue);
+						xCoordinatesList.add(280);
+						yCoordinatesList.add(40);
+						PageNo.add(pageNoSegment);
+						height.add(heightValue);
+						width.add(widthValue);
+					}
+					if (segmentEntity.getEquCash() > 0) {
+						xCoordinatesList.add(390);
+						yCoordinatesList.add(120);
+						PageNo.add(pageNoSegment);
+						height.add(heightValue);
+						width.add(widthValue);
+						xCoordinatesList.add(390);
+						yCoordinatesList.add(85);
+						PageNo.add(pageNoSegment);
+						height.add(heightValue);
+						width.add(widthValue);
+					}
+
+					// Loop through coordinates and add to respective lists
+					for (PdfDataCoordinatesEntity entity : coordinatesList) {
+						int xCoordinate = Integer.parseInt(entity.getXCoordinate());
+						int yCoordinate = Integer.parseInt(entity.getYCoordinate());
+						int pageNumber = Integer.parseInt(entity.getPageNo());
+						xCoordinatesList.add(xCoordinate);
+						yCoordinatesList.add(yCoordinate);
+						PageNo.add(pageNumber + 1);
+						height.add(40); // Change this to the actual height value
+						width.add(100); // Change this to the actual width value
+					}
+
+					responseText = eSignApp.getSignOnDocument(esignXml, pathToPDF, tickImagePath, serverTime,
+							nameToShowOnSignatureStamp, locationToShowOnSignatureStamp, reasonForSign, pdfPassword,
+							returnPath, PageNo, xCoordinatesList, yCoordinatesList, height, width);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return responseText;
+	}
 	private static String toCreateNewXMLFile(String xmlPath, String getXml) {
 		try {
 			String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;

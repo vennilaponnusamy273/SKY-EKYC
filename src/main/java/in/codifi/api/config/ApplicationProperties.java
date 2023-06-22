@@ -142,4 +142,17 @@ public class ApplicationProperties {
 	@ConfigProperty(name = "appconfig.esign.pdf.fontfile")
 	String pdfFontFile;
 
+	@ConfigProperty(name = "appconfig.esign.return.url")
+	String eSignReturnUrl;
+	
+	@ConfigProperty(name = "quarkus.mailer.host")
+	String mailhost;
+	@ConfigProperty(name = "quarkus.mailer.username")
+	String MailUserName;
+	@ConfigProperty(name = "quarkus.mailer.port")
+	String MailPort;
+	@ConfigProperty(name = "quarkus.mailer.password")
+	String mailpassword;
+	
+	
 }

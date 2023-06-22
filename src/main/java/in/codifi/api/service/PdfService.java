@@ -2,6 +2,7 @@ package in.codifi.api.service;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -15,7 +16,11 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -27,6 +32,8 @@ import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
@@ -39,6 +46,7 @@ import in.codifi.api.entity.NomineeEntity;
 import in.codifi.api.entity.PdfDataCoordinatesEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.entity.ResponseCkyc;
+import in.codifi.api.entity.TxnDetailsEntity;
 import in.codifi.api.model.BankAddressModel;
 import in.codifi.api.model.PdfApplicationDataModel;
 import in.codifi.api.model.ResponseModel;
@@ -53,8 +61,11 @@ import in.codifi.api.repository.NomineeRepository;
 import in.codifi.api.repository.PdfDataCoordinatesrepository;
 import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.repository.SegmentRepository;
+import in.codifi.api.repository.TxnDetailsRepository;
 import in.codifi.api.restservice.RazorpayIfscRestService;
 import in.codifi.api.service.spec.IPdfService;
+import in.codifi.api.utilities.CommonMail;
+import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.Esign;
 import in.codifi.api.utilities.MessageConstants;
@@ -92,10 +103,15 @@ public class PdfService implements IPdfService {
 	Esign esign;
 	@Inject
 	DocumentRepository docrepository;
-
+	@Inject
+	CommonMethods commonMethods;
+	@Inject
+	TxnDetailsRepository txnDetailsRepository;
+	@Inject 
+	CommonMail commonMail;
 	@Inject
 	RazorpayIfscRestService commonRestService;
-
+	private static final Logger logger = LogManager.getLogger(PennyService.class);
 	/**
 	 * Method to save PDF
 	 * 
@@ -125,6 +141,8 @@ public class PdfService implements IPdfService {
 				document.save(outputPath + slash + fileName);
 				document.close();
 				String path = outputPath + slash + fileName;
+				applicationUserRepository.updateEsignStage(applicationId, EkycConstants.EKYC_STATUS_PDF_GENERATED,
+						EkycConstants.PAGE_PDFDOWNLOAD, 0, 1);
 				String contentType = URLConnection.guessContentTypeFromName(fileName);
 				File savedFile = new File(path);
 				ResponseBuilder response = Response.ok((Object) savedFile);
@@ -715,9 +733,90 @@ public class PdfService implements IPdfService {
 		return map;
 	}
 
+
+	/**
+	 * Method to generate Esign
+	 */
 	@Override
 	public ResponseModel generateEsign(PdfApplicationDataModel pdfModel) {
-		ResponseModel model = esign.runMethod(props.getFileBasePath(), pdfModel.getApplicationNo());
+		ResponseModel model = null;
+		Optional<ApplicationUserEntity> userEntity = applicationUserRepository.findById(pdfModel.getApplicationNo());
+		if (userEntity.isPresent() && userEntity.get().getPdfGenerated() <= 0) {
+			savePdf(pdfModel.getApplicationNo());
+		}
+		model = esign.runMethod(props.getFileBasePath(), pdfModel.getApplicationNo());
 		return model;
+	}
+
+	/**
+	 * Method to re direct from NSDL
+	 */
+	@Override
+	public Response getNsdlXml(String msg) {
+		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
+		if (OS.contains(EkycConstants.OS_WINDOWS)) {
+			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
+		}
+		try {
+			int random = commonMethods.generateOTP(9876543210l);
+			String fileName = "lastXml" + random + ".xml";
+			File fXmlFile = new File(props.getFileBasePath() + "TempXMLFiles" + slash + fileName);
+			if (fXmlFile.createNewFile()) {
+				FileWriter myWriter = new FileWriter(fXmlFile);
+				myWriter.write(msg);
+				myWriter.close();
+				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+				Document doc = dBuilder.parse(fXmlFile);
+				doc.getDocumentElement().normalize();
+				Element eElement = doc.getDocumentElement();
+				String txnName = eElement.getAttribute("txn");
+				String errorMessage = eElement.getAttribute("errMsg");
+				String errorCode = eElement.getAttribute("errCode");
+				TxnDetailsEntity detailsEntity = txnDetailsRepository.findBytxnId(txnName);
+				if (detailsEntity != null && detailsEntity.getApplicationId() != null
+						&& detailsEntity.getApplicationId() > 0) {
+					Optional<ApplicationUserEntity> userEntity = applicationUserRepository
+							.findById(detailsEntity.getApplicationId());
+					if (userEntity.isPresent()) {
+						if (txnName != null && errorMessage != null && errorCode != null && !errorMessage.isEmpty()
+								&& !errorCode.isEmpty() && errorMessage.equalsIgnoreCase("NA")
+								&& errorCode.equalsIgnoreCase("NA")) {
+							String filePath = detailsEntity.getFolderLocation();
+							AddressEntity entity = addressRepository.findByapplicationId(userEntity.get().getId());
+							String resposne = esign.getSignFromNsdl(
+									props.getFileBasePath() + detailsEntity.getApplicationId() + slash
+											+ userEntity.get().getPanNumber() + EkycConstants.PDF_EXTENSION,
+									filePath, msg, userEntity.get().getUserName(),
+									entity.getIsdigi() == 1 ? entity.getState() : entity.getKraCity(),
+									userEntity.get().getId());
+							if (StringUtil.isNotNullOrEmpty(resposne)) {
+								String path = filePath + slash + userEntity.get().getPanNumber() + "_signedFinal"
+										+ EkycConstants.PDF_EXTENSION;
+								applicationUserRepository.updateEsignStage(detailsEntity.getApplicationId(),
+										EkycConstants.EKYC_STATUS_ESIGN_COMPLETED,
+										EkycConstants.PAGE_COMPLETED_EMAIL_ATTACHED, 1, 1);
+								java.net.URI finalPage = new java.net.URI(EkycConstants.SITE_URL_FILE);
+								commonMail.sendMailWithFile(userEntity.get().getEmailId(),
+										userEntity.get().getUserName(), "esign file", path);
+								Response.ResponseBuilder responseBuilder = Response
+										.status(Response.Status.MOVED_PERMANENTLY).location(finalPage);
+								return responseBuilder.build();
+							} else {
+
+							}
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+		//	commonMethods.SaveLog(applicationId, "PdfService", "getNsdlXml", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request. In getNsdlXml for the Error: " + e.getMessage(),
+					"ERR-001");
+		}
+
+		return null;
 	}
 }

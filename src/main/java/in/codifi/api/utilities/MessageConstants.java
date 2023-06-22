@@ -122,5 +122,6 @@ public class MessageConstants {
 	public static final String INVAILD_EMAILID_MOBILEBO = "Invalid EmailID and MobileNO";
 	
 	public static final String UPDATESTAGE_STATUS_MSG="CHECK STATUS EAITHER ONLINE OR OFFINE";
+	public static final String XML_MSG_NULL = "The XML MSG is Null";
 }
 

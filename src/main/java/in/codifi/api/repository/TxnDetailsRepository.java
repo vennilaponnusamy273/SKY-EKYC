@@ -7,5 +7,6 @@ import in.codifi.api.entity.TxnDetailsEntity;
 public interface TxnDetailsRepository extends CrudRepository<TxnDetailsEntity, Long> {
 
 	TxnDetailsEntity findByapplicationId(Long applicationId);
+	TxnDetailsEntity findBytxnId(String txnId);
 
 }

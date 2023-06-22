@@ -8,7 +8,7 @@ import lombok.Setter;
 public class PdfApplicationDataModel {
 	
 	private int id;
-	private int applicationNo;
+	private long applicationNo;
 	private String sebiRegNo;
 	private String cdslDpRegNo;
 	private String clientName;

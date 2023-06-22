@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -26,6 +27,11 @@ public interface ApplicationUserRepository extends CrudRepository<ApplicationUse
 	@Query(value = "SELECT u FROM tbl_application_master u WHERE TIMESTAMPDIFF(MINUTE, u.createdOn, CURRENT_TIMESTAMP) < 5 and email_verified=1 and sms_verified=1 and stage=9")
     List<ApplicationUserEntity> findRecentlyCreatedUsersAll();
 	
+	@Modifying
+	@Query(value = " UPDATE tbl_application_master SET status=:status, stage=:stage, esignCompleted=:esignCompleted, pdfGenerated =:pdfGenerated where id=:applicationId ")
+	int updateEsignStage(@Param("applicationId") long applicationId, @Param("status") String status,
+			@Param("stage") String stage, @Param("esignCompleted") int esignCompleted,
+			@Param("pdfGenerated") int pdfGenerated);
 	
 	
 	
