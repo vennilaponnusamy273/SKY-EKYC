@@ -10,6 +10,7 @@ import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IPdfService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.MessageConstants;
+import in.codifi.api.utilities.StringUtil;
 
 @Path("/pdf")
 public class PdfController implements IPdfController {
@@ -60,4 +61,14 @@ public class PdfController implements IPdfController {
 		return responseModel;
 	}
 
+	/**
+	 * Method to re direct from NSDL
+	 */
+	public Response getNsdlXml(String msg) {
+		if (StringUtil.isNotNullOrEmpty(msg)) {
+			return iPdfService.getNsdlXml(msg);
+		} else {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(MessageConstants.XML_MSG_NULL).build();
+		}
+	}
 }

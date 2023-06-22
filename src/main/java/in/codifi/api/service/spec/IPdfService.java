@@ -23,4 +23,12 @@ public interface IPdfService {
 	 * @return
 	 */
 	ResponseModel generateEsign(PdfApplicationDataModel pdfModel);
+	
+	/**
+	 * Method to re direct from NSDL
+	 * 
+	 * @author prade
+	 */
+	Response getNsdlXml(String msg);
+
 }
