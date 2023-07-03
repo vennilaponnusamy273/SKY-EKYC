@@ -129,9 +129,9 @@ public class BankService implements IBankService {
 		try {
 			model = commonRestService.getBankAddressByIfsc(ifsc);
 		} catch (ClientWebApplicationException e) {
-			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(null,"BankService","getBankAdd",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request. In getBankAdd for the Error: " + e.getMessage(), "ERR-001");
+			//logger.error("An error occurred: " + e.getMessage());
+			//commonMethods.SaveLog(null,"BankService","getBankAdd",e.getMessage());
+			//commonMethods.sendErrorMail("An error occurred while processing your request. In getBankAdd for the Error: " + e.getMessage(), "ERR-001");
 			if (e.getResponse().getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.IFSC_INVALID);
 				return responseModel;
