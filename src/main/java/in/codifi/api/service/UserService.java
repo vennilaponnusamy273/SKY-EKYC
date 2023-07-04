@@ -25,6 +25,7 @@ import in.codifi.api.helper.UserHelper;
 import in.codifi.api.model.CreateUserCredentialsModel;
 import in.codifi.api.model.CreateUserRequestModel;
 import in.codifi.api.model.DocReqModel;
+import in.codifi.api.model.GetUserInfoResp;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
@@ -63,8 +64,7 @@ public class UserService implements IUserService {
 	KraKeyValueRepository keyValueRepository;
 	@Inject
 	IPennyController iPennyController;
-	
-	
+
 	private static final Logger logger = LogManager.getLogger(UserService.class);
 
 	/**
@@ -96,16 +96,17 @@ public class UserService implements IUserService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_GENERATE_OTP);
 			}
 		} catch (Exception e) {
-		//	e.printStackTrace();
+			// e.printStackTrace();
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(userEntity.getId(),"UserService","sendSmsOtp",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In sendSmsOtp for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(userEntity.getId(), "UserService", "sendSmsOtp", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In sendSmsOtp for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
 
-	
 	/**
 	 * Method to validate Sms OTP
 	 */
@@ -159,10 +160,12 @@ public class UserService implements IUserService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.MOBILE_NUMBER_WRONG);
 			}
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(userEntity.getId(),"UserService","verifySmsOtp",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In verifySmsOtp for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(userEntity.getId(), "UserService", "verifySmsOtp", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In verifySmsOtp for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -177,6 +180,10 @@ public class UserService implements IUserService {
 		try {
 			ApplicationUserEntity updatedUserDetails = null;
 			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
+			List<GetUserInfoResp> emailExist = keyCloakAdminRestService.getUserInfoByAttribute("email",
+					userEntity.getEmailId());
+			if (emailExist != null && emailExist.size() > 0)
+				return commonMethods.constructFailedMsg(MessageConstants.KEYCLOAK_EMAIL_EXIST);
 			ApplicationUserEntity emailPresent = repository.findByEmailId(userEntity.getEmailId());
 			if (isUserPresent.isPresent() && isUserPresent.get().getSmsVerified() > 0 && (emailPresent == null
 					|| emailPresent != null && emailPresent.getMobileNo() == isUserPresent.get().getMobileNo())) {
@@ -216,8 +223,10 @@ public class UserService implements IUserService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(userEntity.getId(),"UserService","sendMailOtp",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In sendMailOtp for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(userEntity.getId(), "UserService", "sendMailOtp", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In sendMailOtp for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -260,8 +269,10 @@ public class UserService implements IUserService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(userEntity.getId(),"UserService","verifyEmailOtp",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In verifyEmailOtp for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(userEntity.getId(), "UserService", "verifyEmailOtp", e.getMessage());
+			commonMethods
+					.sendErrorMail("An error occurred while processing your request, In verifyEmailOtp for the Error: "
+							+ e.getMessage(), "ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -275,34 +286,36 @@ public class UserService implements IUserService {
 	public ResponseModel getUserDetailsById(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
-		AddressEntity isAddressisPresent = repos.findByapplicationId(applicationId);
-		if (isAddressisPresent != null) {
-			responseModel.setAddress_response(isAddressisPresent);
-		} else {
-			responseModel.setAddress_response(MessageConstants.ADDRESS_NOT_YET);
-		}
-		ProfileEntity profileEntity = profileRepository.findByapplicationId(applicationId);
-		if (isUserPresent.isPresent()) {
-			if (profileEntity != null && StringUtil.isNotNullOrEmpty(profileEntity.getGender())) {
-				isUserPresent.get().setGender(profileEntity.getGender());
+			Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
+			AddressEntity isAddressisPresent = repos.findByapplicationId(applicationId);
+			if (isAddressisPresent != null) {
+				responseModel.setAddress_response(isAddressisPresent);
+			} else {
+				responseModel.setAddress_response(MessageConstants.ADDRESS_NOT_YET);
 			}
-			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-			responseModel.setResult(isUserPresent);
-			responseModel.setPage(getPageNumber(isUserPresent.get()));
-		} else {
-			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
-		} 
-		}catch (Exception e) {
+			ProfileEntity profileEntity = profileRepository.findByapplicationId(applicationId);
+			if (isUserPresent.isPresent()) {
+				if (profileEntity != null && StringUtil.isNotNullOrEmpty(profileEntity.getGender())) {
+					isUserPresent.get().setGender(profileEntity.getGender());
+				}
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setResult(isUserPresent);
+				responseModel.setPage(getPageNumber(isUserPresent.get()));
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+			}
+		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"UserService","getUserDetailsById",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getUserDetailsById for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId, "UserService", "getUserDetailsById", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In getUserDetailsById for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
-
 
 	/**
 	 * Method to get Documents that need to upload
@@ -357,8 +370,10 @@ public class UserService implements IUserService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"UserService","docStatus",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In docStatus for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId, "UserService", "docStatus", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In docStatus for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -371,49 +386,55 @@ public class UserService implements IUserService {
 	public ResponseModel userCreation(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-		Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
-		if (isUserPresent.isPresent()) {
-			ApplicationUserEntity savingEntity = isUserPresent.get();
-			savingEntity.setPassword(userEntity.getPassword());
-			ApplicationUserEntity savedEntity = repository.save(savingEntity);
-			if (savedEntity != null) {
-				CreateUserRequestModel requestModel = new CreateUserRequestModel();
-				List<CreateUserCredentialsModel> userCredentilList = new ArrayList<>();
-				requestModel.setEmail(savedEntity.getEmailId());
-				requestModel.setUsername(savedEntity.getMobileNo().toString());
-				requestModel.setFirstName("Guest");
-				requestModel.setLastName("User");
-				requestModel.setEnabled(true);
-				requestModel.setEmailVerified(true);
-				CreateUserCredentialsModel credentialsModel = new CreateUserCredentialsModel();
-				credentialsModel.setType("password");
-				credentialsModel.setValue(savedEntity.getPassword());
-				userCredentilList.add(credentialsModel);
-				requestModel.setCredentials(userCredentilList);
-				String message = keyCloakAdminRestService.addNewUser(requestModel);
-				if (StringUtil.isNotNullOrEmpty(message)) {
-					responseModel.setReason(message);
-					commonMethods.UpdateStep(EkycConstants.PAGE_PASSWORD, userEntity.getId());
-					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-					responseModel.setPage(EkycConstants.PAGE_PAN);
+			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
+			if (isUserPresent.isPresent()) {
+				List<GetUserInfoResp> emailExist = keyCloakAdminRestService.getUserInfoByAttribute("mobile",
+						isUserPresent.get().getMobileNo().toString());
+				if (emailExist != null && emailExist.size() > 0)
+					return commonMethods.constructFailedMsg(MessageConstants.KEYCLOAK_MOBILE_EXIST);
+				ApplicationUserEntity savingEntity = isUserPresent.get();
+				savingEntity.setPassword(userEntity.getPassword());
+				ApplicationUserEntity savedEntity = repository.save(savingEntity);
+				if (savedEntity != null) {
+					CreateUserRequestModel requestModel = new CreateUserRequestModel();
+					List<CreateUserCredentialsModel> userCredentilList = new ArrayList<>();
+					requestModel.setEmail(savedEntity.getEmailId());
+					requestModel.setUsername(savedEntity.getMobileNo().toString());
+					requestModel.setFirstName("Guest");
+					requestModel.setLastName("User");
+					requestModel.setEnabled(true);
+					requestModel.setEmailVerified(true);
+					CreateUserCredentialsModel credentialsModel = new CreateUserCredentialsModel();
+					credentialsModel.setType("password");
+					credentialsModel.setValue(savedEntity.getPassword());
+					userCredentilList.add(credentialsModel);
+					requestModel.setCredentials(userCredentilList);
+					String message = keyCloakAdminRestService.addNewUser(requestModel);
+					if (StringUtil.isNotNullOrEmpty(message)) {
+						responseModel.setReason(message);
+						commonMethods.UpdateStep(EkycConstants.PAGE_PASSWORD, userEntity.getId());
+						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+						responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+						responseModel.setPage(EkycConstants.PAGE_PAN);
+					} else {
+						responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
+					}
 				} else {
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
 				}
 			} else {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 			}
-		} else {
-			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(userEntity.getId(), "UserService", "userCreation", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In userCreation for the Error: " + e.getMessage(),
+					"ERR-001");
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
-	} catch (Exception e) {
-		logger.error("An error occurred: " + e.getMessage());
-		commonMethods.SaveLog(userEntity.getId(),"UserService","userCreation",e.getMessage());
-		commonMethods.sendErrorMail("An error occurred while processing your request, In userCreation for the Error: " + e.getMessage(),"ERR-001");
-		responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		return responseModel;
 	}
-	return responseModel;
-}
 
 	/**
 	 * Method to star over the application
@@ -427,17 +448,19 @@ public class UserService implements IUserService {
 	public String getPageNumber(ApplicationUserEntity applicationUserEntity) {
 		int key = 0;
 		try {
-		for (Entry<Integer, String> entry : HazleCacheController.getInstance().getPageDetail().entrySet()) {
-			if (applicationUserEntity.getStage().equals(entry.getValue())) {
-				key = entry.getKey();
-				break;
+			for (Entry<Integer, String> entry : HazleCacheController.getInstance().getPageDetail().entrySet()) {
+				if (applicationUserEntity.getStage().equals(entry.getValue())) {
+					key = entry.getKey();
+					break;
+				}
 			}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationUserEntity.getId(), "UserService", "getPageNumber", e.getMessage());
+			commonMethods
+					.sendErrorMail("An error occurred while processing your request, In getPageNumber for the Error: "
+							+ e.getMessage(), "ERR-001");
 		}
-	} catch (Exception e) {
-		logger.error("An error occurred: " + e.getMessage());
-		commonMethods.SaveLog(applicationUserEntity.getId(),"UserService","getPageNumber",e.getMessage());
-		commonMethods.sendErrorMail("An error occurred while processing your request, In getPageNumber for the Error: " + e.getMessage(),"ERR-001");
-	}
 		return HazleCacheController.getInstance().getPageDetail().get(key + 1);
 	}
 
