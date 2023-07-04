@@ -37,5 +37,8 @@ public class CreateUserRequestModel implements Serializable {
 
 	@JsonProperty("credentials")
 	private List<CreateUserCredentialsModel> credentials;
+	
+	@JsonProperty("attributes")
+    private CreateUserAttribute attributes;
 
 }

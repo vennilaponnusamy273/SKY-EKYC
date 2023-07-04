@@ -18,6 +18,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import in.codifi.api.model.CreateUserRequestModel;
 import in.codifi.api.model.GetKeyCloakUser;
+import in.codifi.api.model.GetUserInfoResp;
 
 @RegisterRestClient(configKey = "auth-user-api")
 @RegisterClientHeaders
@@ -33,8 +34,7 @@ public interface IKeyCloakAdminRestService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Create a new user after phone, email and mpin registration")
 	public void addNewUser(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, CreateUserRequestModel user);
-	
-	
+
 	/**
 	 * 
 	 * @param authHeader
@@ -44,5 +44,20 @@ public interface IKeyCloakAdminRestService {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Create a new user after phone, email and mpin registration")
-	public List<GetKeyCloakUser> getUserDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader, @QueryParam("email") String email, @QueryParam("username") String username);
+	public List<GetKeyCloakUser> getUserDetails(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader,
+			@QueryParam("email") String email, @QueryParam("username") String username);
+
+	@Path("/users/")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "To get user info to check whether user exist or not")
+	public List<GetUserInfoResp> getUserInfo(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader,
+			@QueryParam(value = "username") String username, @QueryParam(value = "exact") String exact);
+
+	@Path("/users/")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "To get user info by attribute to check whether user exist or not")
+	public List<GetUserInfoResp> getUserInfoByAttribute(@HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader,
+			@QueryParam(value = "q") String request, @QueryParam(value = "exact") String exact);
 }

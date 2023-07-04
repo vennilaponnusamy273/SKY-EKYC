@@ -2,6 +2,8 @@ package in.codifi.api.utilities;
 
 public class MessageConstants {
 	public static final String INTERNAL_SERVER_ERROR = "Something went wrong. please try again after some time";
+	public static final String KEYCLOAK_EMAIL_EXIST = "EMAIL ID already exist in our database";
+	public static final String KEYCLOAK_MOBILE_EXIST = "Mobile number already exist in our database";
 	public static final String PARAMETER_NULL = "The Given Parameter is null";
 	public static final String MOBILE_NUMBER_NULL = "The given Mobile Number is null";
 	public static final String EMAIL_ID_NULL = "The given Email Id is null";
@@ -120,8 +122,7 @@ public class MessageConstants {
 	public static final String AADHAR_TOKEN_401 = "Token Expired from Digilocker";
 	public static final String ERROR_WHILE_CREATING_XML = "Error Occur While Creating XML file";
 	public static final String INVAILD_EMAILID_MOBILEBO = "Invalid EmailID and MobileNO";
-	
-	public static final String UPDATESTAGE_STATUS_MSG="CHECK STATUS EAITHER ONLINE OR OFFINE";
+
+	public static final String UPDATESTAGE_STATUS_MSG = "CHECK STATUS EAITHER ONLINE OR OFFINE";
 	public static final String XML_MSG_NULL = "The XML MSG is Null";
 }
-
