@@ -69,6 +69,7 @@ public class DataLoader extends HttpServlet {
 		HazleCacheController.getInstance().getPageDetail().put(count++, "11");// PAGE_PDFDOWNLOAD
 		HazleCacheController.getInstance().getPageDetail().put(count++, "12");// PAGE_ESIGN
 		HazleCacheController.getInstance().getPageDetail().put(count++, "13");// PAGE_COMPLETED_EMAIL_ATTACHED
+		HazleCacheController.getInstance().getPageDetail().put(count++, "14");// PAGE COMPLETED
 		System.out.println(HazleCacheController.getInstance().getPageDetail().size());
 	}
 
