@@ -60,4 +60,31 @@ public class CommonController implements ICommonController {
 	public ResponseModel getLogDetails() {
 		return commonService.getLogDetails();
 	}
+
+	/**
+	 * Method to update Nominee OptedOut
+	 */
+	@Override
+	public ResponseModel updateNomineeOptedOut(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		if (applicationId > 0) {
+			responseModel = commonService.updateNomineeOptedOut(applicationId);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+		}
+		return responseModel;
+	}
+
+	@Override
+	public ResponseModel pageJumb(String pagesnumber) {
+		ResponseModel responseModel = new ResponseModel();
+		if (pagesnumber != null) {
+			responseModel = commonService.pageJumb(pagesnumber);
+			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.PARAMETER_NULL);
+		}
+		return responseModel;
+	}
 }

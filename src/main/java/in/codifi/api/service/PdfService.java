@@ -107,11 +107,12 @@ public class PdfService implements IPdfService {
 	CommonMethods commonMethods;
 	@Inject
 	TxnDetailsRepository txnDetailsRepository;
-	@Inject 
+	@Inject
 	CommonMail commonMail;
 	@Inject
 	RazorpayIfscRestService commonRestService;
 	private static final Logger logger = LogManager.getLogger(PennyService.class);
+
 	/**
 	 * Method to save PDF
 	 * 
@@ -279,15 +280,15 @@ public class PdfService implements IPdfService {
 				} else if (pdfDatas.get(i).getColumnType().equalsIgnoreCase("image")) {
 					String image = map.get(pdfDatas.get(i).getColumnNames());
 					if (StringUtil.isNotNullOrEmpty(image)) {
-							BufferedImage bimg = ImageIO.read(new File(image));
-							// Adjust the width and height as needed
-							float width = 72;
-							float height = 70;
-							PDImageXObject pdImage = JPEGFactory.createFromImage(document, bimg, 0.5f);
-							contentStream.drawImage(pdImage, x, y, width, height);
+						BufferedImage bimg = ImageIO.read(new File(image));
+						// Adjust the width and height as needed
+						float width = 72;
+						float height = 70;
+						PDImageXObject pdImage = JPEGFactory.createFromImage(document, bimg, 0.5f);
+						contentStream.drawImage(pdImage, x, y, width, height);
 					}
 				}
-				
+
 				contentStream.close();
 			}
 			System.out.println("Completed");
@@ -733,7 +734,6 @@ public class PdfService implements IPdfService {
 		return map;
 	}
 
-
 	/**
 	 * Method to generate Esign
 	 */
@@ -753,6 +753,7 @@ public class PdfService implements IPdfService {
 	 */
 	@Override
 	public Response getNsdlXml(String msg) {
+		System.out.println(msg);
 		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
 		if (OS.contains(EkycConstants.OS_WINDOWS)) {
 			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
@@ -791,11 +792,13 @@ public class PdfService implements IPdfService {
 									entity.getIsdigi() == 1 ? entity.getState() : entity.getKraCity(),
 									userEntity.get().getId());
 							if (StringUtil.isNotNullOrEmpty(resposne)) {
-								String path = filePath + slash + userEntity.get().getPanNumber() + "_signedFinal"
+								String esignedFileName = userEntity.get().getPanNumber() + "_signedFinal"
 										+ EkycConstants.PDF_EXTENSION;
+								String path = filePath + slash + esignedFileName;
 								applicationUserRepository.updateEsignStage(detailsEntity.getApplicationId(),
 										EkycConstants.EKYC_STATUS_ESIGN_COMPLETED,
 										EkycConstants.PAGE_COMPLETED_EMAIL_ATTACHED, 1, 1);
+								saveEsignDocumntDetails(userEntity.get().getId(), path, esignedFileName);
 								java.net.URI finalPage = new java.net.URI(EkycConstants.SITE_URL_FILE);
 								commonMail.sendMailWithFile(userEntity.get().getEmailId(),
 										userEntity.get().getUserName(), "esign file", path);
@@ -810,13 +813,33 @@ public class PdfService implements IPdfService {
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error("An error occurred: " + e.getMessage());
-		//	commonMethods.SaveLog(applicationId, "PdfService", "getNsdlXml", e.getMessage());
+			// commonMethods.SaveLog(applicationId, "PdfService", "getNsdlXml",
+			// e.getMessage());
 			commonMethods.sendErrorMail(
 					"An error occurred while processing your request. In getNsdlXml for the Error: " + e.getMessage(),
 					"ERR-001");
 		}
 
 		return null;
+	}
+
+	public void saveEsignDocumntDetails(long applicationId, String documentPath, String fileName) {
+		DocumentEntity oldEntity = docrepository.findByApplicationIdAndDocumentType(applicationId,
+				EkycConstants.DOC_ESIGN);
+		if (oldEntity == null) {
+			DocumentEntity documentEntity = new DocumentEntity();
+			documentEntity.setApplicationId(applicationId);
+			documentEntity.setAttachementUrl(documentPath);
+			documentEntity.setAttachement(fileName);
+			documentEntity.setDocumentType(EkycConstants.DOC_ESIGN);
+			documentEntity.setTypeOfProof(EkycConstants.DOC_ESIGN);
+			docrepository.save(documentEntity);
+		} else {
+			oldEntity.setAttachementUrl(documentPath);
+			oldEntity.setAttachement(fileName);
+			docrepository.save(oldEntity);
+		}
 	}
 }

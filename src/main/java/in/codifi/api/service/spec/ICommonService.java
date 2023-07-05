@@ -10,4 +10,14 @@ public interface ICommonService {
 	 * @return
 	 */
 	ResponseModel getLogDetails();
+
+	ResponseModel pageJumb(String pagesnumber);
+
+	/**
+	 * Method to update nominee opted out
+	 * 
+	 * @param applicationId
+	 * @return
+	 */
+	ResponseModel updateNomineeOptedOut(long applicationId);
 }

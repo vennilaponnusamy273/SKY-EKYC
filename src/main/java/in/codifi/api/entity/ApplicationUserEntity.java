@@ -76,16 +76,21 @@ public class ApplicationUserEntity extends CommonEntity implements Serializable 
 
 	@Column(name = "status")
 	private String status;
-	
+
 	@Column(name = "esign_completed")
 	private int esignCompleted = 0;
 
 	@Column(name = "pdf_generated")
-	private Integer  pdfGenerated = 0;
-	
+	private Integer pdfGenerated = 0;
+
 	@Column(name = "pan_confirm")
 	private int panConfirm;
 
+	@Column(name = "pan_status_code")
+	private String panStatusCode;
+
+	@Column(name = "nominee_opted_out")
+	private int nomineeOptedOut = 0;
 	@Transient
 	private String gender;
 
