@@ -24,8 +24,9 @@ public class DocumentHelper {
 	ApplicationProperties props;
 	@Inject
 	CommonMethods commonMethods;
-	
+
 	private static final Logger logger = LogManager.getLogger(DocumentHelper.class);
+
 	/**
 	 * Convert base 64 to image and save in location
 	 * 
@@ -57,19 +58,53 @@ public class DocumentHelper {
 		// convert base64 string to binary data
 		byte[] data = DatatypeConverter.parseBase64Binary(strings[0]);
 		String fileName = applicationId + "_ivrImage." + extension;
-		String path = location + slash +applicationId + slash + fileName;
+		String path = location + slash + applicationId + slash + fileName;
 		File file = new File(path);
-		File foldercheck = new File(location);
+		File foldercheck = new File(location + applicationId);
 		if (!foldercheck.exists()) {
 			foldercheck.mkdirs();
 		}
-		
+
 		try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file))) {
 			outputStream.write(data);
 		} catch (IOException e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"DocumentHelper","convertBase64ToImage",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In convertBase64ToImage for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId, "DocumentHelper", "convertBase64ToImage", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In convertBase64ToImage for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
+		}
+		return fileName;
+	}
+
+	public String convertBase64ToImage(String base64, long applicationId, String docType) {
+		String location = props.getFileBasePath();
+		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
+		if (OS.contains(EkycConstants.OS_WINDOWS)) {
+			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
+		}
+		String base64String = base64;
+		String[] strings = base64String.split(",");
+		String extension = ".jpg";
+		// convert base64 string to binary data
+		byte[] data = DatatypeConverter.parseBase64Binary(strings[0]);
+		String fileName = applicationId + docType + extension;
+		String path = location + applicationId + slash + fileName;
+		File file = new File(path);
+		File foldercheck = new File(location + applicationId);
+		if (!foldercheck.exists()) {
+			foldercheck.mkdirs();
+		}
+		try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file))) {
+			outputStream.write(data);
+		} catch (IOException e) {
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId, "DocumentHelper", "convertBase64ToImage", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In convertBase64ToImage for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 		}
 		return fileName;
 	}

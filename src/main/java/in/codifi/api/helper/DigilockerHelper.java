@@ -19,8 +19,10 @@ import org.json.simple.parser.JSONParser;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
+import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AddressRepository;
+import in.codifi.api.repository.DocumentRepository;
 import in.codifi.api.restservice.DigilockerRestService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
@@ -37,8 +39,13 @@ public class DigilockerHelper {
 	AddressRepository addressRepository;
 	@Inject
 	DigilockerRestService digilockerRestService;
-
+	@Inject
+	DocumentRepository documentRepository;
+	@Inject
+	DocumentHelper documentHelper;
+	private static String OS = System.getProperty("os.name").toLowerCase();
 	private static final Logger logger = LogManager.getLogger(DigilockerHelper.class);
+
 	/**
 	 * Method to save address from digi
 	 * 
@@ -103,8 +110,11 @@ public class DigilockerHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"DigilockerHelper","getDigiAcessToken",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getDigiAcessToken.for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId, "DigilockerHelper", "getDigiAcessToken", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In getDigiAcessToken.for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods
 					.constructFailedMsg(MessageConstants.ERR_NO_ACC_TOKEN + " - " + e.getMessage());
 		}
@@ -120,6 +130,10 @@ public class DigilockerHelper {
 	 * @return
 	 */
 	public ResponseModel getXMlAadhar(String accessToken, long applicationId) {
+		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
+		if (OS.contains(EkycConstants.OS_WINDOWS)) {
+			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
+		}
 		ResponseModel responseModel = new ResponseModel();
 		AddressEntity updatedAddEntity = null;
 		try {
@@ -134,12 +148,19 @@ public class DigilockerHelper {
 					JSONObject kycResponse = (JSONObject) jsonOutput.get("KycRes");
 					if (kycResponse != null && kycResponse.containsKey("UidData")) {
 						JSONObject userDetails = (JSONObject) kycResponse.get("UidData");
-						String AatharNo=(String) userDetails.get("uid");
+						String aadharImage = (String) userDetails.get("Pht");
+						System.out.println(aadharImage);
+						String fileName = documentHelper.convertBase64ToImage((String) userDetails.get("Pht"),
+								applicationId, "_"+EkycConstants.DOC_AADHAR);
+						saveAadharDocumntDetails(applicationId, fileName,
+								props.getFileBasePath() + slash + applicationId + slash + fileName);
+						String AatharNo = (String) userDetails.get("uid");
 						if (userDetails != null && userDetails.containsKey("Poa")) {
 							JSONObject PoaDetails = (JSONObject) userDetails.get("Poa");
 							if (applicationId >= 0) {
 								AddressEntity checkExit = addressRepository.findByapplicationId(applicationId);
 								if (checkExit == null) {
+
 									AddressEntity entity = new AddressEntity();
 									entity.setApplicationId(applicationId);
 									entity.setIsdigi(1);
@@ -207,10 +228,30 @@ public class DigilockerHelper {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_INTERNAL_SERVER_ERR);
 		} catch (Exception ex) {
 			logger.error("An error occurred: " + ex.getMessage());
-			commonMethods.SaveLog(applicationId,"DigilockerHelper","getXMlAadhar",ex.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getXMlAadhar for the Error: " + ex.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId, "DigilockerHelper", "getXMlAadhar", ex.getMessage());
+			commonMethods
+					.sendErrorMail("An error occurred while processing your request, In getXMlAadhar for the Error: "
+							+ ex.getMessage(), "ERR-001");
 			responseModel = commonMethods.constructFailedMsg(ex.getMessage());
 		}
 		return responseModel;
+	}
+
+	public void saveAadharDocumntDetails(long applicationId, String fileName, String documentPath) {
+		DocumentEntity oldEntity = documentRepository.findByApplicationIdAndDocumentType(applicationId,
+				EkycConstants.DOC_AADHAR);
+		if (oldEntity == null) {
+			DocumentEntity documentEntity = new DocumentEntity();
+			documentEntity.setApplicationId(applicationId);
+			documentEntity.setAttachementUrl(documentPath);
+			documentEntity.setAttachement(fileName);
+			documentEntity.setDocumentType(EkycConstants.DOC_AADHAR);
+			documentEntity.setTypeOfProof(EkycConstants.DOC_AADHAR);
+			documentRepository.save(documentEntity);
+		} else {
+			oldEntity.setAttachementUrl(documentPath);
+			oldEntity.setAttachement(fileName);
+			documentRepository.save(oldEntity);
+		}
 	}
 }

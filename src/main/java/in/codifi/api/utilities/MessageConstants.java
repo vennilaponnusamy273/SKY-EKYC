@@ -125,4 +125,10 @@ public class MessageConstants {
 
 	public static final String UPDATESTAGE_STATUS_MSG = "CHECK STATUS EAITHER ONLINE OR OFFINE";
 	public static final String XML_MSG_NULL = "The XML MSG is Null";
+	// TRACKWIZZ
+	public final static String FAILED_TRACK_WIZZ = "Error Occured While chacking trackwizz";
+	public static final String KEYVALUE_NOTFOUND = "Key value not found for the given page number.";
+	// Nominee Opted Out
+	public final static String NOMINEE_OPTED_OUT = "Nominee Opted out successfully";
+	public final static String NOMINEE_OPTED_OUT_FAILED = "Failed while updating nominee Opted out";
 }

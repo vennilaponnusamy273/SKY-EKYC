@@ -94,7 +94,7 @@ public class Esign {
 		String response = "";
 		try {
 			// Set up eSign application parameters
-			String ekycID = Long.toString(applicationId);
+			String ekycID = "";
 			String pdfReadServerPath = outPutPath;
 			String aspId = props.getEsignAspId();
 			String authMode = "1";

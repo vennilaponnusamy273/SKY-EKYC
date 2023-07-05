@@ -117,6 +117,8 @@ public class EkycConstants {
 	public static final String DOC_CHEQUE = "CANCELLED_CHEQUE_OR_STATEMENT";
 	public static final String DOC_INCOME = "INCOME_PROOF";
 	public static final String DOC_SIGNATURE = "SIGNATURE";
+	public static final String DOC_ESIGN = "ESIGN_DOCUMENT";
+	public static final String DOC_AADHAR = "AADHAR_IMAGE";
 	public static final String DOC_PAN = "PAN";
 	public static final String DOC_PAN_ERP = "Pan Card";
 	public static final String DOC_PHOTO = "Photo";
@@ -259,6 +261,6 @@ public class EkycConstants {
 	public static final String CONST_MAIL_STARTTLS_ENABLE = "mail.smtp.starttls.enable";
 	public static final String CONST_MAIL_SSL_PROTOCOLS = "mail.smtp.ssl.protocols";
 	public static final String CONST_MAIL_TLS_V2 = "TLSv1.2";
-	public static final String SITE_URL_FILE = null;
+	public static final String SITE_URL_FILE = "https://ekyc.nidhihq.com/completed";
 	public static final String CONSTANT_TEXT_HTML = "text/html";
 }

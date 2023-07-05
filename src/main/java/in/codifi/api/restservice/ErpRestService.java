@@ -113,7 +113,7 @@ public class ErpRestService {
 			    BankAddressModel model = commonRestService.getBankAddressByIfsc(bankDetails.getIfsc());
 				if (model != null) {
 		    	List<NomineeEntity> nomineeEntity = nomineeRepository.findByapplicationId(userId);
-		    	String NomineeDetails=null;
+//		    	String NomineeDetails=null;
 		    	String finalNomineeDetails=null;
 		    	String base64Path1=null;
 		    	String base64Path2=null;
@@ -144,7 +144,7 @@ public class ErpRestService {
 		    	        }
 		    	        List<String> base64Paths = new ArrayList<>();
 		    	            NomineeEntity nominee = nomineeEntity.get(i);
-		    	            String base64Path = "nominee" + (i + 1) + "_base64content";
+//		    	            String base64Path = "nominee" + (i + 1) + "_base64content";
 		    	            String filePath = nominee.getAttachementUrl();
 		    	            Path file = Paths.get(filePath);
 		    	            byte[] fileBytes = Files.readAllBytes(file);

@@ -47,4 +47,29 @@ public interface ICommonController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	ResponseModel getLogDetails();
+	
+	/**
+	 * Method to update Nominee OptedOut
+	 * 
+	 * @author pradeep
+	 * @return
+	 */
+	@Path("/nomineeOptedOut")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	ResponseModel updateNomineeOptedOut(@NotNull @QueryParam("applicationId") long applicationId);
+	
+	/**
+	 * Method to provide pageJumb
+	 * 
+	 * @author vennila
+	 * @param pages 
+	 * @return
+	 */
+	@Path("/pageJumb")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to set page as REjection")
+	ResponseModel pageJumb(@NotNull @QueryParam("pagesnumber")String pagesnumber) ;
 }
