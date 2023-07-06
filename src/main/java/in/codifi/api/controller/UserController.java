@@ -29,8 +29,6 @@ public class UserController implements IUserController {
 	@Inject
 	Esign esign;
 
-	
-
 	public void testEsign() {
 		System.out.println("test Esign");
 	}
@@ -198,5 +196,4 @@ public class UserController implements IUserController {
 		return responseModel;
 	}
 
-	
 }

@@ -11,8 +11,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ApplicationProperties {
-	@ConfigProperty(name = "quarkus.erp.auth.token")
-	String UserCreationauthToken;
+//	@ConfigProperty(name = "quarkus.erp.auth.token")
+//	String UserCreationauthToken;
 	@ConfigProperty(name = "appconfig.sms.url")
 	String smsUrl;
 	@ConfigProperty(name = "appconfig.sms.feedid")
