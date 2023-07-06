@@ -800,8 +800,10 @@ public class PdfService implements IPdfService {
 										EkycConstants.PAGE_COMPLETED_EMAIL_ATTACHED, 1, 1);
 								saveEsignDocumntDetails(userEntity.get().getId(), path, esignedFileName);
 								java.net.URI finalPage = new java.net.URI(EkycConstants.SITE_URL_FILE);
-								commonMail.sendMailWithFile(userEntity.get().getEmailId(),
-										userEntity.get().getUserName(), "esign file", path);
+								// public void sendEsignedMail(String mailIds, String name, String filePath,
+								// String fileName)
+								commonMethods.sendEsignedMail(userEntity.get().getEmailId(),
+										userEntity.get().getUserName(), path, esignedFileName);
 								Response.ResponseBuilder responseBuilder = Response
 										.status(Response.Status.MOVED_PERMANENTLY).location(finalPage);
 								return responseBuilder.build();
