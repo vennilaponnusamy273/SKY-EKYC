@@ -21,6 +21,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -31,7 +32,6 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
-import org.apache.pdfbox.rendering.PDFRenderer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -142,8 +142,12 @@ public class PdfService implements IPdfService {
 				document.save(outputPath + slash + fileName);
 				document.close();
 				String path = outputPath + slash + fileName;
-				applicationUserRepository.updateEsignStage(applicationId, EkycConstants.EKYC_STATUS_PDF_GENERATED,
-						EkycConstants.PAGE_PDFDOWNLOAD, 0, 1);
+				try {
+					applicationUserRepository.updateEsignStage(applicationId, EkycConstants.EKYC_STATUS_PDF_GENERATED,
+							EkycConstants.PAGE_PDFDOWNLOAD, 0, 1);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				String contentType = URLConnection.guessContentTypeFromName(fileName);
 				File savedFile = new File(path);
 				ResponseBuilder response = Response.ok((Object) savedFile);
@@ -174,21 +178,12 @@ public class PdfService implements IPdfService {
 				attachmentUrl = entity.getAttachementUrl();
 				if (attachmentUrl.endsWith(".pdf")) {
 					try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
-						PDFRenderer renderer = new PDFRenderer(attachment);
-						for (int i = 0; i < attachment.getNumberOfPages(); i++) {
-							PDPage page = new PDPage();
-							document.addPage(page);
-							BufferedImage image = renderer.renderImage(i);
-							PDRectangle pageSize = page.getMediaBox();
-							float imageWidth = image.getWidth();
-							float imageHeight = image.getHeight();
-							float centerX = (pageSize.getWidth() - imageWidth) / 2f;
-							float centerY = (pageSize.getHeight() - imageHeight) / 2f;
-							PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
-							try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-								contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
-							}
-						}
+						File fileAadhar = new File(attachmentUrl);
+						PDFMergerUtility merger = new PDFMergerUtility();
+						PDDocument combine = PDDocument.load(fileAadhar);
+						merger.appendDocument(document, combine);
+						merger.mergeDocuments();
+						combine.close();
 					}
 				} else {
 					BufferedImage image = ImageIO.read(new File(attachmentUrl));
