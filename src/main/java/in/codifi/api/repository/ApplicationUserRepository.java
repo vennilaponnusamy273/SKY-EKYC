@@ -26,4 +26,9 @@ public interface ApplicationUserRepository extends CrudRepository<ApplicationUse
 	int updateNomineeOptedOut(@Param("applicationId") long applicationId,
 			@Param("nomineeOptedOut") int nomineeOptedOut);
 
+	@Modifying
+	@Query(value = " UPDATE tbl_application_master SET esignCompleted=:esignCompleted, pdfGenerated =:pdfGenerated, stage=:stage where id=:applicationId ")
+	int updateRejectionStage(@Param("applicationId") long applicationId, @Param("esignCompleted") int esignCompleted,
+			@Param("pdfGenerated") int pdfGenerated, @Param("stage") String stage);
+
 }

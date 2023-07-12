@@ -16,6 +16,7 @@ import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.PaymentEntity;
 import in.codifi.api.helper.PaymentHelper;
+import in.codifi.api.helper.RejectionStatusHelper;
 import in.codifi.api.model.BankAddressModel;
 import in.codifi.api.model.RazorpayModel;
 import in.codifi.api.model.ResponseModel;
@@ -45,7 +46,8 @@ public class BankService implements IBankService {
 	IPennyController iPennyController;
 	@Inject
 	RazorpayIfscRestService commonRestService;
-
+	@Inject
+	RejectionStatusHelper rejectionStatusHelper;
 	
 	private static final Logger logger = LogManager.getLogger(BankService.class);
 	/**
@@ -66,6 +68,7 @@ public class BankService implements IBankService {
 			} else {
 				updatedEntity = bankRepository.save(bankEntity);
 			}
+			rejectionStatusHelper.insertArchiveTableRecord(bankEntity.getApplicationId(), EkycConstants.PAGE_BANK);
 			if (updatedEntity != null && updatedEntity.getId() > 0) {
 				commonMethods.UpdateStep(EkycConstants.PAGE_BANK, bankEntity.getApplicationId());
 				iPennyController.addAccount(bankEntity.getApplicationId());

@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import in.codifi.api.controller.spec.IPennyController;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.SegmentEntity;
+import in.codifi.api.helper.RejectionStatusHelper;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.SegmentRepository;
@@ -29,6 +30,8 @@ public class SegmentService implements ISegmentService {
 	CommonMethods commonMethods;
 	@Inject
 	IPennyController iPennyController;
+	@Inject
+	RejectionStatusHelper rejectionStatusHelper;
 	
 	private static final Logger logger = LogManager.getLogger(SegmentService.class);
 	/**
@@ -48,6 +51,8 @@ public class SegmentService implements ISegmentService {
 			} else {
 				updatedEntity = segmentRepository.save(segmentEntity);
 			}
+			rejectionStatusHelper.insertArchiveTableRecord(segmentEntity.getApplicationId(),
+					EkycConstants.PAGE_SEGMENT);
 			if (updatedEntity != null && updatedEntity.getId() > 0) {
 				commonMethods.UpdateStep(EkycConstants.PAGE_SEGMENT, segmentEntity.getApplicationId());
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);

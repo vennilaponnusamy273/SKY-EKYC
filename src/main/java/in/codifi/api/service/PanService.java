@@ -14,6 +14,7 @@ import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.helper.KRAHelper;
 import in.codifi.api.helper.PanHelper;
+import in.codifi.api.helper.RejectionStatusHelper;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
@@ -37,13 +38,16 @@ public class PanService implements IPanService {
 	AddressRepository addressRepository;
 	@Inject
 	CkycService ckycService;
+	@Inject
+	RejectionStatusHelper rejectionStatusHelper;
 
 	private static final Logger logger = LogManager.getLogger(PanService.class);
+
 	/**
 	 * Method to get PAN details
 	 */
 	@Override
-	public  ResponseModel getPanDetails(ApplicationUserEntity userEntity) {
+	public ResponseModel getPanDetails(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
 			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
@@ -65,8 +69,10 @@ public class PanService implements IPanService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(userEntity.getId(),"PanService","getPanDetails",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanDetails for this Error :"+e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(userEntity.getId(), "PanService", "getPanDetails", e.getMessage());
+			commonMethods
+					.sendErrorMail("An error occurred while processing your request, In getPanDetails for this Error :"
+							+ e.getMessage(), "ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -79,94 +85,101 @@ public class PanService implements IPanService {
 	public ResponseModel saveDob(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-		ProfileEntity profileEntity = null;
-		ApplicationUserEntity savingEntity = null;
-		Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
-		if (isUserPresent.isPresent()) {
-			ApplicationUserEntity oldUserEntity = isUserPresent.get();
-			oldUserEntity.setDob(userEntity.getDob());
-			try {
-				if (StringUtil.isNotNullOrEmpty(oldUserEntity.getPanNumber())
-						&& StringUtil.isNotNullOrEmpty(oldUserEntity.getDob())) {
-					JSONObject pancardResponse = kraHelper.getPanCardStatus(oldUserEntity.getPanNumber());
-					if (pancardResponse != null) {
-						if (pancardResponse.has("APP_NAME")) {
-							int panCardStatus = pancardResponse.getInt("APP_STATUS");
-							oldUserEntity.setPanStatusCode(Integer.toString(panCardStatus));
-							if (checkAppStatus(panCardStatus)) {
-								JSONObject panCardDetails = kraHelper.getPanCardDetails(oldUserEntity.getPanNumber(),
-										userEntity.getDob(), panCardStatus);
-								if (panCardDetails != null) {
-									if (panCardDetails.has("APP_NAME")) {
-										savingEntity = repository.save(oldUserEntity);
-										profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
-												userEntity.getId());
-										ckycService.saveCkycResponse(userEntity.getId());
-									} else {
-										if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_MSG)) {
-											responseModel = commonMethods.constructFailedMsg(
-													panCardDetails.getString(EkycConstants.CONSTANT_ERROR_MSG));
-
-										} else if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_DESC)) {
-											responseModel = commonMethods.constructFailedMsg(
-													panCardDetails.getString(EkycConstants.CONSTANT_ERROR_DESC));
-											responseModel.setPage(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY);
-											return responseModel;
+			ProfileEntity profileEntity = null;
+			ApplicationUserEntity savingEntity = null;
+			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
+			if (isUserPresent.isPresent()) {
+				ApplicationUserEntity oldUserEntity = isUserPresent.get();
+				oldUserEntity.setDob(userEntity.getDob());
+				try {
+					if (StringUtil.isNotNullOrEmpty(oldUserEntity.getPanNumber())
+							&& StringUtil.isNotNullOrEmpty(oldUserEntity.getDob())) {
+						JSONObject pancardResponse = kraHelper.getPanCardStatus(oldUserEntity.getPanNumber());
+						if (pancardResponse != null) {
+							if (pancardResponse.has("APP_NAME")) {
+								int panCardStatus = pancardResponse.getInt("APP_STATUS");
+								oldUserEntity.setPanStatusCode(Integer.toString(panCardStatus));
+								if (checkAppStatus(panCardStatus)) {
+									JSONObject panCardDetails = kraHelper.getPanCardDetails(
+											oldUserEntity.getPanNumber(), userEntity.getDob(), panCardStatus);
+									if (panCardDetails != null) {
+										if (panCardDetails.has("APP_NAME")) {
+											savingEntity = repository.save(oldUserEntity);
+											profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
+													userEntity.getId());
+											ckycService.saveCkycResponse(userEntity.getId());
+											rejectionStatusHelper.insertArchiveTableRecord(oldUserEntity.getId(),
+													EkycConstants.PAGE_PAN);
 										} else {
-											responseModel = commonMethods
-													.constructFailedMsg(MessageConstants.KRA_FAILED);
+											if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_MSG)) {
+												responseModel = commonMethods.constructFailedMsg(
+														panCardDetails.getString(EkycConstants.CONSTANT_ERROR_MSG));
+
+											} else if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_DESC)) {
+												responseModel = commonMethods.constructFailedMsg(
+														panCardDetails.getString(EkycConstants.CONSTANT_ERROR_DESC));
+												responseModel.setPage(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY);
+												return responseModel;
+											} else {
+												responseModel = commonMethods
+														.constructFailedMsg(MessageConstants.KRA_FAILED);
+											}
 										}
+									} else {
+										responseModel = commonMethods
+												.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
 									}
 								} else {
-									responseModel = commonMethods
-											.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
+									savingEntity = repository.save(oldUserEntity);
+									ckycService.saveCkycResponse(userEntity.getId());
 								}
 							} else {
-								savingEntity = repository.save(oldUserEntity);
-								ckycService.saveCkycResponse(userEntity.getId());
+								if (pancardResponse.has(EkycConstants.CONSTANT_ERROR_MSG)) {
+									responseModel = commonMethods.constructFailedMsg(
+											pancardResponse.getString(EkycConstants.CONSTANT_ERROR_MSG));
+								} else {
+									responseModel = commonMethods.constructFailedMsg(MessageConstants.KRA_FAILED);
+								}
 							}
 						} else {
-							if (pancardResponse.has(EkycConstants.CONSTANT_ERROR_MSG)) {
-								responseModel = commonMethods.constructFailedMsg(
-										pancardResponse.getString(EkycConstants.CONSTANT_ERROR_MSG));
-							} else {
-								responseModel = commonMethods.constructFailedMsg(MessageConstants.KRA_FAILED);
-							}
+							responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
 						}
+					}
+					responseModel.setPage(EkycConstants.PAGE_AADHAR);
+					responseModel.setResult(
+							savingEntity != null ? savingEntity : profileEntity != null ? profileEntity : "");
+				} catch (Exception e) {
+					e.printStackTrace();
+					logger.error("An error occurred: " + e.getMessage());
+					commonMethods.SaveLog(userEntity.getId(), "PanService", "saveDob", e.getMessage());
+					commonMethods
+							.sendErrorMail("An error occurred while processing your request, In saveDob for the Error: "
+									+ e.getMessage(), "ERR-001");
+					responseModel = commonMethods.constructFailedMsg(e.getMessage());
+				}
+				if (StringUtil.isNullOrEmpty(responseModel.getMessage())) {
+					if (profileEntity != null || savingEntity != null) {
+						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+						responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 					} else {
-						responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
+						responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVING_DOB);
 					}
 				}
-				responseModel.setPage(EkycConstants.PAGE_AADHAR);
-				responseModel
-						.setResult(savingEntity != null ? savingEntity : profileEntity != null ? profileEntity : "");
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.error("An error occurred: " + e.getMessage());
-				commonMethods.SaveLog(userEntity.getId(),"PanService","saveDob",e.getMessage());
-				commonMethods.sendErrorMail("An error occurred while processing your request, In saveDob for the Error: " + e.getMessage(),"ERR-001");
-				responseModel = commonMethods.constructFailedMsg(e.getMessage());
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 			}
-			if (StringUtil.isNullOrEmpty(responseModel.getMessage())) {
-				if (profileEntity != null || savingEntity != null) {
-					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-				} else {
-					responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVING_DOB);
-				}
-			}
-		} else {
-			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
-		}
-		commonMethods.UpdateStep(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY, userEntity.getId());
+			commonMethods.UpdateStep(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY, userEntity.getId());
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(userEntity.getId(),"PanService","saveDob",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In saveDob for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(userEntity.getId(), "PanService", "saveDob", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In saveDob for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
+
 	public boolean checkAppStatus(int appStatuscode) {
 		boolean isPresent = false;
 		if (appStatuscode == 2 || appStatuscode == 002 || appStatuscode == 102 || appStatuscode == 202
@@ -185,27 +198,29 @@ public class PanService implements IPanService {
 	public ResponseModel confirmAddress(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
-		if (isUserPresent.isPresent()) {
-			AddressEntity savedEntity = addressRepository.findByapplicationId(applicationId);
-			if (savedEntity != null) {
-				savedEntity.setAddressConfirm(1);
-				addressRepository.save(savedEntity);
-				commonMethods.UpdateStep(EkycConstants.PAGE_AADHAR, applicationId);
-				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-				responseModel.setResult(savedEntity);
-				responseModel.setPage(EkycConstants.PAGE_PROFILE);
+			Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
+			if (isUserPresent.isPresent()) {
+				AddressEntity savedEntity = addressRepository.findByapplicationId(applicationId);
+				if (savedEntity != null) {
+					savedEntity.setAddressConfirm(1);
+					addressRepository.save(savedEntity);
+					commonMethods.UpdateStep(EkycConstants.PAGE_AADHAR, applicationId);
+					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+					responseModel.setResult(savedEntity);
+					responseModel.setPage(EkycConstants.PAGE_PROFILE);
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.ADDRESS_NOT_YET);
+				}
 			} else {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.ADDRESS_NOT_YET);
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 			}
-		} else {
-			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
-		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"PanService","confirmAddress",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In confirmAddress for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId, "PanService", "confirmAddress", e.getMessage());
+			commonMethods
+					.sendErrorMail("An error occurred while processing your request, In confirmAddress for the Error: "
+							+ e.getMessage(), "ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -218,23 +233,23 @@ public class PanService implements IPanService {
 	public ResponseModel confirmPan(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-		Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
-		if (isUserPresent.isPresent()) {
-			ApplicationUserEntity savedUserEntity = isUserPresent.get();
-			savedUserEntity.setPanConfirm(1);
-			repository.save(savedUserEntity);
-			commonMethods.UpdateStep(EkycConstants.PAGE_PAN_CONFIRM, applicationId);
-			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-			responseModel.setResult(savedUserEntity);
-			responseModel.setPage(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY);
-		} else {
-			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
-		}
+			Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
+			if (isUserPresent.isPresent()) {
+				ApplicationUserEntity savedUserEntity = isUserPresent.get();
+				savedUserEntity.setPanConfirm(1);
+				repository.save(savedUserEntity);
+				commonMethods.UpdateStep(EkycConstants.PAGE_PAN_CONFIRM, applicationId);
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setResult(savedUserEntity);
+				responseModel.setPage(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"PanService","confirmPan",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In confirmPan.","ERR-001");
+			commonMethods.SaveLog(applicationId, "PanService", "confirmPan", e.getMessage());
+			commonMethods.sendErrorMail("An error occurred while processing your request, In confirmPan.", "ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;

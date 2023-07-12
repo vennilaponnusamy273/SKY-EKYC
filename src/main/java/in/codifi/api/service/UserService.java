@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.controller.spec.IPennyController;
 import in.codifi.api.entity.AddressEntity;
+import in.codifi.api.entity.ApiStatusEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.KraKeyValueEntity;
 import in.codifi.api.entity.PennyDropEntity;
@@ -26,8 +27,10 @@ import in.codifi.api.model.CreateUserCredentialsModel;
 import in.codifi.api.model.CreateUserRequestModel;
 import in.codifi.api.model.DocReqModel;
 import in.codifi.api.model.GetUserInfoResp;
+import in.codifi.api.model.RejectionModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AddressRepository;
+import in.codifi.api.repository.ApiStatusRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.KraKeyValueRepository;
 import in.codifi.api.repository.PennyDropRepository;
@@ -64,6 +67,8 @@ public class UserService implements IUserService {
 	KraKeyValueRepository keyValueRepository;
 	@Inject
 	IPennyController iPennyController;
+	@Inject
+	ApiStatusRepository apiStatusRepository;
 
 	private static final Logger logger = LogManager.getLogger(UserService.class);
 
@@ -293,6 +298,11 @@ public class UserService implements IUserService {
 			} else {
 				responseModel.setAddress_response(MessageConstants.ADDRESS_NOT_YET);
 			}
+			List<ApiStatusEntity> apiStatusEntity = apiStatusRepository.findByApplicationIdAndStatus(applicationId, 0);
+			if (StringUtil.isListNotNullOrEmpty(apiStatusEntity)) {
+				List<RejectionModel> rejectionModels = constructRejectionModel(apiStatusEntity, applicationId);
+				responseModel.setRejectionUser(rejectionModels);
+			}
 			ProfileEntity profileEntity = profileRepository.findByapplicationId(applicationId);
 			if (isUserPresent.isPresent()) {
 				if (profileEntity != null && StringUtil.isNotNullOrEmpty(profileEntity.getGender())) {
@@ -462,6 +472,29 @@ public class UserService implements IUserService {
 							+ e.getMessage(), "ERR-001");
 		}
 		return HazleCacheController.getInstance().getPageDetail().get(key + 1);
+	}
+
+	private List<RejectionModel> constructRejectionModel(List<ApiStatusEntity> apiStatusEntities, long applicationId) {
+		List<RejectionModel> rejectionModels = new ArrayList<>();
+		repository.updateRejectionStage(applicationId, 0, 0, EkycConstants.PAGE_ESIGN);
+		for (ApiStatusEntity entity : apiStatusEntities) {
+			if (entity != null) {
+				RejectionModel model = new RejectionModel();
+				model.setRejectedPage(entity.getStage());
+				model.setRejectedReason(entity.getReason());
+				if (StringUtil.isNotNullOrEmpty(entity.getDocType())) {
+					model.setDocType(entity.getDocType());
+				}
+				rejectionModels.add(model);
+			}
+		}
+		if (StringUtil.isListNotNullOrEmpty(apiStatusEntities)) {
+			RejectionModel model = new RejectionModel();
+			model.setRejectedPage("12");
+			model.setRejectedReason("Esign Needed");
+			rejectionModels.add(model);
+		}
+		return rejectionModels;
 	}
 
 }
