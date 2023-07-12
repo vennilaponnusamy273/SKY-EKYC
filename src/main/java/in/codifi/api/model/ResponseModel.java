@@ -18,5 +18,6 @@ public class ResponseModel implements Serializable {
 	private String reason;
 	private Object result;
 	private Object Address_response;
+	private Object rejectionUser;
 	
 }

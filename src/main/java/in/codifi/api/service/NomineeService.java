@@ -25,6 +25,7 @@ import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.GuardianEntity;
 import in.codifi.api.entity.NomineeEntity;
+import in.codifi.api.helper.RejectionStatusHelper;
 import in.codifi.api.model.NomineeDocModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
@@ -50,6 +51,8 @@ public class NomineeService implements INomineeService {
 	CommonMethods commonMethods;
 	@Inject
 	ApplicationProperties props;
+	@Inject
+	RejectionStatusHelper rejectionStatusHelper;
 	private static final Logger logger = LogManager.getLogger(NomineeService.class);
 	/**
 	 * Method to get Nominee Details
@@ -241,7 +244,8 @@ public class NomineeService implements INomineeService {
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_NOT_VERIFIED);
 				}
 			}
-
+			rejectionStatusHelper.insertArchiveTableRecord(nomineeEntity.getApplicationId(),
+					EkycConstants.PAGE_NOMINEE);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
 			commonMethods.SaveLog(nomineeEntity.getApplicationId(),"NomineeService","saveNomineeDetails",e.getMessage());

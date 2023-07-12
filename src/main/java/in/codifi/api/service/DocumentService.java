@@ -24,6 +24,7 @@ import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.helper.DocumentHelper;
+import in.codifi.api.helper.RejectionStatusHelper;
 import in.codifi.api.model.DocumentCheckModel;
 import in.codifi.api.model.FormDataModel;
 import in.codifi.api.model.ResponseModel;
@@ -48,7 +49,9 @@ public class DocumentService implements IDocumentService {
 	DocumentHelper documentHelper;
 	@Inject
 	ApplicationUserRepository userRepository;
-
+	@Inject
+	RejectionStatusHelper rejectionStatusHelper;
+	
 	private static final Logger logger = LogManager.getLogger(DocumentService.class);
 
 	/**
@@ -361,6 +364,7 @@ public class DocumentService implements IDocumentService {
 			Optional<ApplicationUserEntity> isUserPresent = userRepository.findById(applicationId);
 			if (isUserPresent.isPresent()) {
 				commonMethods.UpdateStep(EkycConstants.PAGE_DOCUMENT, applicationId);
+				rejectionStatusHelper.insertArchiveTableRecord(applicationId, EkycConstants.PAGE_DOCUMENT);
 				responseModel.setPage(EkycConstants.PAGE_IPV);
 				responseModel.setReason("Document Confirmed successfully");
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);

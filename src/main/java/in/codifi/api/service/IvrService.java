@@ -24,6 +24,7 @@ import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.IvrEntity;
 import in.codifi.api.helper.DocumentHelper;
+import in.codifi.api.helper.RejectionStatusHelper;
 import in.codifi.api.model.IvrModel;
 import in.codifi.api.model.LivenessCheckReqModel;
 import in.codifi.api.model.LivenessCheckResModel;
@@ -58,7 +59,9 @@ public class IvrService implements IIvrService {
 	SmsRestService smsRestService;
 	@Inject
 	CuttlyRestService cuttlyServiceCheck;
-
+	@Inject
+	RejectionStatusHelper rejectionStatusHelper;
+	
 	private static final Logger logger = LogManager.getLogger(IvrService.class);
 	/**
 	 * Method to upload IVR Document
@@ -103,6 +106,7 @@ public class IvrService implements IIvrService {
 						doc.setLongitude(ivrModel.getLongitude());
 						updatedDocEntity = ivrRepository.save(doc);
 					}
+					rejectionStatusHelper.insertArchiveTableRecord(ivrModel.getApplicationId(), EkycConstants.PAGE_IPV);
 					if (updatedDocEntity != null) {
 						commonMethods.UpdateStep(EkycConstants.PAGE_IPV, ivrModel.getApplicationId());
 						responseModel.setStat(EkycConstants.SUCCESS_STATUS);
