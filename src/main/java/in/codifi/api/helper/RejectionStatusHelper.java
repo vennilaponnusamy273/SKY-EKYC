@@ -1,5 +1,7 @@
 package in.codifi.api.helper;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -9,6 +11,8 @@ import in.codifi.api.entity.ApiStatusArchiveEntity;
 import in.codifi.api.entity.ApiStatusEntity;
 import in.codifi.api.repository.ApiStatusArchiveRepository;
 import in.codifi.api.repository.ApiStatusRepository;
+import in.codifi.api.utilities.EkycConstants;
+import in.codifi.api.utilities.StringUtil;
 
 @ApplicationScoped
 public class RejectionStatusHelper {
@@ -21,14 +25,29 @@ public class RejectionStatusHelper {
 	public ApiStatusArchiveEntity insertArchiveTableRecord(long applicationId, String stage) {
 		ApiStatusArchiveEntity updatedEntity = null;
 		try {
-			ApiStatusEntity apiStatusEntity = apiStatusRepository.findByApplicationIdAndStage(applicationId, stage);
-			if (apiStatusEntity != null) {
-				System.out.println("rejection update check");
-				ApiStatusArchiveEntity apiStatusArchiveEntity = new ApiStatusArchiveEntity();
-				BeanUtils.copyProperties(apiStatusArchiveEntity, apiStatusEntity);
-				apiStatusArchiveEntity.setId(null);
-				updatedEntity = apiStatusArchiveRepository.save(apiStatusArchiveEntity);
-				apiStatusRepository.deleteById(apiStatusEntity.getId());
+			if (StringUtil.isNotEqual(stage, EkycConstants.PAGE_DOCUMENT)) {
+				ApiStatusEntity apiStatusEntity = apiStatusRepository
+						.findByApplicationIdAndStageAndStatus(applicationId, stage, 0);
+				if (apiStatusEntity != null) {
+					System.out.println("rejection update check");
+					ApiStatusArchiveEntity apiStatusArchiveEntity = new ApiStatusArchiveEntity();
+					BeanUtils.copyProperties(apiStatusArchiveEntity, apiStatusEntity);
+					apiStatusArchiveEntity.setId(null);
+					updatedEntity = apiStatusArchiveRepository.save(apiStatusArchiveEntity);
+					apiStatusRepository.deleteById(apiStatusEntity.getId());
+				}
+			} else {
+				List<ApiStatusEntity> docResult = apiStatusRepository.getResultForDoc(applicationId, stage, 0);
+				if (StringUtil.isListNotNullOrEmpty(docResult)) {
+					for (ApiStatusEntity apiStatusEntity : docResult) {
+						System.out.println("rejection update check");
+						ApiStatusArchiveEntity apiStatusArchiveEntity = new ApiStatusArchiveEntity();
+						BeanUtils.copyProperties(apiStatusArchiveEntity, apiStatusEntity);
+						apiStatusArchiveEntity.setId(null);
+						updatedEntity = apiStatusArchiveRepository.save(apiStatusArchiveEntity);
+						apiStatusRepository.deleteById(apiStatusEntity.getId());
+					}
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

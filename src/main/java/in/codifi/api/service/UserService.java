@@ -135,8 +135,12 @@ public class UserService implements IUserService {
 						HazleCacheController.getInstance().getRetryOtp().remove(mapKey);
 						HazleCacheController.getInstance().getResendOtp().remove(mapKey);
 						if (updatedUserDetails != null && StringUtil.isNotNullOrEmpty(updatedUserDetails.getStatus())
-								&& StringUtil.isEqual(updatedUserDetails.getStatus(),
-										EkycConstants.EKYC_STATUS_INPROGRESS)) {
+								&& (StringUtil.isEqual(updatedUserDetails.getStatus(),
+										EkycConstants.EKYC_STATUS_INPROGRESS)
+										|| StringUtil.isEqual(updatedUserDetails.getStatus(),
+												EkycConstants.EKYC_STATUS_PDF_GENERATED)
+										|| StringUtil.isEqual(updatedUserDetails.getStatus(),
+												EkycConstants.EKYC_STATUS_ESIGN_COMPLETED))) {
 							responseModel = new ResponseModel();
 							responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 							responseModel.setStat(EkycConstants.SUCCESS_STATUS);
