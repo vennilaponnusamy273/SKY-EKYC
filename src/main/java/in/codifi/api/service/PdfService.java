@@ -64,7 +64,6 @@ import in.codifi.api.repository.SegmentRepository;
 import in.codifi.api.repository.TxnDetailsRepository;
 import in.codifi.api.restservice.RazorpayIfscRestService;
 import in.codifi.api.service.spec.IPdfService;
-import in.codifi.api.utilities.CommonMail;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.Esign;
@@ -107,8 +106,6 @@ public class PdfService implements IPdfService {
 	CommonMethods commonMethods;
 	@Inject
 	TxnDetailsRepository txnDetailsRepository;
-	@Inject
-	CommonMail commonMail;
 	@Inject
 	RazorpayIfscRestService commonRestService;
 	private static final Logger logger = LogManager.getLogger(PennyService.class);
