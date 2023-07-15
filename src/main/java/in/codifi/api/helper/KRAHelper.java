@@ -178,6 +178,17 @@ public class KRAHelper {
 			/*
 			 * Set communication adders from the KRA
 			 */
+			String kycID = kraDetails.getString("APP_COR_ADD_PROOF");
+			String kycIDNumber = kraDetails.getString("APP_PER_ADD_REF");
+			addressEntity.setKraaddressproof(
+					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.ADDRESS_PROOF + kycID));
+			if (StringUtil.isEqual(
+					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.ADDRESS_PROOF + kycID),
+					"AADHAAR")) {
+				addressEntity.setKraproofIdNumber(addCharAtAadhar(kycIDNumber));
+			} else {
+				addressEntity.setKraproofIdNumber(kycIDNumber);
+			}
 			addressEntity.setKraAddress1(corrsAdd1);
 			addressEntity.setKraAddress2(corrsAdd2);
 			addressEntity.setKraAddress3(corrsAdd3);
@@ -254,6 +265,18 @@ public class KRAHelper {
 			appKraCode = "BSE";
 		}
 		return appKraCode;
+	}
+	public String addCharAtAadhar(String value) {
+		int limit = 12;
+		if (value.length() >= limit) {
+			return value;
+		}
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < limit - value.length(); i++) {
+			builder.append("X");
+		}
+		builder.append(value);
+		return builder.toString();
 	}
 
 }

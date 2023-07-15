@@ -27,6 +27,7 @@ import in.codifi.api.entity.SegmentEntity;
 import in.codifi.api.entity.TxnDetailsEntity;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
+import in.codifi.api.repository.NomineeRepository;
 import in.codifi.api.repository.PdfDataCoordinatesrepository;
 import in.codifi.api.repository.SegmentRepository;
 import in.codifi.api.repository.TxnDetailsRepository;
@@ -37,6 +38,8 @@ public class Esign {
 	private static String OS = System.getProperty("os.name").toLowerCase();
 	@Inject
 	ApplicationProperties props;
+	@Inject
+	NomineeRepository nomineeRepository;
 	@Inject
 	SegmentRepository segmentRepository;
 	@Inject
@@ -120,7 +123,16 @@ public class Esign {
 				ArrayList<Integer> PageNo = new ArrayList<>();
 				ArrayList<Integer> height = new ArrayList<>();
 				ArrayList<Integer> width = new ArrayList<>();
+				Long countNominee = nomineeRepository.countByApplicationId(applicationId);
+				System.out.println("the countNominee"+countNominee);
 				SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationId);
+				if (countNominee==0) {
+					xCoordinatesList.add(430);
+					yCoordinatesList.add(392);
+					PageNo.add(17);
+					height.add(40);
+					width.add(100);	
+				}
 				// Segment Esign
 				int pageNoSegment = 12; // Change this to the desired page number
 				int heightValue = 40; // Change this to the actual height value

@@ -42,6 +42,7 @@ import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.entity.GuardianEntity;
 import in.codifi.api.entity.IvrEntity;
+import in.codifi.api.entity.KraKeyValueEntity;
 import in.codifi.api.entity.NomineeEntity;
 import in.codifi.api.entity.PdfDataCoordinatesEntity;
 import in.codifi.api.entity.ProfileEntity;
@@ -57,6 +58,7 @@ import in.codifi.api.repository.CkycResponseRepos;
 import in.codifi.api.repository.DocumentRepository;
 import in.codifi.api.repository.GuardianRepository;
 import in.codifi.api.repository.IvrRepository;
+import in.codifi.api.repository.KraKeyValueRepository;
 import in.codifi.api.repository.NomineeRepository;
 import in.codifi.api.repository.PdfDataCoordinatesrepository;
 import in.codifi.api.repository.ProfileRepository;
@@ -99,6 +101,8 @@ public class PdfService implements IPdfService {
 	CkycResponseRepos ckycResponseRepos;
 	@Inject
 	DocumentService documentService;
+	@Inject
+	KraKeyValueRepository kraKeyValueRepository;
 	@Inject
 	Esign esign;
 	@Inject
@@ -408,6 +412,44 @@ public class PdfService implements IPdfService {
 				} else {
 					map.put("CurrentAddressLine2", address.getAddress2());
 				}
+				if (address.getIsdigi() == 1) {
+					map.put("UID Aadhaar", "yes");
+				} else if (address != null && address.getIsKra() == 1) {
+					if (address.getKraaddressproof() != null) {
+						if (address.getKraaddressproof().equalsIgnoreCase("PASSPORT")) {
+							map.put("Passpost", address.getKraaddressproof());
+							map.put("A-Passport Number", address.getKraaddressproof());
+						} else if (address.getKraaddressproof().equalsIgnoreCase("VOTER IDENTITY CARD")) {
+							map.put("B-Voter ID Card", address.getKraaddressproof());
+							map.put("Voter ID", address.getKraaddressproof());
+						} else if (address.getKraaddressproof().equalsIgnoreCase("DRIVING LICENSE")) {
+							map.put("C-Driving License", address.getKraaddressproof());
+							map.put("Driving Licence", address.getKraaddressproof());
+						} else if (address.getKraaddressproof().equalsIgnoreCase("RATION CARD")) {
+							map.put("Ration Card", address.getKraaddressproof());
+						}else if (address.getKraaddressproof().equalsIgnoreCase("REGISTERED LEASE / SALE AGREEMENT OF RESIDENCE")) {
+							map.put("Registered Lease/Sales Agreement of Residence", address.getKraaddressproof());
+						}else if (address.getKraaddressproof().equalsIgnoreCase("LATEST BANK ACCOUNT STATEMENT")) {
+							map.put("Latest Bank A/C  Statement/Passbook", address.getKraaddressproof());							
+						}else if (address.getKraaddressproof().equalsIgnoreCase("LATEST LAND LINE TELEPHONE BILL")) {
+							map.put("Latest Telephone Bill(Only Land Line)", address.getKraaddressproof());
+						}else if (address.getKraaddressproof().equalsIgnoreCase("LATEST ELECTRICITY BILL")) {
+							map.put("Latest Electricity Bill", address.getKraaddressproof());
+						}else if (address.getKraaddressproof().equalsIgnoreCase("GAS BILL")) {
+							map.put("Latest Gas Bill", address.getKraaddressproof());
+						} else if (address.getKraaddressproof().equalsIgnoreCase("AADHAAR")) {
+							map.put("UID Aadhaar", address.getKraaddressproof());
+							map.put("F-Proof of Possission of Aadhaar", address.getKraaddressproof());
+							map.put("Others1", Integer.toString(address.getIsKra()));
+							map.put("Others(Please Specify)", address.getKraaddressproof());
+						}
+						else {
+							map.put("Others1", Integer.toString(address.getIsKra()));
+							map.put("Others(Please Specify)", address.getKraaddressproof());
+							map.put("Others2", Integer.toString(address.getIsKra()));
+						}
+					}
+				}
 				map.put("CurrentAddressLine3", address.getKraAddress3());
 				if (address.getKraCity() != null) {
 					map.put("CurrentCity", address.getKraCity());
@@ -419,12 +461,12 @@ public class PdfService implements IPdfService {
 				} else {
 					map.put("CurrentDistrict", address.getDistrict());// TODO
 				}
-				map.put("Place", address.getDistrict());
 				if (address.getPincode() != null) {
 					map.put("CurrentPincode", address.getPincode().toString());
 				} else {
 					map.put("CurrentPincode", Integer.toString(address.getKraPerPin()));
 				}
+				map.put("Place", address.getKraPerCity());
 				map.put("CurrentState", address.getState());
 				map.put("CurrentCountry", "INDIA");
 				// For Page
@@ -452,7 +494,11 @@ public class PdfService implements IPdfService {
 				map.put("PermenentAddress3", address.getKraAddress3());
 				map.put("PermenentCity", address.getKraCity());
 				map.put("PermenentDistrict", address.getDistrict());
-				map.put("Place", address.getDistrict());
+				if( address.getDistrict()!=null) {
+					map.put("Place", address.getDistrict());		
+				}else if(address.getLandmark()!=null) {
+					map.put("Place",address.getLandmark());
+				}
 				if (address.getPincode() != null) {
 					map.put("PermenentPincode", address.getPincode().toString());
 				} else {
@@ -466,7 +512,26 @@ public class PdfService implements IPdfService {
 				map.put("OthersProof", Integer.toString(address.getIsdigi()));
 				map.put("Others(Please Specify)", "AADHAR CARD");
 			}
+			String state = null;
+			String stateCode = null;
+
+			if (address.getState() != null) {
+			    state = address.getState();
+			} else if (address.getKraPerState() != null) {
+			    state = address.getKraPerState();
+			}
+
+			if (state != null) {
+			    KraKeyValueEntity kraKeyValueEntity = kraKeyValueRepository.findByMasterNameAndMasterIdAndKraValue("STATE", "1", state);
+			    if (kraKeyValueEntity != null) {
+			        stateCode = kraKeyValueEntity.getKraKey();
+			    }
+			}
+
+			map.put("stateCode", stateCode);
+
 		}
+		
 		map.put("ISO 3166 Country code", "IN");
 
 		Optional<ApplicationUserEntity> applicationData = applicationUserRepository.findById(applicationId);
