@@ -247,8 +247,8 @@ public class PdfService implements IPdfService {
 					contentStream.newLineAtOffset(x, y);
 
 					String inputText;
-					if (pdfDatas.get(i).getColumnNames().equals("notApplicableMessage")) {
-						inputText = map.get("notApplicableMessage");
+					if (pdfDatas.get(i).getColumnNames().equals("notApplicableMessage")||pdfDatas.get(i).getColumnNames().equals("notApplicableMessageNominee")) {
+						inputText = map.get(pdfDatas.get(i).getColumnNames());
 						contentStream.setFont(PDType1Font.HELVETICA_BOLD, 60);
 						contentStream.setTextMatrix(Math.cos(Math.PI / 4), Math.sin(Math.PI / 4),
 								-Math.sin(Math.PI / 4), Math.cos(Math.PI / 4), 100, 280);
@@ -605,12 +605,18 @@ public class PdfService implements IPdfService {
 			}
 		}
 		List<NomineeEntity> nomineeEntity = nomineeRepository.findByapplicationId(applicationId);
-		if (!nomineeEntity.isEmpty()) {
-			map.put("notApplicableMessage", "Not Applicable");
+		if (nomineeEntity == null ||nomineeEntity.isEmpty() ) {
+		    // nomineeEntity is null, set "notApplicableMessageNominee" to "Not Applicable"
+		    map.put("notApplicableMessageNominee", "Not Applicable");
+		    map.put("Client NameNomineeopt", applicationData.get().getUserName());
+		    
+		}else
+		 if (!nomineeEntity.isEmpty()) {
+			 map.put("Client NameNominee", applicationData.get().getUserName());
+			 map.put("notApplicableMessage", "Not Applicable");
 			for (int i = 0; i < nomineeEntity.size(); i++) {
 				System.out.println("NomOneAllocation ----- " + nomineeEntity.get(i).getAllocation());
 				if (i == 0) {
-
 					map.put("I/We wish to make a nominaton.", nomineeEntity.get(i).getFirstname());
 					map.put("Details of 1st Nominee Name of the nominee(s)", nomineeEntity.get(i).getFirstname());
 					if (nomineeEntity.get(i).getAllocation() > 0) {
