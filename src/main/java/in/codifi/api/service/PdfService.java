@@ -373,13 +373,13 @@ public class PdfService implements IPdfService {
 			} else if (profileEntity.getOccupation().equalsIgnoreCase("Others")) {
 				map.put("Occupaton Others", profileEntity.getOccupation());
 			}
-			if (profileEntity.getPoliticalExposure().contains("yes")) {
+			if (profileEntity.getPoliticalExposure().equalsIgnoreCase("yes")) {
 				map.put("Please Tick, as Applicable Politcally Exposed Person (PEP) /",
 						profileEntity.getPoliticalExposure());
 				map.put("Please Tick, as Applicable Related to a Politcally Exposed Person (PEP)",
 						profileEntity.getPoliticalExposure());
 			} else {
-				map.put("Not a Politically Exposed Person :No", profileEntity.getPoliticalExposure());
+				map.put("Please Tick, as Applicable Not a Politcally Exposed Person (PEP)/", profileEntity.getPoliticalExposure());
 				map.put("Please Tick, as Applicable Not a Related to a Politcally Exposed Person (PEP)",
 						profileEntity.getPoliticalExposure());
 			}
@@ -464,7 +464,7 @@ public class PdfService implements IPdfService {
 					map.put("CurrentPincode", Integer.toString(address.getKraPerPin()));
 				}
 				map.put("Place", address.getKraPerCity());
-				map.put("CurrentState", address.getState());
+				map.put("CurrentState1", address.getKraState());
 				map.put("CurrentCountry", "INDIA");
 				// For Page
 				map.put("PermenentAddress1", address.getKraPerAddress1());
@@ -501,6 +501,7 @@ public class PdfService implements IPdfService {
 				} else {
 					map.put("PermenentPincode", null);
 				}
+				map.put("CurrentState1", address.getState());
 				map.put("PermenentState", address.getState());
 				map.put("PermenentCountry", "INDIA");
 			}
