@@ -18,5 +18,7 @@ public interface KraKeyValueRepository extends CrudRepository<KraKeyValueEntity,
 			@Param("kraKey") String kraKey);
 
 	List<KraKeyValueEntity> findByMasterIdAndMasterName(String masterId, String masterName);
+	
+	KraKeyValueEntity findByMasterNameAndMasterIdAndKraValue(String masterName, String masterId, String kraValue);
 
 }
