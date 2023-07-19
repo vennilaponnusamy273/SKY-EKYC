@@ -132,6 +132,12 @@ public class Esign {
 					PageNo.add(17);
 					height.add(40);
 					width.add(100);	
+				}else {
+					xCoordinatesList.add(80);
+					yCoordinatesList.add(520);
+					PageNo.add(16);
+					height.add(40);
+					width.add(100);
 				}
 				// Segment Esign
 				int pageNoSegment = 12; // Change this to the desired page number
