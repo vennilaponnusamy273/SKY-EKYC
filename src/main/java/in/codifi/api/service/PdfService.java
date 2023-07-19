@@ -328,17 +328,17 @@ public class PdfService implements IPdfService {
 			}
 
 			map.put("AnnualIncome", profileEntity.getAnnualIncome());
-			if (profileEntity.getAnnualIncome().equalsIgnoreCase("Below Rs.1 Lac")) {
+			if (profileEntity.getAnnualIncome().equalsIgnoreCase("0-1 lakh")) {
 				map.put("Below Rs.1 Lac", profileEntity.getAnnualIncome());
-			} else if (profileEntity.getAnnualIncome().equalsIgnoreCase("Rs.1-5 Lac")) {
+			} else if (profileEntity.getAnnualIncome().equalsIgnoreCase("1-5 lakhs")) {
 				map.put("Rs.1-5 Lac", profileEntity.getAnnualIncome());
-			} else if (profileEntity.getAnnualIncome().equalsIgnoreCase("Rs.5-10 Lac")) {
+			} else if (profileEntity.getAnnualIncome().equalsIgnoreCase("5-10 lakhs")) {
 				map.put("Rs.5-10 Lac", profileEntity.getAnnualIncome());
 			}
 
-			else if (profileEntity.getAnnualIncome().equalsIgnoreCase("Rs.10-25 Lacc")) {
+			else if (profileEntity.getAnnualIncome().equalsIgnoreCase("10-20 lakhs")) {
 				map.put("Rs.10-25 Lac", profileEntity.getAnnualIncome());
-			} else if (profileEntity.getAnnualIncome().equalsIgnoreCase("> Rs.25 Lac")) {
+			} else if (profileEntity.getAnnualIncome().equalsIgnoreCase("More than 20 lakhs")) {
 				map.put("> Rs.25 Lac", profileEntity.getAnnualIncome());
 			}
 
@@ -379,7 +379,8 @@ public class PdfService implements IPdfService {
 				map.put("Please Tick, as Applicable Related to a Politcally Exposed Person (PEP)",
 						profileEntity.getPoliticalExposure());
 			} else {
-				map.put("Please Tick, as Applicable Not a Politcally Exposed Person (PEP)/", profileEntity.getPoliticalExposure());
+				map.put("Please Tick, as Applicable Not a Politcally Exposed Person (PEP)/",
+						profileEntity.getPoliticalExposure());
 				map.put("Please Tick, as Applicable Not a Related to a Politcally Exposed Person (PEP)",
 						profileEntity.getPoliticalExposure());
 			}
@@ -424,23 +425,23 @@ public class PdfService implements IPdfService {
 							map.put("Driving Licence", address.getKraaddressproof());
 						} else if (address.getKraaddressproof().equalsIgnoreCase("RATION CARD")) {
 							map.put("Ration Card", address.getKraaddressproof());
-						}else if (address.getKraaddressproof().equalsIgnoreCase("REGISTERED LEASE / SALE AGREEMENT OF RESIDENCE")) {
+						} else if (address.getKraaddressproof()
+								.equalsIgnoreCase("REGISTERED LEASE / SALE AGREEMENT OF RESIDENCE")) {
 							map.put("Registered Lease/Sales Agreement of Residence", address.getKraaddressproof());
-						}else if (address.getKraaddressproof().equalsIgnoreCase("LATEST BANK ACCOUNT STATEMENT")) {
-							map.put("Latest Bank A/C  Statement/Passbook", address.getKraaddressproof());							
-						}else if (address.getKraaddressproof().equalsIgnoreCase("LATEST LAND LINE TELEPHONE BILL")) {
+						} else if (address.getKraaddressproof().equalsIgnoreCase("LATEST BANK ACCOUNT STATEMENT")) {
+							map.put("Latest Bank A/C  Statement/Passbook", address.getKraaddressproof());
+						} else if (address.getKraaddressproof().equalsIgnoreCase("LATEST LAND LINE TELEPHONE BILL")) {
 							map.put("Latest Telephone Bill(Only Land Line)", address.getKraaddressproof());
-						}else if (address.getKraaddressproof().equalsIgnoreCase("LATEST ELECTRICITY BILL")) {
+						} else if (address.getKraaddressproof().equalsIgnoreCase("LATEST ELECTRICITY BILL")) {
 							map.put("Latest Electricity Bill", address.getKraaddressproof());
-						}else if (address.getKraaddressproof().equalsIgnoreCase("GAS BILL")) {
+						} else if (address.getKraaddressproof().equalsIgnoreCase("GAS BILL")) {
 							map.put("Latest Gas Bill", address.getKraaddressproof());
 						} else if (address.getKraaddressproof().equalsIgnoreCase("AADHAAR")) {
 							map.put("UID Aadhaar", address.getKraaddressproof());
 							map.put("F-Proof of Possission of Aadhaar", address.getKraaddressproof());
 							map.put("Others1", Integer.toString(address.getIsKra()));
 							map.put("Others(Please Specify)", address.getKraaddressproof());
-						}
-						else {
+						} else {
 							map.put("Others1", Integer.toString(address.getIsKra()));
 							map.put("Others(Please Specify)", address.getKraaddressproof());
 							map.put("Others2", Integer.toString(address.getIsKra()));
@@ -491,10 +492,10 @@ public class PdfService implements IPdfService {
 				map.put("PermenentAddress3", address.getKraAddress3());
 				map.put("PermenentCity", address.getKraCity());
 				map.put("PermenentDistrict", address.getDistrict());
-				if( address.getDistrict()!=null) {
-					map.put("Place", address.getDistrict());		
-				}else if(address.getLandmark()!=null) {
-					map.put("Place",address.getLandmark());
+				if (address.getDistrict() != null) {
+					map.put("Place", address.getDistrict());
+				} else if (address.getLandmark() != null) {
+					map.put("Place", address.getLandmark());
 				}
 				if (address.getPincode() != null) {
 					map.put("PermenentPincode", address.getPincode().toString());
@@ -514,22 +515,23 @@ public class PdfService implements IPdfService {
 			String stateCode = null;
 
 			if (address.getState() != null) {
-			    state = address.getState();
+				state = address.getState();
 			} else if (address.getKraPerState() != null) {
-			    state = address.getKraPerState();
+				state = address.getKraPerState();
 			}
 
 			if (state != null) {
-			    KraKeyValueEntity kraKeyValueEntity = kraKeyValueRepository.findByMasterNameAndMasterIdAndKraValue("STATE", "1", state);
-			    if (kraKeyValueEntity != null) {
-			        stateCode = kraKeyValueEntity.getKraKey();
-			    }
+				KraKeyValueEntity kraKeyValueEntity = kraKeyValueRepository
+						.findByMasterNameAndMasterIdAndKraValue("STATE", "1", state);
+				if (kraKeyValueEntity != null) {
+					stateCode = kraKeyValueEntity.getKraKey();
+				}
 			}
 
 			map.put("stateCode", stateCode);
 
 		}
-		
+
 		map.put("ISO 3166 Country code", "IN");
 
 		Optional<ApplicationUserEntity> applicationData = applicationUserRepository.findById(applicationId);
@@ -637,9 +639,7 @@ public class PdfService implements IPdfService {
 					map.put("1stNPancard", nomineeEntity.get(i).getPancard());
 					map.put("Signature1stNFirstname", nomineeEntity.get(i).getFirstname());
 					map.put("Name(s) of Holder(s) Sole/First Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
-					String nomineeIdString = nomineeEntity.get(i).getNomineeId().toString().replaceAll("[^0-9]", "");
-					long nomineeId = Long.parseLong(nomineeIdString);
-					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeId);
+					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeEntity.get(i).getId());
 					if (guardianEntity != null) {
 						map.put("1stNDateOfbirth", nomineeEntity.get(i).getDateOfbirth());
 						map.put("Details of 1st Nominee Name of Guardian", guardianEntity.getFirstname());
@@ -691,10 +691,7 @@ public class PdfService implements IPdfService {
 					map.put("Signature2ndNFirstname", nomineeEntity.get(i).getFirstname());
 					map.put("Name(s) of Holder(s) Second Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
 					map.put("2ndNPancard", nomineeEntity.get(i).getPancard());
-
-					String nomineeIdString = nomineeEntity.get(i).getNomineeId().toString().replaceAll("[^0-9]", "");
-					long nomineeId = Long.parseLong(nomineeIdString);
-					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeId);
+					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeEntity.get(i).getId());
 					if (guardianEntity != null) {
 						map.put("2ndNDateOfbirth", nomineeEntity.get(i).getDateOfbirth());
 						map.put("Details of 2nd Nominee Name of Guardian", guardianEntity.getFirstname());
@@ -749,9 +746,7 @@ public class PdfService implements IPdfService {
 					map.put("Signature3rdNFirstname", nomineeEntity.get(i).getFirstname());
 					map.put("Name(s) of Holder(s) Third Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
 					map.put("3rdNPancard", nomineeEntity.get(i).getPancard());
-					String nomineeIdString = nomineeEntity.get(i).getNomineeId().toString().replaceAll("[^0-9]", "");
-					long nomineeId = Long.parseLong(nomineeIdString);
-					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeId);
+					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeEntity.get(i).getId());
 					if (guardianEntity != null) {
 						map.put("3rdNDateOfbirth", nomineeEntity.get(i).getDateOfbirth());
 						map.put("Details of 3rd Nominee Name of Guardian", guardianEntity.getFirstname());
