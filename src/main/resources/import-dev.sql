@@ -357,13 +357,35 @@ INSERT INTO tbl_kra_keyvalue_pair(master_id,master_name,data_key,data_value) val
 ('11','STAGE','10','IPV Completed'),
 ('11','STAGE','11','PDF DOWNLOAD'),
 ('11','STAGE','12','ESIGN Generated'),
-('11','STAGE','13','End page');
+('11','STAGE','13','End page'),
+('12','STAGE_REJECTION','0.5','Mobile OTP Stage'),
+('12','STAGE_REJECTION','1','EMail OTP Stage'),
+('12','STAGE_REJECTION','1.1','Password Setup Stage'),
+('12','STAGE_REJECTION','2','Pan Stage'),
+('12','STAGE_REJECTION','2.1','Pan name Stage'),
+('12','STAGE_REJECTION','2.2','Pan Confirm Stage'),
+('12','STAGE_REJECTION','2.3','KRA DOB Stage'),
+('12','STAGE_REJECTION','3','Aadhar Stage'),
+('12','STAGE_REJECTION','4','Profile Stage'),
+('12','STAGE_REJECTION','5','Bank Entry Stage'),
+('12','STAGE_REJECTION','5.1','Penny Drop Stage'),
+('12','STAGE_REJECTION','6','Segment Selection Stage'),
+('12','STAGE_REJECTION','7','Payment Stage'),
+('12','STAGE_REJECTION','8','Nominee Stage'),
+('12','STAGE_REJECTION','8.1','Nominee Stage'),
+('12','STAGE_REJECTION','8.2','Nominee Stage'),
+('12','STAGE_REJECTION','8.3','Nominee Stage'),
+('12','STAGE_REJECTION','9','Document Stage'),
+('12','STAGE_REJECTION','10','IPV Stage'),
+('12','STAGE_REJECTION','11','Pdf Download Stage'),
+('12','STAGE_REJECTION','12','Esign Generated Stage'),
+('12','STAGE_REJECTION','13','End page');
 INSERT INTO tbl_email_template(keyData,subject,value,body,active_status)
 VALUES ('ivr','NITHIHQ-IPV LINK', '1','<html> <body><div><div>Dear user,</div><br>Your NIDHI eKYC Application IPV is pending. Kindly click here:<a href={generateShortLink1}>{generateShortLink1}</a><br><br><div>Regards,<br> </div><div style="font-weight:bold;font-size:15px;">NIDHIHQ</div> </div></div></body></html></body></html><br>',1),
 ('Esign','Nidhi - Esign Successful', '3','<!DOCTYPE html><html><body><div style=\"color: #4b0082;\"><div><img style=\"margin-left: 10px\" src=\"https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg\" width=\"100\" height=\"100\" /></div><div>Dear <span style=\"font-weight: bold\">{UserName}</span></div><br><div>Welcome to ⓒ Sky Commodities India Pvt Ltd!</div><div><p>Your well being is of great importance to us and trust you and your family members are doing well.</p></div><div><p>We''re incredibly excited to have you onboard. We hereby enclose your KYC application and details for your ready reference.</p></div><div> <p>Should you need any clarification, do you require assistance? Visit our <a href=\"https://web.nidhihq.com/\">help center</a>.</p></div><div><p>Looking forward to serving your investment need.</p></div><div><p>We urge you to follow the government advisories and stay safe.</p></div><div>Regards,</div><div style=\"font-weight: bold; display: flex\"><img src=\"https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg\" width=\"55\" height=\"30\" /> </div><br /></div></div></body></html>',1),
 ('Rejection','Applciation on hold', '4','<!DOCTYPE html><html><head><style>body {font-family: Arial, sans-serif;background-color: #f2f2f2;}</style></head><body><div class=\"\"><img src=\"https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg\" width=\"55\" height=\"30\" /><div><span>Happy Investing!</span></div><br><div>Dear <span style=\"font-weight: bold\">{UserName},</span></div><br><div>Your EKYC application is kept on hold for the below said reason. Request you to Re-submit the application using the below link.</div><br><div><p><a href=\"{ReSubmitLink}\">Click here to Re-Submit</a></p></div><div><div>Reason:</div><br><div>{StagesWithReasons}</div></div><br><div>Regards,</div><div style=\"font-weight: bold; display: flex\"><img src=\"https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg\" width=\"55\" height=\"30\" /></div></div></body></html>',1),
 ('otp', '{otp} is your OTP for email verification on Nidhi', '2', '<html><body><div style="background-color:#9eb0b747;"><br><div class="container" style="background-color: white; margin:30px; padding: 15px"><div style="display:flex;justify-content:center"><img src="https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg" width="150" height="50"/></div><br /><div style="font-weight: bold; text-align: center; font-size: 20px">OTP - {otp} </div><br /><br /><div>Dear user,</div><br /><div>Your one-time password (OTP) is<span style="font-weight: bold"> {otp} </span>.</div> <br /><div>Copy-paste the above OTP to log in to your account.</div> <br /> <div>This OTP is valid for 5 minutes only &amp; usable only once.</div> <br /><div>Regards,</div><div style="font-weight: bold; display: flex"><img src="https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg" width="55" height="30" /> </div><br /></div><div style="color: green; text-align: center"><div>ⓒ Sky Commodities India Pvt Ltd</div><br /><div>About Us | Terms &amp; Conditions | Privacy Policy</div> <br /><div> 1st Floor, Proms Complex, SBI Colony, 1A Koramangala, 560034</div>  <br /> <div>This is an auto-generated email. You received this email because you are subscribed to NIDHI.</div><br /><div>Need assistance? Visit our <a href="https://web.nidhihq.com/"> help center </a>.</div><br><br></div></div></div></body></html>',1),
-('referral','Referral link', '3','<!DOCTYPE html><html><body><div style=\"color: #4b0082;\"><div><img style=\"margin-left: 10px\" src=\"https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg\" width=\"100\" height=\"100\" /></div><div>Dear <span style=\"font-weight: bold\">{UserName}</span></div><br><div>Welcome to ⓒ Sky Commodities India Pvt Ltd!</div><div><p>Your well being is of great importance to us and trust you and your family members are doing well.</p></div><div><p>We''re incredibly excited to have you onboard. We hereby enclose your KYC application and details for your ready reference.</p></div><div> <p>Should you need any clarification, do you require assistance? Visit our <a href=\"https://web.nidhihq.com/\">help center</a>.</p></div><div><p>Looking forward to serving your investment need.</p></div><div><p>We urge you to follow the government advisories and stay safe.</p></div><div>Regards,</div><div style=\"font-weight: bold; display: flex\"><img src=\"https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg\" width=\"55\" height=\"30\" /> </div><br /></div></div></body></html>',1);
+('referral','Referral link', '3','<!DOCTYPE html><html><body><div style=\"color: #4b0082;margin-left: 75px\"><br><div>Dear <span style=\"font-weight: bold\">Sir/Madam,</span></div><br><div>Greetings from Nidhi!</div><br><div>Please click on the <a href= {Link}>link<a> to complete your online account opening process. </div><br><div>Regards</div><div><img src=\"https://web.nidhihq.com/assets/nidhi-logo.a16a42d3.svg\" width=\"55\" height=\"30\" /></div></div></body></html>',1);
 INSERT INTO tbl_email_template(keyData,cc,toAddress,subject,value,body,active_status)
 VALUES ('error','pradeep.r@codifi.in,sowmiya@codifi.in,gowthaman@codifi.in','vennila@codifi.in','ERROR PROCESSING REQUEST', '3','<!DOCTYPE html>
 <html lang="en">
