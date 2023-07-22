@@ -41,12 +41,14 @@ import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.EmailTemplateEntity;
 import in.codifi.api.entity.ErrorLogEntity;
 import in.codifi.api.entity.ReqResEntity;
+import in.codifi.api.entity.SmsLogEntity;
 import in.codifi.api.model.AddressModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.EmailTemplateRepository;
 import in.codifi.api.repository.ErrorLogRepository;
 import in.codifi.api.repository.ReqResRepository;
+import in.codifi.api.repository.SmsLogRepository;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.Mailer;
 
@@ -69,7 +71,8 @@ public class CommonMethods {
 
 	@Inject
 	ErrorLogRepository errorLogRepository;
-
+	@Inject
+	SmsLogRepository smsLogRepository;
 	/**
 	 * Method to generate OTP for Mobile number
 	 * 
@@ -437,4 +440,39 @@ public class CommonMethods {
 			mailer.send(mail);
 		}
 	}
+	
+	/**
+	 * Method to create smsLogMethod
+	 * 
+	 * @author Vennila
+	 * @param SmsLogEntity
+	 * @return
+	 */
+	
+	public void storeSmsLog(String request, String smsResponse, String logMethod, long mobileNumber) {
+	    if (request == null || smsResponse == null || logMethod == null) {
+	        // Handle invalid input, such as throwing an IllegalArgumentException.
+	        throw new IllegalArgumentException("Request, smsResponse, or logMethod cannot be null.");
+	    }
+
+	    try {
+	        SmsLogEntity smsLogEntity = smsLogRepository.findByMobileNoAndLogMethod(mobileNumber, logMethod);
+	        if (smsLogEntity == null) {
+	            // Create a new SmsLogEntity and set its properties.
+	            smsLogEntity = new SmsLogEntity();
+	            smsLogEntity.setMobileNo(mobileNumber);
+	            smsLogEntity.setLogMethod(logMethod);
+	        }
+
+	        // Update the request and response logs.
+	        smsLogEntity.setRequestLog(request);
+	        smsLogEntity.setResponseLog(smsResponse);
+
+	        // Save the entity (either creating a new record or updating an existing one).
+	        smsLogRepository.save(smsLogEntity);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+
 }
