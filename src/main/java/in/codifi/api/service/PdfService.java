@@ -178,40 +178,78 @@ public class PdfService implements IPdfService {
 			for (DocumentEntity entity : documents) {
 				attachmentUrl = entity.getAttachementUrl();
 				if (attachmentUrl.endsWith(".pdf")) {
-					try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
-						File fileAadhar = new File(attachmentUrl);
-						PDFMergerUtility merger = new PDFMergerUtility();
-						PDDocument combine = PDDocument.load(fileAadhar);
-						merger.appendDocument(document, combine);
-						merger.mergeDocuments();
-						combine.close();
-					}
-				} else {
-					BufferedImage image = ImageIO.read(new File(attachmentUrl));
-					PDPage page = new PDPage();
-					document.addPage(page);
-					PDRectangle pageSize = page.getMediaBox();
+				    try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
+				        PDFMergerUtility merger = new PDFMergerUtility();
+				        PDDocument combine = PDDocument.load(new File(attachmentUrl));
+				        merger.appendDocument(document, combine);
+				        merger.mergeDocuments();
+				        combine.close();
 
-					// Calculate the maximum width and height that the image can occupy on the page
-					float maxWidth = pageSize.getWidth() * 0.8f;
-					float maxHeight = pageSize.getHeight() * 0.8f;
+				        // The main document and attachment have been merged, and the verification image can now be added
+				        int originalPages = document.getNumberOfPages()-1;
+				        //int originalPages1 = attachment.getNumberOfPages();
+				        //int verifyPage = originalPages + originalPages1;
 
-					// Calculate the aspect ratio of the image
-					float aspectRatio = (float) image.getWidth() / (float) image.getHeight();
+				        // Load the verification image
+				        BufferedImage verifyImage = null;
+				        File verifyImageFile = new File(props.getVerifyImage());
+				        if (verifyImageFile.exists()) {
+				            verifyImage = ImageIO.read(verifyImageFile);
+				        } else {
+				            System.err.println("Verification image file does not exist: " + verifyImageFile.getAbsolutePath());
+				        }
 
-					// Calculate the width and height of the image based on its aspect ratio and
-					// maximum size
-					float imageWidth = Math.min(maxWidth, maxHeight * aspectRatio);
-					float imageHeight = Math.min(maxHeight, maxWidth / aspectRatio);
+				        if (verifyImage != null) {
+				            PDPage page = document.getPage(originalPages);
+				            try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true)) {
+				                // Create the verification image as PDImageXObject
+				                PDImageXObject importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(), document);
+				                contentStream.drawImage(importedVerifyImage, 300, 130, 100, 100);
+				            }
+				        }
+				    }
+				}
 
-					// Calculate the position of the image on the page
-					float centerX = (pageSize.getWidth() - imageWidth) / 2f;
-					float centerY = (pageSize.getHeight() - imageHeight) / 2f;
+				else {
+					 BufferedImage image = ImageIO.read(new File(attachmentUrl));
+					    PDPage page = new PDPage();
+					    document.addPage(page);
+					    PDRectangle pageSize = page.getMediaBox();
 
-					PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
-					try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-						contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
-					}
+					    // Calculate the maximum width and height that the image can occupy on the page
+					    float maxWidth = pageSize.getWidth() * 0.8f;
+					    float maxHeight = pageSize.getHeight() * 0.8f;
+
+					    // Calculate the aspect ratio of the image
+					    float aspectRatio = (float) image.getWidth() / (float) image.getHeight();
+
+					    // Calculate the width and height of the image based on its aspect ratio and maximum size
+					    float imageWidth = Math.min(maxWidth, maxHeight * aspectRatio);
+					    float imageHeight = Math.min(maxHeight, maxWidth / aspectRatio);
+
+					    // Calculate the position of the image on the page
+					    float centerX = (pageSize.getWidth() - imageWidth) / 2f;
+					    float centerY = (pageSize.getHeight() - imageHeight) / 2f;
+
+					    // Load the verification image from image file (e.g., JPEG, PNG)
+					    BufferedImage verifyImage = null;
+					    File verifyImageFile = new File(props.getVerifyImage());
+					    if (verifyImageFile.exists()) {
+					        verifyImage = ImageIO.read(verifyImageFile);
+					    } else {
+					        System.err.println("Verification image file does not exist: " + verifyImageFile.getAbsolutePath());
+					    }
+					    if (verifyImage != null) {
+					        PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
+					        try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+					            contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
+					            // Create the verification image as PDImageXObject
+					            PDImageXObject importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(), document);
+					            contentStream.drawImage(importedVerifyImage, 300, 130, 100, 100);
+					        }
+					    } else {
+					        System.err.println("Failed to load the verification image.");
+					    }
 				}
 			}
 			// document.save(props.getOutputPdf());
