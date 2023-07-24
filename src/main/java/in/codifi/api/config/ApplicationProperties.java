@@ -129,6 +129,8 @@ public class ApplicationProperties {
 	String esignLocation;
 	@ConfigProperty(name = "appconfig.esign.pfx.tickimage")
 	String esignTickImage;
+	@ConfigProperty(name = "appconfig.esign.doc.verifyimage")
+	String verifyImage;
 	@ConfigProperty(name = "quarkus.mailer.from")
 	String mailfrom;
 	@ConfigProperty(name = "appconfig.encrypt.key")
