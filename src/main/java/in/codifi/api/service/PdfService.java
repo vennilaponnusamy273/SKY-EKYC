@@ -187,10 +187,6 @@ public class PdfService implements IPdfService {
 
 				        // The main document and attachment have been merged, and the verification image can now be added
 				        int originalPages = document.getNumberOfPages()-1;
-				        //int originalPages1 = attachment.getNumberOfPages();
-				        //int verifyPage = originalPages + originalPages1;
-
-				        // Load the verification image
 				        BufferedImage verifyImage = null;
 				        File verifyImageFile = new File(props.getVerifyImage());
 				        if (verifyImageFile.exists()) {
@@ -204,7 +200,7 @@ public class PdfService implements IPdfService {
 				            try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true)) {
 				                // Create the verification image as PDImageXObject
 				                PDImageXObject importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(), document);
-				                contentStream.drawImage(importedVerifyImage, 300, 130, 100, 100);
+				                contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
 				            }
 				        }
 				    }
@@ -245,7 +241,7 @@ public class PdfService implements IPdfService {
 					            contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
 					            // Create the verification image as PDImageXObject
 					            PDImageXObject importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(), document);
-					            contentStream.drawImage(importedVerifyImage, 300, 130, 100, 100);
+					            contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
 					        }
 					    } else {
 					        System.err.println("Failed to load the verification image.");
@@ -549,7 +545,8 @@ public class PdfService implements IPdfService {
 				map.put("OthersProof", Integer.toString(address.getIsdigi()));
 				map.put("Others(Please Specify)", "AADHAR CARD");
 			}
-			String state = null;
+			//Below use to get stateCode from kraTable
+			/**String state = null;
 			String stateCode = null;
 
 			if (address.getState() != null) {
@@ -566,8 +563,7 @@ public class PdfService implements IPdfService {
 				}
 			}
 
-			map.put("stateCode", stateCode);
-
+			map.put("stateCode", stateCode);**/
 		}
 
 		map.put("ISO 3166 Country code", "IN");
