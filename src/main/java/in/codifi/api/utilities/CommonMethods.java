@@ -471,14 +471,12 @@ public class CommonMethods {
 	    }
 
 	    try {
-	        SmsLogEntity smsLogEntity = smsLogRepository.findByMobileNoAndLogMethod(mobileNumber, logMethod);
-	        if (smsLogEntity == null) {
+	       // SmsLogEntity smsLogEntity = smsLogRepository.findByMobileNoAndLogMethod(mobileNumber, logMethod);
+	        //if (smsLogEntity == null) {
 	            // Create a new SmsLogEntity and set its properties.
-	            smsLogEntity = new SmsLogEntity();
+	    		SmsLogEntity smsLogEntity = new SmsLogEntity();
 	            smsLogEntity.setMobileNo(mobileNumber);
 	            smsLogEntity.setLogMethod(logMethod);
-	        }
-
 	        // Update the request and response logs.
 	        smsLogEntity.setRequestLog(request);
 	        smsLogEntity.setResponseLog(smsResponse);
