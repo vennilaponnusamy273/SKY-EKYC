@@ -452,7 +452,7 @@ public class CommonMethods {
 			mail.addAttachment(fileName, f, contentType);
 			mailer.send(mail);
 			String rawContent="body:"+body+" "+"subject:"+" "+subject;
-			storeEmailLog(rawContent,subject,"The email was sent: " + mail,"sendMailIvr",mailIds);
+			storeEmailLog(rawContent,subject,"The email was sent: " + mail,"sendEsignedMail",mailIds);
 		}
 	}
 	
