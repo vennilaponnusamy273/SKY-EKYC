@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.entity.EmailLogEntity;
 import in.codifi.api.entity.EmailTemplateEntity;
 import in.codifi.api.entity.ErrorLogEntity;
 import in.codifi.api.entity.ReqResEntity;
@@ -45,6 +46,7 @@ import in.codifi.api.entity.SmsLogEntity;
 import in.codifi.api.model.AddressModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
+import in.codifi.api.repository.EmailLogRepository;
 import in.codifi.api.repository.EmailTemplateRepository;
 import in.codifi.api.repository.ErrorLogRepository;
 import in.codifi.api.repository.ReqResRepository;
@@ -73,6 +75,9 @@ public class CommonMethods {
 	ErrorLogRepository errorLogRepository;
 	@Inject
 	SmsLogRepository smsLogRepository;
+
+	@Inject
+	EmailLogRepository emailLogRepository;
 	/**
 	 * Method to generate OTP for Mobile number
 	 * 
@@ -173,6 +178,8 @@ public class CommonMethods {
 				Mail mail = Mail.withHtml(emailId, subject, body);
 				mailer.send(mail);
 				System.out.println("The email was sent in Template: " + mail);
+				String rawContent="body_Message:"+body+" "+"subject:"+" "+subject;
+				storeEmailLog(rawContent,subject,"The email was sent in Template: " + mail,"sendMailOtp",emailId);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -195,6 +202,8 @@ public class CommonMethods {
 				}
 			}
 			mailer.send(mail);
+			String rawContent="errorMessage:"+errorMessage+" "+"errorCode:"+" "+errorCode;
+			storeEmailLog(rawContent,subject,"The email was sent in error message: " + mail,"sendErrorMail",emailTemplateEntity.getToAddress());
 			System.out.println("The email was sent in error message: " + mail);
 		}
 	}
@@ -215,6 +224,8 @@ public class CommonMethods {
 		String subject = getSubject.replace("{otp}", String.format("%06d", otp));
 		Mail mail = Mail.withHtml(emailId, subject, body);
 		mailer.send(mail);
+		String rawContent="body:"+body+" "+"getSubject:"+" "+getSubject;
+		storeEmailLog(rawContent,subject,"The email was sent: " + mail,"SendMailOTP",emailId);
 		System.out.println("The email was sent: " + mail);
 	}
 
@@ -321,6 +332,8 @@ public class CommonMethods {
 		String subject = emailTempentity.getSubject();
 		Mail mail = Mail.withHtml(emailId, subject, body);
 		mailer.send(mail);
+		String rawContent="body:"+body+" "+"subject:"+" "+subject;
+		storeEmailLog(rawContent,subject,"The email was sent: " + mail,"sendMailIvr",emailId);
 	}
 
 	/**
@@ -438,6 +451,8 @@ public class CommonMethods {
 			String contentType = URLConnection.guessContentTypeFromName(fileName);
 			mail.addAttachment(fileName, f, contentType);
 			mailer.send(mail);
+			String rawContent="body:"+body+" "+"subject:"+" "+subject;
+			storeEmailLog(rawContent,subject,"The email was sent: " + mail,"sendMailIvr",mailIds);
 		}
 	}
 	
@@ -474,5 +489,37 @@ public class CommonMethods {
 	        e.printStackTrace();
 	    }
 	}
+	
+	/**
+	 * Method to create smsLogMethod
+	 * 
+	 * @author Vennila
+	 * @param SmsLogEntity
+	 * @return
+	 */
+	
+	public void storeEmailLog(String message,String ReqSub, String emailResponse, String logMethod,String mailId) {
+	    if (message == null || emailResponse == null || logMethod == null) {
+	        throw new IllegalArgumentException("Request, EmailResponse, or logMethod cannot be null.");
+	    }
+
+	    try {
+	          //  EmailLogEntity emailLogEntity = emailLogRepository.findByEmailIdAndLogMethod(mailId, logMethod);
+	            //if (emailLogEntity == null) {
+	                // Create a new EmailLogEntity and set its properties.
+	        		EmailLogEntity   emailLogEntity = new EmailLogEntity();
+	                emailLogEntity.setEmailId(mailId);
+	                emailLogEntity.setLogMethod(logMethod);
+	                emailLogEntity.setReqLogSub(ReqSub);
+	            // Update the request and response logs.
+	            emailLogEntity.setReqLog(message);
+	            emailLogEntity.setResponseLog(emailResponse);
+
+	            // Save the entity (either creating a new record or updating an existing one).
+	            emailLogRepository.save(emailLogEntity);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}	
 
 }
