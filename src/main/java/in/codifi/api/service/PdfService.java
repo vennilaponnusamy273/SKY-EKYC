@@ -42,7 +42,6 @@ import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.entity.GuardianEntity;
 import in.codifi.api.entity.IvrEntity;
-import in.codifi.api.entity.KraKeyValueEntity;
 import in.codifi.api.entity.NomineeEntity;
 import in.codifi.api.entity.PdfDataCoordinatesEntity;
 import in.codifi.api.entity.ProfileEntity;
