@@ -324,7 +324,18 @@ public class Esign {
 						height.add(heightValue);
 						width.add(widthValue);
 					}
-
+					// Apply default coordinates to pages after the 38th page
+					PDDocument document = PDDocument.load(new File(documentLocation));
+					int pageCount = document.getNumberOfPages();
+					if (pageCount > 38) {
+						for (int i = 38; i < pageCount; i++) {
+							xCoordinatesList.add(60);
+							yCoordinatesList.add(300);
+							PageNo.add(i + 1);
+							height.add(40); // Change this to the actual height value
+							width.add(100); // Change this to the actual width value
+						}
+					}
 					// Loop through coordinates and add to respective lists
 					for (PdfDataCoordinatesEntity entity : coordinatesList) {
 						int xCoordinate = Integer.parseInt(entity.getXCoordinate());

@@ -1009,6 +1009,7 @@ public class PdfService implements IPdfService {
 			int random = commonMethods.generateOTP(9876543210l);
 			String fileName = "lastXml" + random + ".xml";
 			File fXmlFile = new File(props.getFileBasePath() + "TempXMLFiles" + slash + fileName);
+			System.out.println("the fXmlFile"+fXmlFile);
 			if (fXmlFile.createNewFile()) {
 				FileWriter myWriter = new FileWriter(fXmlFile);
 				myWriter.write(msg);
