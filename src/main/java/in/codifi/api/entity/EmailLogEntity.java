@@ -30,6 +30,7 @@ public class EmailLogEntity extends CommonEntity implements Serializable {
 	@Column(name = "reqLog")
 	private String reqLog;
 	
+	@Lob
 	@Column(name = "reqLogSub", length = 1000)
 	private String reqLogSub;
 	
