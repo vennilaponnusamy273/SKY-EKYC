@@ -471,15 +471,11 @@ public class CommonMethods {
 	    }
 
 	    try {
-	       // SmsLogEntity smsLogEntity = smsLogRepository.findByMobileNoAndLogMethod(mobileNumber, logMethod);
-	        //if (smsLogEntity == null) {
-	            // Create a new SmsLogEntity and set its properties.
 	    		SmsLogEntity smsLogEntity = new SmsLogEntity();
 	            smsLogEntity.setMobileNo(mobileNumber);
 	            smsLogEntity.setLogMethod(logMethod);
-	        // Update the request and response logs.
-	        smsLogEntity.setRequestLog(request);
-	        smsLogEntity.setResponseLog(smsResponse);
+	            smsLogEntity.setRequestLog(request);
+	            smsLogEntity.setResponseLog(smsResponse);
 
 	        // Save the entity (either creating a new record or updating an existing one).
 	        smsLogRepository.save(smsLogEntity);
@@ -502,16 +498,12 @@ public class CommonMethods {
 	    }
 
 	    try {
-	          //  EmailLogEntity emailLogEntity = emailLogRepository.findByEmailIdAndLogMethod(mailId, logMethod);
-	            //if (emailLogEntity == null) {
-	                // Create a new EmailLogEntity and set its properties.
 	        		EmailLogEntity   emailLogEntity = new EmailLogEntity();
 	                emailLogEntity.setEmailId(mailId);
 	                emailLogEntity.setLogMethod(logMethod);
 	                emailLogEntity.setReqLogSub(ReqSub);
-	            // Update the request and response logs.
-	            emailLogEntity.setReqLog(message);
-	            emailLogEntity.setResponseLog(emailResponse);
+	                emailLogEntity.setReqLog(message);
+	                emailLogEntity.setResponseLog(emailResponse);
 
 	            // Save the entity (either creating a new record or updating an existing one).
 	            emailLogRepository.save(emailLogEntity);

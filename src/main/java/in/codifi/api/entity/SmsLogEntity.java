@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,9 +26,11 @@ public class SmsLogEntity extends CommonEntity implements Serializable {
 	@Column(name = "mobile_number")
 	private Long mobileNo;
 	
+	@Lob
 	@Column(name = "requestLog")
 	private String  requestLog;
 	
+	@Lob
 	@Column(name = "responseLog")
 	private String responseLog;
 	
