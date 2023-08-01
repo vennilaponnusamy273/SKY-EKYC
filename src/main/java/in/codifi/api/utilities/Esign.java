@@ -124,7 +124,7 @@ public class Esign {
 				ArrayList<Integer> height = new ArrayList<>();
 				ArrayList<Integer> width = new ArrayList<>();
 				Long countNominee = nomineeRepository.countByApplicationId(applicationId);
-				System.out.println("the countNominee"+countNominee);
+				//System.out.println("the countNominee"+countNominee);
 				SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationId);
 				if (countNominee==0) {
 					xCoordinatesList.add(430);
@@ -265,7 +265,20 @@ public class Esign {
 					ArrayList<Integer> PageNo = new ArrayList<>();
 					ArrayList<Integer> height = new ArrayList<>();
 					ArrayList<Integer> width = new ArrayList<>();
-
+					Long countNominee = nomineeRepository.countByApplicationId(applicationID);
+					if (countNominee==0) {
+						xCoordinatesList.add(430);
+						yCoordinatesList.add(392);
+						PageNo.add(17);
+						height.add(40);
+						width.add(100);	
+					}else {
+						xCoordinatesList.add(80);
+						yCoordinatesList.add(520);
+						PageNo.add(16);
+						height.add(40);
+						width.add(100);
+					}
 					SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationID);
 					// Segment Esign
 					int pageNoSegment = 12; // Change this to the desired page number
