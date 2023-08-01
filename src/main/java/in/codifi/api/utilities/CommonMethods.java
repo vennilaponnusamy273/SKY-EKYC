@@ -2,6 +2,7 @@ package in.codifi.api.utilities;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -9,6 +10,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -78,6 +81,7 @@ public class CommonMethods {
 
 	@Inject
 	EmailLogRepository emailLogRepository;
+
 	/**
 	 * Method to generate OTP for Mobile number
 	 * 
@@ -178,8 +182,8 @@ public class CommonMethods {
 				Mail mail = Mail.withHtml(emailId, subject, body);
 				mailer.send(mail);
 				System.out.println("The email was sent in Template: " + mail);
-				String rawContent="body_Message:"+body+" "+"subject:"+" "+subject;
-				storeEmailLog(rawContent,subject,"The email was sent in Template: " + mail,"sendMailOtp",emailId);
+				String rawContent = "body_Message:" + body + " " + "subject:" + " " + subject;
+				storeEmailLog(rawContent, subject, "The email was sent in Template: " + mail, "sendMailOtp", emailId);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -202,8 +206,9 @@ public class CommonMethods {
 				}
 			}
 			mailer.send(mail);
-			String rawContent="errorMessage:"+errorMessage+" "+"errorCode:"+" "+errorCode;
-			storeEmailLog(rawContent,subject,"The email was sent in error message: " + mail,"sendErrorMail",emailTemplateEntity.getToAddress());
+			String rawContent = "errorMessage:" + errorMessage + " " + "errorCode:" + " " + errorCode;
+			storeEmailLog(rawContent, subject, "The email was sent in error message: " + mail, "sendErrorMail",
+					emailTemplateEntity.getToAddress());
 			System.out.println("The email was sent in error message: " + mail);
 		}
 	}
@@ -224,8 +229,8 @@ public class CommonMethods {
 		String subject = getSubject.replace("{otp}", String.format("%06d", otp));
 		Mail mail = Mail.withHtml(emailId, subject, body);
 		mailer.send(mail);
-		String rawContent="body:"+body+" "+"getSubject:"+" "+getSubject;
-		storeEmailLog(rawContent,subject,"The email was sent: " + mail,"SendMailOTP",emailId);
+		String rawContent = "body:" + body + " " + "getSubject:" + " " + getSubject;
+		storeEmailLog(rawContent, subject, "The email was sent: " + mail, "SendMailOTP", emailId);
 		System.out.println("The email was sent: " + mail);
 	}
 
@@ -332,8 +337,8 @@ public class CommonMethods {
 		String subject = emailTempentity.getSubject();
 		Mail mail = Mail.withHtml(emailId, subject, body);
 		mailer.send(mail);
-		String rawContent="body:"+body+" "+"subject:"+" "+subject;
-		storeEmailLog(rawContent,subject,"The email was sent: " + mail,"sendMailIvr",emailId);
+		String rawContent = "body:" + body + " " + "subject:" + " " + subject;
+		storeEmailLog(rawContent, subject, "The email was sent: " + mail, "sendMailIvr", emailId);
 	}
 
 	/**
@@ -451,11 +456,11 @@ public class CommonMethods {
 			String contentType = URLConnection.guessContentTypeFromName(fileName);
 			mail.addAttachment(fileName, f, contentType);
 			mailer.send(mail);
-			String rawContent="body:"+body+" "+"subject:"+" "+subject;
-			storeEmailLog(rawContent,subject,"The email was sent: " + mail,"sendEsignedMail",mailIds);
+			String rawContent = "body:" + body + " " + "subject:" + " " + subject;
+			storeEmailLog(rawContent, subject, "The email was sent: " + mail, "sendEsignedMail", mailIds);
 		}
 	}
-	
+
 	/**
 	 * Method to create smsLogMethod
 	 * 
@@ -463,27 +468,27 @@ public class CommonMethods {
 	 * @param SmsLogEntity
 	 * @return
 	 */
-	
+
 	public void storeSmsLog(String request, String smsResponse, String logMethod, long mobileNumber) {
-	    if (request == null || smsResponse == null || logMethod == null) {
-	        // Handle invalid input, such as throwing an IllegalArgumentException.
-	        throw new IllegalArgumentException("Request, smsResponse, or logMethod cannot be null.");
-	    }
+		if (request == null || smsResponse == null || logMethod == null) {
+			// Handle invalid input, such as throwing an IllegalArgumentException.
+			throw new IllegalArgumentException("Request, smsResponse, or logMethod cannot be null.");
+		}
 
-	    try {
-	    		SmsLogEntity smsLogEntity = new SmsLogEntity();
-	            smsLogEntity.setMobileNo(mobileNumber);
-	            smsLogEntity.setLogMethod(logMethod);
-	            smsLogEntity.setRequestLog(request);
-	            smsLogEntity.setResponseLog(smsResponse);
+		try {
+			SmsLogEntity smsLogEntity = new SmsLogEntity();
+			smsLogEntity.setMobileNo(mobileNumber);
+			smsLogEntity.setLogMethod(logMethod);
+			smsLogEntity.setRequestLog(request);
+			smsLogEntity.setResponseLog(smsResponse);
 
-	        // Save the entity (either creating a new record or updating an existing one).
-	        smsLogRepository.save(smsLogEntity);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+			// Save the entity (either creating a new record or updating an existing one).
+			smsLogRepository.save(smsLogEntity);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	/**
 	 * Method to create smsLogMethod
 	 * 
@@ -491,25 +496,42 @@ public class CommonMethods {
 	 * @param SmsLogEntity
 	 * @return
 	 */
-	
-	public void storeEmailLog(String message,String ReqSub, String emailResponse, String logMethod,String mailId) {
-	    if (message == null || emailResponse == null || logMethod == null) {
-	        throw new IllegalArgumentException("Request, EmailResponse, or logMethod cannot be null.");
-	    }
 
-	    try {
-	        		EmailLogEntity   emailLogEntity = new EmailLogEntity();
-	                emailLogEntity.setEmailId(mailId);
-	                emailLogEntity.setLogMethod(logMethod);
-	                emailLogEntity.setReqLogSub(ReqSub);
-	                emailLogEntity.setReqLog(message);
-	                emailLogEntity.setResponseLog(emailResponse);
+	public void storeEmailLog(String message, String ReqSub, String emailResponse, String logMethod, String mailId) {
+		if (message == null || emailResponse == null || logMethod == null) {
+			throw new IllegalArgumentException("Request, EmailResponse, or logMethod cannot be null.");
+		}
 
-	            // Save the entity (either creating a new record or updating an existing one).
-	            emailLogRepository.save(emailLogEntity);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	}	
+		try {
+			EmailLogEntity emailLogEntity = new EmailLogEntity();
+			emailLogEntity.setEmailId(mailId);
+			emailLogEntity.setLogMethod(logMethod);
+			emailLogEntity.setReqLogSub(ReqSub);
+			emailLogEntity.setReqLog(message);
+			emailLogEntity.setResponseLog(emailResponse);
+
+			// Save the entity (either creating a new record or updating an existing one).
+			emailLogRepository.save(emailLogEntity);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String readUserNameFromCerFile(String certificateFilepath) {
+		String userName = "";
+		try (FileInputStream fis = new FileInputStream(certificateFilepath)) {
+			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+			Certificate cert = certFactory.generateCertificate(fis);
+			X509Certificate x509Cert = (X509Certificate) cert;
+			if (StringUtil.isNotNullOrEmpty(x509Cert.getSubjectDN().toString())) {
+				String subject = x509Cert.getSubjectDN().toString();
+				userName = StringUtil.substringAfter(subject, "CN=");
+			}
+			return userName;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return userName;
+		}
+	}
 
 }

@@ -138,4 +138,18 @@ public class StringUtil {
 		}
 		return str;
 	}
+
+	public static String substringAfter(final String str, final String separator) {
+		if (isNullOrEmpty(str)) {
+			return str;
+		}
+		if (isNullOrEmpty(separator)) {
+			return "";
+		}
+		final int pos = str.indexOf(separator);
+		if (pos == 0) {
+			return str;
+		}
+		return str.substring(pos + separator.length());
+	}
 }

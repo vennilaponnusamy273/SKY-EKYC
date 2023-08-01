@@ -9,6 +9,15 @@ import in.codifi.api.model.ResponseModel;
 public interface IIvrService {
 
 	/**
+	 * Method to get IVR Details
+	 * 
+	 * @author prade
+	 * @param applicationId
+	 * @return
+	 */
+	ResponseModel getIvr(long applicationId);
+
+	/**
 	 * Method to upload IVR Document
 	 * 
 	 * @author Vennila Ponnusamy

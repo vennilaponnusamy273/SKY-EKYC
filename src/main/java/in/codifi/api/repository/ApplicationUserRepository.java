@@ -16,10 +16,10 @@ public interface ApplicationUserRepository extends CrudRepository<ApplicationUse
 	ApplicationUserEntity findByPanNumber(@Param("panNumber") String panNumber);
 
 	@Modifying
-	@Query(value = " UPDATE tbl_application_master SET status=:status, stage=:stage, esignCompleted=:esignCompleted, pdfGenerated =:pdfGenerated where id=:applicationId ")
+	@Query(value = " UPDATE tbl_application_master SET status=:status, stage=:stage, esignCompleted=:esignCompleted, pdfGenerated =:pdfGenerated, esigedName =:esigedName where id=:applicationId ")
 	int updateEsignStage(@Param("applicationId") long applicationId, @Param("status") String status,
 			@Param("stage") String stage, @Param("esignCompleted") int esignCompleted,
-			@Param("pdfGenerated") int pdfGenerated);
+			@Param("pdfGenerated") int pdfGenerated, @Param("esigedName") String esigedName);
 
 	@Modifying
 	@Query(value = " UPDATE tbl_application_master SET nomineeOptedOut=:nomineeOptedOut where id=:applicationId ")
