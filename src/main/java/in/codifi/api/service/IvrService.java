@@ -61,8 +61,38 @@ public class IvrService implements IIvrService {
 	CuttlyRestService cuttlyServiceCheck;
 	@Inject
 	RejectionStatusHelper rejectionStatusHelper;
-	
+
 	private static final Logger logger = LogManager.getLogger(IvrService.class);
+
+	/**
+	 * Method to get Ivr Details
+	 * 
+	 * @author prade
+	 **/
+	@Override
+	public ResponseModel getIvr(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		try {
+			IvrEntity oldRecord = ivrRepository.findByApplicationId(applicationId);
+			if (oldRecord != null) {
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setResult(oldRecord);
+				responseModel.setPage(EkycConstants.PAGE_ESIGN);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+			}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId, "NomineeService", "getNominee", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In getNominee for the Error: " + e.getMessage(),
+					"ERR-001");
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
+		return responseModel;
+	}
+
 	/**
 	 * Method to upload IVR Document
 	 */
@@ -131,10 +161,12 @@ public class IvrService implements IIvrService {
 				responseModel.setResult(errorList);
 			}
 		} catch (Exception e) {
-			
+
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(ivrModel.getApplicationId(),"IvrService","uploadIvr",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In uploadIvr for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(ivrModel.getApplicationId(), "IvrService", "uploadIvr", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In uploadIvr for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -195,8 +227,10 @@ public class IvrService implements IIvrService {
 				}
 			} catch (Exception e) {
 				logger.error("An error occurred: " + e.getMessage());
-				commonMethods.SaveLog(applicationId,"IvrService","getIvrLink",e.getMessage());
-				commonMethods.sendErrorMail("An error occurred while processing your request, In getIvrLink for the Error: " + e.getMessage(),"ERR-001");
+				commonMethods.SaveLog(applicationId, "IvrService", "getIvrLink", e.getMessage());
+				commonMethods
+						.sendErrorMail("An error occurred while processing your request, In getIvrLink for the Error: "
+								+ e.getMessage(), "ERR-001");
 				responseModel.setStat(EkycConstants.FAILED_STATUS);
 				responseModel.setMessage(EkycConstants.FAILED_MSG);
 				responseModel.setReason(e.getMessage());
@@ -242,8 +276,11 @@ public class IvrService implements IIvrService {
 			JSONObject urlObj = responseJson.getJSONObject(EkycConstants.URL);
 			shortUrl = urlObj.getString(EkycConstants.SHORT_URL);
 		} catch (Exception e) {
-			commonMethods.sendErrorMail("An error occurred while processing your request, In generateShortLink for the Error: " + e.getMessage(),"ERR-001");
-			commonMethods.SaveLog(null,"IvrService","generateShortLink",e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In generateShortLink for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
+			commonMethods.SaveLog(null, "IvrService", "generateShortLink", e.getMessage());
 			logger.error("An error occurred: " + e.getMessage());
 		} finally {
 			if (conn != null) {
@@ -290,8 +327,10 @@ public class IvrService implements IIvrService {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(userEntity.getId(),"IvrService","sendLink",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In sendLink for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(userEntity.getId(), "IvrService", "sendLink", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In sendLink for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel.setStat(EkycConstants.FAILED_STATUS);
 			responseModel.setMessage(EkycConstants.FAILED_MSG);
 			responseModel.setReason(e.getMessage());

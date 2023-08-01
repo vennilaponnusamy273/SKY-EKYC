@@ -1,15 +1,25 @@
 package in.codifi.api.helper;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.json.XML;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -17,8 +27,10 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
+import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.repository.AddressRepository;
+import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.KraKeyValueRepository;
 import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.restservice.KraPanRestService;
@@ -40,8 +52,12 @@ public class KRAHelper {
 	KraKeyValueRepository keyValueRepository;
 	@Inject
 	KraPanRestService kraPanRestService;
+	@Inject
+	ApplicationUserRepository repository;
 	
 	private static final Logger logger = LogManager.getLogger(KRAHelper.class);
+	private static String OS = System.getProperty("os.name").toLowerCase();
+
 	/**
 	 * Method to get the pan card status from the kra
 	 * 
@@ -71,8 +87,11 @@ public class KRAHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(null,"KRAHelper","getPanCardStatus",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanCardStatus for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(null, "KRAHelper", "getPanCardStatus", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In getPanCardStatus for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 			return null;
 		}
 	}
@@ -84,7 +103,7 @@ public class KRAHelper {
 	 * @param dob
 	 * @return
 	 */
-	public JSONObject getPanCardDetails(String Pancard, String dob, int panCardStatus) {
+	public JSONObject getPanCardDetails(String Pancard, String dob, int panCardStatus, long applicationId) {
 		try {
 			Date date1 = new SimpleDateFormat(EkycConstants.DATE_FORMAT).parse(dob);
 			SimpleDateFormat formatter = new SimpleDateFormat(EkycConstants.KRA_DATE_FORMAT);
@@ -96,12 +115,14 @@ public class KRAHelper {
 					+ "</APP_KRA_CODE><FETCH_TYPE>I</FETCH_TYPE>" + "</APP_PAN_INQ></APP_REQ_ROOT>";
 			CommonMethods.trustedManagement();
 			String result = kraPanRestService.getPanKra(xmlCode);
+			writeXmlFile(result, applicationId, Pancard);
 			ObjectMapper xmlMapper = new XmlMapper();
 			Object obj = xmlMapper.readValue(result, Object.class);
 			ObjectMapper jsonMapper = new ObjectMapper();
 			String jsonString = jsonMapper.writeValueAsString(obj);
 			JSONObject jsonObject = new JSONObject(jsonString);
 			JSONObject kycData = null;
+			updateKraDate(result, applicationId);
 			if (jsonObject.has(EkycConstants.CONST_KYC_DATA)) {
 				kycData = jsonObject.getJSONObject(EkycConstants.CONST_KYC_DATA);
 				return kycData;
@@ -111,8 +132,11 @@ public class KRAHelper {
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(null,"KRAHelper","getPanCardDetails",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getPanCardDetails for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(null, "KRAHelper", "getPanCardDetails", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In getPanCardDetails for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 			return null;
 		}
 	}
@@ -242,8 +266,11 @@ public class KRAHelper {
 			addressRepository.save(addressEntity);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"KRAHelper","updateDetailsFromKRA",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In updateDetailsFromKRA for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId, "KRAHelper", "updateDetailsFromKRA", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In updateDetailsFromKRA for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 		}
 		return savedProfileEntity;
 
@@ -266,6 +293,7 @@ public class KRAHelper {
 		}
 		return appKraCode;
 	}
+
 	public String addCharAtAadhar(String value) {
 		int limit = 12;
 		if (value.length() >= limit) {
@@ -277,6 +305,54 @@ public class KRAHelper {
 		}
 		builder.append(value);
 		return builder.toString();
+	}
+
+	private void writeXmlFile(String result, long applicationId, String Pancard) {
+		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
+		if (OS.contains(EkycConstants.OS_WINDOWS)) {
+			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
+		}
+		try {
+			String baseFilePath = properties.getFileBasePath() + applicationId;
+			File directory = new File(baseFilePath);
+			directory.mkdirs();
+			String xmlFileName = baseFilePath + slash + Pancard + "_PAN" + EkycConstants.XML_EXTENSION;
+			FileWriter fileWriter = new FileWriter(xmlFileName);
+			fileWriter.write(result);
+			fileWriter.close();
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(null, "KRAHelper", "writeCmlFile", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In writeCmlFile for the Error: " + e.getMessage(),
+					"ERR-001");
+		}
+
+	}
+
+	public void updateKraDate(String result, long applicationId) {
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			Document document = builder.parse(new InputSource(new StringReader(result)));
+			NodeList appResponseDateNodes = document.getElementsByTagName("APP_RESPONSE_DATE");
+			if (appResponseDateNodes.getLength() > 0) {
+				Element appResponseDateElement = (Element) appResponseDateNodes.item(0);
+				String appResponseDateStr = appResponseDateElement.getTextContent();
+				Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
+				if (isUserPresent.isPresent()) {
+					ApplicationUserEntity oldUserEntity = isUserPresent.get();
+					oldUserEntity.setKraResponseDate(appResponseDateStr);
+					repository.save(oldUserEntity);
+				}
+			}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(null, "KRAHelper", "updateKraDate", e.getMessage());
+			commonMethods
+					.sendErrorMail("An error occurred while processing your request, In updateKraDate for the Error: "
+							+ e.getMessage(), "ERR-001");
+		}
 	}
 
 }

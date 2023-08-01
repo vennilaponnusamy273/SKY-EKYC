@@ -91,6 +91,13 @@ public class ApplicationUserEntity extends CommonEntity implements Serializable 
 
 	@Column(name = "nominee_opted_out")
 	private int nomineeOptedOut = 0;
+
+	@Column(name = "esiged_name")
+	private String esigedName;
+	
+	@Column(name = "kra_response_date")
+	private String kraResponseDate;
+
 	@Transient
 	private String gender;
 

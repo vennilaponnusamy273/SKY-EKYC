@@ -15,6 +15,20 @@ import in.codifi.api.model.IvrModel;
 import in.codifi.api.model.ResponseModel;
 
 public interface IIvrController {
+
+	/**
+	 * Method to get IVR Details
+	 * 
+	 * @author prade
+	 * @param applicationId
+	 * @return
+	 */
+	@Path("/getIvr")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to get nominee Details")
+	ResponseModel getIvr(@NotNull @QueryParam("applicationId") long applicationId);
+
 	/**
 	 * Method to Upload Ivr Proof Details
 	 * 

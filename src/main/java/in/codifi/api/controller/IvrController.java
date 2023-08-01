@@ -26,6 +26,20 @@ public class IvrController implements IIvrController {
 	ApplicationUserRepository applicationUserRepository;
 
 	/**
+	 * Method to get nominee and Guardian Details
+	 */
+	@Override
+	public ResponseModel getIvr(long applicationId) {
+		ResponseModel responseModel = new ResponseModel();
+		if (applicationId > 0) {
+			responseModel = iIvrService.getIvr(applicationId);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+		}
+		return responseModel;
+	}
+
+	/**
 	 * Method to Upload Ivr Proof Details
 	 */
 	@Override

@@ -32,6 +32,8 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
+import org.json.JSONObject;
+import org.json.XML;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -144,7 +146,7 @@ public class PdfService implements IPdfService {
 				String path = outputPath + slash + fileName;
 				try {
 					applicationUserRepository.updateEsignStage(applicationId, EkycConstants.EKYC_STATUS_PDF_GENERATED,
-							EkycConstants.PAGE_PDFDOWNLOAD, 0, 1);
+							EkycConstants.PAGE_PDFDOWNLOAD, 0, 1, "");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -177,74 +179,81 @@ public class PdfService implements IPdfService {
 			for (DocumentEntity entity : documents) {
 				attachmentUrl = entity.getAttachementUrl();
 				if (attachmentUrl.endsWith(".pdf")) {
-				    try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
-				        PDFMergerUtility merger = new PDFMergerUtility();
-				        PDDocument combine = PDDocument.load(new File(attachmentUrl));
-				        merger.appendDocument(document, combine);
-				        merger.mergeDocuments();
-				        combine.close();
+					try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
+						PDFMergerUtility merger = new PDFMergerUtility();
+						PDDocument combine = PDDocument.load(new File(attachmentUrl));
+						merger.appendDocument(document, combine);
+						merger.mergeDocuments();
+						combine.close();
 
-				        // The main document and attachment have been merged, and the verification image can now be added
-				        int originalPages = document.getNumberOfPages()-1;
-				        BufferedImage verifyImage = null;
-				        File verifyImageFile = new File(props.getVerifyImage());
-				        if (verifyImageFile.exists()) {
-				            verifyImage = ImageIO.read(verifyImageFile);
-				        } else {
-				            System.err.println("Verification image file does not exist: " + verifyImageFile.getAbsolutePath());
-				        }
+						// The main document and attachment have been merged, and the verification image
+						// can now be added
+						int originalPages = document.getNumberOfPages() - 1;
+						BufferedImage verifyImage = null;
+						File verifyImageFile = new File(props.getVerifyImage());
+						if (verifyImageFile.exists()) {
+							verifyImage = ImageIO.read(verifyImageFile);
+						} else {
+							System.err.println(
+									"Verification image file does not exist: " + verifyImageFile.getAbsolutePath());
+						}
 
-				        if (verifyImage != null) {
-				            PDPage page = document.getPage(originalPages);
-				            try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true)) {
-				                // Create the verification image as PDImageXObject
-				                PDImageXObject importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(), document);
-				                contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
-				            }
-				        }
-				    }
+						if (verifyImage != null) {
+							PDPage page = document.getPage(originalPages);
+							try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true,
+									true)) {
+								// Create the verification image as PDImageXObject
+								PDImageXObject importedVerifyImage = PDImageXObject
+										.createFromFile(props.getVerifyImage(), document);
+								contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
+							}
+						}
+					}
 				}
 
 				else {
-					 BufferedImage image = ImageIO.read(new File(attachmentUrl));
-					    PDPage page = new PDPage();
-					    document.addPage(page);
-					    PDRectangle pageSize = page.getMediaBox();
+					BufferedImage image = ImageIO.read(new File(attachmentUrl));
+					PDPage page = new PDPage();
+					document.addPage(page);
+					PDRectangle pageSize = page.getMediaBox();
 
-					    // Calculate the maximum width and height that the image can occupy on the page
-					    float maxWidth = pageSize.getWidth() * 0.8f;
-					    float maxHeight = pageSize.getHeight() * 0.8f;
+					// Calculate the maximum width and height that the image can occupy on the page
+					float maxWidth = pageSize.getWidth() * 0.8f;
+					float maxHeight = pageSize.getHeight() * 0.8f;
 
-					    // Calculate the aspect ratio of the image
-					    float aspectRatio = (float) image.getWidth() / (float) image.getHeight();
+					// Calculate the aspect ratio of the image
+					float aspectRatio = (float) image.getWidth() / (float) image.getHeight();
 
-					    // Calculate the width and height of the image based on its aspect ratio and maximum size
-					    float imageWidth = Math.min(maxWidth, maxHeight * aspectRatio);
-					    float imageHeight = Math.min(maxHeight, maxWidth / aspectRatio);
+					// Calculate the width and height of the image based on its aspect ratio and
+					// maximum size
+					float imageWidth = Math.min(maxWidth, maxHeight * aspectRatio);
+					float imageHeight = Math.min(maxHeight, maxWidth / aspectRatio);
 
-					    // Calculate the position of the image on the page
-					    float centerX = (pageSize.getWidth() - imageWidth) / 2f;
-					    float centerY = (pageSize.getHeight() - imageHeight) / 2f;
+					// Calculate the position of the image on the page
+					float centerX = (pageSize.getWidth() - imageWidth) / 2f;
+					float centerY = (pageSize.getHeight() - imageHeight) / 2f;
 
-					    // Load the verification image from image file (e.g., JPEG, PNG)
-					    BufferedImage verifyImage = null;
-					    File verifyImageFile = new File(props.getVerifyImage());
-					    if (verifyImageFile.exists()) {
-					        verifyImage = ImageIO.read(verifyImageFile);
-					    } else {
-					        System.err.println("Verification image file does not exist: " + verifyImageFile.getAbsolutePath());
-					    }
-					    if (verifyImage != null) {
-					        PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
-					        try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-					            contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
-					            // Create the verification image as PDImageXObject
-					            PDImageXObject importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(), document);
-					            contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
-					        }
-					    } else {
-					        System.err.println("Failed to load the verification image.");
-					    }
+					// Load the verification image from image file (e.g., JPEG, PNG)
+					BufferedImage verifyImage = null;
+					File verifyImageFile = new File(props.getVerifyImage());
+					if (verifyImageFile.exists()) {
+						verifyImage = ImageIO.read(verifyImageFile);
+					} else {
+						System.err.println(
+								"Verification image file does not exist: " + verifyImageFile.getAbsolutePath());
+					}
+					if (verifyImage != null) {
+						PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
+						try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+							contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
+							// Create the verification image as PDImageXObject
+							PDImageXObject importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(),
+									document);
+							contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
+						}
+					} else {
+						System.err.println("Failed to load the verification image.");
+					}
 				}
 			}
 			// document.save(props.getOutputPdf());
@@ -280,7 +289,8 @@ public class PdfService implements IPdfService {
 					contentStream.newLineAtOffset(x, y);
 
 					String inputText;
-					if (pdfDatas.get(i).getColumnNames().equals("notApplicableMessage")||pdfDatas.get(i).getColumnNames().equals("notApplicableMessageNominee")) {
+					if (pdfDatas.get(i).getColumnNames().equals("notApplicableMessage")
+							|| pdfDatas.get(i).getColumnNames().equals("notApplicableMessageNominee")) {
 						inputText = map.get(pdfDatas.get(i).getColumnNames());
 						contentStream.setFont(PDType1Font.HELVETICA_BOLD, 60);
 						contentStream.setTextMatrix(Math.cos(Math.PI / 4), Math.sin(Math.PI / 4),
@@ -419,12 +429,12 @@ public class PdfService implements IPdfService {
 			}
 			map.put("SettlementCycle", profileEntity.getSettlementCycle());
 			map.put("Title", profileEntity.getTitle());
-		//	map.put("TradingExperience", profileEntity.getTradingExperience());
-			System.out.println("the profileEntity.getTradingExperience()"+profileEntity.getTradingExperience());
+			// map.put("TradingExperience", profileEntity.getTradingExperience());
+			System.out.println("the profileEntity.getTradingExperience()" + profileEntity.getTradingExperience());
 			if (profileEntity.getTradingExperience().equalsIgnoreCase("No Experience")) {
-			    map.put("No prior Experience", profileEntity.getTradingExperience());
+				map.put("No prior Experience", profileEntity.getTradingExperience());
 			} else {
-			    map.put("years in Commodites",profileEntity.getTradingExperience());
+				map.put("years in Commodites", profileEntity.getTradingExperience());
 			}
 
 		}
@@ -439,7 +449,7 @@ public class PdfService implements IPdfService {
 					map.put("CurrentAddressLine1", address.getKraAddress1());
 				}
 				if (address.getKraAddress2() != null) {
-					map.put("CurrentAddressLine2",  address.getKraPerAddress2());
+					map.put("CurrentAddressLine2", address.getKraPerAddress2());
 				} else {
 					map.put("CurrentAddressLine2", address.getKraAddress2());
 				}
@@ -494,7 +504,7 @@ public class PdfService implements IPdfService {
 					map.put("CurrentDistrict", address.getKraCity());// TODO
 				}
 				if (address.getPincode() != null) {
-					map.put("CurrentPincode",Integer.toString(address.getKraPerPin()));
+					map.put("CurrentPincode", Integer.toString(address.getKraPerPin()));
 				} else {
 					map.put("CurrentPincode", Integer.toString(address.getKraPin()));
 				}
@@ -525,9 +535,9 @@ public class PdfService implements IPdfService {
 				map.put("CurrentAddressLine1", address.getAddress1());
 				map.put("PermenentAddress2", address.getAddress2());
 				map.put("CurrentAddressLine2", address.getAddress2());
-				map.put("PermenentAddress3","");
+				map.put("PermenentAddress3", "");
 				map.put("PermenentCity", address.getLandmark());
-				map.put("CurrentCity",address.getLandmark());
+				map.put("CurrentCity", address.getLandmark());
 				map.put("PermenentDistrict", address.getDistrict());
 				map.put("CurrentDistrict", address.getDistrict());
 				if (address.getDistrict() != null) {
@@ -537,45 +547,40 @@ public class PdfService implements IPdfService {
 				}
 				if (address.getPincode() != null) {
 					map.put("PermenentPincode", address.getPincode().toString());
-					map.put("CurrentPincode",address.getPincode().toString());
+					map.put("CurrentPincode", address.getPincode().toString());
 				} else {
 					map.put("PermenentPincode", null);
-					map.put("CurrentPincode",null);
+					map.put("CurrentPincode", null);
 				}
 				map.put("CurrentState1", address.getState());
 				map.put("PermenentState", address.getState());
 				map.put("PermenentCountry", "INDIA");
-				//map.put("Place", address.getKraPerCity());
+				// map.put("Place", address.getKraPerCity());
 				map.put("CurrentCountry", "INDIA");
 			}
 
 			if (address.getIsdigi() == 1) {
 				map.put("OthersProof", Integer.toString(address.getIsdigi()));
 				map.put("Others(Please Specify)", "AADHAR CARD");
-				map.put("UID Aadhaar",  Integer.toString(address.getIsdigi()));
+				map.put("UID Aadhaar", Integer.toString(address.getIsdigi()));
 				map.put("Aadhaar Number", address.getAadharNo());
 				map.put("F-Proof of Possission of Aadhaar", address.getAadharNo());
 				map.put("Sole / First Holder’s Name UID", address.getAadharNo());
 			}
-			//Below use to get stateCode from kraTable
-			/**String state = null;
-			String stateCode = null;
-
-			if (address.getState() != null) {
-				state = address.getState();
-			} else if (address.getKraPerState() != null) {
-				state = address.getKraPerState();
-			}
-
-			if (state != null) {
-				KraKeyValueEntity kraKeyValueEntity = kraKeyValueRepository
-						.findByMasterNameAndMasterIdAndKraValue("STATE", "1", state);
-				if (kraKeyValueEntity != null) {
-					stateCode = kraKeyValueEntity.getKraKey();
-				}
-			}
-
-			map.put("stateCode", stateCode);**/
+			// Below use to get stateCode from kraTable
+			/**
+			 * String state = null; String stateCode = null;
+			 * 
+			 * if (address.getState() != null) { state = address.getState(); } else if
+			 * (address.getKraPerState() != null) { state = address.getKraPerState(); }
+			 * 
+			 * if (state != null) { KraKeyValueEntity kraKeyValueEntity =
+			 * kraKeyValueRepository .findByMasterNameAndMasterIdAndKraValue("STATE", "1",
+			 * state); if (kraKeyValueEntity != null) { stateCode =
+			 * kraKeyValueEntity.getKraKey(); } }
+			 * 
+			 * map.put("stateCode", stateCode);
+			 **/
 		}
 		map.put("ISO 3166 Country code", "IN");
 
@@ -650,15 +655,14 @@ public class PdfService implements IPdfService {
 			}
 		}
 		List<NomineeEntity> nomineeEntity = nomineeRepository.findByapplicationId(applicationId);
-		if (nomineeEntity == null ||nomineeEntity.isEmpty() ) {
-		    // nomineeEntity is null, set "notApplicableMessageNominee" to "Not Applicable"
-		    map.put("notApplicableMessageNominee", "Not Applicable");
-		    map.put("Client NameNomineeopt", applicationData.get().getUserName());
-		    
-		}else
-		 if (!nomineeEntity.isEmpty()) {
-			 map.put("Client NameNominee", applicationData.get().getUserName());
-			 map.put("notApplicableMessage", "Not Applicable");
+		if (nomineeEntity == null || nomineeEntity.isEmpty()) {
+			// nomineeEntity is null, set "notApplicableMessageNominee" to "Not Applicable"
+			map.put("notApplicableMessageNominee", "Not Applicable");
+			map.put("Client NameNomineeopt", applicationData.get().getUserName());
+
+		} else if (!nomineeEntity.isEmpty()) {
+			map.put("Client NameNominee", applicationData.get().getUserName());
+			map.put("notApplicableMessage", "Not Applicable");
 			for (int i = 0; i < nomineeEntity.size(); i++) {
 				System.out.println("NomOneAllocation ----- " + nomineeEntity.get(i).getAllocation());
 				if (i == 0) {
@@ -672,7 +676,7 @@ public class PdfService implements IPdfService {
 					}
 					map.put("Details of 1st Nominee Relatonship with the Applicant (if any)",
 							nomineeEntity.get(i).getRelationship());
-					
+
 					if (nomineeEntity.get(i).getAddress1() != null) {
 						String addressOfNominee = nomineeEntity.get(i).getAddress1();
 						map.put("Details of 1st Nominee Address of Nominee(s)",
@@ -692,8 +696,10 @@ public class PdfService implements IPdfService {
 						map.put("Details of 1st Nominee City / Place:",
 								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
 					}
-					//map.put("Details of 1st Nominee Address of Nominee(s)", nomineeEntity.get(i).getAddress1());
-					//map.put("Details of 1st Nominee City / Place:", nomineeEntity.get(i).getAddress2());
+					// map.put("Details of 1st Nominee Address of Nominee(s)",
+					// nomineeEntity.get(i).getAddress1());
+					// map.put("Details of 1st Nominee City / Place:",
+					// nomineeEntity.get(i).getAddress2());
 					map.put("Details of 1st Nominee State & Country:", nomineeEntity.get(i).getState());
 					if (nomineeEntity.get(i).getPincode() != null) {
 						map.put("Details of 1st Nominee PIN Code", nomineeEntity.get(i).getPincode().toString());
@@ -708,10 +714,9 @@ public class PdfService implements IPdfService {
 					}
 					if (nomineeEntity.get(i).getEmailaddress() != null) {
 						String emailOfNominee = nomineeEntity.get(i).getEmailaddress();
-						map.put("1stNEmailaddress",
-								emailOfNominee.substring(0, Math.min(26, emailOfNominee.length())));
+						map.put("1stNEmailaddress", emailOfNominee.substring(0, Math.min(26, emailOfNominee.length())));
 					}
-					//map.put("1stNEmailaddress", nomineeEntity.get(i).getEmailaddress());
+					// map.put("1stNEmailaddress", nomineeEntity.get(i).getEmailaddress());
 					map.put("1stNPancard", nomineeEntity.get(i).getPancard());
 					map.put("Signature1stNFirstname", nomineeEntity.get(i).getFirstname());
 					map.put("Name(s) of Holder(s) Sole/First Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
@@ -738,8 +743,10 @@ public class PdfService implements IPdfService {
 							map.put("Details of 1st GNominee City / Place:",
 									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
 						}
-						//map.put("Details of 1st Nominee Address of Guardian(s)", guardianEntity.getAddress1());
-						//map.put("Details of 1st GNominee City / Place:", guardianEntity.getAddress2());
+						// map.put("Details of 1st Nominee Address of Guardian(s)",
+						// guardianEntity.getAddress1());
+						// map.put("Details of 1st GNominee City / Place:",
+						// guardianEntity.getAddress2());
 						map.put("Details of 1st GNominee State & Country:", guardianEntity.getState());
 						if (guardianEntity.getPincode() != null) {
 							map.put("Details of 1st GNominee PIN Code", guardianEntity.getPincode().toString());
@@ -753,10 +760,9 @@ public class PdfService implements IPdfService {
 						}
 						if (guardianEntity.getEmailaddress() != null) {
 							String emailOfgur = guardianEntity.getEmailaddress();
-							map.put("1stNGEmailaddress",
-									emailOfgur.substring(0, Math.min(26, emailOfgur.length())));
+							map.put("1stNGEmailaddress", emailOfgur.substring(0, Math.min(26, emailOfgur.length())));
 						}
-						//map.put("1stNGEmailaddress", guardianEntity.getEmailaddress());
+						// map.put("1stNGEmailaddress", guardianEntity.getEmailaddress());
 						map.put("Details of 1st Nominee Relatonship of Guardian with nominee",
 								guardianEntity.getRelationship());
 						if (guardianEntity.getPancard() != null) {
@@ -793,8 +799,10 @@ public class PdfService implements IPdfService {
 						map.put("Details of 2nd Nominee City / Place:",
 								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
 					}
-					//map.put("Details of 2nd Nominee Address of Nominee(s)", nomineeEntity.get(i).getAddress1());
-					//map.put("Details of 2nd Nominee City / Place:", nomineeEntity.get(i).getAddress2());
+					// map.put("Details of 2nd Nominee Address of Nominee(s)",
+					// nomineeEntity.get(i).getAddress1());
+					// map.put("Details of 2nd Nominee City / Place:",
+					// nomineeEntity.get(i).getAddress2());
 					map.put("Details of 2nd Nominee State & Country:", nomineeEntity.get(i).getState());
 					if (nomineeEntity.get(i).getPincode() != null) {
 						map.put("Details of 2ndNominee PIN Code", nomineeEntity.get(i).getPincode().toString());
@@ -808,10 +816,9 @@ public class PdfService implements IPdfService {
 					}
 					if (nomineeEntity.get(i).getEmailaddress() != null) {
 						String emailOfNominee = nomineeEntity.get(i).getEmailaddress();
-						map.put("2ndNEmailaddress",
-								emailOfNominee.substring(0, Math.min(26, emailOfNominee.length())));
+						map.put("2ndNEmailaddress", emailOfNominee.substring(0, Math.min(26, emailOfNominee.length())));
 					}
-					//map.put("2ndNEmailaddress", nomineeEntity.get(i).getEmailaddress());
+					// map.put("2ndNEmailaddress", nomineeEntity.get(i).getEmailaddress());
 					map.put("Signature2ndNFirstname", nomineeEntity.get(i).getFirstname());
 					map.put("Name(s) of Holder(s) Second Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
 					map.put("2ndNPancard", nomineeEntity.get(i).getPancard());
@@ -838,8 +845,10 @@ public class PdfService implements IPdfService {
 							map.put("Details of 2nd Nominee City / Place of Guardian(s):",
 									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
 						}
-						//map.put("Details of 2nd Nominee Address of Guardian(s)", guardianEntity.getAddress1());
-						//map.put("Details of 2nd Nominee City / Place of Guardian(s):", guardianEntity.getAddress2());
+						// map.put("Details of 2nd Nominee Address of Guardian(s)",
+						// guardianEntity.getAddress1());
+						// map.put("Details of 2nd Nominee City / Place of Guardian(s):",
+						// guardianEntity.getAddress2());
 						map.put("Details of 2nd Nominee State & Country of Guardian(s):", guardianEntity.getState());
 						if (guardianEntity.getPincode() != null) {
 							map.put("Details of 2nd Nominee PIN Code of Guardian(s)",
@@ -849,10 +858,9 @@ public class PdfService implements IPdfService {
 						}
 						if (guardianEntity.getEmailaddress() != null) {
 							String emailOfgur = guardianEntity.getEmailaddress();
-							map.put("2ndNGEmailaddress",
-									emailOfgur.substring(0, Math.min(26, emailOfgur.length())));
+							map.put("2ndNGEmailaddress", emailOfgur.substring(0, Math.min(26, emailOfgur.length())));
 						}
-						//map.put("2ndNGEmailaddress", guardianEntity.getEmailaddress());
+						// map.put("2ndNGEmailaddress", guardianEntity.getEmailaddress());
 						map.put("Details of 2nd Nominee Relatonship of Guardian with nominee",
 								guardianEntity.getRelationship());
 						map.put("2ndNGPancard", guardianEntity.getPancard());
@@ -896,11 +904,12 @@ public class PdfService implements IPdfService {
 					}
 					if (nomineeEntity.get(i).getEmailaddress() != null) {
 						String emailOfNominee = nomineeEntity.get(i).getEmailaddress();
-						map.put("3rdNEmailaddress",
-								emailOfNominee.substring(0, Math.min(26, emailOfNominee.length())));
+						map.put("3rdNEmailaddress", emailOfNominee.substring(0, Math.min(26, emailOfNominee.length())));
 					}
-				//	map.put("Details of 3rd Nominee Address of Nominee(s)", nomineeEntity.get(i).getAddress1());
-					//map.put("Details of 3rd Nominee City / Place:", nomineeEntity.get(i).getAddress2());
+					// map.put("Details of 3rd Nominee Address of Nominee(s)",
+					// nomineeEntity.get(i).getAddress1());
+					// map.put("Details of 3rd Nominee City / Place:",
+					// nomineeEntity.get(i).getAddress2());
 					map.put("Details of 3rd Nominee State & Country:", nomineeEntity.get(i).getState());
 					if (nomineeEntity.get(i).getPincode() != null) {
 						map.put("Details of 3rd Nominee PIN Code", nomineeEntity.get(i).getPincode().toString());
@@ -912,7 +921,7 @@ public class PdfService implements IPdfService {
 					} else {
 						map.put("3rdNMobilenumber", null);
 					}
-					//map.put("3rdNEmailaddress", nomineeEntity.get(i).getEmailaddress());
+					// map.put("3rdNEmailaddress", nomineeEntity.get(i).getEmailaddress());
 					map.put("Signature3rdNFirstname", nomineeEntity.get(i).getFirstname());
 					map.put("Name(s) of Holder(s) Third Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
 					map.put("3rdNPancard", nomineeEntity.get(i).getPancard());
@@ -939,8 +948,10 @@ public class PdfService implements IPdfService {
 							map.put("Details of 3rd GNominee City / Place:",
 									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
 						}
-						//map.put("Details of 3rd Nominee Address of Guardian(s)", guardianEntity.getAddress1());
-						//map.put("Details of 3rd GNominee City / Place:", guardianEntity.getAddress2());
+						// map.put("Details of 3rd Nominee Address of Guardian(s)",
+						// guardianEntity.getAddress1());
+						// map.put("Details of 3rd GNominee City / Place:",
+						// guardianEntity.getAddress2());
 						map.put("Details of 3rd GNominee State & Country:", guardianEntity.getState());
 						if (guardianEntity.getPincode() != null) {
 							map.put("Details of 3rd GNominee PIN Code", guardianEntity.getPincode().toString());
@@ -954,10 +965,9 @@ public class PdfService implements IPdfService {
 						}
 						if (guardianEntity.getEmailaddress() != null) {
 							String emailOfgur = guardianEntity.getEmailaddress();
-							map.put("3rdNGEmailaddress",
-									emailOfgur.substring(0, Math.min(26, emailOfgur.length())));
+							map.put("3rdNGEmailaddress", emailOfgur.substring(0, Math.min(26, emailOfgur.length())));
 						}
-					//	map.put("3rdNGEmailaddress", guardianEntity.getEmailaddress());
+						// map.put("3rdNGEmailaddress", guardianEntity.getEmailaddress());
 
 						map.put("3rdNGLastname", guardianEntity.getLastname());
 						if (guardianEntity.getNomineeId() != null) {
@@ -1008,8 +1018,9 @@ public class PdfService implements IPdfService {
 		try {
 			int random = commonMethods.generateOTP(9876543210l);
 			String fileName = "lastXml" + random + ".xml";
+			String cerFile = "usrCertificate" + random + ".cer";
 			File fXmlFile = new File(props.getFileBasePath() + "TempXMLFiles" + slash + fileName);
-			System.out.println("the fXmlFile"+fXmlFile);
+			System.out.println("the fXmlFile" + fXmlFile);
 			if (fXmlFile.createNewFile()) {
 				FileWriter myWriter = new FileWriter(fXmlFile);
 				myWriter.write(msg);
@@ -1025,6 +1036,21 @@ public class PdfService implements IPdfService {
 				TxnDetailsEntity detailsEntity = txnDetailsRepository.findBytxnId(txnName);
 				if (detailsEntity != null && detailsEntity.getApplicationId() != null
 						&& detailsEntity.getApplicationId() > 0) {
+					File nameFile = new File(detailsEntity.getFolderLocation() + slash + cerFile);
+					if (nameFile.createNewFile()) {
+						JSONObject xmlJSONObj = XML.toJSONObject(msg);
+						String userCertificate = parseNSDLNameDetails(xmlJSONObj);
+						if (StringUtil.isNotNullOrEmpty(userCertificate)) {
+							FileWriter nameWriter = new FileWriter(nameFile);
+							nameWriter.append("-----BEGIN CERTIFICATE-----" + System.getProperty("line.separator"));
+							nameWriter.append(userCertificate + System.getProperty("line.separator"));
+							nameWriter.append("-----END CERTIFICATE-----");
+							nameWriter.close();
+						}
+					}
+					String name = commonMethods
+							.readUserNameFromCerFile(detailsEntity.getFolderLocation() + slash + cerFile);
+					System.out.println(name);
 					Optional<ApplicationUserEntity> userEntity = applicationUserRepository
 							.findById(detailsEntity.getApplicationId());
 					if (userEntity.isPresent()) {
@@ -1036,7 +1062,8 @@ public class PdfService implements IPdfService {
 							String resposne = esign.getSignFromNsdl(
 									props.getFileBasePath() + detailsEntity.getApplicationId() + slash
 											+ userEntity.get().getPanNumber() + EkycConstants.PDF_EXTENSION,
-									filePath, msg, userEntity.get().getUserName(),
+									filePath, msg,
+									StringUtil.isNotNullOrEmpty(name) ? name : userEntity.get().getUserName(),
 									entity.getIsdigi() == 1 ? entity.getState() : entity.getKraCity(),
 									userEntity.get().getId());
 							if (StringUtil.isNotNullOrEmpty(resposne)) {
@@ -1045,7 +1072,8 @@ public class PdfService implements IPdfService {
 								String path = filePath + slash + esignedFileName;
 								applicationUserRepository.updateEsignStage(detailsEntity.getApplicationId(),
 										EkycConstants.EKYC_STATUS_ESIGN_COMPLETED,
-										EkycConstants.PAGE_COMPLETED_EMAIL_ATTACHED, 1, 1);
+										EkycConstants.PAGE_COMPLETED_EMAIL_ATTACHED, 1, 1,
+										StringUtil.isNotNullOrEmpty(name) ? name : userEntity.get().getUserName());
 								saveEsignDocumntDetails(userEntity.get().getId(), path, esignedFileName);
 								java.net.URI finalPage = new java.net.URI(EkycConstants.SITE_URL_FILE);
 								// public void sendEsignedMail(String mailIds, String name, String filePath,
@@ -1091,5 +1119,28 @@ public class PdfService implements IPdfService {
 			oldEntity.setAttachement(fileName);
 			docrepository.save(oldEntity);
 		}
+	}
+
+	private static String parseNSDLNameDetails(JSONObject xmlJSONObj) {
+		String response = "";
+		try {
+			if (xmlJSONObj != null) {
+				if (xmlJSONObj.has("EsignResp")) {
+					JSONObject sEnvelope = xmlJSONObj.getJSONObject("EsignResp");
+					if (sEnvelope.has("UserX509Certificate")) {
+						response = sEnvelope.getString("UserX509Certificate");
+						return response;
+					}
+				} else {
+					response = null;
+				}
+			} else {
+				response = null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+
 	}
 }

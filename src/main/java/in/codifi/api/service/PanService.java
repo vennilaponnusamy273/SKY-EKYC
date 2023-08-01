@@ -101,7 +101,8 @@ public class PanService implements IPanService {
 								oldUserEntity.setPanStatusCode(Integer.toString(panCardStatus));
 								if (checkAppStatus(panCardStatus)) {
 									JSONObject panCardDetails = kraHelper.getPanCardDetails(
-											oldUserEntity.getPanNumber(), userEntity.getDob(), panCardStatus);
+											oldUserEntity.getPanNumber(), userEntity.getDob(), panCardStatus,
+											userEntity.getId());
 									if (panCardDetails != null) {
 										if (panCardDetails.has("APP_NAME")) {
 											savingEntity = repository.save(oldUserEntity);

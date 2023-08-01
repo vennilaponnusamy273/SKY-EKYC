@@ -113,6 +113,7 @@ public class EkycConstants {
 	// Doc Upload
 	public static final String CONST_APPLICATION_PDF = "application/pdf";
 	public static final String PDF_EXTENSION = ".pdf";
+	public static final String XML_EXTENSION = ".xml";
 	public static final String DOC_IVR = "IPV";
 	public static final String DOC_CHEQUE = "CANCELLED_CHEQUE_OR_STATEMENT";
 	public static final String DOC_INCOME = "INCOME_PROOF";
