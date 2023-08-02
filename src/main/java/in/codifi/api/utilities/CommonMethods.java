@@ -182,8 +182,7 @@ public class CommonMethods {
 				Mail mail = Mail.withHtml(emailId, subject, body);
 				mailer.send(mail);
 				System.out.println("The email was sent in Template: " + mail);
-				String rawContent = "body_Message:" + body + " " + "subject:" + " " + subject;
-				storeEmailLog(rawContent, subject, "The email was sent in Template: " + mail, "sendMailOtp", emailId);
+				storeEmailLog(body, subject, "The email was sent in Template: " + mail, "sendMailOtp", emailId);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -206,8 +205,7 @@ public class CommonMethods {
 				}
 			}
 			mailer.send(mail);
-			String rawContent = "errorMessage:" + errorMessage + " " + "errorCode:" + " " + errorCode;
-			storeEmailLog(rawContent, subject, "The email was sent in error message: " + mail, "sendErrorMail",
+			storeEmailLog(body, subject, "The email was sent in error message: " + mail, "sendErrorMail",
 					emailTemplateEntity.getToAddress());
 			System.out.println("The email was sent in error message: " + mail);
 		}
@@ -229,8 +227,7 @@ public class CommonMethods {
 		String subject = getSubject.replace("{otp}", String.format("%06d", otp));
 		Mail mail = Mail.withHtml(emailId, subject, body);
 		mailer.send(mail);
-		String rawContent = "body:" + body + " " + "getSubject:" + " " + getSubject;
-		storeEmailLog(rawContent, subject, "The email was sent: " + mail, "SendMailOTP", emailId);
+		storeEmailLog(body, subject, "The email was sent: " + mail, "SendMailOTP", emailId);
 		System.out.println("The email was sent: " + mail);
 	}
 
@@ -337,8 +334,7 @@ public class CommonMethods {
 		String subject = emailTempentity.getSubject();
 		Mail mail = Mail.withHtml(emailId, subject, body);
 		mailer.send(mail);
-		String rawContent = "body:" + body + " " + "subject:" + " " + subject;
-		storeEmailLog(rawContent, subject, "The email was sent: " + mail, "sendMailIvr", emailId);
+		storeEmailLog(body, subject, "The email was sent: " + mail, "sendMailIvr", emailId);
 	}
 
 	/**
@@ -456,8 +452,7 @@ public class CommonMethods {
 			String contentType = URLConnection.guessContentTypeFromName(fileName);
 			mail.addAttachment(fileName, f, contentType);
 			mailer.send(mail);
-			String rawContent = "body:" + body + " " + "subject:" + " " + subject;
-			storeEmailLog(rawContent, subject, "The email was sent: " + mail, "sendEsignedMail", mailIds);
+			storeEmailLog(body, subject, "The email was sent: " + mail, "sendEsignedMail", mailIds);
 		}
 	}
 
@@ -481,8 +476,6 @@ public class CommonMethods {
 			smsLogEntity.setLogMethod(logMethod);
 			smsLogEntity.setRequestLog(request);
 			smsLogEntity.setResponseLog(smsResponse);
-
-			// Save the entity (either creating a new record or updating an existing one).
 			smsLogRepository.save(smsLogEntity);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -509,8 +502,6 @@ public class CommonMethods {
 			emailLogEntity.setReqLogSub(ReqSub);
 			emailLogEntity.setReqLog(message);
 			emailLogEntity.setResponseLog(emailResponse);
-
-			// Save the entity (either creating a new record or updating an existing one).
 			emailLogRepository.save(emailLogEntity);
 		} catch (Exception e) {
 			e.printStackTrace();
