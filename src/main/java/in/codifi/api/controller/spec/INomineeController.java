@@ -71,5 +71,5 @@ public interface INomineeController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to delete nominee Details")
-	ResponseModel deleteNom(@NotNull @QueryParam("id") long id);
+	ResponseModel deleteNom(@NotNull @QueryParam("id") long id,@NotNull @QueryParam("applicationId") long applicationId);
 }

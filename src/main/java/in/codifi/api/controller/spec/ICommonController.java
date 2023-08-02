@@ -34,7 +34,7 @@ public interface ICommonController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to get address via pincode")
-	ResponseModel getAddress(@NotNull @QueryParam("address") String address);
+	ResponseModel getAddress(@NotNull @QueryParam("address") String address,@NotNull @QueryParam("applicationId") long applicationId);
 
 	/**
 	 * Method to get log details
@@ -46,7 +46,7 @@ public interface ICommonController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	ResponseModel getLogDetails();
+	ResponseModel getLogDetails(@NotNull @QueryParam("applicationId") long applicationId);
 	
 	/**
 	 * Method to update Nominee OptedOut
@@ -71,5 +71,5 @@ public interface ICommonController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to set page as REjection")
-	ResponseModel pageJumb(@NotNull @QueryParam("pagesnumber")String pagesnumber) ;
+	ResponseModel pageJumb(@NotNull @QueryParam("pagesnumber")String pagesnumber,@NotNull @QueryParam("applicationId") long applicationId) ;
 }
