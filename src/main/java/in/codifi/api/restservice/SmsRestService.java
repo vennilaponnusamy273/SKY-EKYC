@@ -33,8 +33,7 @@ public class SmsRestService {
 			String message = iSmsRestService.SendSms(props.getSmsFeedId(), props.getSmsSenderId(),
 					props.getSmsUserName(), props.getSmsPassword(), String.valueOf(mobileNumber), Text);
 			System.out.println(message);
-			String Request="OTP:"+otp+" "+"MobileNumber:"+mobileNumber;
-			commonMethods.storeSmsLog(Request,message,"sendOTPtoMobile",mobileNumber);
+			commonMethods.storeSmsLog(Text,message,"sendOTPtoMobile",mobileNumber);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -56,8 +55,7 @@ public class SmsRestService {
 			String Text = EkycConstants.IVR_MSG + Url + " " + " .NIDHI";
 			String smsResponse=iSmsRestService.SendLink(props.getSmsFeedId(), props.getSmsSenderId(), props.getSmsUserName(),
 					props.getSmsPassword(), String.valueOf(mobileNumber), Text);
-			String Request="Url:"+Url+" "+"MobileNumber:"+mobileNumber;
-			commonMethods.storeSmsLog(Request,smsResponse,"sendIvrLinktoMobile",mobileNumber);
+			commonMethods.storeSmsLog(Text,smsResponse,"sendIvrLinktoMobile",mobileNumber);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
