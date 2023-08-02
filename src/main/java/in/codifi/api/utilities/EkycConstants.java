@@ -245,7 +245,13 @@ public class EkycConstants {
 	public static final String CONST_FILTER = "FILTER";
 	public static final String TRUE = "true";
 	public static final String FALSE = "false";
-	public static final String PATH_SEND_SMS_OTP = "user/sendSmsOtp";
+	public static final String PATH_SEND_SMS_OTP = "/user/sendSmsOtp";
+	public static final String PATH_TEST = "/user/testEsign";
+	public static final String PATH_VERIFY_SMS_OTP = "/user/verifySmsOtp";
+	public static final String PATH_DIGI_WH = "/digio/whDigilocker";
+	public static final String PATH_RELOAD_KRAKEYVALUE = "/common/reloadKraKeyValue";
+	public static final String PATH_GET_NSDL_ESIGN = "/pdf/getNsdlXml";
+	public static final String PATH_GET_USR_DETAILS = "/user/getUsrDetails";
 	public static final String CONST_REQ_BODY = "reqBody";
 	public static final String CONST_IN_TIME = "inTime";
 	public static final String EKYC_STATUS_PDF_GENERATED = "Pdf Generated";
