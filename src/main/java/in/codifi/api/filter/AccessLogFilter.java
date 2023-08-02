@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +42,10 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 	AccesslogRepository logRepository;
 	@Inject
 	CommonMethods commonMethods;
+	private static final List<String> disablepaths = Arrays.asList(EkycConstants.PATH_SEND_SMS_OTP,
+			EkycConstants.PATH_TEST, EkycConstants.PATH_VERIFY_SMS_OTP,
+			// EkycConstants.PATH_DIGI_WH,
+			EkycConstants.PATH_RELOAD_KRAKEYVALUE, EkycConstants.PATH_GET_NSDL_ESIGN);
 
 	/**
 	 * Method to capture and single save request and response
@@ -106,7 +112,8 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 			String formedReq = new String(body);
 			requestContext.setProperty(EkycConstants.CONST_REQ_BODY, formedReq);
 			String path = requestContext.getUriInfo().getPath();
-			if (!path.endsWith(EkycConstants.PATH_SEND_SMS_OTP) && StringUtil.isEqual(
+			boolean visible = disablepaths.stream().anyMatch(visibleType -> visibleType.contains(path));
+			if (!visible && StringUtil.isEqual(
 					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.CONST_FILTER),
 					EkycConstants.TRUE)) {
 				String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
@@ -132,17 +139,73 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 	 */
 	public void validateToken(ContainerRequestContext requestContext, String authorizationHeader) {
 		String fullToken = authorizationHeader.substring("Bearer".length()).trim();
-		String token[] = fullToken.split(" ");
-		if (StringUtil.isNotNullOrEmpty(token[0]) && StringUtil.isNotNullOrEmpty(token[1])) {
-			String mobileNumber = commonMethods.decrypt(token[1]);
-			if (HazleCacheController.getInstance().getAuthToken().containsKey(mobileNumber) && StringUtil
-					.isEqual(HazleCacheController.getInstance().getAuthToken().get(mobileNumber), fullToken)) {
-				HazleCacheController.getInstance().getAuthToken().put(mobileNumber, fullToken, 3600, TimeUnit.SECONDS);
+		if (StringUtil.isNotNullOrEmpty(fullToken)) {
+			String token[] = fullToken.split(" ");
+			if (StringUtil.isNotNullOrEmpty(token[0]) && StringUtil.isNotNullOrEmpty(token[1])) {
+				String mobileNumber = commonMethods.decrypt(token[1]);
+				if (StringUtil.isNotNullOrEmpty(mobileNumber)
+						&& HazleCacheController.getInstance().getAuthToken().containsKey(mobileNumber)
+						&& StringUtil.isEqual(HazleCacheController.getInstance().getAuthToken().get(mobileNumber),
+								fullToken)) {
+					UriInfo uriInfo = requestContext.getUriInfo();
+					String queryParams = uriInfo.getRequestUri().getQuery();
+					if (StringUtil.isNotNullOrEmpty(queryParams)) {
+						long applciationId = getApplicationIdFromQueryParam(queryParams);
+						String[] mobileAppId = mobileNumber.split("_");
+						if (applciationId != Long.parseLong(mobileAppId[1])) {
+							requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+						}
+					}
+					HazleCacheController.getInstance().getAuthToken().put(mobileNumber, fullToken, 300,
+							TimeUnit.SECONDS);
+				} else {
+					requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+				}
 			} else {
 				requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
 			}
 		} else {
 			requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
 		}
+	}
+
+	/**
+	 * Method to get application Id from query param
+	 * 
+	 * @param queryParams
+	 * @return
+	 */
+	private long getApplicationIdFromQueryParam(String queryParams) {
+		long applicationID = 0l;
+		String[] keyValue = queryParams.split("&");
+		for (int i = 0; i < keyValue.length; i++) {
+			String query = keyValue[i];
+			if (query.contains("applicationId")) {
+				String[] appIdValue = query.split("=");
+				if (StringUtil.isNotNullOrEmpty(appIdValue[1]) && isNumeric(appIdValue[1])) {
+					applicationID = Long.parseLong(appIdValue[1]);
+				}
+			}
+		}
+		return applicationID;
+	}
+
+	/**
+	 * check string is muneric
+	 * 
+	 * @author prade
+	 * @param strNum
+	 * @return
+	 */
+	public static boolean isNumeric(String strNum) {
+		if (strNum == null) {
+			return false;
+		}
+		try {
+			Double.parseDouble(strNum);
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
+		return true;
 	}
 }
