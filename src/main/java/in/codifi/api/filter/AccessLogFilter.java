@@ -43,9 +43,8 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 	@Inject
 	CommonMethods commonMethods;
 	private static final List<String> disablepaths = Arrays.asList(EkycConstants.PATH_SEND_SMS_OTP,
-			EkycConstants.PATH_TEST, EkycConstants.PATH_VERIFY_SMS_OTP,
-			// EkycConstants.PATH_DIGI_WH,
-			EkycConstants.PATH_RELOAD_KRAKEYVALUE, EkycConstants.PATH_GET_NSDL_ESIGN);
+			EkycConstants.PATH_TEST, EkycConstants.PATH_VERIFY_SMS_OTP, EkycConstants.PATH_RELOAD_KRAKEYVALUE,
+			EkycConstants.PATH_GET_NSDL_ESIGN);
 
 	/**
 	 * Method to capture and single save request and response

@@ -20,6 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.IvrEntity;
@@ -199,9 +200,11 @@ public class IvrService implements IIvrService {
 					.encodeToString(UUID.randomUUID().toString().getBytes());
 			String baseUrl = props.getIvrBaseUrl();
 			String apiKey = props.getBitlyAccessToken();
+			String session = HazleCacheController.getInstance().getAuthToken()
+					.get(isUserPresent.get().getMobileNo().toString() + "_" + isUserPresent.get().getId().toString());
 			String url = baseUrl + EkycConstants.IVR_KEY + apiKey + EkycConstants.IVR_APPLICATIONID + applicationId
 					+ EkycConstants.IVR_NAME + FirstName + EkycConstants.IVR_USER_DOMAIN_AND_RANDOMKEY
-					+ RandomencodedUuid;
+					+ RandomencodedUuid + EkycConstants.IVR_SESSION + session;
 			try {
 //				String generateShortLink1 = cuttlyServiceCheck.shortenUrl(url);
 				String generateShortLink = generateShortLink(url);
@@ -305,7 +308,7 @@ public class IvrService implements IIvrService {
 				url = oldRecord.getUrl();
 			}
 			if (StringUtil.isNotNullOrEmpty(url)) {
-				userRepository.updateIvrStage(userEntity.getId(),  EkycConstants.PAGE_DOCUMENT);
+				userRepository.updateIvrStage(userEntity.getId(), EkycConstants.PAGE_DOCUMENT);
 				if (type.equalsIgnoreCase(EkycConstants.IVR_SMS_KEY)) {
 					if (userEntity.getMobileNo() != null && userEntity.getMobileNo() > 0) {
 						smsRestService.sendIvrLinktoMobile(url, userEntity.getMobileNo());
