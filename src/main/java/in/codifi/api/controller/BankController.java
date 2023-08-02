@@ -60,7 +60,7 @@ public class BankController implements IBankController {
 	 * Method to get Bank address by IFSC
 	 */
 	@Override
-	public ResponseModel getBankAdd(String ifsc) {
+	public ResponseModel getBankAdd(String ifsc,long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		if (StringUtil.isNotNullOrEmptyAfterTrim(ifsc)) {
 			responseModel = bankService.getBankAdd(ifsc);

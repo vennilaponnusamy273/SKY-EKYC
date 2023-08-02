@@ -305,6 +305,7 @@ public class IvrService implements IIvrService {
 				url = oldRecord.getUrl();
 			}
 			if (StringUtil.isNotNullOrEmpty(url)) {
+				userRepository.updateIvrStage(userEntity.getId(),  EkycConstants.PAGE_DOCUMENT);
 				if (type.equalsIgnoreCase(EkycConstants.IVR_SMS_KEY)) {
 					if (userEntity.getMobileNo() != null && userEntity.getMobileNo() > 0) {
 						smsRestService.sendIvrLinktoMobile(url, userEntity.getMobileNo());

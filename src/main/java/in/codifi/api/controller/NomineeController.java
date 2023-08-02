@@ -46,7 +46,7 @@ public class NomineeController implements INomineeController {
 	 * Method to delete Nominee
 	 */
 	@Override
-	public ResponseModel deleteNom(long id) {
+	public ResponseModel deleteNom(long id,long applicationId) {
 		ResponseModel response = new ResponseModel();
 		response = service.deleteNom(id);
 		return response;

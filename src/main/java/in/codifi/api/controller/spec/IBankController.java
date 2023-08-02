@@ -54,7 +54,7 @@ public interface IBankController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to get bank address")
-	ResponseModel getBankAdd(@NotNull @QueryParam("ifsc") String ifsc);
+	ResponseModel getBankAdd(@NotNull @QueryParam("ifsc") String ifsc,@NotNull @QueryParam("applicationId") long applicationId);
 
 	/**
 	 * Method to create payment

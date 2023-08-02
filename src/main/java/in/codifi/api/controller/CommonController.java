@@ -41,7 +41,7 @@ public class CommonController implements ICommonController {
 	 * Method to get address by pincode
 	 */
 	@Override
-	public ResponseModel getAddress(String pincode) {
+	public ResponseModel getAddress(String pincode,long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		List<AddressModel> model = commonMethods.findAddressByPinCode(pincode);
 		if (StringUtil.isListNotNullOrEmpty(model)) {
@@ -57,7 +57,7 @@ public class CommonController implements ICommonController {
 	/**
 	 * Method to get log details
 	 */
-	public ResponseModel getLogDetails() {
+	public ResponseModel getLogDetails(long applicationId) {
 		return commonService.getLogDetails();
 	}
 
@@ -76,7 +76,7 @@ public class CommonController implements ICommonController {
 	}
 
 	@Override
-	public ResponseModel pageJumb(String pagesnumber) {
+	public ResponseModel pageJumb(String pagesnumber,long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		if (pagesnumber != null) {
 			responseModel = commonService.pageJumb(pagesnumber);

@@ -31,4 +31,8 @@ public interface ApplicationUserRepository extends CrudRepository<ApplicationUse
 	int updateRejectionStage(@Param("applicationId") long applicationId, @Param("esignCompleted") int esignCompleted,
 			@Param("pdfGenerated") int pdfGenerated, @Param("stage") String stage);
 
+	@Modifying
+	@Query(value = " UPDATE tbl_application_master SET stage=:stage where id=:applicationId ")
+	int updateIvrStage(@Param("applicationId") long applicationId, @Param("stage") String stage);
+
 }
