@@ -525,4 +525,75 @@ public class CommonMethods {
 		}
 	}
 
+	public String generateUccCode() {
+		String uccCode = null;
+		long previousId = repository.findMaxValueOfReqId();
+		Optional<ApplicationUserEntity> lastEntity = repository.findById(previousId);
+		String uccCodePrefix = EkycConstants.CLIENT_CODE;
+		int uccCodeSuffix = EkycConstants.count;
+		if (lastEntity.isPresent()) {
+			if (lastEntity.get() != null && StringUtil.isNotNullOrEmpty(lastEntity.get().getUccCodePrefix())) {
+				uccCodePrefix = lastEntity.get().getUccCodePrefix();
+			}
+
+			if (lastEntity.get() != null && Integer.parseInt(lastEntity.get().getUccCodeSuffix()) > 0) {
+				uccCodeSuffix = Integer.parseInt(lastEntity.get().getUccCodeSuffix());
+			}
+		}
+		uccCode = calculateUccCode(uccCodePrefix, uccCodeSuffix);
+		return uccCode;
+	}
+
+	/**
+	 * Method to generate client code
+	 * 
+	 * @param clientCode
+	 * @return
+	 */
+	public String calculateUccCode(String uccPrefix, int previousId) {
+		if (previousId < 9999) {
+			previousId++;
+		} else {
+			uccPrefix = incrementPrefix(uccPrefix);
+			previousId = 1;
+		}
+		String formattedCount = String.format("%04d", previousId);
+		String customerID = uccPrefix + formattedCount;
+		return customerID;
+	}
+
+	/**
+	 * Method to increase client code automatically
+	 * 
+	 * @param clientCode
+	 * @return
+	 */
+	private String incrementPrefix(String clientCode) {
+		char[] chars = clientCode.toCharArray();
+		int lastCharIndex = chars.length - 1;
+
+		// Increment the last character in the prefix
+		chars[lastCharIndex]++;
+
+		// Check for 'Z' to 'A' rollover
+		for (int i = lastCharIndex; i >= 0; i--) {
+			if (chars[i] > 'Z') {
+				chars[i] = 'A';
+				if (i - 1 >= 0) {
+					chars[i - 1]++;
+				} else {
+					// If the first character 'Z' overflows, add a new 'A' at the beginning
+					char[] newChars = new char[chars.length + 1];
+					newChars[0] = 'A';
+					System.arraycopy(chars, 0, newChars, 1, chars.length);
+					chars = newChars;
+				}
+			} else {
+				break;
+			}
+		}
+
+		return new String(chars);
+	}
+
 }
