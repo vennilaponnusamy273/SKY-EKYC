@@ -603,6 +603,9 @@ public class PdfService implements IPdfService {
 			map.put("PanNumber", applicationData.get().getPanNumber());
 			map.put("emailID", applicationData.get().getEmailId());
 			map.put("DOB", applicationData.get().getDob());
+			if(applicationData.get().getUccCodePrefix()!=null||applicationData.get().getUccCodeSuffix()!=null) {
+				map.put("ClientCode",applicationData.get().getUccCodePrefix()+applicationData.get().getUccCodeSuffix());
+			}
 		}
 		BankEntity bankDetails = bankRepository.findByapplicationId(applicationId);
 		if (bankDetails != null) {
@@ -659,8 +662,13 @@ public class PdfService implements IPdfService {
 			// nomineeEntity is null, set "notApplicableMessageNominee" to "Not Applicable"
 			map.put("notApplicableMessageNominee", "Not Applicable");
 			map.put("Client NameNomineeopt", applicationData.get().getUserName());
-
+			if(applicationData.get().getUccCodePrefix()!=null||applicationData.get().getUccCodeSuffix()!=null) {
+				map.put("ClientCodeopt",applicationData.get().getUccCodePrefix()+applicationData.get().getUccCodeSuffix());
+			}
 		} else if (!nomineeEntity.isEmpty()) {
+			if(applicationData.get().getUccCodePrefix()!=null||applicationData.get().getUccCodeSuffix()!=null) {
+				map.put("ClientCodenopt",applicationData.get().getUccCodePrefix()+applicationData.get().getUccCodeSuffix());
+			}
 			map.put("Client NameNominee", applicationData.get().getUserName());
 			map.put("notApplicableMessage", "Not Applicable");
 			for (int i = 0; i < nomineeEntity.size(); i++) {
