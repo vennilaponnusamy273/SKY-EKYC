@@ -177,82 +177,69 @@ public class PdfService implements IPdfService {
 			String attachmentUrl = null;
 			List<DocumentEntity> documents = docrepository.findByApplicationId(applicationNo);
 			for (DocumentEntity entity : documents) {
-				attachmentUrl = entity.getAttachementUrl();
-				if (attachmentUrl.endsWith(".pdf")) {
-					try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
-						PDFMergerUtility merger = new PDFMergerUtility();
-						PDDocument combine = PDDocument.load(new File(attachmentUrl));
-						merger.appendDocument(document, combine);
-						merger.mergeDocuments();
-						combine.close();
+				if (!StringUtil.isStrContainsWithEqIgnoreCase(entity.getAttachement(), "signedFinal.pdf")) {
+					attachmentUrl = entity.getAttachementUrl();
+					if (attachmentUrl.endsWith(".pdf")) {
+						System.out.println(attachmentUrl);
+						try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
+							File fileAadhar = new File(attachmentUrl);
+							PDFMergerUtility merger = new PDFMergerUtility();
+							PDDocument combine = PDDocument.load(fileAadhar);
+							merger.appendDocument(document, combine);
+							merger.mergeDocuments();
+							combine.close();
 
-						// The main document and attachment have been merged, and the verification image
-						// can now be added
-						int originalPages = document.getNumberOfPages() - 1;
-						BufferedImage verifyImage = null;
+							// The main document and attachment have been merged, and the verification image
+							// can now be added
+							int originalPages = document.getNumberOfPages() - 1;
+							File verifyImageFile = new File(props.getVerifyImage());
+							if (verifyImageFile.exists()) {
+								PDPage page = document.getPage(originalPages);
+								try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true,
+										true)) {
+									// Create the verification image as PDImageXObject
+									PDImageXObject importedVerifyImage = PDImageXObject
+											.createFromFile(props.getVerifyImage(), document);
+									contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
+								}
+							}
+						}
+					} else {
+						BufferedImage image = ImageIO.read(new File(attachmentUrl));
+						PDPage page = new PDPage();
+						document.addPage(page);
+						PDRectangle pageSize = page.getMediaBox();
+
+						// Calculate the maximum width and height that the image can occupy on the page
+						float maxWidth = pageSize.getWidth() * 0.8f;
+						float maxHeight = pageSize.getHeight() * 0.8f;
+
+						// Calculate the aspect ratio of the image
+						float aspectRatio = (float) image.getWidth() / (float) image.getHeight();
+
+						// Calculate the width and height of the image based on its aspect ratio and
+						// maximum size
+						float imageWidth = Math.min(maxWidth, maxHeight * aspectRatio);
+						float imageHeight = Math.min(maxHeight, maxWidth / aspectRatio);
+
+						// Calculate the position of the image on the page
+						float centerX = (pageSize.getWidth() - imageWidth) / 2f;
+						float centerY = (pageSize.getHeight() - imageHeight) / 2f;
+
+						// Load the verification image from image file (e.g., JPEG, PNG)
 						File verifyImageFile = new File(props.getVerifyImage());
 						if (verifyImageFile.exists()) {
-							verifyImage = ImageIO.read(verifyImageFile);
-						} else {
-							System.err.println(
-									"Verification image file does not exist: " + verifyImageFile.getAbsolutePath());
-						}
-
-						if (verifyImage != null) {
-							PDPage page = document.getPage(originalPages);
-							try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true,
-									true)) {
+							PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
+							try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+								contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
 								// Create the verification image as PDImageXObject
 								PDImageXObject importedVerifyImage = PDImageXObject
 										.createFromFile(props.getVerifyImage(), document);
 								contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
 							}
+						} else {
+							System.err.println("Failed to load the verification image.");
 						}
-					}
-				}
-
-				else {
-					BufferedImage image = ImageIO.read(new File(attachmentUrl));
-					PDPage page = new PDPage();
-					document.addPage(page);
-					PDRectangle pageSize = page.getMediaBox();
-
-					// Calculate the maximum width and height that the image can occupy on the page
-					float maxWidth = pageSize.getWidth() * 0.8f;
-					float maxHeight = pageSize.getHeight() * 0.8f;
-
-					// Calculate the aspect ratio of the image
-					float aspectRatio = (float) image.getWidth() / (float) image.getHeight();
-
-					// Calculate the width and height of the image based on its aspect ratio and
-					// maximum size
-					float imageWidth = Math.min(maxWidth, maxHeight * aspectRatio);
-					float imageHeight = Math.min(maxHeight, maxWidth / aspectRatio);
-
-					// Calculate the position of the image on the page
-					float centerX = (pageSize.getWidth() - imageWidth) / 2f;
-					float centerY = (pageSize.getHeight() - imageHeight) / 2f;
-
-					// Load the verification image from image file (e.g., JPEG, PNG)
-					BufferedImage verifyImage = null;
-					File verifyImageFile = new File(props.getVerifyImage());
-					if (verifyImageFile.exists()) {
-						verifyImage = ImageIO.read(verifyImageFile);
-					} else {
-						System.err.println(
-								"Verification image file does not exist: " + verifyImageFile.getAbsolutePath());
-					}
-					if (verifyImage != null) {
-						PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
-						try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-							contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
-							// Create the verification image as PDImageXObject
-							PDImageXObject importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(),
-									document);
-							contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
-						}
-					} else {
-						System.err.println("Failed to load the verification image.");
 					}
 				}
 			}
@@ -262,7 +249,7 @@ public class PdfService implements IPdfService {
 		}
 	}
 
-	@SuppressWarnings({ "deprecation" })
+	@SuppressWarnings("deprecation")
 	public void pdfInsertCoordinates(PDDocument document, List<PdfDataCoordinatesEntity> pdfDatas,
 			HashMap<String, String> map) {
 		try {
@@ -327,13 +314,8 @@ public class PdfService implements IPdfService {
 						contentStream.drawImage(pdImage, x, y, width, height);
 					}
 				}
-
 				contentStream.close();
 			}
-			System.out.println("Completed");
-			SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-			Date date = new Date();
-			System.out.println(formatter.format(date));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -430,7 +412,6 @@ public class PdfService implements IPdfService {
 			map.put("SettlementCycle", profileEntity.getSettlementCycle());
 			map.put("Title", profileEntity.getTitle());
 			// map.put("TradingExperience", profileEntity.getTradingExperience());
-			System.out.println("the profileEntity.getTradingExperience()" + profileEntity.getTradingExperience());
 			if (profileEntity.getTradingExperience().equalsIgnoreCase("No Experience")) {
 				map.put("No prior Experience", profileEntity.getTradingExperience());
 			} else {
@@ -603,8 +584,10 @@ public class PdfService implements IPdfService {
 			map.put("PanNumber", applicationData.get().getPanNumber());
 			map.put("emailID", applicationData.get().getEmailId());
 			map.put("DOB", applicationData.get().getDob());
-			if(applicationData.get().getUccCodePrefix()!=null||applicationData.get().getUccCodeSuffix()!=null) {
-				map.put("ClientCode",applicationData.get().getUccCodePrefix()+applicationData.get().getUccCodeSuffix());
+			if (StringUtil.isNotNullOrEmpty(applicationData.get().getUccCodePrefix())
+					|| StringUtil.isNotNullOrEmpty(applicationData.get().getUccCodeSuffix())) {
+				map.put("ClientCode",
+						applicationData.get().getUccCodePrefix() + applicationData.get().getUccCodeSuffix());
 			}
 		}
 		BankEntity bankDetails = bankRepository.findByapplicationId(applicationId);
@@ -640,7 +623,11 @@ public class PdfService implements IPdfService {
 		}
 		ResponseCkyc responseCkyc = ckycResponseRepos.findByApplicationId(applicationId);
 		if (responseCkyc != null) {
-			map.put("Father's / Spouse Name - Prefix", responseCkyc.getFatherPrefix());
+			if (responseCkyc.getFatherPrefix() != null || !responseCkyc.getFatherPrefix().isEmpty()) {
+				map.put("Father's / Spouse Name - Prefix", responseCkyc.getFatherPrefix());
+			} else if (responseCkyc.getFatherFname() != null || profileEntity.getFatherName() != null) {
+				map.put("Father's / Spouse Name - Prefix", "MR");
+			}
 			if (responseCkyc.getFatherFname() != null) {
 				map.put("i)FFirst Name", responseCkyc.getFatherFname());
 				map.put("ii)FMiddle Name", responseCkyc.getFatherMname());
@@ -648,7 +635,12 @@ public class PdfService implements IPdfService {
 			} else {
 				map.put("i)FFirst Name", profileEntity.getFatherName());
 			}
-			map.put("Mother Name - Prefix", responseCkyc.getMotherPrefix());
+			if (StringUtil.isNotNullOrEmpty(responseCkyc.getMotherPrefix())) {
+				map.put("Mother Name - Prefix", responseCkyc.getMotherPrefix());
+				System.out.println("the " + responseCkyc.getMotherPrefix());
+			} else if (responseCkyc.getMotherFullname() != null || profileEntity.getMotherName() != null) {
+				map.put("Mother Name - Prefix", "MRS");
+			}
 			if (responseCkyc.getMotherFname() != null) {
 				map.put("i)MFirst Name", responseCkyc.getMotherFname());
 				map.put("ii)MMiddle Name", responseCkyc.getMotherMname());
@@ -662,17 +654,20 @@ public class PdfService implements IPdfService {
 			// nomineeEntity is null, set "notApplicableMessageNominee" to "Not Applicable"
 			map.put("notApplicableMessageNominee", "Not Applicable");
 			map.put("Client NameNomineeopt", applicationData.get().getUserName());
-			if(applicationData.get().getUccCodePrefix()!=null||applicationData.get().getUccCodeSuffix()!=null) {
-				map.put("ClientCodeopt",applicationData.get().getUccCodePrefix()+applicationData.get().getUccCodeSuffix());
+			if (StringUtil.isNotNullOrEmpty(applicationData.get().getUccCodePrefix())
+					|| StringUtil.isNotNullOrEmpty(applicationData.get().getUccCodeSuffix())) {
+				map.put("ClientCodeopt",
+						applicationData.get().getUccCodePrefix() + applicationData.get().getUccCodeSuffix());
 			}
 		} else if (!nomineeEntity.isEmpty()) {
-			if(applicationData.get().getUccCodePrefix()!=null||applicationData.get().getUccCodeSuffix()!=null) {
-				map.put("ClientCodenopt",applicationData.get().getUccCodePrefix()+applicationData.get().getUccCodeSuffix());
+			if (StringUtil.isNotNullOrEmpty(applicationData.get().getUccCodePrefix())
+					|| StringUtil.isNotNullOrEmpty(applicationData.get().getUccCodeSuffix())) {
+				map.put("ClientCodenopt",
+						applicationData.get().getUccCodePrefix() + applicationData.get().getUccCodeSuffix());
 			}
 			map.put("Client NameNominee", applicationData.get().getUserName());
 			map.put("notApplicableMessage", "Not Applicable");
 			for (int i = 0; i < nomineeEntity.size(); i++) {
-				System.out.println("NomOneAllocation ----- " + nomineeEntity.get(i).getAllocation());
 				if (i == 0) {
 					map.put("I/We wish to make a nominaton.", nomineeEntity.get(i).getFirstname());
 					map.put("Details of 1st Nominee Name of the nominee(s)", nomineeEntity.get(i).getFirstname());
@@ -1018,7 +1013,6 @@ public class PdfService implements IPdfService {
 	 */
 	@Override
 	public Response getNsdlXml(String msg) {
-		System.out.println(msg);
 		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
 		if (OS.contains(EkycConstants.OS_WINDOWS)) {
 			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
@@ -1028,7 +1022,6 @@ public class PdfService implements IPdfService {
 			String fileName = "lastXml" + random + ".xml";
 			String cerFile = "usrCertificate" + random + ".cer";
 			File fXmlFile = new File(props.getFileBasePath() + "TempXMLFiles" + slash + fileName);
-			System.out.println("the fXmlFile" + fXmlFile);
 			if (fXmlFile.createNewFile()) {
 				FileWriter myWriter = new FileWriter(fXmlFile);
 				myWriter.write(msg);
@@ -1058,7 +1051,6 @@ public class PdfService implements IPdfService {
 					}
 					String name = commonMethods
 							.readUserNameFromCerFile(detailsEntity.getFolderLocation() + slash + cerFile);
-					System.out.println(name);
 					Optional<ApplicationUserEntity> userEntity = applicationUserRepository
 							.findById(detailsEntity.getApplicationId());
 					if (userEntity.isPresent()) {

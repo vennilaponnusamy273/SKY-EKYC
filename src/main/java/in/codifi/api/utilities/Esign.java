@@ -57,7 +57,6 @@ public class Esign {
 	public ResponseModel runMethod(String OutPutPath, @NotNull long applicationId) {
 
 		ResponseModel responseModel = new ResponseModel();
-		System.out.println("the OutPutPath" + OutPutPath);
 		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
 		if (OS.contains(EkycConstants.OS_WINDOWS)) {
 			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
@@ -66,7 +65,6 @@ public class Esign {
 		String getXml = getXmlForEsignSinglePage(
 				OutPutPath + applicationId + slash + applicationData.get().getPanNumber() + EkycConstants.PDF_EXTENSION,
 				applicationId);
-		System.out.println("the getXml" + getXml);
 		long timeInmillsecods = System.currentTimeMillis();
 		String folderName = String.valueOf(timeInmillsecods);
 		if (getXml != null) {
@@ -124,7 +122,6 @@ public class Esign {
 				ArrayList<Integer> height = new ArrayList<>();
 				ArrayList<Integer> width = new ArrayList<>();
 				Long countNominee = nomineeRepository.countByApplicationId(applicationId);
-				// System.out.println("the countNominee"+countNominee);
 				SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationId);
 				if (countNominee == 0) {
 					xCoordinatesList.add(430);
@@ -218,7 +215,6 @@ public class Esign {
 						p12CertificatePath, p12CertiPwd, tickImagePath, serverTime, alias, nameToShowOnSignatureStamp,
 						locationToShowOnSignatureStamp, reasonForSign, pdfPassword, txn, PageNo, xCoordinatesList,
 						yCoordinatesList, height, width);
-				System.out.println(response);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

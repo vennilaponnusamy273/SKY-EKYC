@@ -29,7 +29,6 @@ public class RejectionStatusHelper {
 				ApiStatusEntity apiStatusEntity = apiStatusRepository
 						.findByApplicationIdAndStageAndStatus(applicationId, stage, 0);
 				if (apiStatusEntity != null) {
-					System.out.println("rejection update check");
 					ApiStatusArchiveEntity apiStatusArchiveEntity = new ApiStatusArchiveEntity();
 					BeanUtils.copyProperties(apiStatusArchiveEntity, apiStatusEntity);
 					apiStatusArchiveEntity.setId(null);
@@ -40,7 +39,6 @@ public class RejectionStatusHelper {
 				List<ApiStatusEntity> docResult = apiStatusRepository.getResultForDoc(applicationId, stage, 0);
 				if (StringUtil.isListNotNullOrEmpty(docResult)) {
 					for (ApiStatusEntity apiStatusEntity : docResult) {
-						System.out.println("rejection update check");
 						ApiStatusArchiveEntity apiStatusArchiveEntity = new ApiStatusArchiveEntity();
 						BeanUtils.copyProperties(apiStatusArchiveEntity, apiStatusEntity);
 						apiStatusArchiveEntity.setId(null);
