@@ -41,4 +41,8 @@ public interface ApplicationUserRepository extends CrudRepository<ApplicationUse
 	@Query(value = " SELECT max(id) FROM tbl_application_master ")
 	Long findMaxValueOfReqId();
 
+	@Transactional
+	@Query(value = " SELECT count(id) FROM tbl_application_master ")
+	long findcoutValueOfReqId();
+
 }

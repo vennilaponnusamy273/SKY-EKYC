@@ -21,7 +21,7 @@ public class EkycConstants {
 	public static final String AND = "&";
 	public static final String UNDERSCORE = "_";
 	public static final String CLIENT_CODE = "AB";
-	public static final int count = 1;
+	public static final int count = 0;
 	// OTP Validation
 	public static final String SMS_KEY = "_SMS";
 	public static final String EMAIL_KEY = "_EMAIL";

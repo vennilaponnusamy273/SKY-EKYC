@@ -148,8 +148,6 @@ public class DigilockerHelper {
 					JSONObject kycResponse = (JSONObject) jsonOutput.get("KycRes");
 					if (kycResponse != null && kycResponse.containsKey("UidData")) {
 						JSONObject userDetails = (JSONObject) kycResponse.get("UidData");
-						String aadharImage = (String) userDetails.get("Pht");
-						System.out.println(aadharImage);
 						String fileName = documentHelper.convertBase64ToImage((String) userDetails.get("Pht"),
 								applicationId, "_"+EkycConstants.DOC_AADHAR);
 						saveAadharDocumntDetails(applicationId, fileName,

@@ -32,7 +32,6 @@ public class SmsRestService {
 			String Text = otp + " " + props.getSmsText();
 			String message = iSmsRestService.SendSms(props.getSmsFeedId(), props.getSmsSenderId(),
 					props.getSmsUserName(), props.getSmsPassword(), String.valueOf(mobileNumber), Text);
-			System.out.println(message);
 			commonMethods.storeSmsLog(Text,message,"sendOTPtoMobile",mobileNumber);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -42,7 +42,6 @@ public class ErpService implements IErpService{
 //		    	if (mobilenumberPresent!=null &&emailPresent!=null&&mobilenumberPresent.getSmsVerified()>0&& emailPresent.getEmailVerified()>0) 
 //		    	{
 //		    	String responseMessage = erpRestService.UserCreation(mobileNo, userId, emailId, password);
-//		    	System.out.println(responseMessage);
 //		        response.setMessage(EkycConstants.SUCCESS_MSG);
 //		        response.setStat(EkycConstants.SUCCESS_STATUS);
 //		        response.setResult(responseMessage);
@@ -96,7 +95,6 @@ public class ErpService implements IErpService{
 //	            for (ApplicationUserEntity user : recentlyCreatedUsers) {
 //	                if (updateErpRepository.findByMobileNo(user.getMobileNo()) == null) {
 //	                    String responseMessage = erpRestService.UserCreation(user.getMobileNo(), user.getId().toString(), user.getEmailId(), "");
-//	                    System.out.println("the responseMessage"+responseMessage);
 //	                    saveResponseErpuser(user.getMobileNo(), user.getId().toString(), user.getEmailId(), user.getPassword(), responseMessage);
 //	                }
 //	            }
@@ -109,14 +107,12 @@ public class ErpService implements IErpService{
 //	                Path filePath = Paths.get(path);
 //	                byte[] fileBytes = Files.readAllBytes(filePath);
 //	                String base64String = Base64.getEncoder().encodeToString(fileBytes);
-//	                System.out.println("THE DocTypeInErp: " + docTypeInErp);
 //	                String responseMessage = erpRestService.uploadDocument(docTypeInErp, entity.getApplicationId().toString(), base64String);
 //	                saveResponseErpdoc(entity.getApplicationId().toString(), docTypeInErp, responseMessage);
 //	            }}
 //	            List<ApplicationUserEntity> recentlyCreatedUsersAll = repository.findRecentlyCreatedUsersAll();	            
 //	            for (ApplicationUserEntity userAll : recentlyCreatedUsersAll) {
 //	            	String AllMEssage=erpRestService.updatefulldetails(userAll.getId());
-//	            	System.out.println("the AllMEssage"+AllMEssage);
 //	            	saveResponseErpuserAll(userAll.getId().toString(),AllMEssage);
 //	            }
 //	        } catch (Exception e) {

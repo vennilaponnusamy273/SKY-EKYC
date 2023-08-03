@@ -181,7 +181,6 @@ public class CommonMethods {
 				String subject = emailTempentity.getSubject().replace("{otp}", String.format("%06d", otp));
 				Mail mail = Mail.withHtml(emailId, subject, body);
 				mailer.send(mail);
-				System.out.println("The email was sent in Template: " + mail);
 				storeEmailLog(body, subject, "The email was sent in Template: " + mail, "sendMailOtp", emailId);
 			}
 		} catch (Exception e) {
@@ -207,7 +206,6 @@ public class CommonMethods {
 			mailer.send(mail);
 			storeEmailLog(body, subject, "The email was sent in error message: " + mail, "sendErrorMail",
 					emailTemplateEntity.getToAddress());
-			System.out.println("The email was sent in error message: " + mail);
 		}
 	}
 
@@ -228,7 +226,6 @@ public class CommonMethods {
 		Mail mail = Mail.withHtml(emailId, subject, body);
 		mailer.send(mail);
 		storeEmailLog(body, subject, "The email was sent: " + mail, "SendMailOTP", emailId);
-		System.out.println("The email was sent: " + mail);
 	}
 
 	/**
@@ -526,18 +523,21 @@ public class CommonMethods {
 	}
 
 	public String generateUccCode() {
-		String uccCode = null;
-		long previousId = repository.findMaxValueOfReqId();
-		Optional<ApplicationUserEntity> lastEntity = repository.findById(previousId);
 		String uccCodePrefix = EkycConstants.CLIENT_CODE;
 		int uccCodeSuffix = EkycConstants.count;
-		if (lastEntity.isPresent()) {
-			if (lastEntity.get() != null && StringUtil.isNotNullOrEmpty(lastEntity.get().getUccCodePrefix())) {
-				uccCodePrefix = lastEntity.get().getUccCodePrefix();
-			}
+		String uccCode = null;
+		long count = repository.findcoutValueOfReqId();
+		if (count > 0) {
+			long previousId = repository.findMaxValueOfReqId();
+			Optional<ApplicationUserEntity> lastEntity = repository.findById(previousId);
+			if (lastEntity.isPresent()) {
+				if (lastEntity.get() != null && StringUtil.isNotNullOrEmpty(lastEntity.get().getUccCodePrefix())) {
+					uccCodePrefix = lastEntity.get().getUccCodePrefix();
+				}
 
-			if (lastEntity.get() != null && Integer.parseInt(lastEntity.get().getUccCodeSuffix()) > 0) {
-				uccCodeSuffix = Integer.parseInt(lastEntity.get().getUccCodeSuffix());
+				if (lastEntity.get() != null && Integer.parseInt(lastEntity.get().getUccCodeSuffix()) > 0) {
+					uccCodeSuffix = Integer.parseInt(lastEntity.get().getUccCodeSuffix());
+				}
 			}
 		}
 		uccCode = calculateUccCode(uccCodePrefix, uccCodeSuffix);
