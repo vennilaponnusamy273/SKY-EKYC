@@ -274,55 +274,98 @@ public class Esign {
 					int pageNoSegment = 12; // Change this to the desired page number
 					int heightValue = 40; // Change this to the actual height value
 					int widthValue = 100; // Change this to the actual width value
-					if (segmentEntity.getComm() > 0) {
+//					if (segmentEntity.getComm() > 0) {
+//						xCoordinatesList.add(40);
+//						yCoordinatesList.add(120);
+//						PageNo.add(pageNoSegment);
+//						height.add(heightValue);
+//						width.add(widthValue);
+//						xCoordinatesList.add(40);
+//						yCoordinatesList.add(85);
+//						PageNo.add(pageNoSegment);
+//						height.add(heightValue);
+//						width.add(widthValue);
+//					}
+//					if (segmentEntity.getConsent() > 0) {
+//						xCoordinatesList.add(160);
+//						yCoordinatesList.add(120);
+//						PageNo.add(pageNoSegment);
+//						height.add(heightValue);
+//						width.add(widthValue);
+//						xCoordinatesList.add(160);
+//						yCoordinatesList.add(85);
+//						PageNo.add(pageNoSegment);
+//						height.add(heightValue);
+//						width.add(widthValue);
+//					}
+//					if (segmentEntity.getEd() > 0) {
+//						xCoordinatesList.add(280);
+//						yCoordinatesList.add(120);
+//						PageNo.add(pageNoSegment);
+//						height.add(heightValue);
+//						width.add(widthValue);
+//						xCoordinatesList.add(280);
+//						yCoordinatesList.add(85);
+//						PageNo.add(pageNoSegment);
+//						height.add(heightValue);
+//						width.add(widthValue);
+//						xCoordinatesList.add(280);
+//						yCoordinatesList.add(40);
+//						PageNo.add(pageNoSegment);
+//						height.add(heightValue);
+//						width.add(widthValue);
+//					}
+//					if (segmentEntity.getEquCash() > 0) {
+//						xCoordinatesList.add(390);
+//						yCoordinatesList.add(120);
+//						PageNo.add(pageNoSegment);
+//						height.add(heightValue);
+//						width.add(widthValue);
+//						xCoordinatesList.add(390);
+//						yCoordinatesList.add(85);
+//						PageNo.add(pageNoSegment);
+//						height.add(heightValue);
+//						width.add(widthValue);
+//					}
+					if (segmentEntity.getComm() > 0 ) {	
 						xCoordinatesList.add(40);
-						yCoordinatesList.add(120);
-						PageNo.add(pageNoSegment);
-						height.add(heightValue);
-						width.add(widthValue);
-						xCoordinatesList.add(40);
-						yCoordinatesList.add(85);
+						yCoordinatesList.add(100);
 						PageNo.add(pageNoSegment);
 						height.add(heightValue);
 						width.add(widthValue);
 					}
 					if (segmentEntity.getConsent() > 0) {
-						xCoordinatesList.add(160);
-						yCoordinatesList.add(120);
-						PageNo.add(pageNoSegment);
-						height.add(heightValue);
-						width.add(widthValue);
-						xCoordinatesList.add(160);
-						yCoordinatesList.add(85);
+						xCoordinatesList.add(130);
+						yCoordinatesList.add(100);
 						PageNo.add(pageNoSegment);
 						height.add(heightValue);
 						width.add(widthValue);
 					}
-					if (segmentEntity.getEd() > 0) {
-						xCoordinatesList.add(280);
-						yCoordinatesList.add(120);
+					if (segmentEntity.getCd() > 0) {
+						xCoordinatesList.add(220);
+						yCoordinatesList.add(100);
 						PageNo.add(pageNoSegment);
 						height.add(heightValue);
 						width.add(widthValue);
-						xCoordinatesList.add(280);
-						yCoordinatesList.add(85);
-						PageNo.add(pageNoSegment);
-						height.add(heightValue);
-						width.add(widthValue);
-						xCoordinatesList.add(280);
-						yCoordinatesList.add(40);
+					}
+					
+					if (segmentEntity.getEd()>0){
+						xCoordinatesList.add(300);
+						yCoordinatesList.add(100);
 						PageNo.add(pageNoSegment);
 						height.add(heightValue);
 						width.add(widthValue);
 					}
 					if (segmentEntity.getEquCash() > 0) {
-						xCoordinatesList.add(390);
-						yCoordinatesList.add(120);
+						xCoordinatesList.add(370);
+						yCoordinatesList.add(100);
 						PageNo.add(pageNoSegment);
 						height.add(heightValue);
 						width.add(widthValue);
-						xCoordinatesList.add(390);
-						yCoordinatesList.add(85);
+					}
+					if(segmentEntity.getComm() > 0||segmentEntity.getConsent() > 0||segmentEntity.getCd() > 0||segmentEntity.getEd()>0||segmentEntity.getEquCash() > 0) {
+						xCoordinatesList.add(450);
+						yCoordinatesList.add(100);
 						PageNo.add(pageNoSegment);
 						height.add(heightValue);
 						width.add(widthValue);
