@@ -124,15 +124,15 @@ public class Esign {
 				ArrayList<Integer> height = new ArrayList<>();
 				ArrayList<Integer> width = new ArrayList<>();
 				Long countNominee = nomineeRepository.countByApplicationId(applicationId);
-				//System.out.println("the countNominee"+countNominee);
+				// System.out.println("the countNominee"+countNominee);
 				SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationId);
-				if (countNominee==0) {
+				if (countNominee == 0) {
 					xCoordinatesList.add(430);
 					yCoordinatesList.add(392);
 					PageNo.add(17);
 					height.add(40);
-					width.add(100);	
-				}else {
+					width.add(100);
+				} else {
 					xCoordinatesList.add(80);
 					yCoordinatesList.add(520);
 					PageNo.add(16);
@@ -143,7 +143,7 @@ public class Esign {
 				int pageNoSegment = 12; // Change this to the desired page number
 				int heightValue = 40; // Change this to the actual height value
 				int widthValue = 100; // Change this to the actual width value
-				if (segmentEntity.getComm() > 0 ) {	
+				if (segmentEntity.getComm() > 0) {
 					xCoordinatesList.add(40);
 					yCoordinatesList.add(100);
 					PageNo.add(pageNoSegment);
@@ -164,8 +164,8 @@ public class Esign {
 					height.add(heightValue);
 					width.add(widthValue);
 				}
-				
-				if (segmentEntity.getEd()>0){
+
+				if (segmentEntity.getEd() > 0) {
 					xCoordinatesList.add(300);
 					yCoordinatesList.add(100);
 					PageNo.add(pageNoSegment);
@@ -179,7 +179,8 @@ public class Esign {
 					height.add(heightValue);
 					width.add(widthValue);
 				}
-				if(segmentEntity.getComm() > 0||segmentEntity.getConsent() > 0||segmentEntity.getCd() > 0||segmentEntity.getEd()>0||segmentEntity.getEquCash() > 0) {
+				if (segmentEntity.getComm() > 0 || segmentEntity.getConsent() > 0 || segmentEntity.getCd() > 0
+						|| segmentEntity.getEd() > 0 || segmentEntity.getEquCash() > 0) {
 					xCoordinatesList.add(450);
 					yCoordinatesList.add(100);
 					PageNo.add(pageNoSegment);
@@ -224,6 +225,7 @@ public class Esign {
 		}
 		return response;
 	}
+
 	public String getSignFromNsdl(String documentLocation, String documentToBeSavedLocation, String receivedXml,
 			String applicantName, String city, long applicationID) {
 		String responseText = null;
@@ -232,15 +234,9 @@ public class Esign {
 			String tickImagePath = props.getEsignTickImage();
 			;
 			int serverTime = 10;
-//			PDDocument pdDoc = PDDocument.load(new File(pathToPDF));
-//			int pageNumberToInsertSignatureStamp = pdDoc.getNumberOfPages();
 			String nameToShowOnSignatureStamp = applicantName.toUpperCase();
 			String locationToShowOnSignatureStamp = city.toUpperCase();
 			String reasonForSign = "";
-			// int xCo_ordinates = 10;
-			// int yCo_ordinates = 190;
-			// int signatureWidth = 200;
-			// int signatureHeight = 50;
 			String pdfPassword = "";
 			String esignXml = receivedXml;
 			String returnPath = documentToBeSavedLocation;
@@ -249,20 +245,19 @@ public class Esign {
 				List<PdfDataCoordinatesEntity> coordinatesList = pdfDataCoordinatesrepository
 						.findByColumnNamesAndActiveStatus("esign", 1);
 				if (coordinatesList != null) {
-					// Set up lists for coordinates, page numbers, height and width
 					ArrayList<Integer> xCoordinatesList = new ArrayList<>();
 					ArrayList<Integer> yCoordinatesList = new ArrayList<>();
 					ArrayList<Integer> PageNo = new ArrayList<>();
 					ArrayList<Integer> height = new ArrayList<>();
 					ArrayList<Integer> width = new ArrayList<>();
 					Long countNominee = nomineeRepository.countByApplicationId(applicationID);
-					if (countNominee==0) {
+					if (countNominee == 0) {
 						xCoordinatesList.add(430);
 						yCoordinatesList.add(392);
 						PageNo.add(17);
 						height.add(40);
-						width.add(100);	
-					}else {
+						width.add(100);
+					} else {
 						xCoordinatesList.add(80);
 						yCoordinatesList.add(520);
 						PageNo.add(16);
@@ -274,60 +269,7 @@ public class Esign {
 					int pageNoSegment = 12; // Change this to the desired page number
 					int heightValue = 40; // Change this to the actual height value
 					int widthValue = 100; // Change this to the actual width value
-//					if (segmentEntity.getComm() > 0) {
-//						xCoordinatesList.add(40);
-//						yCoordinatesList.add(120);
-//						PageNo.add(pageNoSegment);
-//						height.add(heightValue);
-//						width.add(widthValue);
-//						xCoordinatesList.add(40);
-//						yCoordinatesList.add(85);
-//						PageNo.add(pageNoSegment);
-//						height.add(heightValue);
-//						width.add(widthValue);
-//					}
-//					if (segmentEntity.getConsent() > 0) {
-//						xCoordinatesList.add(160);
-//						yCoordinatesList.add(120);
-//						PageNo.add(pageNoSegment);
-//						height.add(heightValue);
-//						width.add(widthValue);
-//						xCoordinatesList.add(160);
-//						yCoordinatesList.add(85);
-//						PageNo.add(pageNoSegment);
-//						height.add(heightValue);
-//						width.add(widthValue);
-//					}
-//					if (segmentEntity.getEd() > 0) {
-//						xCoordinatesList.add(280);
-//						yCoordinatesList.add(120);
-//						PageNo.add(pageNoSegment);
-//						height.add(heightValue);
-//						width.add(widthValue);
-//						xCoordinatesList.add(280);
-//						yCoordinatesList.add(85);
-//						PageNo.add(pageNoSegment);
-//						height.add(heightValue);
-//						width.add(widthValue);
-//						xCoordinatesList.add(280);
-//						yCoordinatesList.add(40);
-//						PageNo.add(pageNoSegment);
-//						height.add(heightValue);
-//						width.add(widthValue);
-//					}
-//					if (segmentEntity.getEquCash() > 0) {
-//						xCoordinatesList.add(390);
-//						yCoordinatesList.add(120);
-//						PageNo.add(pageNoSegment);
-//						height.add(heightValue);
-//						width.add(widthValue);
-//						xCoordinatesList.add(390);
-//						yCoordinatesList.add(85);
-//						PageNo.add(pageNoSegment);
-//						height.add(heightValue);
-//						width.add(widthValue);
-//					}
-					if (segmentEntity.getComm() > 0 ) {	
+					if (segmentEntity.getComm() > 0) {
 						xCoordinatesList.add(40);
 						yCoordinatesList.add(100);
 						PageNo.add(pageNoSegment);
@@ -348,8 +290,8 @@ public class Esign {
 						height.add(heightValue);
 						width.add(widthValue);
 					}
-					
-					if (segmentEntity.getEd()>0){
+
+					if (segmentEntity.getEd() > 0) {
 						xCoordinatesList.add(300);
 						yCoordinatesList.add(100);
 						PageNo.add(pageNoSegment);
@@ -363,7 +305,8 @@ public class Esign {
 						height.add(heightValue);
 						width.add(widthValue);
 					}
-					if(segmentEntity.getComm() > 0||segmentEntity.getConsent() > 0||segmentEntity.getCd() > 0||segmentEntity.getEd()>0||segmentEntity.getEquCash() > 0) {
+					if (segmentEntity.getComm() > 0 || segmentEntity.getConsent() > 0 || segmentEntity.getCd() > 0
+							|| segmentEntity.getEd() > 0 || segmentEntity.getEquCash() > 0) {
 						xCoordinatesList.add(450);
 						yCoordinatesList.add(100);
 						PageNo.add(pageNoSegment);
@@ -407,6 +350,7 @@ public class Esign {
 		}
 		return responseText;
 	}
+
 	private static String toCreateNewXMLFile(String xmlPath, String getXml) {
 		try {
 			String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;

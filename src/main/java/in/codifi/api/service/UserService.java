@@ -82,6 +82,17 @@ public class UserService implements IUserService {
 			ApplicationUserEntity oldUserEntity = repository.findByMobileNo(userEntity.getMobileNo());
 			String mapKey = String.valueOf(userEntity.getMobileNo()) + EkycConstants.SMS_KEY;
 			if (oldUserEntity == null) {
+
+				String uccCode = commonMethods.generateUccCode();
+				if (StringUtil.isNotNullOrEmpty(uccCode)) {
+					if (uccCode.length() > 2) {
+						userEntity.setUccCodePrefix(uccCode.substring(0, 2));
+					}
+					if (uccCode.length() > 5) {
+						userEntity.setUccCodeSuffix(uccCode.substring(2, 6));
+					}
+				}
+				System.out.println(uccCode);
 				// send OTP
 				updatedUserDetails = userHelper.saveOrUpdateSmsTrigger(userEntity);
 			} else {

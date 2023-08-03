@@ -1,5 +1,7 @@
 package in.codifi.api.repository;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -34,5 +36,9 @@ public interface ApplicationUserRepository extends CrudRepository<ApplicationUse
 	@Modifying
 	@Query(value = " UPDATE tbl_application_master SET stage=:stage where id=:applicationId ")
 	int updateIvrStage(@Param("applicationId") long applicationId, @Param("stage") String stage);
+
+	@Transactional
+	@Query(value = " SELECT max(id) FROM tbl_application_master ")
+	Long findMaxValueOfReqId();
 
 }
