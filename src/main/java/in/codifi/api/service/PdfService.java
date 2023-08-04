@@ -1,5 +1,4 @@
 package in.codifi.api.service;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
@@ -48,6 +47,7 @@ import in.codifi.api.entity.NomineeEntity;
 import in.codifi.api.entity.PdfDataCoordinatesEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.entity.ResponseCkyc;
+import in.codifi.api.entity.SegmentEntity;
 import in.codifi.api.entity.TxnDetailsEntity;
 import in.codifi.api.model.BankAddressModel;
 import in.codifi.api.model.PdfApplicationDataModel;
@@ -181,6 +181,7 @@ public class PdfService implements IPdfService {
 					attachmentUrl = entity.getAttachementUrl();
 					if (attachmentUrl.endsWith(".pdf")) {
 						System.out.println(attachmentUrl);
+						int originalPages = document.getNumberOfPages();
 						try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
 							File fileAadhar = new File(attachmentUrl);
 							PDFMergerUtility merger = new PDFMergerUtility();
@@ -191,17 +192,20 @@ public class PdfService implements IPdfService {
 
 							// The main document and attachment have been merged, and the verification image
 							// can now be added
-							int originalPages = document.getNumberOfPages() - 1;
+							
+							int attachmentPages = attachment.getNumberOfPages();
 							File verifyImageFile = new File(props.getVerifyImage());
 							if (verifyImageFile.exists()) {
-								PDPage page = document.getPage(originalPages);
+								 for (int i = originalPages; i < originalPages + attachmentPages; i++) {
+						                PDPage page = document.getPage(i);
+								//PDPage page = document.getPage(originalPages);
 								try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true,
 										true)) {
 									// Create the verification image as PDImageXObject
 									PDImageXObject importedVerifyImage = PDImageXObject
 											.createFromFile(props.getVerifyImage(), document);
-									contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
-								}
+									contentStream.drawImage(importedVerifyImage, 480, 420, 80, 80);
+								}}
 							}
 						}
 					} else {
@@ -466,6 +470,7 @@ public class PdfService implements IPdfService {
 							map.put("Others(Please Specify)", address.getKraaddressproof());
 							map.put("OthersProof", Integer.toString(address.getIsKra()));
 							map.put("Sole / First Holder’s Name UID", address.getKraproofIdNumber());
+							map.put("Aadhaar Number", address.getKraproofIdNumber());
 						} else {
 							map.put("OthersProof*", address.getKraaddressproof());
 							map.put("Others(Please Specify)", address.getKraaddressproof());
@@ -497,8 +502,8 @@ public class PdfService implements IPdfService {
 				map.put("PermenentAddress2", address.getKraPerAddress2());
 				map.put("PermenentAddress3", address.getKraPerAddress3());
 				map.put("PermenentCity", address.getKraPerCity());
-				map.put("Aadhaar Number", address.getAadharNo());
-				map.put("Sole / First Holder’s Name UID", address.getAadharNo());
+				//map.put("Aadhaar Number", address.getAadharNo());
+				//map.put("Sole / First Holder’s Name UID", address.getAadharNo());
 				map.put("PermenentDistrict", address.getKraPerCity());// TODO
 				if (address.getKraPerPin() > 0) {
 					map.put("PermenentPincode", Integer.toString(address.getKraPerPin()));
@@ -625,20 +630,18 @@ public class PdfService implements IPdfService {
 		if (responseCkyc != null) {
 			if (responseCkyc.getFatherPrefix() != null || !responseCkyc.getFatherPrefix().isEmpty()) {
 				map.put("Father's / Spouse Name - Prefix", responseCkyc.getFatherPrefix());
-			} else if (responseCkyc.getFatherFname() != null || profileEntity.getFatherName() != null) {
+			} else if (responseCkyc.getFatherFname() != null ) {
 				map.put("Father's / Spouse Name - Prefix", "MR");
 			}
 			if (responseCkyc.getFatherFname() != null) {
 				map.put("i)FFirst Name", responseCkyc.getFatherFname());
 				map.put("ii)FMiddle Name", responseCkyc.getFatherMname());
 				map.put("iii)FLast Name", responseCkyc.getFatherLname());
-			} else {
-				map.put("i)FFirst Name", profileEntity.getFatherName());
-			}
+			} 
 			if (StringUtil.isNotNullOrEmpty(responseCkyc.getMotherPrefix())) {
 				map.put("Mother Name - Prefix", responseCkyc.getMotherPrefix());
 				System.out.println("the " + responseCkyc.getMotherPrefix());
-			} else if (responseCkyc.getMotherFullname() != null || profileEntity.getMotherName() != null) {
+			} else if (responseCkyc.getMotherFullname() != null) {
 				map.put("Mother Name - Prefix", "MRS");
 			}
 			if (responseCkyc.getMotherFname() != null) {
@@ -646,9 +649,55 @@ public class PdfService implements IPdfService {
 				map.put("ii)MMiddle Name", responseCkyc.getMotherMname());
 				map.put("iii)MLast Name", responseCkyc.getMotherLname());
 			} else {
+				
+			}
+		}else {
+			if(profileEntity.getFatherName() != null) {
+			map.put("i)FFirst Name", profileEntity.getFatherName());
+			map.put("Father's / Spouse Name - Prefix", "MR");
+			}
+			if(profileEntity.getMotherName() != null) {
 				map.put("i)MFirst Name", profileEntity.getMotherName());
+				map.put("Mother Name - Prefix", "MRS");
 			}
 		}
+		SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationId);
+		if (segmentEntity != null) {
+		    StringBuilder notTradeBuilder = new StringBuilder();
+		    if (segmentEntity.getComm() == 0) {
+		        notTradeBuilder.append("NSE COMMODITY,BSE COMMODITY,MCX COMMODITY");
+		    }
+		    if (segmentEntity.getConsent() == 0) {
+		        if (notTradeBuilder.length() > 0) {
+		            notTradeBuilder.append(",");
+		        }
+		        notTradeBuilder.append("NSE ED,BSE ED");
+		    }
+		    if (segmentEntity.getCd() == 0) {
+		        if (notTradeBuilder.length() > 0) {
+		            notTradeBuilder.append(",");
+		        }
+		        notTradeBuilder.append("NSE CD,BSE CD");
+		    }
+		    if (segmentEntity.getEd() == 0) {
+		        if (notTradeBuilder.length() > 0) {
+		            notTradeBuilder.append(",");
+		        }
+		        notTradeBuilder.append("NSE F&O,BSE F&O");
+		    }
+		    if (segmentEntity.getEquCash() == 0) {
+		        if (notTradeBuilder.length() > 0) {
+		            notTradeBuilder.append(",");
+		        }
+		        notTradeBuilder.append("NSE CM,BSE CM,MUTUAL FUND");
+		    }
+		    String TradeBuilder=notTradeBuilder.toString();
+		    map.put("not wish to trade",TradeBuilder.substring(0, Math.min(28, TradeBuilder.length())));
+		    if(TradeBuilder.length() >=28) {
+		    	  map.put("not wish to trade1",TradeBuilder.substring(28, Math.min(180, TradeBuilder.length())));
+		    }
+		}
+
 		List<NomineeEntity> nomineeEntity = nomineeRepository.findByapplicationId(applicationId);
 		if (nomineeEntity == null || nomineeEntity.isEmpty()) {
 			// nomineeEntity is null, set "notApplicableMessageNominee" to "Not Applicable"
