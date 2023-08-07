@@ -1,5 +1,10 @@
 package in.codifi.api.service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -10,6 +15,7 @@ import in.codifi.api.service.spec.IUpdateStageService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
+import io.quarkus.scheduler.Scheduled;
 
 @ApplicationScoped
 public class UpdateStageService implements IUpdateStageService {
@@ -51,19 +57,18 @@ public class UpdateStageService implements IUpdateStageService {
 	    }	
 	    return response;
 	}
-//	@Scheduled(every = "2m30s")
+	@Scheduled(every = "2m30s")
 	public void checkStatus() {
-		/**LocalDateTime currentTimeMinusInterval = LocalDateTime.now().minusMinutes(2).minusSeconds(30);
+		LocalDateTime currentTimeMinusInterval = LocalDateTime.now().minusMinutes(2).minusSeconds(30);
 	    Date formattedTime = Date.from(currentTimeMinusInterval.atZone(ZoneId.systemDefault()).toInstant());
 	    List<UserStatus> userStatuses = userStatusRepository.findByOnlineUsers(formattedTime);
-
 	    if (userStatuses != null) {
 	        for (UserStatus userStatus : userStatuses) {
 	            userStatus.setStatus("offline");
 	            userStatusRepository.save(userStatus);
 	        }
-	    }**/
-//	    System.out.println("The scheduler is running");
+	    }
+	   // System.out.println("The scheduler is running");
 	}
 
 
