@@ -522,26 +522,29 @@ public class CommonMethods {
 		}
 	}
 
+	
+	
 	public String generateUccCode() {
-		String uccCodePrefix = EkycConstants.CLIENT_CODE;
-		int uccCodeSuffix = EkycConstants.count;
-		String uccCode = null;
-		long count = repository.findcoutValueOfReqId();
-		if (count > 0) {
-			long previousId = repository.findMaxValueOfReqId();
-			Optional<ApplicationUserEntity> lastEntity = repository.findById(previousId);
-			if (lastEntity.isPresent()) {
-				if (lastEntity.get() != null && StringUtil.isNotNullOrEmpty(lastEntity.get().getUccCodePrefix())) {
-					uccCodePrefix = lastEntity.get().getUccCodePrefix();
-				}
+	    String uccCodePrefix = EkycConstants.CLIENT_CODE;
+	    int uccCodeSuffix = EkycConstants.count;
+	    String uccCode = null;
 
-				if (lastEntity.get() != null && Integer.parseInt(lastEntity.get().getUccCodeSuffix()) > 0) {
-					uccCodeSuffix = Integer.parseInt(lastEntity.get().getUccCodeSuffix());
-				}
-			}
-		}
-		uccCode = calculateUccCode(uccCodePrefix, uccCodeSuffix);
-		return uccCode;
+	   // long count = repository.findCountValueOfReqId();
+	    //if (count >=1) {
+	        String  maxId = repository.findMaxUccCodeSuffix();
+	        if(maxId==null) {
+	        	System.out.println("the success");
+	        }else if(maxId!=null) {
+	        uccCodeSuffix= Integer.parseInt(maxId);
+	        System.out.println("the maxid: " + maxId);
+	        Optional<ApplicationUserEntity> lastEntity = repository.findByUccCodeSuffix(maxId);
+	        if (lastEntity.isPresent()) {
+	        	uccCodePrefix=lastEntity.get().getUccCodePrefix();
+	    }}
+	   //}
+	    uccCode = calculateUccCode(uccCodePrefix, uccCodeSuffix);
+	    return uccCode;
+	
 	}
 
 	/**

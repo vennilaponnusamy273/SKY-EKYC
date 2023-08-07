@@ -19,6 +19,7 @@ import in.codifi.api.service.spec.IProfileService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
+import in.codifi.api.utilities.StringUtil;
 
 @ApplicationScoped
 public class ProfileService implements IProfileService {
@@ -54,6 +55,17 @@ public class ProfileService implements IProfileService {
 				rejectionStatusHelper.insertArchiveTableRecord(userEntity.getApplicationId(),
 						EkycConstants.PAGE_PROFILE);
 				if (updatedEntity != null && updatedEntity.getId() > 0) {
+					String uccCode = commonMethods.generateUccCode();
+					if (StringUtil.isNotNullOrEmpty(uccCode)) {
+						if (uccCode.length() > 2) {
+							user.get().setUccCodePrefix(uccCode.substring(0, 2));
+						}
+						if (uccCode.length() > 5) {
+							user.get().setUccCodeSuffix(uccCode.substring(2, 6));
+						}
+						applicationUserRepository.save(user.get());
+					}
+					System.out.println(uccCode);
 					commonMethods.UpdateStep(EkycConstants.PAGE_PROFILE, userEntity.getApplicationId());
 					iPennyController.createContact(userEntity.getApplicationId());
 					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
