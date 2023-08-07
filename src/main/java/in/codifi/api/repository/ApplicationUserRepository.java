@@ -1,5 +1,7 @@
 package in.codifi.api.repository;
 
+import java.util.Optional;
+
 import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.Modifying;
@@ -40,9 +42,14 @@ public interface ApplicationUserRepository extends CrudRepository<ApplicationUse
 	@Transactional
 	@Query(value = " SELECT max(id) FROM tbl_application_master ")
 	Long findMaxValueOfReqId();
+	
+	@Query(value = "SELECT MAX(a.uccCodeSuffix) FROM tbl_application_master a")
+    String findMaxUccCodeSuffix();
 
+	 Optional<ApplicationUserEntity> findByUccCodeSuffix(String uccCodeSuffix);
+	
 	@Transactional
 	@Query(value = " SELECT count(id) FROM tbl_application_master ")
-	long findcoutValueOfReqId();
+	long findCountValueOfReqId();
 
 }
