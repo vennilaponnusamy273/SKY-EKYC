@@ -497,7 +497,9 @@ public class CommonMethods {
 			emailLogEntity.setEmailId(mailId);
 			emailLogEntity.setLogMethod(logMethod);
 			emailLogEntity.setReqLogSub(ReqSub);
-			emailLogEntity.setReqLog(message);
+			// Encode the HTML content using Base64 encoding
+	        String encodedMessage = Base64.getEncoder().encodeToString(message.getBytes());
+	        emailLogEntity.setReqLog(encodedMessage);
 			emailLogEntity.setResponseLog(emailResponse);
 			emailLogRepository.save(emailLogEntity);
 		} catch (Exception e) {
