@@ -497,7 +497,8 @@ public class CommonMethods {
 			emailLogEntity.setEmailId(mailId);
 			emailLogEntity.setLogMethod(logMethod);
 			emailLogEntity.setReqLogSub(ReqSub);
-			emailLogEntity.setReqLog(message);
+			//System.out.println("the message"+message);
+	        emailLogEntity.setReqLog(message);
 			emailLogEntity.setResponseLog(emailResponse);
 			emailLogRepository.save(emailLogEntity);
 		} catch (Exception e) {
