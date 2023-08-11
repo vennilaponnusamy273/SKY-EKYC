@@ -103,6 +103,9 @@ public class ApplicationUserEntity extends CommonEntity implements Serializable 
 
 	@Column(name = "ucc_code_suffix")
 	private String uccCodeSuffix;
+	
+	@Column(name = "aadharpan_link")
+	private String aadharPanLink;
 
 	@Transient
 	private String gender;

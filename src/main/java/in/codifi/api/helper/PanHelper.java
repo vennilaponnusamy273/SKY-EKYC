@@ -324,6 +324,7 @@ public class PanHelper {
 					oldUserEntity.setMiddleName(middleName);
 					oldUserEntity.setUserName(panCardname);
 					oldUserEntity.setPanNumber(panNumber);
+					 oldUserEntity.setAadharPanLink(aathar_status);
 					oldUserEntity.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
 					updatedUserDetails = repository.save(oldUserEntity);
 					commonMethods.UpdateStep(EkycConstants.PAGE_PAN_NSDL_DATA_CONFIRM, userEntity.getId());
