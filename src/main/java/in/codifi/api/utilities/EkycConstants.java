@@ -275,4 +275,5 @@ public class EkycConstants {
 	public static final String CONSTANT_TEXT_HTML = "text/html";
 	
 	public static final String ADDRESS_PROOF = "9_PROOF OF ADDRESS_";
+	public static final String TABLE_CREATED = "Table Created Successfully";
 }

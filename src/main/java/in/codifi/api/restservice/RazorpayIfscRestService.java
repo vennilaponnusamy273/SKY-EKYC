@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.model.BankAddressModel;
+import in.codifi.api.repository.AccessLogManager;
 
 @ApplicationScoped
 public class RazorpayIfscRestService {
@@ -20,6 +21,8 @@ public class RazorpayIfscRestService {
 	IRazorpayIfscRestService commonRestService;
 	@Inject
 	ApplicationProperties props;
+	@Inject
+	AccessLogManager accessLogManager;
 
 	/**
 	 * Method to find bank address by ifsc
@@ -35,6 +38,7 @@ public class RazorpayIfscRestService {
 			String message = commonRestService.getBankAddressByIfsc(ifscCode);
 			ObjectMapper om = new ObjectMapper();
 			model = om.readValue(message, BankAddressModel.class);
+			accessLogManager.insertRestAccessLogsIntoDB(ifscCode,ifscCode,message,"getBankAddressByIfsc","/bank/getBank");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -94,7 +94,7 @@ public class PanService implements IPanService {
 				try {
 					if (StringUtil.isNotNullOrEmpty(oldUserEntity.getPanNumber())
 							&& StringUtil.isNotNullOrEmpty(oldUserEntity.getDob())) {
-						JSONObject pancardResponse = kraHelper.getPanCardStatus(oldUserEntity.getPanNumber());
+						JSONObject pancardResponse = kraHelper.getPanCardStatus(oldUserEntity.getPanNumber(),userEntity.getId());
 						if (pancardResponse != null) {
 							if (pancardResponse.has("APP_NAME")) {
 								int panCardStatus = pancardResponse.getInt("APP_STATUS");

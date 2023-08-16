@@ -29,6 +29,7 @@ import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.ProfileEntity;
+import in.codifi.api.repository.AccessLogManager;
 import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.KraKeyValueRepository;
@@ -54,6 +55,8 @@ public class KRAHelper {
 	KraPanRestService kraPanRestService;
 	@Inject
 	ApplicationUserRepository repository;
+	@Inject
+	AccessLogManager accessLogManager;
 	
 	private static final Logger logger = LogManager.getLogger(KRAHelper.class);
 	private static String OS = System.getProperty("os.name").toLowerCase();
@@ -65,13 +68,14 @@ public class KRAHelper {
 	 * @param xmlCode
 	 * @return
 	 */
-	public JSONObject getPanCardStatus(String panCard) {
+	public JSONObject getPanCardStatus(String panCard,Long id) {
 		try {
 			CommonMethods.trustedManagement();
 			/*
 			 * covert xml into json
 			 */
 			String panStatus = kraPanRestService.getpanStatus(panCard);
+			accessLogManager.insertRestAccessLogsIntoDB(Long.toString(id),panCard,panStatus,"getPanCardStatus","/pan/saveDOB");
 			JSONObject result = XML.toJSONObject(panStatus);
 			if (result != null) {
 				JSONObject panRoot = (JSONObject) result.get(EkycConstants.CONST_KRA_APP_RES_ROOT);
@@ -115,6 +119,7 @@ public class KRAHelper {
 					+ "</APP_KRA_CODE><FETCH_TYPE>I</FETCH_TYPE>" + "</APP_PAN_INQ></APP_REQ_ROOT>";
 			CommonMethods.trustedManagement();
 			String result = kraPanRestService.getPanKra(xmlCode);
+			accessLogManager.insertRestAccessLogsIntoDB(Long.toString(applicationId),xmlCode,result,"getPanCardDetails","/pan/saveDOB");
 			writeXmlFile(result, applicationId, Pancard);
 			ObjectMapper xmlMapper = new XmlMapper();
 			Object obj = xmlMapper.readValue(result, Object.class);

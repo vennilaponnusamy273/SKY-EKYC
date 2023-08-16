@@ -45,6 +45,7 @@ import org.json.simple.JSONObject;
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.AccessLogManager;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.restservice.NsdlPanRestService;
 import in.codifi.api.utilities.APIBased.DummyTrustManager;
@@ -64,6 +65,8 @@ public class PanHelper {
 	CommonMethods commonMethods;
 	@Inject
 	NsdlPanRestService nsdlPanService;
+	@Inject
+	AccessLogManager accessLogManager;
 
 	private static final Logger logger = LogManager.getLogger(PanHelper.class);
 	public String getPanDetailsFromNSDL(String panCard, Long applicationId) {
@@ -291,6 +294,7 @@ public class PanHelper {
 			}
 			SSLSocketFactory factory = sslcontext.getSocketFactory();
 			result = nsdlPanService.GetNSdlDEtails(data, signature, version);
+			accessLogManager.insertRestAccessLogsIntoDB(applicationId.toString(),data +" "+signature+" "+version,result,"GetNSdlDEtails","/pan/getPan");
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
 			commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
