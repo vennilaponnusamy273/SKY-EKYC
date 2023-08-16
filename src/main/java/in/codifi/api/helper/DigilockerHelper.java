@@ -21,6 +21,7 @@ import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.AccessLogManager;
 import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.DocumentRepository;
 import in.codifi.api.restservice.DigilockerRestService;
@@ -43,6 +44,8 @@ public class DigilockerHelper {
 	DocumentRepository documentRepository;
 	@Inject
 	DocumentHelper documentHelper;
+	@Inject
+	AccessLogManager accessLogManager;
 	private static String OS = System.getProperty("os.name").toLowerCase();
 	private static final Logger logger = LogManager.getLogger(DigilockerHelper.class);
 
@@ -68,6 +71,7 @@ public class DigilockerHelper {
 		ResponseModel responseModel = null;
 		JSONObject response = new JSONObject();
 		try {
+			String output = null;
 			String inputParameter = EkycConstants.DIGI_CONST_CODE + code + EkycConstants.DIGI_CONST_GRANDTYPE_CLIENTID
 					+ props.getDigiClientId() + EkycConstants.DIGI_CONST_CLIENT_SECRET + props.getDigiSecret()
 					+ EkycConstants.DIGI_CONST_REDIRECT_URL + props.getDigiRedirectUrl();
@@ -92,7 +96,7 @@ public class DigilockerHelper {
 			} else {
 				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 //			String response1 = digil/ockerRestService.getAccessToken(code);
-				String output;
+				
 				while ((output = br1.readLine()) != null) {
 					Object object = JSONValue.parse(output);
 					response = (JSONObject) object;
@@ -108,6 +112,7 @@ public class DigilockerHelper {
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.ERR_ACC_TOKEN);
 				}
 			}
+			accessLogManager.insertRestAccessLogsIntoDB(Long.toString(applicationId) ,inputParameter,output,"getXMlAadhar","getXMlAadhar");
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
 			commonMethods.SaveLog(applicationId, "DigilockerHelper", "getDigiAcessToken", e.getMessage());
@@ -139,6 +144,7 @@ public class DigilockerHelper {
 		try {
 			CommonMethods.trustedManagement();
 			String response = digilockerRestService.getXml(accessToken);
+			accessLogManager.insertRestAccessLogsIntoDB(Long.toString(applicationId) ,accessToken,response,"getXMlAadhar","getXMlAadhar");
 			if (StringUtil.isNotNullOrEmpty(response)) {
 				org.json.JSONObject result = XML.toJSONObject(response);
 				JSONParser parser = new JSONParser();

@@ -131,4 +131,5 @@ public class MessageConstants {
 	// Nominee Opted Out
 	public final static String NOMINEE_OPTED_OUT = "Nominee Opted out successfully";
 	public final static String NOMINEE_OPTED_OUT_FAILED = "Failed while updating nominee Opted out";
+	public static final String FAILED = "Failed";
 }

@@ -23,6 +23,7 @@ import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.PennyDropEntity;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.AccessLogManager;
 import in.codifi.api.repository.BankRepository;
 import in.codifi.api.repository.PennyDropRepository;
 import in.codifi.api.utilities.CommonMethods;
@@ -39,6 +40,9 @@ public class PennyDropHelper {
 	BankRepository bankRepository;
 	@Inject
 	CommonMethods commonMethods;
+	@Inject
+	AccessLogManager accessLogManager;
+	
 	private static final Logger logger = LogManager.getLogger(PennyDropHelper.class);
 	/**
 	 * Method to Create Contact in razorpay
@@ -52,6 +56,7 @@ public class PennyDropHelper {
 		ResponseModel responseDTO = new ResponseModel();
 		PennyDropEntity pennyDropDTO = null;
 		try {
+			String output=null;
 			PennyDropEntity oldDataEntity = pennyDropRepository.findByapplicationId(applicationUserEntity.getId());
 			JSONObject createContactJSON = new JSONObject();
 			JSONObject notes = new JSONObject();
@@ -94,8 +99,7 @@ public class PennyDropHelper {
 				responseDTO.setStat(EkycConstants.FAILED_STATUS);
 				responseDTO.setMessage(EkycConstants.FAILED_MSG);
 			} else {
-				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-				String output;
+				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));				
 				while ((output = br1.readLine()) != null) {
 					JSONObject object1 = (JSONObject) JSONValue.parse(output);
 					if (oldDataEntity != null) {
@@ -123,9 +127,12 @@ public class PennyDropHelper {
 						responseDTO.setMessage(EkycConstants.FAILED_MSG);
 						responseDTO.setReason("Table Not Updated");
 					}
+					
 				}
 				br1.close();
+			
 			}
+			accessLogManager.insertRestAccessLogsIntoDB(applicationUserEntity.getId().toString(),createContactJSON.toString(),output,"createContact","/penny/createContact");
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
 			commonMethods.SaveLog(applicationUserEntity.getId(),"PennyDropHelper","createContact",e.getMessage());
@@ -148,6 +155,8 @@ public class PennyDropHelper {
 			BankEntity bankEntity) {
 		ResponseModel responseDTO = new ResponseModel();
 		try {
+			String output = null;
+			ObjectMapper mapper = new ObjectMapper();
 			JSONObject addAccountJSON = new JSONObject();
 			JSONObject bankAccount = new JSONObject();
 			addAccountJSON.put(EkycConstants.CONST_CONATCT_ID, pennyDropEntity.getRzContactId());
@@ -188,14 +197,14 @@ public class PennyDropHelper {
 				responseDTO.setMessage(EkycConstants.FAILED_MSG);
 			} else {
 				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-				String output;
+				
 				while ((output = br1.readLine()) != null) {
 					JSONObject object1 = (JSONObject) JSONValue.parse(output);
 					if (StringUtil.isNotNullOrEmpty(object1.get(EkycConstants.CONST_ID).toString())) {
 						pennyDropEntity.setRzFundAccountId(object1.get(EkycConstants.CONST_ID).toString());
 					}
 					pennyDropEntity.setRzResFundJson(output);
-					ObjectMapper mapper = new ObjectMapper();
+					
 					pennyDropEntity.setAccNumber(bankEntity.getAccountNo());
 					pennyDropEntity.setIfsc(bankEntity.getIfsc());
 					pennyDropEntity.setRzReqFundJson(mapper.writeValueAsString(addAccountJSON));
@@ -212,6 +221,7 @@ public class PennyDropHelper {
 				}
 				br1.close();
 			}
+			accessLogManager.insertRestAccessLogsIntoDB(applicationUserEntity.getId().toString(),mapper.writeValueAsString(addAccountJSON),output,"addAccount","/penny/addAccount");
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
 			commonMethods.SaveLog(applicationUserEntity.getId(),"PennyDropHelper","addAccount",e.getMessage());
@@ -233,6 +243,8 @@ public class PennyDropHelper {
 	public ResponseModel createPayout(ApplicationUserEntity applicationUserEntity, PennyDropEntity pennyDropEntity) {
 		ResponseModel responseDTO = new ResponseModel();
 		try {
+			String output = null;
+			ObjectMapper mapper = new ObjectMapper();
 			int amount = 100;
 			JSONObject payOutJSON = new JSONObject();
 			JSONObject notesJSON = new JSONObject();
@@ -280,7 +292,7 @@ public class PennyDropHelper {
 				responseDTO.setMessage(EkycConstants.FAILED_MSG);
 			} else {
 				BufferedReader br1 = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-				String output;
+				
 				while ((output = br1.readLine()) != null) {
 					JSONObject object1 = (JSONObject) JSONValue.parse(output);
 					if (StringUtil.isNotNullOrEmpty(object1.get(EkycConstants.CONST_ID).toString())) {
@@ -288,7 +300,7 @@ public class PennyDropHelper {
 					}
 					pennyDropEntity.setRzResPayoutJson(output);
 					pennyDropEntity.setPennyAmount(amount);
-					ObjectMapper mapper = new ObjectMapper();
+					
 					pennyDropEntity.setRzReqPayoutJson(mapper.writeValueAsString(payOutJSON));
 					pennyDropEntity.setConfirmPenny(1);
 					PennyDropEntity savedPennyDrop = pennyDropRepository.save(pennyDropEntity);
@@ -302,9 +314,11 @@ public class PennyDropHelper {
 						responseDTO.setMessage(EkycConstants.FAILED_MSG);
 						responseDTO.setReason("Table Not Updated");
 					}
+					
 				}
 				br1.close();
 			}
+			accessLogManager.insertRestAccessLogsIntoDB(applicationUserEntity.getId().toString(),mapper.writeValueAsString(payOutJSON),output,"createPayout","/penny/createPayout");
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
 			commonMethods.SaveLog(applicationUserEntity.getId(),"PennyDropHelper","createPayout",e.getMessage());

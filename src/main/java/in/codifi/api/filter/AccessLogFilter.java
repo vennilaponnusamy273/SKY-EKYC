@@ -25,7 +25,8 @@ import javax.ws.rs.ext.Provider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.codifi.api.cache.HazleCacheController;
-import in.codifi.api.entity.AccesslogEntity;
+import in.codifi.api.entity.logs.AccessLogModel;
+import in.codifi.api.repository.AccessLogManager;
 import in.codifi.api.repository.AccesslogRepository;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
@@ -40,6 +41,8 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 	HttpServerRequest serverRequest;
 	@Inject
 	AccesslogRepository logRepository;
+	@Inject
+	AccessLogManager accessLogManager;
 	@Inject
 	CommonMethods commonMethods;
 	private static final List<String> disablepaths = Arrays.asList(EkycConstants.PATH_SEND_SMS_OTP,
@@ -62,21 +65,28 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 			public void run() {
 				try {
 					ObjectMapper objMapper = new ObjectMapper();
-					AccesslogEntity logModel = new AccesslogEntity();
+					//AccesslogEntity logModel = new AccesslogEntity();
+					AccessLogModel accessLogModel = new AccessLogModel();
 					UriInfo uriInfo = requestContext.getUriInfo();
 					MultivaluedMap<String, String> headers = requestContext.getHeaders();
-					logModel.setContentType(headers.getFirst(EkycConstants.CONSTANT_CONTENT_TYPE));
+				/**	logModel.setContentType(headers.getFirst(EkycConstants.CONSTANT_CONTENT_TYPE));
 					logModel.setDeviceIp(deviceIp);
-					logModel.setMethod(requestContext.getMethod());
+					logModel.setMethod(requestContext.getMethod());**/
+					accessLogModel.setContentType(headers.getFirst(EkycConstants.CONSTANT_CONTENT_TYPE));
+					accessLogModel.setDeviceIp(deviceIp);
+					accessLogModel.setMethod(requestContext.getMethod());
 					String queryParams = uriInfo.getRequestUri().getQuery();
 					if (StringUtil.isNotNullOrEmpty(queryParams)) {
-						logModel.setReqBody(queryParams);
+						//logModel.setReqBody(queryParams);
+						accessLogModel.setReqBody(queryParams);
 					} else {
-						logModel.setReqBody(
+						/**logModel.setReqBody(
+								objMapper.writeValueAsString(requestContext.getProperty(EkycConstants.CONST_REQ_BODY)));**/
+						accessLogModel.setReqBody(
 								objMapper.writeValueAsString(requestContext.getProperty(EkycConstants.CONST_REQ_BODY)));
 					}
 					Object reponseObj = responseContext.getEntity();
-					logModel.setResBody(objMapper.writeValueAsString(reponseObj));
+					/**logModel.setResBody(objMapper.writeValueAsString(reponseObj));
 					logModel.setUri(uriInfo.getPath().toString());
 					logModel.setUserAgent(headers.getFirst(EkycConstants.USER_AGENT));
 					logModel.setApplicationId(
@@ -85,7 +95,17 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 							? requestContext.getProperty("threadId").toString()
 							: "singlecapture");
 					Long thredId = Thread.currentThread().getId();
-					logRepository.save(logModel);
+					logRepository.save(logModel);**/
+					accessLogModel.setResBody(objMapper.writeValueAsString(reponseObj));
+					accessLogModel.setUri(uriInfo.getPath().toString());
+					accessLogModel.setUserAgent(headers.getFirst(EkycConstants.USER_AGENT));
+					accessLogModel.setApplicationId(
+							objMapper.writeValueAsString(requestContext.getProperty("applicationId")));
+					accessLogModel.setReqId(requestContext.getProperty("threadId") != null
+							? requestContext.getProperty("threadId").toString()
+							: "singlecapture");
+					Long thredId = Thread.currentThread().getId();
+					accessLogManager.insertAccessLogsIntoDB(accessLogModel);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

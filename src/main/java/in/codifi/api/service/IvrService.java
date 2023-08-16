@@ -20,6 +20,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
@@ -30,6 +32,7 @@ import in.codifi.api.model.IvrModel;
 import in.codifi.api.model.LivenessCheckReqModel;
 import in.codifi.api.model.LivenessCheckResModel;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.AccessLogManager;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.IvrRepository;
 import in.codifi.api.restservice.AryaLivenessCheck;
@@ -62,7 +65,8 @@ public class IvrService implements IIvrService {
 	CuttlyRestService cuttlyServiceCheck;
 	@Inject
 	RejectionStatusHelper rejectionStatusHelper;
-
+	@Inject
+	AccessLogManager accessLogManager;
 	private static final Logger logger = LogManager.getLogger(IvrService.class);
 
 	/**
@@ -104,6 +108,7 @@ public class IvrService implements IIvrService {
 			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
 		}
 		ResponseModel responseModel = new ResponseModel();
+		ObjectMapper mapper=new ObjectMapper();
 		try {
 			List<String> errorList = checkIvrModel(ivrModel);
 			if (StringUtil.isListNullOrEmpty(errorList)) {
@@ -111,6 +116,7 @@ public class IvrService implements IIvrService {
 				reqModel.setDoc_base64(ivrModel.getImageUrl());
 				reqModel.setReq_id(ivrModel.getApplicationId());
 				LivenessCheckResModel model = aryaLivenessCheck.livenessCheck(reqModel);
+				accessLogManager.insertRestAccessLogsIntoDB(Long.toString(ivrModel.getApplicationId()),mapper.writeValueAsString(reqModel) ,mapper.writeValueAsString(model),"uploadIvr","/ivr/uploadIvr");
 				if (model != null && model.getDocJson() != null
 						&& Double.parseDouble(model.getDocJson().getReal()) >= 0.50) {
 					String ivrName = documentHelper.convertBase64ToImage(ivrModel.getImageUrl(),
