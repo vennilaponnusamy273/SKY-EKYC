@@ -533,13 +533,19 @@ public class CommonMethods {
 	    
 	    if (maxId == null) {
 	        uccCode = uccCodePrefix + uccCodeSuffix;
-	        System.out.println("the initial Ucc code");
+	       // System.out.println("the initial Ucc code");
 	    } else {
-	        uccCodeSuffix = Integer.parseInt(maxId) + 1; 
-	        uccCode = uccCodePrefix + uccCodeSuffix;
+	        try {
+	            int maxSuffix = Integer.parseInt(maxId);
+	            int newSuffix = maxSuffix + 1;
+	            uccCode = uccCodePrefix + newSuffix;
+	        } catch (NumberFormatException e) {
+	           // System.err.println("Error parsing maxId: " + maxId);
+	            e.printStackTrace();
+	        }
 	    }
-	    
 	    return uccCode;
 	}
+
 
 }

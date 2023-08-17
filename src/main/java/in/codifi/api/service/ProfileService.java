@@ -59,14 +59,14 @@ public class ProfileService implements IProfileService {
 					System.out.println("the uccCode"+uccCode);
 					if (StringUtil.isNotNullOrEmpty(uccCode)) {
 						if (uccCode.length() > 2) {
-							user.get().setUccCodePrefix(uccCode.substring(0, 2));
+							user.get().setUccCodePrefix(uccCode.substring(0, 3));
 						}
 						if (uccCode.length() > 5) {
-							user.get().setUccCodeSuffix(uccCode.substring(2, 6));
+							user.get().setUccCodeSuffix(uccCode.substring(3));
 						}
 						applicationUserRepository.save(user.get());
 					}
-					System.out.println(uccCode);
+					//System.out.println(uccCode);
 					commonMethods.UpdateStep(EkycConstants.PAGE_PROFILE, userEntity.getApplicationId());
 					iPennyController.createContact(userEntity.getApplicationId());
 					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
