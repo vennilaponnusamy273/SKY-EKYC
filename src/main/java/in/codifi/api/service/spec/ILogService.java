@@ -10,4 +10,11 @@ public interface ILogService {
 	 * @return
 	 */
 	ResponseModel checkRestAccessLogTable();
+	
+	/**
+	 * method to check rest service access log table
+	 * 
+	 * @return
+	 */
+	ResponseModel checkRestServiceAccessLogTable();
 }

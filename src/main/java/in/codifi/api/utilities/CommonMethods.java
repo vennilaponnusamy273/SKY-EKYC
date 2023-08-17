@@ -526,78 +526,20 @@ public class CommonMethods {
 	
 	
 	public String generateUccCode() {
-	    String uccCodePrefix = EkycConstants.CLIENT_CODE;
-	    int uccCodeSuffix = EkycConstants.count;
+	    String uccCodePrefix = "SKY";
+	    int uccCodeSuffix = 38001;
 	    String uccCode = null;
-
-	   // long count = repository.findCountValueOfReqId();
-	    //if (count >=1) {
-	        String  maxId = repository.findMaxUccCodeSuffix();
-	        if(maxId==null) {
-	        	System.out.println("the success");
-	        }else if(maxId!=null) {
-	        uccCodeSuffix= Integer.parseInt(maxId);
-	        System.out.println("the maxid: " + maxId);
-	        Optional<ApplicationUserEntity> lastEntity = repository.findByUccCodeSuffix(maxId);
-	        if (lastEntity.isPresent()) {
-	        	uccCodePrefix=lastEntity.get().getUccCodePrefix();
-	    }}
-	   //}
-	    uccCode = calculateUccCode(uccCodePrefix, uccCodeSuffix);
+	    String maxId = repository.findMaxUccCodeSuffix();
+	    
+	    if (maxId == null) {
+	        uccCode = uccCodePrefix + uccCodeSuffix;
+	        System.out.println("the initial Ucc code");
+	    } else {
+	        uccCodeSuffix = Integer.parseInt(maxId) + 1; 
+	        uccCode = uccCodePrefix + uccCodeSuffix;
+	    }
+	    
 	    return uccCode;
-	
-	}
-
-	/**
-	 * Method to generate client code
-	 * 
-	 * @param clientCode
-	 * @return
-	 */
-	public String calculateUccCode(String uccPrefix, int previousId) {
-		if (previousId < 9999) {
-			previousId++;
-		} else {
-			uccPrefix = incrementPrefix(uccPrefix);
-			previousId = 1;
-		}
-		String formattedCount = String.format("%04d", previousId);
-		String customerID = uccPrefix + formattedCount;
-		return customerID;
-	}
-
-	/**
-	 * Method to increase client code automatically
-	 * 
-	 * @param clientCode
-	 * @return
-	 */
-	private String incrementPrefix(String clientCode) {
-		char[] chars = clientCode.toCharArray();
-		int lastCharIndex = chars.length - 1;
-
-		// Increment the last character in the prefix
-		chars[lastCharIndex]++;
-
-		// Check for 'Z' to 'A' rollover
-		for (int i = lastCharIndex; i >= 0; i--) {
-			if (chars[i] > 'Z') {
-				chars[i] = 'A';
-				if (i - 1 >= 0) {
-					chars[i - 1]++;
-				} else {
-					// If the first character 'Z' overflows, add a new 'A' at the beginning
-					char[] newChars = new char[chars.length + 1];
-					newChars[0] = 'A';
-					System.arraycopy(chars, 0, newChars, 1, chars.length);
-					chars = newChars;
-				}
-			} else {
-				break;
-			}
-		}
-
-		return new String(chars);
 	}
 
 }

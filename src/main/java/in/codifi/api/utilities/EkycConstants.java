@@ -255,6 +255,10 @@ public class EkycConstants {
 	public static final String PATH_RELOAD_KRAKEYVALUE = "/common/reloadKraKeyValue";
 	public static final String PATH_GET_NSDL_ESIGN = "/pdf/getNsdlXml";
 	public static final String PATH_GET_USR_DETAILS = "/user/getUsrDetails";
+	public static final String PATH_LOG_TABLE = "/logs/Logtables";
+	public static final String PATH_REST_LOG_TABLE = "/logs/RestServiceLogtables";
+	
+	
 	public static final String CONST_REQ_BODY = "reqBody";
 	public static final String CONST_IN_TIME = "inTime";
 	public static final String EKYC_STATUS_PDF_GENERATED = "Pdf Generated";
@@ -271,7 +275,10 @@ public class EkycConstants {
 	public static final String CONST_MAIL_STARTTLS_ENABLE = "mail.smtp.starttls.enable";
 	public static final String CONST_MAIL_SSL_PROTOCOLS = "mail.smtp.ssl.protocols";
 	public static final String CONST_MAIL_TLS_V2 = "TLSv1.2";
-	public static final String SITE_URL_FILE = "https://ekyc.gopocket.in/completed";
+	/**
+	 * 
+	 */
+	public static final String SITE_URL_FILE = "https://kyc.skybroking.com/completed";
 	public static final String CONSTANT_TEXT_HTML = "text/html";
 	
 	public static final String ADDRESS_PROOF = "9_PROOF OF ADDRESS_";

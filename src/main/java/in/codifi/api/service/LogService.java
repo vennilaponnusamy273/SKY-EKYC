@@ -24,7 +24,7 @@ public class LogService implements ILogService{
 	LogRepository repository;
 	@Inject
 	CommonMethods commonMethods;
-	@Scheduled(cron = "0 41 17 ? * MON") // Run every Monday at 8:00 AM
+	/**@Scheduled(cron = "0 41 17 ? * MON") // Run every Monday at 8:00 AM
     public void checkRestAccessLogTableRun() {
 		System.out.println("the Log table is Running");
 		checkRestAccessLogTable();
@@ -34,7 +34,7 @@ public class LogService implements ILogService{
     public void checkRestServiceAccessLogTableRun() {
 		System.out.println("the Log table is Running");
 		checkRestServiceAccessLogTable();
-	}
+	}**/
 	/**
 	 * method to check rest access log table
 	 * 
@@ -73,6 +73,7 @@ public class LogService implements ILogService{
 		return responseModel;
 	}
 	
+	@Override
 	public ResponseModel checkRestServiceAccessLogTable() {
 		ResponseModel responseModel = new ResponseModel();
 		try {

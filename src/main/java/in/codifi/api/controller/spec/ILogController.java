@@ -22,4 +22,15 @@ public interface ILogController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	ResponseModel CreateLogTable();
 	
+	/**
+	 * method to check rest access log table
+	 * 
+	 * @return
+	 */
+	@Path("/RestServiceLogtables")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	ResponseModel CreateRestLogTable();
+	
 }

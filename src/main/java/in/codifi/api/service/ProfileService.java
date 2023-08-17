@@ -56,6 +56,7 @@ public class ProfileService implements IProfileService {
 						EkycConstants.PAGE_PROFILE);
 				if (updatedEntity != null && updatedEntity.getId() > 0) {
 					String uccCode = commonMethods.generateUccCode();
+					System.out.println("the uccCode"+uccCode);
 					if (StringUtil.isNotNullOrEmpty(uccCode)) {
 						if (uccCode.length() > 2) {
 							user.get().setUccCodePrefix(uccCode.substring(0, 2));

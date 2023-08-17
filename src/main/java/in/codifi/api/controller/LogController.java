@@ -21,6 +21,16 @@ public class LogController implements ILogController {
 		responseModel=logService.checkRestAccessLogTable();
 		return responseModel;
 	}
+
+	/*
+	 * method to check the rest service access log table if exist or not
+	 */
+	@Override
+	public ResponseModel CreateRestLogTable() {
+		ResponseModel responseModel = new ResponseModel();
+		responseModel=logService.checkRestServiceAccessLogTable();
+		return responseModel;
+	}
 	
 	
 }
