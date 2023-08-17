@@ -37,7 +37,7 @@ public class LogRepository {
 			connection = dataSource.getConnection();
 			metaData = connection.getMetaData();
 			String[] tableTypes = { "TABLE" };
-			resultSet = metaData.getTables("logs_db", null, "%", tableTypes);
+			resultSet = metaData.getTables("logs_db_sky", null, "%", tableTypes);
 			while (resultSet.next()) {
 				String tableName = resultSet.getString("TABLE_NAME");
 				tableNames.add(tableName);
@@ -73,7 +73,7 @@ public class LogRepository {
 		try {
 			connection = dataSource.getConnection();
 			statement = connection.createStatement();
-			String databaseName = "logs_db";
+			String databaseName = "logs_db_sky";
 			for (String tableName : tableToCreate) {
 				String sql = "CREATE TABLE " + databaseName + "." + tableName
 						+ " (id int AUTO_INCREMENT  PRIMARY KEY, application_id VARCHAR(15),"
@@ -104,7 +104,7 @@ public class LogRepository {
 		try {
 			connection = dataSource.getConnection();
 			statement = connection.createStatement();
-			String databaseName = "logs_db";
+			String databaseName = "logs_db_sky";
 			for (String tableName : tableToCreate) {
 				String sql = "CREATE TABLE " + databaseName + "." + tableName
 					    + " (id int AUTO_INCREMENT PRIMARY KEY, application_id VARCHAR(15),"
