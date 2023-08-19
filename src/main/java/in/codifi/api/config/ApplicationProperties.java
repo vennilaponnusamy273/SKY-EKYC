@@ -156,5 +156,10 @@ public class ApplicationProperties {
 	@ConfigProperty(name = "quarkus.mailer.password")
 	String mailpassword;
 	
+	@ConfigProperty(name = "appconfig.esign.pdf.aadhar")
+	String aadharPdfPath;
+	@ConfigProperty(name = "appconfig.esign.pdf.pan")
+	String panPdfPath;
+	
 	
 }

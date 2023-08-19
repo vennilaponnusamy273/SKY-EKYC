@@ -46,6 +46,7 @@ import in.codifi.api.entity.IvrEntity;
 import in.codifi.api.entity.NomineeEntity;
 import in.codifi.api.entity.PdfDataCoordinatesEntity;
 import in.codifi.api.entity.ProfileEntity;
+import in.codifi.api.entity.ReferralEntity;
 import in.codifi.api.entity.ResponseCkyc;
 import in.codifi.api.entity.SegmentEntity;
 import in.codifi.api.entity.TxnDetailsEntity;
@@ -63,6 +64,7 @@ import in.codifi.api.repository.KraKeyValueRepository;
 import in.codifi.api.repository.NomineeRepository;
 import in.codifi.api.repository.PdfDataCoordinatesrepository;
 import in.codifi.api.repository.ProfileRepository;
+import in.codifi.api.repository.ReferralRepository;
 import in.codifi.api.repository.SegmentRepository;
 import in.codifi.api.repository.TxnDetailsRepository;
 import in.codifi.api.restservice.RazorpayIfscRestService;
@@ -113,6 +115,9 @@ public class PdfService implements IPdfService {
 	TxnDetailsRepository txnDetailsRepository;
 	@Inject
 	RazorpayIfscRestService commonRestService;
+	@Inject
+	ReferralRepository referralRepository;
+	
 	private static final Logger logger = LogManager.getLogger(PennyService.class);
 
 	/**
@@ -137,9 +142,43 @@ public class PdfService implements IPdfService {
 				HashMap<String, String> map = mapping(applicationId);
 				File file = new File(props.getPdfPath());
 				PDDocument document = PDDocument.load(file);
+				File fileAathar = new File(props.getAadharPdfPath());
+				File filePan = new File(props.getPanPdfPath());
+				File filename = null;
+				if (map.get("aadharPDF") == "aadharPDF") {
+					filename=fileAathar;
+				} else if (map.get("panPDF") == "panPDF") {
+					filename=filePan;
+				} else {
+					document = PDDocument.load(file);
+				}
+				PDFMergerUtility merger = new PDFMergerUtility();
+				PDDocument combine = PDDocument.load(filename);
+				merger.appendDocument(document, combine);
+				merger.mergeDocuments();
+				combine.close();
+				if(fileAathar!=null||filePan!=null) {
+				File verifyImageFile = new File(props.getVerifyImage());
+				if (verifyImageFile.exists()) {
+				    int pageIndex = 38; // Change this to the actual index of the page you want to add the image to
+				    if (pageIndex >= 0 && pageIndex < document.getNumberOfPages()) {
+				        PDPage page = document.getPage(pageIndex);
+				        PDImageXObject importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(), document);
+						
+						// Create a new content stream for appending content to the existing page
+						PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true);
+						contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
+						contentStream.close(); // Close the content stream
+				    } else {
+				        System.err.println("Invalid page index.");
+				    }
+				} else {
+				    System.err.println("Failed to load the verification image.");
+				}}
 				List<PdfDataCoordinatesEntity> pdfDatas = pdfDataCoordinatesrepository.getCoordinates();
 				pdfInsertCoordinates(document, pdfDatas, map);
 				addDocument(document, applicationId);
+				addIPvDocument(document, applicationId);
 				String fileName = userEntity.get().getPanNumber() + EkycConstants.PDF_EXTENSION;
 				document.save(outputPath + slash + fileName);
 				document.close();
@@ -171,11 +210,92 @@ public class PdfService implements IPdfService {
 		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(MessageConstants.FILE_NOT_FOUND).build();
 	}
 
+	public void addIPvDocument(PDDocument document, long applicationNo) {
+		try {
+			String attachmentUrl = null;
+			IvrEntity ivrEntity = ivrRepository.findByApplicationId(applicationNo);
+			if (ivrEntity != null) {
+				attachmentUrl = ivrEntity.getAttachementUrl();
+			}
+			if(attachmentUrl!=null) {
+			if (attachmentUrl.endsWith(".pdf")) {
+				System.out.println(attachmentUrl);
+				int originalPages = document.getNumberOfPages();
+				try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
+					File fileAadhar = new File(attachmentUrl);
+					PDFMergerUtility merger = new PDFMergerUtility();
+					PDDocument combine = PDDocument.load(fileAadhar);
+					merger.appendDocument(document, combine);
+					merger.mergeDocuments();
+					combine.close();
+
+					// The main document and attachment have been merged, and the verification image
+					// can now be added
+					
+					int attachmentPages = attachment.getNumberOfPages();
+					File verifyImageFile = new File(props.getVerifyImage());
+					if (verifyImageFile.exists()) {
+						 for (int i = originalPages; i < originalPages + attachmentPages; i++) {
+				                PDPage page = document.getPage(i);
+						//PDPage page = document.getPage(originalPages);
+						try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true,
+								true)) {
+							// Create the verification image as PDImageXObject
+							PDImageXObject importedVerifyImage = PDImageXObject
+									.createFromFile(props.getVerifyImage(), document);
+							contentStream.drawImage(importedVerifyImage, 480, 420, 80, 80);
+						}}
+					}
+				}
+			} else {
+				BufferedImage image = ImageIO.read(new File(attachmentUrl));
+				PDPage page = new PDPage();
+				document.addPage(page);
+				PDRectangle pageSize = page.getMediaBox();
+
+				// Calculate the maximum width and height that the image can occupy on the page
+				float maxWidth = pageSize.getWidth() * 0.8f;
+				float maxHeight = pageSize.getHeight() * 0.8f;
+
+				// Calculate the aspect ratio of the image
+				float aspectRatio = (float) image.getWidth() / (float) image.getHeight();
+
+				// Calculate the width and height of the image based on its aspect ratio and
+				// maximum size
+				float imageWidth = Math.min(maxWidth, maxHeight * aspectRatio);
+				float imageHeight = Math.min(maxHeight, maxWidth / aspectRatio);
+
+				// Calculate the position of the image on the page
+				float centerX = (pageSize.getWidth() - imageWidth) / 2f;
+				float centerY = (pageSize.getHeight() - imageHeight) / 2f;
+
+				// Load the verification image from image file (e.g., JPEG, PNG)
+				File verifyImageFile = new File(props.getVerifyImage());
+				if (verifyImageFile.exists()) {
+					PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
+					try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+						contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
+						// Create the verification image as PDImageXObject
+						PDImageXObject importedVerifyImage = PDImageXObject
+								.createFromFile(props.getVerifyImage(), document);
+						contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
+					}
+				} else {
+					System.err.println("Failed to load the verification image.");
+				}
+			}
+		}} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+		
 	public void addDocument(PDDocument document, long applicationNo) {
 		try {
 			// Add a new page to the document
 			String attachmentUrl = null;
 			List<DocumentEntity> documents = docrepository.findByApplicationId(applicationNo);
+			
 			for (DocumentEntity entity : documents) {
 				if (!StringUtil.isStrContainsWithEqIgnoreCase(entity.getAttachement(), "signedFinal.pdf")) {
 					attachmentUrl = entity.getAttachementUrl();
@@ -247,6 +367,8 @@ public class PdfService implements IPdfService {
 					}
 				}
 			}
+			
+			
 			// document.save(props.getOutputPdf());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -259,13 +381,11 @@ public class PdfService implements IPdfService {
 		try {
 			File fontFile = new File(props.getPdfFontFile());
 			PDFont font = PDTrueTypeFont.loadTTF(document, fontFile);
-
-			for (int i = 0; i < pdfDatas.size(); i++) {
-				Float a = new Float(pdfDatas.get(i).getXCoordinate());
-				float x = a.floatValue();
-				Float b = new Float(pdfDatas.get(i).getYCoordinate());
-				float y = b.floatValue();
-				int pageNo = Integer.parseInt(pdfDatas.get(i).getPageNo());
+			for (PdfDataCoordinatesEntity pdfData : pdfDatas) {
+			//for (int i = 0; i < pdfDatas.size(); i++) {
+				float x = Float.parseFloat(pdfData.getXCoordinate());
+				float y = Float.parseFloat(pdfData.getYCoordinate());
+				int pageNo = Integer.parseInt(pdfData.getPageNo());
 				PDPage page = document.getPage(pageNo);
 				PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true);
 				contentStream.setFont(font, 7);
@@ -273,21 +393,42 @@ public class PdfService implements IPdfService {
 				graphicsState.setNonStrokingAlphaConstant(1f); // Set the alpha value to 1 (opaque)
 				contentStream.setGraphicsStateParameters(graphicsState);
 				contentStream.setCharacterSpacing(0.4f);
-				if (pdfDatas.get(i).getColumnType().equalsIgnoreCase("text")
-						|| pdfDatas.get(i).getColumnType().equalsIgnoreCase("line")) {
+				String columnType = pdfData.getColumnType();
+				String columnNames = pdfData.getColumnNames();
+				if (columnType.equalsIgnoreCase("textDIGI") && map.get("aadharPDF") != null) {
 					contentStream.beginText();
 					contentStream.setNonStrokingColor(0, 0, 0);
 					contentStream.newLineAtOffset(x, y);
-
+					String inputText = map.get(columnNames);
+					if (inputText != null) {
+						inputText = inputText.replaceAll("\n", " ");
+						contentStream.showText(inputText.toUpperCase());
+					}
+					contentStream.endText();
+				} else if (columnType.equalsIgnoreCase("textKRA") && map.get("panPDF") != null) {
+					contentStream.beginText();
+					contentStream.setNonStrokingColor(0, 0, 0);
+					contentStream.newLineAtOffset(x, y);
+					String inputText = map.get(columnNames);
+					if (inputText != null) {
+						inputText = inputText.replaceAll("\n", " ");
+						contentStream.showText(inputText.toUpperCase());
+					}
+					contentStream.endText();
+				} else if (columnType.equalsIgnoreCase("text")
+						|| columnType.equalsIgnoreCase("line")) {
+					contentStream.beginText();
+					contentStream.setNonStrokingColor(0, 0, 0);
+					contentStream.newLineAtOffset(x, y);
 					String inputText;
-					if (pdfDatas.get(i).getColumnNames().equals("notApplicableMessage")
-							|| pdfDatas.get(i).getColumnNames().equals("notApplicableMessageNominee")) {
-						inputText = map.get(pdfDatas.get(i).getColumnNames());
+					if (pdfData.getColumnNames().equals("notApplicableMessage")
+							|| pdfData.getColumnNames().equals("notApplicableMessageNominee")) {
+						 inputText = map.get(columnNames);
 						contentStream.setFont(PDType1Font.HELVETICA_BOLD, 60);
 						contentStream.setTextMatrix(Math.cos(Math.PI / 4), Math.sin(Math.PI / 4),
 								-Math.sin(Math.PI / 4), Math.cos(Math.PI / 4), 100, 280);
 					} else {
-						inputText = map.get(pdfDatas.get(i).getColumnNames());
+						 inputText = map.get(columnNames);
 					}
 					if (inputText != null) {
 						inputText = inputText.replaceAll("\n", " ");
@@ -295,10 +436,9 @@ public class PdfService implements IPdfService {
 					}
 
 					contentStream.endText();
-				} else if (pdfDatas.get(i).getColumnType().equalsIgnoreCase("tick")
-						|| pdfDatas.get(i).getColumnType().equalsIgnoreCase("check box")) {
+				} else if (columnType.equalsIgnoreCase("tick") || columnType.equalsIgnoreCase("check box")) {
 					String tick = "\u2713";
-					String inputText = map.get(pdfDatas.get(i).getColumnNames());
+					String inputText = map.get(columnNames);
 					if (inputText != null) {
 						contentStream.beginText();
 						contentStream.setFont(PDType1Font.ZAPF_DINGBATS, 12);
@@ -307,8 +447,9 @@ public class PdfService implements IPdfService {
 						contentStream.showText(tick);
 						contentStream.endText();
 					}
-				} else if (pdfDatas.get(i).getColumnType().equalsIgnoreCase("image")) {
-					String image = map.get(pdfDatas.get(i).getColumnNames());
+				} else if (columnType.equalsIgnoreCase("image")) {
+					String imageKey = columnNames;
+					String image = map.get(imageKey);
 					if (StringUtil.isNotNullOrEmpty(image)) {
 						BufferedImage bimg = ImageIO.read(new File(image));
 						// Adjust the width and height as needed
@@ -343,11 +484,14 @@ public class PdfService implements IPdfService {
 			if (profileEntity.getGender().equalsIgnoreCase("Male")) {
 				map.put("GenderMale", profileEntity.getGender());
 				map.put("GenderPrefix", "MR");
+				map.put("Gender*", "Male");
 			} else if (profileEntity.getGender().equalsIgnoreCase("Female")) {
 				map.put("GenderFemale", profileEntity.getGender());
 				map.put("GenderPrefix", "Ms");
+				map.put("Gender*", "Female");
 			} else if (profileEntity.getGender().equalsIgnoreCase("Transgender")) {
 				map.put("transgender", profileEntity.getGender());
+				map.put("Gender*", "Transgender");
 			}
 
 			if (profileEntity.getMaritalStatus().equalsIgnoreCase("Single")) {
@@ -427,6 +571,49 @@ public class PdfService implements IPdfService {
 		AddressEntity address = addressRepository.findByapplicationId(applicationId);
 		if (address != null) {
 			if (address.getIsKra() == 1) {
+				map.put("panPDF", "panPDF");
+				String proofAddress = address.getKraaddressproof();
+				if (proofAddress != null) {
+					map.put("proof of address (POA)", proofAddress.substring(0, Math.min(70, proofAddress.length())));
+					if (proofAddress.length() >= 80) {
+						map.put("proof of address (POA)1",
+								proofAddress.substring(70, Math.min(140, proofAddress.length())));
+					}
+				}
+				map.put("proof of identity (POI)", address.getKraproofIdNumber());
+				if (address.getKraPerAddress1() != null && address.getKraPerAddress2() != null
+						&& address.getKraPerAddress3() != null) {
+					map.put("dematAddress",
+							address.getKraPerAddress1() + " " + address.getKraPerAddress2() + " "
+									+ address.getKraPerAddress3() + " " + address.getKraPerCity() + " "
+									+ Integer.toString(address.getKraPerPin()));
+				} else if (address.getKraPerAddress1() != null && address.getKraPerAddress2() != null) {
+					map.put("dematAddress", address.getKraPerAddress1() + " " + address.getKraPerAddress2() + " "
+							+ address.getKraPerCity() + " " + Integer.toString(address.getKraPerPin()));
+				} else if (address.getKraAddress1() != null) {
+					map.put("dematAddress", address.getKraAddress1() + " " + address.getKraPerCity() + " "
+							+ Integer.toString(address.getKraPerPin()));
+				}
+			 else {
+				map.put("CurrentPincode", Integer.toString(address.getKraPerPin()));
+				if (address.getKraPerAddress1() != null && address.getKraPerAddress2() != null
+						&& address.getKraPerAddress3() != null) {
+					map.put("dematAddress", address.getKraPerAddress1() + " " + address.getKraPerAddress2() + " "
+							+ address.getKraPerAddress3() + " " + address.getKraPerCity());
+				} else if (address.getKraPerAddress1() != null && address.getKraPerAddress2() != null) {
+					map.put("dematAddress", address.getKraPerAddress1() + " " + address.getKraPerAddress2() + " "
+							+ address.getKraPerCity());
+				} else if (address.getKraAddress1() != null) {
+					map.put("dematAddress", address.getKraAddress1() + " " + address.getKraPerCity());
+				}
+			}
+			String dematAddress = map.get("dematAddress");
+			if (dematAddress != null) {
+				map.put("dematAddress1", dematAddress.substring(0, Math.min(70, dematAddress.length())));
+				if (dematAddress.length() >= 80) {
+					map.put("dematAddress2", dematAddress.substring(70, Math.min(140, dematAddress.length())));
+				}
+			}
 				// For page 7 current address
 				if (address.getKraAddress1() != null)
 					map.put("CurrentAddressLine1", address.getKraPerAddress1());
@@ -517,6 +704,7 @@ public class PdfService implements IPdfService {
 				}
 				map.put("PermenentCountry", "INDIA");
 			} else if (address.getIsdigi() == 1) {
+				map.put("aadharPDF", "aadharPDF");
 				map.put("PermenentAddress1", address.getAddress1());
 				map.put("CurrentAddressLine1", address.getAddress1());
 				map.put("PermenentAddress2", address.getAddress2());
@@ -538,6 +726,30 @@ public class PdfService implements IPdfService {
 					map.put("PermenentPincode", null);
 					map.put("CurrentPincode", null);
 				}
+				if (address.getAddress1() != null) {
+					map.put("dematAddress", address.getAddress1() + " " + address.getLandmark() + " "
+							+ map.get("PermenentPincode"));
+					String dematAddress = map.get("dematAddress");
+					map.put("dematAddress1", dematAddress.substring(0, Math.min(80, dematAddress.length())));
+					if (dematAddress.length() >= 80) {
+						map.put("dematAddress2", dematAddress.substring(80, Math.min(200, dematAddress.length())));
+					}
+				}
+				if (address.getLandmark() != null) {
+					map.put("landmark", address.getLandmark());
+				}
+				if (address.getAddress1() != null) {
+					String addressFordigi = address.getAddress1()+address.getAddress2()+ " "+address.getFlatNo()+ " "+address.getStreet()+" " +address.getDistrict()+" "+address.getState()+" "+ address.getCountry()+" "+address.getPincode();
+					map.put("PermenentAddress1ForDIGI", addressFordigi.substring(0, Math.min(40, addressFordigi.length())));
+					if (addressFordigi.length() >= 40) {
+						map.put("PermenentAddress2ForDIGI",
+								addressFordigi.substring(40, Math.min(80, addressFordigi.length())));
+					}
+					if (addressFordigi.length() >= 80) {
+						map.put("PermenentAddress3ForDIGI",
+								addressFordigi.substring(80, Math.min(120, addressFordigi.length())));
+					}
+				}
 				map.put("CurrentState1", address.getState());
 				map.put("PermenentState", address.getState());
 				map.put("PermenentCountry", "INDIA");
@@ -546,12 +758,21 @@ public class PdfService implements IPdfService {
 			}
 
 			if (address.getIsdigi() == 1) {
+				map.put("s/o,c/o", address.getCo());
 				map.put("OthersProof", Integer.toString(address.getIsdigi()));
 				map.put("Others(Please Specify)", "AADHAR CARD");
 				map.put("UID Aadhaar", Integer.toString(address.getIsdigi()));
 				map.put("Aadhaar Number", address.getAadharNo());
 				map.put("F-Proof of Possission of Aadhaar", address.getAadharNo());
 				map.put("Sole / First Holder’s Name UID", address.getAadharNo());
+				if (address != null && address.getIsdigi() == 1) {
+					map.put("aadharPDF", "aadharPDF");
+					DocumentEntity documents = docrepository.findByApplicationIdAndDocumentType(applicationId, "AADHAR_IMAGE");
+					if (documents != null && documents.getAttachementUrl() != null) {
+						map.put("imagedigi", documents.getAttachementUrl());
+					}
+				}
+				
 			}
 			// Below use to get stateCode from kraTable
 			/**
@@ -697,7 +918,20 @@ public class PdfService implements IPdfService {
 		    	  map.put("not wish to trade1",TradeBuilder.substring(28, Math.min(180, TradeBuilder.length())));
 		    }
 		}
-
+		ReferralEntity referralEntity = referralRepository.findByMobileNo(applicationData.get().getMobileNo());
+		if(referralEntity!=null) {
+			if (referralEntity.getName() != null) {
+				map.put("Name of the Introducer", referralEntity.getRefByName());
+				map.put("Signature of the Introducer", referralEntity.getRefByName());
+				map.put("Status of the Introducer Existng Client", referralEntity.getRefByName());
+			}else if (referralEntity.getReferralBy() != null) {
+				map.put("Name of the Introducer",referralEntity.getReferralBy());
+				map.put("Signature of the Introducer",referralEntity.getReferralBy());
+				map.put("Status of the Introducer Existng Client",referralEntity.getReferralBy());
+			}
+			if (referralEntity.getRefByBranch() != null) {
+				map.put("Address of the Introducer", referralEntity.getRefByBranch());
+			}}
 		List<NomineeEntity> nomineeEntity = nomineeRepository.findByapplicationId(applicationId);
 		if (nomineeEntity == null || nomineeEntity.isEmpty()) {
 			// nomineeEntity is null, set "notApplicableMessageNominee" to "Not Applicable"
