@@ -564,6 +564,7 @@ public class PdfService implements IPdfService {
 				map.put("No prior Experience", profileEntity.getTradingExperience());
 			} else {
 				map.put("years in Commodites", profileEntity.getTradingExperience());
+				map.put("years in CommoditesTick", profileEntity.getTradingExperience());
 			}
 
 		}
@@ -705,13 +706,76 @@ public class PdfService implements IPdfService {
 				map.put("PermenentCountry", "INDIA");
 			} else if (address.getIsdigi() == 1) {
 				map.put("aadharPDF", "aadharPDF");
-				map.put("PermenentAddress1", address.getAddress1());
-				map.put("CurrentAddressLine1", address.getAddress1());
-				map.put("PermenentAddress2", address.getAddress2());
-				map.put("CurrentAddressLine2", address.getAddress2());
-				map.put("PermenentAddress3", "");
-				map.put("PermenentCity", address.getLandmark());
-				map.put("CurrentCity", address.getLandmark());
+				if (address != null) {
+				    StringBuilder addressBuilder = new StringBuilder();
+
+				    if (address.getFlatNo() != null) {
+				        addressBuilder.append(address.getFlatNo());
+				    }
+
+				    if (address.getStreet() != null) {
+				        if (addressBuilder.length() > 0) {
+				            addressBuilder.append(" ");
+				        }
+				        addressBuilder.append(address.getStreet());
+				    }
+
+				    if (address.getLandmark() != null) {
+				        if (addressBuilder.length() > 0) {
+				            addressBuilder.append(" ");
+				        }
+				        addressBuilder.append(address.getLandmark());
+				    }
+
+				    if (address.getAddress1() != null) {
+				        if (addressBuilder.length() > 0) {
+				            addressBuilder.append(" ");
+				        }
+				        addressBuilder.append(address.getAddress1());
+				    }
+				    if (address.getAddress2() != null) {
+				        if (addressBuilder.length() > 0) {
+				            addressBuilder.append(" ");
+				        }
+				        addressBuilder.append(address.getAddress2());
+				    }
+				    String fullAddress = addressBuilder.toString();
+				    System.out.println("the fullAddress" + fullAddress);
+				    map.put("PermanentAddress", fullAddress);
+				}
+
+				String dematAddress = map.get("PermanentAddress");
+				if (dematAddress != null) {
+				    map.put("PermenentAddress1", dematAddress.substring(0, Math.min(80, dematAddress.length())));
+				    if (dematAddress.length() >= 80) {
+				        map.put("PermenentAddress2", dematAddress.substring(80, Math.min(200, dematAddress.length())));
+				    }
+				    map.put("CurrentAddressLine1", dematAddress.substring(0, Math.min(80, dematAddress.length())));
+				    if (dematAddress.length() >= 80) {
+				        map.put("CurrentAddressLine2", dematAddress.substring(80, Math.min(200, dematAddress.length())));
+				    }
+				    map.put("dematAddress1", dematAddress.substring(0, Math.min(80, dematAddress.length())));
+				    if (dematAddress.length() >= 80) {
+				        map.put("dematAddress2", dematAddress.substring(80, Math.min(200, dematAddress.length())));
+				    }
+
+				    map.put("PermenentAddress1ForDIGI", dematAddress.substring(0, Math.min(40, dematAddress.length())));
+				    if (dematAddress.length() >= 40) {
+				        map.put("PermenentAddress2ForDIGI", dematAddress.substring(40, Math.min(80, dematAddress.length())));
+				    }
+				    if (dematAddress.length() >= 80) {
+				        map.put("PermenentAddress3ForDIGI", dematAddress.substring(80, Math.min(120, dematAddress.length())));
+				    }
+				}
+				
+				if (address.getLandmark() != null && !address.getLandmark().isEmpty()) {
+				    map.put("CurrentCity", address.getLandmark());
+				    map.put("PermenentCity", address.getLandmark());
+				} else {
+				    map.put("CurrentCity", address.getAddress1());
+				    map.put("PermenentCity", address.getAddress1());
+				}
+				
 				map.put("PermenentDistrict", address.getDistrict());
 				map.put("CurrentDistrict", address.getDistrict());
 				if (address.getDistrict() != null) {
@@ -726,34 +790,14 @@ public class PdfService implements IPdfService {
 					map.put("PermenentPincode", null);
 					map.put("CurrentPincode", null);
 				}
-				if (address.getAddress1() != null) {
-					map.put("dematAddress", address.getAddress1() + " " + address.getLandmark() + " "
-							+ map.get("PermenentPincode"));
-					String dematAddress = map.get("dematAddress");
-					map.put("dematAddress1", dematAddress.substring(0, Math.min(80, dematAddress.length())));
-					if (dematAddress.length() >= 80) {
-						map.put("dematAddress2", dematAddress.substring(80, Math.min(200, dematAddress.length())));
-					}
-				}
-				if (address.getLandmark() != null) {
+				if (address.getLandmark() != null||!address.getLandmark().isEmpty()) {
 					map.put("landmark", address.getLandmark());
-				}
-				if (address.getAddress1() != null) {
-					String addressFordigi = address.getAddress1()+address.getAddress2()+ " "+address.getFlatNo()+ " "+address.getStreet()+" " +address.getDistrict()+" "+address.getState()+" "+ address.getCountry()+" "+address.getPincode();
-					map.put("PermenentAddress1ForDIGI", addressFordigi.substring(0, Math.min(40, addressFordigi.length())));
-					if (addressFordigi.length() >= 40) {
-						map.put("PermenentAddress2ForDIGI",
-								addressFordigi.substring(40, Math.min(80, addressFordigi.length())));
-					}
-					if (addressFordigi.length() >= 80) {
-						map.put("PermenentAddress3ForDIGI",
-								addressFordigi.substring(80, Math.min(120, addressFordigi.length())));
-					}
+				}else {
+					map.put("landmark", address.getStreet());
 				}
 				map.put("CurrentState1", address.getState());
 				map.put("PermenentState", address.getState());
 				map.put("PermenentCountry", "INDIA");
-				// map.put("Place", address.getKraPerCity());
 				map.put("CurrentCountry", "INDIA");
 			}
 
@@ -848,7 +892,12 @@ public class PdfService implements IPdfService {
 			}
 		}
 		ResponseCkyc responseCkyc = ckycResponseRepos.findByApplicationId(applicationId);
-		if (responseCkyc != null) {
+		if(profileEntity.getFatherName() != null) {
+		map.put("i)FFirst Name", profileEntity.getFatherName());
+		map.put("Father's / Spouse Name - Prefix", "MR");
+		map.put("ii)FMiddle Name","");
+		map.put("iii)FLast Name","");
+		}else {
 			if (responseCkyc.getFatherPrefix() != null || !responseCkyc.getFatherPrefix().isEmpty()) {
 				map.put("Father's / Spouse Name - Prefix", responseCkyc.getFatherPrefix());
 			} else if (responseCkyc.getFatherFname() != null ) {
@@ -859,9 +908,17 @@ public class PdfService implements IPdfService {
 				map.put("ii)FMiddle Name", responseCkyc.getFatherMname());
 				map.put("iii)FLast Name", responseCkyc.getFatherLname());
 			} 
+		}
+		if(profileEntity.getMotherName() != null) {
+			map.put("i)MFirst Name", profileEntity.getMotherName());
+			map.put("Mother Name - Prefix", "MRS");
+			map.put("ii)MMiddle Name","");
+			map.put("iii)MLast Name","");
+		}
+		else {
 			if (StringUtil.isNotNullOrEmpty(responseCkyc.getMotherPrefix())) {
 				map.put("Mother Name - Prefix", responseCkyc.getMotherPrefix());
-				System.out.println("the " + responseCkyc.getMotherPrefix());
+			//	System.out.println("the " + responseCkyc.getMotherPrefix());
 			} else if (responseCkyc.getMotherFullname() != null) {
 				map.put("Mother Name - Prefix", "MRS");
 			}
@@ -869,19 +926,7 @@ public class PdfService implements IPdfService {
 				map.put("i)MFirst Name", responseCkyc.getMotherFname());
 				map.put("ii)MMiddle Name", responseCkyc.getMotherMname());
 				map.put("iii)MLast Name", responseCkyc.getMotherLname());
-			} else {
-				
-			}
-		}else {
-			if(profileEntity.getFatherName() != null) {
-			map.put("i)FFirst Name", profileEntity.getFatherName());
-			map.put("Father's / Spouse Name - Prefix", "MR");
-			}
-			if(profileEntity.getMotherName() != null) {
-				map.put("i)MFirst Name", profileEntity.getMotherName());
-				map.put("Mother Name - Prefix", "MRS");
-			}
-		}
+			}}
 		SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationId);
 		if (segmentEntity != null) {
 		    StringBuilder notTradeBuilder = new StringBuilder();

@@ -5,10 +5,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
@@ -16,7 +14,6 @@ import org.json.XML;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
-
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.DocumentEntity;
@@ -186,6 +183,7 @@ public class DigilockerHelper {
 									entity.setAadharNo(AatharNo);
 									updatedAddEntity = addressRepository.save(entity);
 								} else {
+									clearKraDetails(applicationId);
 									if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
 										checkExit.setFlatNo(PoaDetails.get("house").toString());
 									} else {
@@ -240,7 +238,39 @@ public class DigilockerHelper {
 		}
 		return responseModel;
 	}
-
+	private void clearKraDetails(long applicationId) {
+		try {
+		AddressEntity checkExit = addressRepository.findByapplicationId(applicationId);
+		checkExit.setIsKra(0);
+		checkExit.setKraAddress1(null);
+		checkExit.setKraAddress2(null);
+		checkExit.setKraAddress3(null);
+		checkExit.setKraaddressproof(null);
+		checkExit.setKraCity(null);
+		checkExit.setKraCountry(null);
+		checkExit.setKraPerAddress1(null);
+		checkExit.setKraPerAddress2(null);
+		checkExit.setKraPerAddress3(null);
+		checkExit.setKraPerCity(null);
+		checkExit.setKraCountry(null);
+		checkExit.setKraPerPin(0);
+		checkExit.setKraPin(0);
+		checkExit.setKraPerState(null);
+		checkExit.setKraState(null);		
+		checkExit.setKraproofIdNumber(null);
+		checkExit.setKraPerCountry(null);
+		addressRepository.save(checkExit);
+		checkExit.setKraPerPin(0);
+		} catch (Exception ex) {
+			ResponseModel responseModel=new ResponseModel();
+			logger.error("An error occurred: " + ex.getMessage());
+			commonMethods.SaveLog(applicationId, "DigilockerHelper", "getXMlAadhar", ex.getMessage());
+			commonMethods
+					.sendErrorMail("An error occurred while processing your request, In getXMlAadhar for the Error: "
+							+ ex.getMessage(), "ERR-001");
+			responseModel = commonMethods.constructFailedMsg(ex.getMessage());
+		}
+	}
 	public void saveAadharDocumntDetails(long applicationId, String fileName, String documentPath) {
 		DocumentEntity oldEntity = documentRepository.findByApplicationIdAndDocumentType(applicationId,
 				EkycConstants.DOC_AADHAR);
