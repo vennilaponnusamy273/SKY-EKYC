@@ -199,10 +199,10 @@ public class UserService implements IUserService {
 		try {
 			ApplicationUserEntity updatedUserDetails = null;
 			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
-			List<GetUserInfoResp> emailExist = keyCloakAdminRestService.getUserInfoByAttribute("email",
+			/**List<GetUserInfoResp> emailExist = keyCloakAdminRestService.getUserInfoByAttribute("email",
 					userEntity.getEmailId());
 			if (emailExist != null && emailExist.size() > 0)
-				return commonMethods.constructFailedMsg(MessageConstants.KEYCLOAK_EMAIL_EXIST);
+				return commonMethods.constructFailedMsg(MessageConstants.KEYCLOAK_EMAIL_EXIST);**/
 			ApplicationUserEntity emailPresent = repository.findByEmailId(userEntity.getEmailId());
 			if (isUserPresent.isPresent() && isUserPresent.get().getSmsVerified() > 0 && (emailPresent == null
 					|| emailPresent != null && emailPresent.getMobileNo() == isUserPresent.get().getMobileNo())) {
@@ -409,7 +409,7 @@ public class UserService implements IUserService {
 	@Override
 	public ResponseModel userCreation(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
-		try {
+		/**try {
 			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
 			if (isUserPresent.isPresent()) {
 				List<GetUserInfoResp> emailExist = keyCloakAdminRestService.getUserInfoByAttribute("mobile",
@@ -435,12 +435,12 @@ public class UserService implements IUserService {
 					requestModel.setCredentials(userCredentilList);
 					String message = keyCloakAdminRestService.addNewUser(requestModel);
 					if (StringUtil.isNotNullOrEmpty(message)) {
-						responseModel.setReason(message);
+						responseModel.setReason(message);**/
 						commonMethods.UpdateStep(EkycConstants.PAGE_PASSWORD, userEntity.getId());
 						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 						responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 						responseModel.setPage(EkycConstants.PAGE_PAN);
-					} else {
+					/**} else {
 						responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
 					}
 				} else {
@@ -456,7 +456,7 @@ public class UserService implements IUserService {
 					"An error occurred while processing your request, In userCreation for the Error: " + e.getMessage(),
 					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
-		}
+		}**/
 		return responseModel;
 	}
 

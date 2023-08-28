@@ -117,7 +117,6 @@ public class PdfService implements IPdfService {
 	RazorpayIfscRestService commonRestService;
 	@Inject
 	ReferralRepository referralRepository;
-	
 	private static final Logger logger = LogManager.getLogger(PennyService.class);
 
 	/**
@@ -152,8 +151,8 @@ public class PdfService implements IPdfService {
 				} else {
 					document = PDDocument.load(file);
 				}
-				PDFMergerUtility merger = new PDFMergerUtility();
 				PDDocument combine = PDDocument.load(filename);
+				PDFMergerUtility merger = new PDFMergerUtility();
 				merger.appendDocument(document, combine);
 				merger.mergeDocuments();
 				combine.close();
@@ -209,7 +208,6 @@ public class PdfService implements IPdfService {
 		}
 		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(MessageConstants.FILE_NOT_FOUND).build();
 	}
-
 	public void addIPvDocument(PDDocument document, long applicationNo) {
 		try {
 			String attachmentUrl = null;
@@ -288,19 +286,17 @@ public class PdfService implements IPdfService {
 			e.printStackTrace();
 		}
 	}
-
-		
+	
 	public void addDocument(PDDocument document, long applicationNo) {
 		try {
 			// Add a new page to the document
 			String attachmentUrl = null;
 			List<DocumentEntity> documents = docrepository.findByApplicationId(applicationNo);
-			
 			for (DocumentEntity entity : documents) {
 				if (!StringUtil.isStrContainsWithEqIgnoreCase(entity.getAttachement(), "signedFinal.pdf")) {
 					attachmentUrl = entity.getAttachementUrl();
-					if (attachmentUrl.endsWith(".pdf")) {
-						System.out.println(attachmentUrl);
+					if (attachmentUrl.endsWith(".pdf")||attachmentUrl.endsWith(".PDF")) {
+						//System.out.println(attachmentUrl);
 						int originalPages = document.getNumberOfPages();
 						try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
 							File fileAadhar = new File(attachmentUrl);
@@ -309,10 +305,6 @@ public class PdfService implements IPdfService {
 							merger.appendDocument(document, combine);
 							merger.mergeDocuments();
 							combine.close();
-
-							// The main document and attachment have been merged, and the verification image
-							// can now be added
-							
 							int attachmentPages = attachment.getNumberOfPages();
 							File verifyImageFile = new File(props.getVerifyImage());
 							if (verifyImageFile.exists()) {
@@ -330,6 +322,7 @@ public class PdfService implements IPdfService {
 						}
 					} else {
 						BufferedImage image = ImageIO.read(new File(attachmentUrl));
+						if (image != null) {
 						PDPage page = new PDPage();
 						document.addPage(page);
 						PDRectangle pageSize = page.getMediaBox();
@@ -365,10 +358,9 @@ public class PdfService implements IPdfService {
 							System.err.println("Failed to load the verification image.");
 						}
 					}
+					}
 				}
 			}
-			
-			
 			// document.save(props.getOutputPdf());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -484,22 +476,21 @@ public class PdfService implements IPdfService {
 			if (profileEntity.getGender().equalsIgnoreCase("Male")) {
 				map.put("GenderMale", profileEntity.getGender());
 				map.put("GenderPrefix", "MR");
-				map.put("Gender*", "Male");
 			} else if (profileEntity.getGender().equalsIgnoreCase("Female")) {
 				map.put("GenderFemale", profileEntity.getGender());
 				map.put("GenderPrefix", "Ms");
-				map.put("Gender*", "Female");
 			} else if (profileEntity.getGender().equalsIgnoreCase("Transgender")) {
 				map.put("transgender", profileEntity.getGender());
-				map.put("Gender*", "Transgender");
 			}
-
+			if(profileEntity.getGender()!=null) {
+			map.put("Gender*", profileEntity.getGender());
+			}
 			if (profileEntity.getMaritalStatus().equalsIgnoreCase("Single")) {
 				map.put("MaritalStatusSingle", profileEntity.getMaritalStatus());
 			} else if (profileEntity.getMaritalStatus().equalsIgnoreCase("Married")) {
 				map.put("MaritalStatusMarried", profileEntity.getMaritalStatus());
 			}
-
+			if(profileEntity.getAnnualIncome()!=null) {
 			map.put("AnnualIncome", profileEntity.getAnnualIncome());
 			if (profileEntity.getAnnualIncome().equalsIgnoreCase("0-1 lakh")) {
 				map.put("Below Rs.1 Lac", profileEntity.getAnnualIncome());
@@ -514,7 +505,7 @@ public class PdfService implements IPdfService {
 			} else if (profileEntity.getAnnualIncome().equalsIgnoreCase("More than 20 lakhs")) {
 				map.put("> Rs.25 Lac", profileEntity.getAnnualIncome());
 			}
-
+			}
 			map.put("ApplicantName", profileEntity.getApplicantName());
 			map.put("FatherName", profileEntity.getFatherName());
 			map.put("Father's/Spouse Name", profileEntity.getFatherName());
@@ -524,6 +515,7 @@ public class PdfService implements IPdfService {
 			map.put("MotherName", profileEntity.getMotherName());
 			map.put("NetWoth", profileEntity.getNetWorth());
 			map.put("NetWorthDate", profileEntity.getNetWorthDate());
+			if(profileEntity.getOccupation()!=null) {
 			map.put("Occupation", profileEntity.getOccupation());
 			if (profileEntity.getOccupation().equalsIgnoreCase("Private Sector")) {
 				map.put("Occupaton Private Sector", profileEntity.getOccupation());
@@ -545,7 +537,7 @@ public class PdfService implements IPdfService {
 				map.put("Occupaton Student", profileEntity.getOccupation());
 			} else if (profileEntity.getOccupation().equalsIgnoreCase("Others")) {
 				map.put("Occupaton Others", profileEntity.getOccupation());
-			}
+			}}
 			if (profileEntity.getPoliticalExposure().equalsIgnoreCase("yes")) {
 				map.put("Please Tick, as Applicable Politcally Exposed Person (PEP) /",
 						profileEntity.getPoliticalExposure());
@@ -705,7 +697,7 @@ public class PdfService implements IPdfService {
 				}
 				map.put("PermenentCountry", "INDIA");
 			} else if (address.getIsdigi() == 1) {
-				map.put("aadharPDF", "aadharPDF");
+				map.put("aadharPDF", "aadharPDF");	
 				if (address != null) {
 				    StringBuilder addressBuilder = new StringBuilder();
 
@@ -767,6 +759,12 @@ public class PdfService implements IPdfService {
 				        map.put("PermenentAddress3ForDIGI", dematAddress.substring(80, Math.min(120, dematAddress.length())));
 				    }
 				}
+
+				//map.put("PermenentAddress1", address.getAddress1());
+				//map.put("CurrentAddressLine1", address.getAddress1());
+				//map.put("PermenentAddress2", address.getAddress2());
+			  //map.put("CurrentAddressLine2", address.getAddress2());
+				//map.put("PermenentAddress3", "");
 				
 				if (address.getLandmark() != null && !address.getLandmark().isEmpty()) {
 				    map.put("CurrentCity", address.getLandmark());
@@ -775,7 +773,7 @@ public class PdfService implements IPdfService {
 				    map.put("CurrentCity", address.getAddress1());
 				    map.put("PermenentCity", address.getAddress1());
 				}
-				
+
 				map.put("PermenentDistrict", address.getDistrict());
 				map.put("CurrentDistrict", address.getDistrict());
 				if (address.getDistrict() != null) {
@@ -798,6 +796,7 @@ public class PdfService implements IPdfService {
 				map.put("CurrentState1", address.getState());
 				map.put("PermenentState", address.getState());
 				map.put("PermenentCountry", "INDIA");
+				// map.put("Place", address.getKraPerCity());
 				map.put("CurrentCountry", "INDIA");
 			}
 
@@ -817,7 +816,7 @@ public class PdfService implements IPdfService {
 					}
 				}
 				
-			}
+			}}
 			// Below use to get stateCode from kraTable
 			/**
 			 * String state = null; String stateCode = null;
@@ -832,7 +831,7 @@ public class PdfService implements IPdfService {
 			 * 
 			 * map.put("stateCode", stateCode);
 			 **/
-		}
+		
 		map.put("ISO 3166 Country code", "IN");
 
 		Optional<ApplicationUserEntity> applicationData = applicationUserRepository.findById(applicationId);
@@ -891,42 +890,56 @@ public class PdfService implements IPdfService {
 				map.put("eSignDateOn", formatter.format(date));
 			}
 		}
-		ResponseCkyc responseCkyc = ckycResponseRepos.findByApplicationId(applicationId);
-		if(profileEntity.getFatherName() != null) {
-		map.put("i)FFirst Name", profileEntity.getFatherName());
-		map.put("Father's / Spouse Name - Prefix", "MR");
-		map.put("ii)FMiddle Name","");
-		map.put("iii)FLast Name","");
-		}else {
-			if (responseCkyc.getFatherPrefix() != null || !responseCkyc.getFatherPrefix().isEmpty()) {
-				map.put("Father's / Spouse Name - Prefix", responseCkyc.getFatherPrefix());
-			} else if (responseCkyc.getFatherFname() != null ) {
-				map.put("Father's / Spouse Name - Prefix", "MR");
+		ReferralEntity referralEntity = referralRepository.findByMobileNo(applicationData.get().getMobileNo());
+		if(referralEntity!=null) {
+			if (referralEntity.getName() != null) {
+				map.put("Name of the Introducer", referralEntity.getRefByName());
+				map.put("Signature of the Introducer", referralEntity.getRefByName());
+				map.put("Status of the Introducer Existng Client", referralEntity.getRefByName());
+			}else if (referralEntity.getReferralBy() != null) {
+				map.put("Name of the Introducer",referralEntity.getReferralBy());
+				map.put("Signature of the Introducer",referralEntity.getReferralBy());
+				map.put("Status of the Introducer Existng Client",referralEntity.getReferralBy());
 			}
-			if (responseCkyc.getFatherFname() != null) {
-				map.put("i)FFirst Name", responseCkyc.getFatherFname());
-				map.put("ii)FMiddle Name", responseCkyc.getFatherMname());
-				map.put("iii)FLast Name", responseCkyc.getFatherLname());
-			} 
-		}
-		if(profileEntity.getMotherName() != null) {
-			map.put("i)MFirst Name", profileEntity.getMotherName());
-			map.put("Mother Name - Prefix", "MRS");
-			map.put("ii)MMiddle Name","");
-			map.put("iii)MLast Name","");
-		}
-		else {
-			if (StringUtil.isNotNullOrEmpty(responseCkyc.getMotherPrefix())) {
-				map.put("Mother Name - Prefix", responseCkyc.getMotherPrefix());
-			//	System.out.println("the " + responseCkyc.getMotherPrefix());
-			} else if (responseCkyc.getMotherFullname() != null) {
-				map.put("Mother Name - Prefix", "MRS");
-			}
-			if (responseCkyc.getMotherFname() != null) {
-				map.put("i)MFirst Name", responseCkyc.getMotherFname());
-				map.put("ii)MMiddle Name", responseCkyc.getMotherMname());
-				map.put("iii)MLast Name", responseCkyc.getMotherLname());
+			if (referralEntity.getRefByBranch() != null) {
+				map.put("Address of the Introducer", referralEntity.getRefByBranch());
 			}}
+		ResponseCkyc responseCkyc = ckycResponseRepos.findByApplicationId(applicationId);
+			if(profileEntity.getFatherName() != null) {
+			map.put("i)FFirst Name", profileEntity.getFatherName());
+			map.put("Father's / Spouse Name - Prefix", "MR");
+			map.put("ii)FMiddle Name","");
+			map.put("iii)FLast Name","");
+			}else {
+				if (responseCkyc.getFatherPrefix() != null || !responseCkyc.getFatherPrefix().isEmpty()) {
+					map.put("Father's / Spouse Name - Prefix", responseCkyc.getFatherPrefix());
+				} else if (responseCkyc.getFatherFname() != null ) {
+					map.put("Father's / Spouse Name - Prefix", "MR");
+				}
+				if (responseCkyc.getFatherFname() != null) {
+					map.put("i)FFirst Name", responseCkyc.getFatherFname());
+					map.put("ii)FMiddle Name", responseCkyc.getFatherMname());
+					map.put("iii)FLast Name", responseCkyc.getFatherLname());
+				} 
+			}
+			if(profileEntity.getMotherName() != null) {
+				map.put("i)MFirst Name", profileEntity.getMotherName());
+				map.put("Mother Name - Prefix", "MRS");
+				map.put("ii)MMiddle Name","");
+				map.put("iii)MLast Name","");
+			}
+			else {
+				if (StringUtil.isNotNullOrEmpty(responseCkyc.getMotherPrefix())) {
+					map.put("Mother Name - Prefix", responseCkyc.getMotherPrefix());
+				//	System.out.println("the " + responseCkyc.getMotherPrefix());
+				} else if (responseCkyc.getMotherFullname() != null) {
+					map.put("Mother Name - Prefix", "MRS");
+				}
+				if (responseCkyc.getMotherFname() != null) {
+					map.put("i)MFirst Name", responseCkyc.getMotherFname());
+					map.put("ii)MMiddle Name", responseCkyc.getMotherMname());
+					map.put("iii)MLast Name", responseCkyc.getMotherLname());
+				}}
 		SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationId);
 		if (segmentEntity != null) {
 		    StringBuilder notTradeBuilder = new StringBuilder();
@@ -963,20 +976,7 @@ public class PdfService implements IPdfService {
 		    	  map.put("not wish to trade1",TradeBuilder.substring(28, Math.min(180, TradeBuilder.length())));
 		    }
 		}
-		ReferralEntity referralEntity = referralRepository.findByMobileNo(applicationData.get().getMobileNo());
-		if(referralEntity!=null) {
-			if (referralEntity.getName() != null) {
-				map.put("Name of the Introducer", referralEntity.getRefByName());
-				map.put("Signature of the Introducer", referralEntity.getRefByName());
-				map.put("Status of the Introducer Existng Client", referralEntity.getRefByName());
-			}else if (referralEntity.getReferralBy() != null) {
-				map.put("Name of the Introducer",referralEntity.getReferralBy());
-				map.put("Signature of the Introducer",referralEntity.getReferralBy());
-				map.put("Status of the Introducer Existng Client",referralEntity.getReferralBy());
-			}
-			if (referralEntity.getRefByBranch() != null) {
-				map.put("Address of the Introducer", referralEntity.getRefByBranch());
-			}}
+
 		List<NomineeEntity> nomineeEntity = nomineeRepository.findByapplicationId(applicationId);
 		if (nomineeEntity == null || nomineeEntity.isEmpty()) {
 			// nomineeEntity is null, set "notApplicableMessageNominee" to "Not Applicable"

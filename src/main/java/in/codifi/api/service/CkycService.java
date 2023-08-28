@@ -1,25 +1,37 @@
 package in.codifi.api.service;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.stereotype.Service;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.entity.ResponseCkyc;
 import in.codifi.api.model.CkycRequestApiModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.model.ckyc.CkycResponse;
+import in.codifi.api.model.ckyc.Image;
+import in.codifi.api.model.ckyc.ImageDetails;
 import in.codifi.api.model.ckyc.PersonalDetails;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.CkycResponseRepos;
+import in.codifi.api.repository.DocumentRepository;
 import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.restservice.AryaLivenessCheck;
 import in.codifi.api.service.spec.ICkycService;
@@ -29,7 +41,7 @@ import in.codifi.api.utilities.StringUtil;
 
 @Service
 public class CkycService implements ICkycService {
-
+	private static String OS = System.getProperty("os.name").toLowerCase();
 	@Inject
 	CommonMethods commonMethods;
 
@@ -47,7 +59,13 @@ public class CkycService implements ICkycService {
 
 	@Inject
 	AryaLivenessCheck aryaLivenessCheck;
+	
+	@Inject
+	DocumentService documentService;
 
+	@Inject
+	DocumentRepository docrepository;
+	
 	private static final Logger logger = LogManager.getLogger(CkycService.class);
 	
 	public ResponseModel saveCkycResponse(long applicationId) {
@@ -61,14 +79,15 @@ public class CkycService implements ICkycService {
 				CkycResponse ckycResponse = aryaLivenessCheck.getCKycData(ckycRequest);
 				commonMethods.reqResSaveObject(ckycRequest, ckycResponse, EkycConstants.CKYC, applicationId);
 				if (ckycResponse.getSuccess()) {
-					ExecutorService pool = Executors.newSingleThreadExecutor();
+					/**ExecutorService pool = Executors.newSingleThreadExecutor();
 					pool.execute(new Runnable() {
 						@Override
-						public void run() {
+						public void run() {**/
 							if (ckycResponse != null && ckycResponse.getResult().getPersonalDetails() != null) {
-								PersonalDetails personalDetails = ckycResponse.getResult().getPersonalDetails();
-								ResponseCkyc response = buildCkycResponse(personalDetails, applicationId, checkExit);
-								repos.save(response);
+								PersonalDetails personalDetails = ckycResponse.getResult().getPersonalDetails();							
+								ResponseCkyc response = buildCkycResponse(personalDetails, applicationId);
+								ImageDetails imagedetails=ckycResponse.getResult().getImageDetails();
+								ResponseCkyc response1 = storeCkycImage(imagedetails, applicationId);
 								String motherName = "";
 								if (StringUtil.isNotNullOrEmpty(personalDetails.getMotherFname())
 										|| StringUtil.isNotNullOrEmpty(personalDetails.getMotherLname())) {
@@ -87,9 +106,9 @@ public class CkycService implements ICkycService {
 									}
 								}
 							}
-						}
-					});
-					pool.shutdown();
+						
+				/**	});
+					pool.shutdown();**/
 				} else {
 					responseModel = commonMethods
 							.constructFailedMsg(ckycResponse.getAdditionalProperties().get("message").toString());
@@ -110,6 +129,64 @@ public class CkycService implements ICkycService {
 	 * @param userEntity
 	 * @return
 	 */
+	public ResponseCkyc storeCkycImage(ImageDetails imageDetails, long applicationId)
+			throws FileNotFoundException, IOException {
+		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
+		if (OS.contains(EkycConstants.OS_WINDOWS)) {
+			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
+		}
+		List<Image> images = imageDetails.getImage();
+		if (images != null) {
+			for (Image image : images) {
+				String ImageName=null;
+				if (image.getImageName().equalsIgnoreCase("Signature")){
+					ImageName="ckycSignature";
+				}else if (image.getImageName().equalsIgnoreCase("pan")){
+					ImageName="ckycPan";
+				}
+				else {
+					ImageName=image.getImageName();
+				}
+				String fileName = applicationId + EkycConstants.UNDERSCORE + ImageName+"."
+						+ image.getImageType();
+				byte[] decodedBytes = Base64.getDecoder().decode(image.getImageData());
+				String outputPath = props.getFileBasePath() + applicationId + slash + fileName;
+				if (image.getImageType().equalsIgnoreCase("pdf")) {
+					File file = new File(outputPath);;
+					FileOutputStream fop = new FileOutputStream(file);
+					fop.write(decodedBytes);
+					fop.flush();
+					fop.close();
+					saveDoc(applicationId, fileName, outputPath, ImageName);
+				}
+				else {
+					try (FileOutputStream fos = new FileOutputStream(outputPath)) {
+						fos.write(decodedBytes);
+						saveDoc(applicationId, fileName, outputPath, ImageName);
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	
+	
+     public void saveDoc(long applicationId,String fileName, String outputPath, String imageName) {
+    	 DocumentEntity documentEntity=new DocumentEntity();
+    	 	DocumentEntity oldRecord = docrepository.findByApplicationIdAndDocumentType(applicationId,
+    	 			imageName);
+    	 	if (oldRecord!=null) {
+    	 		documentEntity.setId(oldRecord.getId());
+    	 		documentEntity=oldRecord;
+    	 	}
+    	 	documentEntity.setAttachementUrl(outputPath);
+    	 	documentEntity.setDocumentType(imageName);
+    	 	documentEntity.setAttachement(fileName);
+    	 	documentEntity.setApplicationId(applicationId);
+    	 	documentEntity.setTypeOfProof(imageName);
+    	 	docrepository.save(documentEntity);
+	}
 	public CkycRequestApiModel buildCkycRequest(ApplicationUserEntity userEntity) {
 		CkycRequestApiModel ckycRequestApiModel = new CkycRequestApiModel();
 		try {
@@ -135,10 +212,15 @@ public class CkycService implements ICkycService {
 	 * @param checkExit
 	 * @return
 	 */
-	public ResponseCkyc buildCkycResponse(PersonalDetails personalDetails, long applicationId, ResponseCkyc checkExit) {
+	public ResponseCkyc buildCkycResponse(PersonalDetails personalDetails, long applicationId) {
 		ResponseCkyc response = new ResponseCkyc();
 		try
 		{
+		ResponseCkyc checkExit = repos.findByApplicationId(applicationId);
+		if (checkExit != null) {
+			response.setId(checkExit.getId());
+			response=checkExit;
+		}
 		response.setApplicationId(applicationId);
 		response.setAccType(personalDetails.getAccType());
 		response.setCkycNo(personalDetails.getCkycNo());
@@ -192,9 +274,9 @@ public class CkycService implements ICkycService {
 		response.setPrefix(personalDetails.getPrefix());
 		response.setRemarks((String) personalDetails.getRemarks());
 		response.setUpdatedDate(personalDetails.getUpdatedDate());
-		if (checkExit != null && checkExit.getId() != null && checkExit.getId() > 0) {
-			response.setId(checkExit.getId());
-		}
+		response.setApplicationId(applicationId);
+		
+		repos.save(response);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
 			commonMethods.SaveLog(applicationId,"CkycService","buildCkycResponse",e.getMessage());
