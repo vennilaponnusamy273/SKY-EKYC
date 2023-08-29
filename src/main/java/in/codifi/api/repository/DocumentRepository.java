@@ -16,6 +16,8 @@ public interface DocumentRepository extends CrudRepository<DocumentEntity, Long>
 
 	DocumentEntity findByApplicationIdAndDocumentType(long applicationId, String documentType);
 	
+	DocumentEntity findByApplicationIdAndAttachement(long applicationId, String attachement);
+	
 	void deleteByApplicationId(long applicationId);
 	
 	@Transactional 

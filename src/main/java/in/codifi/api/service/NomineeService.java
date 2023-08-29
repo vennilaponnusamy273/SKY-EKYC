@@ -23,12 +23,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
+import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.entity.GuardianEntity;
 import in.codifi.api.entity.NomineeEntity;
 import in.codifi.api.helper.RejectionStatusHelper;
 import in.codifi.api.model.NomineeDocModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
+import in.codifi.api.repository.DocumentRepository;
 import in.codifi.api.repository.GuardianRepository;
 import in.codifi.api.repository.NomineeRepository;
 import in.codifi.api.service.spec.INomineeService;
@@ -53,6 +55,8 @@ public class NomineeService implements INomineeService {
 	ApplicationProperties props;
 	@Inject
 	RejectionStatusHelper rejectionStatusHelper;
+	@Inject
+	DocumentRepository docrepository;
 	private static final Logger logger = LogManager.getLogger(NomineeService.class);
 	/**
 	 * Method to get Nominee Details
@@ -124,16 +128,19 @@ public class NomineeService implements INomineeService {
 				if (!dir.exists()) {
 					dir.mkdirs();
 				}
+				Long countNominee = nomineeRepository.countByApplicationId(fileModel.getApplicationId());
+				String nomineeId="Nominee_" + (countNominee + 1);
 				FileUpload f = fileModel.getNomFile();
 				String ext = f.fileName().substring(f.fileName().indexOf("."), f.fileName().length());
-				String fileName = fileModel.getApplicationId() + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF
+				String fileName = nomineeId + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF
 						+ ext;
-				String filePath = props.getFileBasePath() + fileModel.getApplicationId() + slash + fileName;
+				String filePath = props.getFileBasePath() + fileModel.getApplicationId() +slash+ fileName;
 				Path path = Paths.get(filePath);
 				if (Files.exists(path)) {
 					Files.delete(path);
 				}
 				Files.copy(fileModel.getNomFile().filePath(), path);
+				saveDoc(fileModel.getApplicationId(),fileName, filePath, nomineeId + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF);
 				responseModel = saveNomineeDetails(fileModel, filePath);
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.NOM_FILE_NULL);
@@ -155,7 +162,7 @@ public class NomineeService implements INomineeService {
 	 * @param NomineID
 	 * @return
 	 */
-	public String uploadDocGuardian(NomineeDocModel fileModel, Long NomineID) {
+	public String uploadDocGuardian(NomineeDocModel fileModel, String NomineID) {
 		String fileUrl = "";
 		try {
 			String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
@@ -168,14 +175,15 @@ public class NomineeService implements INomineeService {
 			}
 			FileUpload f = fileModel.getGuardFile();
 			String ext = f.fileName().substring(f.fileName().indexOf("."), f.fileName().length());
-			String fileName = fileModel.getApplicationId() + EkycConstants.UNDERSCORE + EkycConstants.GUARDINA_PROOF
-					+ EkycConstants.UNDERSCORE + NomineID + ext;
+			String fileName = NomineID + EkycConstants.UNDERSCORE + EkycConstants.GUARDINA_PROOF
+					 + ext;
 			String filePath = props.getFileBasePath() + fileModel.getApplicationId() + slash + fileName;
 			Path path = Paths.get(filePath);
 			if (Files.exists(path)) {
 				Files.delete(path);
 			}
 			Files.copy(fileModel.getGuardFile().filePath(), path);
+			saveDoc(fileModel.getApplicationId(),fileName, filePath, NomineID + EkycConstants.UNDERSCORE + EkycConstants.GUARDINA_PROOF);
 			fileUrl = filePath;
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
@@ -217,7 +225,7 @@ public class NomineeService implements INomineeService {
 						if (nomineeEntity.getGuardFile() != null
 								&& StringUtil.isNotNullOrEmpty(nomineeEntity.getGuardFile().contentType())) {
 							savingNominee = nomineeRepository.save(entity);
-							String guardFilePath = uploadDocGuardian(nomineeEntity, savingNominee.getId());
+							String guardFilePath = uploadDocGuardian(nomineeEntity, savingNominee.getNomineeId());
 							GuardianEntity guardian = entity.getGuardianEntity();
 							guardian.setNomineeId(savingNominee.getId());
 							guardian.setAttachementUrl(guardFilePath);
@@ -253,6 +261,23 @@ public class NomineeService implements INomineeService {
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
+	}
+	
+	
+	 public void saveDoc(long applicationId,String fileName, String outputPath, String imageName) {
+    	 DocumentEntity documentEntity=new DocumentEntity();
+    	 	DocumentEntity oldRecord = docrepository.findByApplicationIdAndAttachement(applicationId,
+    	 			fileName);
+    	 	if (oldRecord!=null) {
+    	 		documentEntity.setId(oldRecord.getId());
+    	 		documentEntity=oldRecord;
+    	 	}
+    	 	documentEntity.setAttachementUrl(outputPath);
+    	 	documentEntity.setDocumentType(imageName);
+    	 	documentEntity.setAttachement(fileName);
+    	 	documentEntity.setApplicationId(applicationId);
+    	 	documentEntity.setTypeOfProof(imageName);
+    	 	docrepository.save(documentEntity);
 	}
 
 	/**
