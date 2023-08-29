@@ -22,4 +22,14 @@ public interface ISegmentService {
 	 * @return
 	 */
 	ResponseModel getSegmentByAppId(long applicationId);
+
+	/**
+	 * Method to addBrokerage
+	 * 
+	 * @author prade
+	 * 
+	 * @param applicationId
+	 * @return
+	 */
+	ResponseModel addBrokerage(long applicationId, String brokerageAcc);
 }

@@ -49,4 +49,19 @@ public class SegmentController implements ISegmentController {
 		return responseModel;
 	}
 
+	@Override
+	public ResponseModel addBrokerage(long applicationId, String brokerageAcc) {
+		ResponseModel responseModel = new ResponseModel();
+		if (applicationId > 0) {
+			if (brokerageAcc.equalsIgnoreCase("sky prime") || brokerageAcc.equalsIgnoreCase("sky discount")) {
+				responseModel = iSegmentService.addBrokerage(applicationId, brokerageAcc);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.INVAILD_BROKERAGE_TYPE);
+			}
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+		}
+		return responseModel;
+	}
+
 }

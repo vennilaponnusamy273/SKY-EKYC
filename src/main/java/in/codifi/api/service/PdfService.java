@@ -975,6 +975,11 @@ public class PdfService implements IPdfService {
 		    if(TradeBuilder.length() >=28) {
 		    	  map.put("not wish to trade1",TradeBuilder.substring(28, Math.min(180, TradeBuilder.length())));
 		    }
+		    if(segmentEntity.getBrokerageacc().equalsIgnoreCase("sky prime")){
+		    	map.put("SKY PRIME", segmentEntity.getBrokerageacc());
+		    }else if(segmentEntity.getBrokerageacc().equalsIgnoreCase("sky discount")) {
+		    	map.put("SKY DISCOUNT", segmentEntity.getBrokerageacc());
+		    }
 		}
 
 		List<NomineeEntity> nomineeEntity = nomineeRepository.findByapplicationId(applicationId);

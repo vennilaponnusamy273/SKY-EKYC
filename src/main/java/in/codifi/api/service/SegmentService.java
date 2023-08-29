@@ -102,4 +102,34 @@ public class SegmentService implements ISegmentService {
 	}
 	return responseModel;
 }
+
+	@Override
+	public ResponseModel addBrokerage(long applicationId, String brokerageAcc) {
+	    ResponseModel responseModel = new ResponseModel();
+	    try {
+	        SegmentEntity segmentEntity = segmentRepository.findByapplicationId(applicationId);
+
+	        if (segmentEntity == null) {
+	            segmentEntity = new SegmentEntity();
+	            segmentEntity.setApplicationId(applicationId); // Set the applicationId for a new entity
+	        }
+
+	        segmentEntity.setBrokerageacc(brokerageAcc);
+	        segmentRepository.save(segmentEntity); // Save or update the entity in the repository
+
+	        responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+	        responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+	        responseModel.setResult(segmentEntity);
+	    } catch (Exception e) {
+	        String errorMessage = "An error occurred: " + e.getMessage();
+	        logger.error(errorMessage);
+	        commonMethods.SaveLog(applicationId, "SegmentService", "addBrokerage", errorMessage);
+	        commonMethods.sendErrorMail("An error occurred while processing your request in addBrokerage: " + e.getMessage(), "ERR-001");
+	        responseModel = commonMethods.constructFailedMsg(e.getMessage());
+	    }
+	    return responseModel;
+	}
+
+
+
 }

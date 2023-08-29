@@ -41,4 +41,10 @@ public interface ISegmentController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to get Segment Details")
 	ResponseModel getSegmentByAppId(@NotNull @QueryParam("applicationId") long applicationId);
+	
+	@Path("/addBrokerage")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "Method to addBrokerage")
+	ResponseModel addBrokerage(@NotNull @QueryParam("applicationId") long applicationId,@NotNull @QueryParam("brokerageAcc") String brokerageAcc);
 }
