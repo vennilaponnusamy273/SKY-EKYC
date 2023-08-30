@@ -46,6 +46,9 @@ public class SegmentService implements ISegmentService {
 		if (user.isPresent() && user.get().getSmsVerified() > 0 && user.get().getEmailVerified() > 0) {
 			SegmentEntity savedSegmentEntity = segmentRepository.findByapplicationId(segmentEntity.getApplicationId());
 			if (savedSegmentEntity != null) {
+				if(savedSegmentEntity.getBrokerageacc()!=null) {
+					segmentEntity.setBrokerageacc(savedSegmentEntity.getBrokerageacc());
+				}
 				segmentEntity.setId(savedSegmentEntity.getId());
 				updatedEntity = segmentRepository.save(segmentEntity);
 			} else {

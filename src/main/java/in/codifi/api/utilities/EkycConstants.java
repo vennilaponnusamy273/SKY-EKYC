@@ -237,7 +237,7 @@ public class EkycConstants {
 	public static final String IVR_NAME = "&name=";
 	public static final String IVR_USER_DOMAIN_AND_RANDOMKEY = "&userDomain=1&randomKey=";
 	public static final String IVR_SESSION = "&session=";
-	public static final String IVR_MSG = " Dear user, your NIDHI eKYC Application IPV is pending. Kindly click here:";
+	public static final String IVR_MSG = "Dear user, your Gopocket eKYC Application IPV is pending. Kindly click here: ";
 
 	public static final String STATEKEY = "1_STATE_";
 	public static final String COUNTRYKEY = "2_COUNTRY_";
