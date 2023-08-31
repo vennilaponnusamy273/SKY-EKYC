@@ -527,7 +527,7 @@ public class CommonMethods {
 	
 	public String generateUccCode() {
 	    String uccCodePrefix = "SKY";
-	    int uccCodeSuffix = 38001;
+	    int uccCodeSuffix = 40000;
 	    String uccCode = null;
 	    String maxId = repository.findMaxUccCodeSuffix();
 	    
