@@ -133,4 +133,5 @@ public class MessageConstants {
 	public final static String NOMINEE_OPTED_OUT_FAILED = "Failed while updating nominee Opted out";
 	public static final String FAILED = "Failed";
 	public static final String INVAILD_BROKERAGE_TYPE = "Brokerage type contains only sky prime or sky discount";
+	public static final String ERROR_MSG_INVALID_PAN = "INVALID DOB (APP_DOB_INCORP) PROVIDED";
 }

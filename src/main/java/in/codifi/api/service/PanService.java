@@ -94,7 +94,8 @@ public class PanService implements IPanService {
 				try {
 					if (StringUtil.isNotNullOrEmpty(oldUserEntity.getPanNumber())
 							&& StringUtil.isNotNullOrEmpty(oldUserEntity.getDob())) {
-						JSONObject pancardResponse = kraHelper.getPanCardStatus(oldUserEntity.getPanNumber(),userEntity.getId());
+						JSONObject pancardResponse = kraHelper.getPanCardStatus(oldUserEntity.getPanNumber(),
+								userEntity.getId());
 						if (pancardResponse != null) {
 							if (pancardResponse.has("APP_NAME")) {
 								int panCardStatus = pancardResponse.getInt("APP_STATUS");
@@ -104,13 +105,22 @@ public class PanService implements IPanService {
 											oldUserEntity.getPanNumber(), userEntity.getDob(), panCardStatus,
 											userEntity.getId());
 									if (panCardDetails != null) {
-										if (panCardDetails.has("APP_NAME")) {
+										if (panCardDetails.has("APP_NAME")
+												|| (panCardDetails.has(EkycConstants.CONSTANT_ERROR_DESC)
+														&& StringUtil.isEqual(
+																panCardDetails
+																		.getString(EkycConstants.CONSTANT_ERROR_DESC),
+																MessageConstants.ERROR_MSG_INVALID_PAN))) {
 											savingEntity = repository.save(oldUserEntity);
-											profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
-													userEntity.getId());
-											ckycService.saveCkycResponse(userEntity.getId());
 											rejectionStatusHelper.insertArchiveTableRecord(oldUserEntity.getId(),
 													EkycConstants.PAGE_PAN);
+											ckycService.saveCkycResponse(userEntity.getId());
+											// RejectionStatusHelper
+											if (panCardDetails.has("APP_NAME")) {
+												ckycService.saveCkycResponse(userEntity.getId());
+												profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
+														userEntity.getId());
+											}
 										} else {
 											if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_MSG)) {
 												responseModel = commonMethods.constructFailedMsg(
@@ -131,6 +141,7 @@ public class PanService implements IPanService {
 												.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
 									}
 								} else {
+									// ckycService.saveCkycResponse(userEntity.getId());
 									savingEntity = repository.save(oldUserEntity);
 									ckycService.saveCkycResponse(userEntity.getId());
 								}
