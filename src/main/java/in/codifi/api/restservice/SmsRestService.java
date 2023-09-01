@@ -51,7 +51,8 @@ public class SmsRestService {
 	 */
 	public void sendIvrLinktoMobile(String Url, long mobileNumber) {
 		try {
-			String Text = EkycConstants.IVR_MSG+Url +".-Sky Broking";
+			String Text = EkycConstants.IVR_MSG+Url+" "+"-Sky Broking";
+			//System.out.println("the Textv"+Text);
 			String smsResponse=iSmsRestService.SendLink(props.getSmsFeedId(), props.getSmsSenderId(), props.getSmsUserName(),
 					props.getSmsPassword(), String.valueOf(mobileNumber), Text);
 			commonMethods.storeSmsLog(Text,smsResponse,"sendIvrLinktoMobile",mobileNumber);
