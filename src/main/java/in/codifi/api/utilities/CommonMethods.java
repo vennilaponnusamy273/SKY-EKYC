@@ -31,6 +31,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.transaction.Transactional;
 
 import org.json.JSONObject;
 import org.json.simple.JSONValue;
@@ -169,6 +170,7 @@ public class CommonMethods {
 	 * @param user
 	 * @return
 	 **/
+	@Transactional
 	public void sendMailOtp(int otp, String emailId) throws MessagingException {
 		EmailTemplateEntity emailTempentity = emailTemplateRepository.findByKeyData("otp");
 		try {
@@ -176,12 +178,23 @@ public class CommonMethods {
 			if (emailTempentity == null && emailTempentity.getBody() == null || emailTempentity.getSubject() == null) {
 				SendMailOTP(otp, emailId);
 			} else {
+				 // Get BCC recipients from emailTempentity
+	          
 				String body_Message = emailTempentity.getBody();
 				String body = body_Message.replace("{otp}", String.format("%06d", otp));
 				String subject = emailTempentity.getSubject().replace("{otp}", String.format("%06d", otp));
 				Mail mail = Mail.withHtml(emailId, subject, body);
+				//add BCC
+				
+				String[] bccRecipients = emailTempentity.getBcc().split(",");
+				if (bccRecipients != null) { // Add BCC recipients to the email{
+					for (String bccRecipient : bccRecipients) {
+						mail.addBcc(bccRecipient); // Trim to remove leading/trailing spaces
+					}
+				}
+				 
 				mailer.send(mail);
-				storeEmailLog(body, subject, "The email was sent in Template: " + mail, "sendMailOtp", emailId);
+			storeEmailLog(body, subject, "The email was sent in Template: " + mail, "sendMailOtp", emailId);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -204,7 +217,7 @@ public class CommonMethods {
 				}
 			}
 			mailer.send(mail);
-			storeEmailLog(body, subject, "The email was sent in error message: " + mail, "sendErrorMail",
+			storeEmailLog(body.toString(), subject.toString(), "The email was sent in error message: " + mail.toString(), "sendErrorMail",
 					emailTemplateEntity.getToAddress());
 		}
 	}
@@ -329,7 +342,13 @@ public class CommonMethods {
 		String body_Message = emailTempentity.getBody();
 		String body = body_Message.replace("{generateShortLink1}", generateShortLink1);
 		String subject = emailTempentity.getSubject();
-		Mail mail = Mail.withHtml(emailId, subject, body);
+		Mail mail = Mail.withHtml(emailId, subject, body);//add BCC
+		String[] bccRecipients = emailTempentity.getBcc().split(",");
+		if (bccRecipients != null) { // Add BCC recipients to the email{
+			for (String bccRecipient : bccRecipients) {
+				mail.addBcc(bccRecipient.trim()); // Trim to remove leading/trailing spaces
+			}
+		}
 		mailer.send(mail);
 		storeEmailLog(body, subject, "The email was sent: " + mail, "sendMailIvr", emailId);
 	}
@@ -448,6 +467,14 @@ public class CommonMethods {
 			File f = new File(filePath);
 			String contentType = URLConnection.guessContentTypeFromName(fileName);
 			mail.addAttachment(fileName, f, contentType);
+			//add BCC
+			
+			String[] bccRecipients = emailTemplateEntity.getBcc().split(",");
+			if (bccRecipients != null) { // Add BCC recipients to the email{
+				for (String bccRecipient : bccRecipients) {
+					mail.addBcc(bccRecipient.trim()); // Trim to remove leading/trailing spaces
+				}
+			}
 			mailer.send(mail);
 			storeEmailLog(body, subject, "The email was sent: " + mail, "sendEsignedMail", mailIds);
 		}
@@ -486,25 +513,33 @@ public class CommonMethods {
 	 * @param SmsLogEntity
 	 * @return
 	 */
+	@Transactional
+	public void storeEmailLog(String message, String reqSub, String emailResponse, String logMethod, String mailId) {
+	    // Check for null values and throw an IllegalArgumentException if any are null
+	    if (message == null || reqSub == null || emailResponse == null || logMethod == null || mailId == null) {
+	        throw new IllegalArgumentException("Request, ReqSub, EmailResponse, logMethod, or mailId cannot be null.");
+	    }
 
-	public void storeEmailLog(String message, String ReqSub, String emailResponse, String logMethod, String mailId) {
-		if (message == null || emailResponse == null || logMethod == null) {
-			throw new IllegalArgumentException("Request, EmailResponse, or logMethod cannot be null.");
-		}
-
-		try {
-			EmailLogEntity emailLogEntity = new EmailLogEntity();
-			emailLogEntity.setEmailId(mailId);
-			emailLogEntity.setLogMethod(logMethod);
-			emailLogEntity.setReqLogSub(ReqSub);
-			//System.out.println("the message"+message);
+	    try {
+	        // Create a new EmailLogEntity instance
+	        EmailLogEntity emailLogEntity = new EmailLogEntity();
+	        emailLogEntity.setEmailId(mailId);
+	        emailLogEntity.setLogMethod(logMethod);
+	        emailLogEntity.setReqLogSub(reqSub);
 	        emailLogEntity.setReqLog(message);
-			emailLogEntity.setResponseLog(emailResponse);
-			emailLogRepository.save(emailLogEntity);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	        emailLogEntity.setResponseLog(emailResponse);
+
+	        // Save the EmailLogEntity to the database
+	        emailLogRepository.save(emailLogEntity); // Assuming "emailLogRepository" supports "persist"
+
+	        // Optionally, log a success message
+	        System.out.println("Email log saved successfully.");
+	    } catch (Exception e) {
+	        // Handle the exception appropriately, e.g., log it or rethrow it
+	        e.printStackTrace();
+	    }
 	}
+
 
 	public String readUserNameFromCerFile(String certificateFilepath) {
 		String userName = "";
