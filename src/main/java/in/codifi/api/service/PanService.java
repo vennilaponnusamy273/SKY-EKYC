@@ -105,7 +105,7 @@ public class PanService implements IPanService {
 											oldUserEntity.getPanNumber(), userEntity.getDob(), panCardStatus,
 											userEntity.getId());
 									if (panCardDetails != null) {
-										if (panCardDetails.has("APP_NAME")
+									/**	if (panCardDetails.has("APP_NAME")
 												|| (panCardDetails.has(EkycConstants.CONSTANT_ERROR_DESC)
 														&& StringUtil.isEqual(
 																panCardDetails
@@ -115,13 +115,14 @@ public class PanService implements IPanService {
 											rejectionStatusHelper.insertArchiveTableRecord(oldUserEntity.getId(),
 													EkycConstants.PAGE_PAN);
 											ckycService.saveCkycResponse(userEntity.getId());
-											// RejectionStatusHelper
+											// RejectionStatusHelper**/
 											if (panCardDetails.has("APP_NAME")) {
-												ckycService.saveCkycResponse(userEntity.getId());
 												profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
 														userEntity.getId());
+												ckycService.saveCkycResponse(userEntity.getId());
 											}
-										} else {
+									/**}**/
+										 else {
 											if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_MSG)) {
 												responseModel = commonMethods.constructFailedMsg(
 														panCardDetails.getString(EkycConstants.CONSTANT_ERROR_MSG));

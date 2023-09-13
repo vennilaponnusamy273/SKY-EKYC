@@ -27,7 +27,7 @@ public interface IDigilockerRestService {
 	 * @return
 	 */
 	@POST
-	@Path("/token")
+	@Path("/1/token")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
 	String getToken(@FormParam("code") String code, @FormParam("grant_type") String grantType,
@@ -41,7 +41,7 @@ public interface IDigilockerRestService {
 	 * @return
 	 */
 	@GET
-	@Path("/xml/eaadhaar")
+	@Path("/3/xml/eaadhaar")
 	@APIResponse(description = "")
 	public String GetXmlAAthar(@HeaderParam("Authorization") String authHeader);
 }

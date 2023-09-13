@@ -140,15 +140,21 @@ public class DigilockerHelper {
 		AddressEntity updatedAddEntity = null;
 		try {
 			CommonMethods.trustedManagement();
+			//System.out.println("the getXMlAadhar is running");
 			String response = digilockerRestService.getXml(accessToken);
+			//System.out.println("the responsexml"+response);
 			accessLogManager.insertRestAccessLogsIntoDB(Long.toString(applicationId) ,accessToken,response,"getXMlAadhar","getXMlAadhar");
 			if (StringUtil.isNotNullOrEmpty(response)) {
 				org.json.JSONObject result = XML.toJSONObject(response);
 				JSONParser parser = new JSONParser();
 				Object obj = parser.parse(result.toString());
 				JSONObject jsonOutput = (JSONObject) obj;
-				if (jsonOutput != null && jsonOutput.containsKey("KycRes")) {
-					JSONObject kycResponse = (JSONObject) jsonOutput.get("KycRes");
+				if (jsonOutput != null && jsonOutput.containsKey("Certificate")) {					
+					JSONObject cerResponse = (JSONObject) jsonOutput.get("Certificate");
+					if(cerResponse!=null &&cerResponse.containsKey("CertificateData")){					
+						JSONObject cerdataResponse = (JSONObject) cerResponse.get("CertificateData");
+				if (cerdataResponse != null && cerdataResponse.containsKey("KycRes")) {
+					JSONObject kycResponse = (JSONObject) cerdataResponse.get("KycRes");
 					if (kycResponse != null && kycResponse.containsKey("UidData")) {
 						JSONObject userDetails = (JSONObject) kycResponse.get("UidData");
 						String fileName = documentHelper.convertBase64ToImage((String) userDetails.get("Pht"),
@@ -161,7 +167,6 @@ public class DigilockerHelper {
 							if (applicationId >= 0) {
 								AddressEntity checkExit = addressRepository.findByapplicationId(applicationId);
 								if (checkExit == null) {
-
 									AddressEntity entity = new AddressEntity();
 									entity.setApplicationId(applicationId);
 									entity.setIsdigi(1);
@@ -219,15 +224,18 @@ public class DigilockerHelper {
 						}
 					}
 					return responseModel;
-				}
+				}}
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERR_NULL_DIGI);
 			}
-		} catch (ClientWebApplicationException e) {
-			if (e.getResponse().getStatus() == 404)
+		}} catch (ClientWebApplicationException e) {
+			  String errorMessage = e.getResponse().readEntity(String.class);
+			    System.out.println("Original Error Message: " + errorMessage);
+			    responseModel = commonMethods.constructFailedMsg(errorMessage);
+			/**if (e.getResponse().getStatus() == 404)
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_NOT_AVAILABLE);
 			else
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_INTERNAL_SERVER_ERR);
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_INTERNAL_SERVER_ERR);**/
 		} catch (Exception ex) {
 			logger.error("An error occurred: " + ex.getMessage());
 			commonMethods.SaveLog(applicationId, "DigilockerHelper", "getXMlAadhar", ex.getMessage());
@@ -238,9 +246,10 @@ public class DigilockerHelper {
 		}
 		return responseModel;
 	}
-	private void clearKraDetails(long applicationId) {
+	public  void clearKraDetails(long applicationId) {
 		try {
 		AddressEntity checkExit = addressRepository.findByapplicationId(applicationId);
+		if(checkExit!=null) {
 		checkExit.setIsKra(0);
 		checkExit.setKraAddress1(null);
 		checkExit.setKraAddress2(null);
@@ -259,16 +268,14 @@ public class DigilockerHelper {
 		checkExit.setKraState(null);		
 		checkExit.setKraproofIdNumber(null);
 		checkExit.setKraPerCountry(null);
-		addressRepository.save(checkExit);
 		checkExit.setKraPerPin(0);
-		} catch (Exception ex) {
-			ResponseModel responseModel=new ResponseModel();
+		addressRepository.save(checkExit);
+		}} catch (Exception ex) {
 			logger.error("An error occurred: " + ex.getMessage());
 			commonMethods.SaveLog(applicationId, "DigilockerHelper", "getXMlAadhar", ex.getMessage());
 			commonMethods
 					.sendErrorMail("An error occurred while processing your request, In getXMlAadhar for the Error: "
 							+ ex.getMessage(), "ERR-001");
-			responseModel = commonMethods.constructFailedMsg(ex.getMessage());
 		}
 	}
 	public void saveAadharDocumntDetails(long applicationId, String fileName, String documentPath) {

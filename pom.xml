@@ -16,8 +16,8 @@
 		<surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
 		<version.maven-plugin-plugin>3.6.4</version.maven-plugin-plugin>
 		<wiremock.version>2.33.2</wiremock.version>
-		<nsdl.path>C:\Users\sky\ekycService\src\main\resources\lib\v1.0_Nsdl_eSign2.1_MultiO.jar</nsdl.path>
-		<pdf.path>C:\Users\sky\ekycService\src\main\resources\lib\v1.4_pdfbox-2.0.8_MultiO.jar</pdf.path>
+		<nsdl.path>C:\Users\sky\sky-ekyc\src\main\resources\lib\v1.0_Nsdl_eSign2.1_MultiO.jar</nsdl.path>
+		<pdf.path>C:\Users\sky\sky-ekyc\src\main\resources\lib\v1.4_pdfbox-2.0.8_MultiO.jar</pdf.path>
 		<!--<nsdl.path>D:\CodiFi\code\ekycService\src\main\resources\lib\v1.0_Nsdl_eSign2.1_MultiO.jar</nsdl.path>
 		<pdf.path>D:\CodiFi\code\ekycService\src\main\resources\lib\v1.4_pdfbox-2.0.8_MultiO.jar</pdf.path>-->
 	</properties>

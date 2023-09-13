@@ -7,18 +7,12 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
-
 import javax.inject.Inject;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.stereotype.Service;
-
 import in.codifi.api.config.ApplicationProperties;
+import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.entity.ProfileEntity;
@@ -29,6 +23,7 @@ import in.codifi.api.model.ckyc.CkycResponse;
 import in.codifi.api.model.ckyc.Image;
 import in.codifi.api.model.ckyc.ImageDetails;
 import in.codifi.api.model.ckyc.PersonalDetails;
+import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.CkycResponseRepos;
 import in.codifi.api.repository.DocumentRepository;
@@ -66,6 +61,9 @@ public class CkycService implements ICkycService {
 	@Inject
 	DocumentRepository docrepository;
 	
+	@Inject
+	AddressRepository addressRepository;
+	
 	private static final Logger logger = LogManager.getLogger(CkycService.class);
 	
 	public ResponseModel saveCkycResponse(long applicationId) {
@@ -73,7 +71,7 @@ public class CkycService implements ICkycService {
 		try {
 			Optional<ApplicationUserEntity> isUserPresent = repository.findById(applicationId);
 			if (isUserPresent.isPresent()) {
-				ResponseCkyc checkExit = repos.findByApplicationId(applicationId);
+				//ResponseCkyc checkExit = repos.findByApplicationId(applicationId);
 				ProfileEntity profileDetails = profileRepository.findByapplicationId(applicationId);
 				CkycRequestApiModel ckycRequest = buildCkycRequest(isUserPresent.get());
 				CkycResponse ckycResponse = aryaLivenessCheck.getCKycData(ckycRequest);
@@ -85,9 +83,9 @@ public class CkycService implements ICkycService {
 						public void run() {**/
 							if (ckycResponse != null && ckycResponse.getResult().getPersonalDetails() != null) {
 								PersonalDetails personalDetails = ckycResponse.getResult().getPersonalDetails();							
-								ResponseCkyc response = buildCkycResponse(personalDetails, applicationId);
+								 buildCkycResponse(personalDetails, applicationId);
 								ImageDetails imagedetails=ckycResponse.getResult().getImageDetails();
-								ResponseCkyc response1 = storeCkycImage(imagedetails, applicationId);
+								 storeCkycImage(imagedetails, applicationId);
 								String motherName = "";
 								if (StringUtil.isNotNullOrEmpty(personalDetails.getMotherFname())
 										|| StringUtil.isNotNullOrEmpty(personalDetails.getMotherLname())) {
@@ -105,8 +103,11 @@ public class CkycService implements ICkycService {
 										profileRepository.save(profileDetails);
 									}
 								}
+							}else {
+								AddressEntity addressEntity = addressRepository.findByapplicationId(applicationId);
+								addressEntity.setIsKra(0);
+								addressRepository.save(addressEntity);
 							}
-						
 				/**	});
 					pool.shutdown();**/
 				} else {
