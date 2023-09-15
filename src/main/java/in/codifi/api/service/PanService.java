@@ -105,24 +105,23 @@ public class PanService implements IPanService {
 											oldUserEntity.getPanNumber(), userEntity.getDob(), panCardStatus,
 											userEntity.getId());
 									if (panCardDetails != null) {
-									/**	if (panCardDetails.has("APP_NAME")
-												|| (panCardDetails.has(EkycConstants.CONSTANT_ERROR_DESC)
-														&& StringUtil.isEqual(
-																panCardDetails
-																		.getString(EkycConstants.CONSTANT_ERROR_DESC),
-																MessageConstants.ERROR_MSG_INVALID_PAN))) {
-											savingEntity = repository.save(oldUserEntity);
-											rejectionStatusHelper.insertArchiveTableRecord(oldUserEntity.getId(),
-													EkycConstants.PAGE_PAN);
-											ckycService.saveCkycResponse(userEntity.getId());
-											// RejectionStatusHelper**/
-											if (panCardDetails.has("APP_NAME")) {
-												profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
-														userEntity.getId());
-												ckycService.saveCkycResponse(userEntity.getId());
-											}
-									/**}**/
-										 else {
+										/**
+										 * if (panCardDetails.has("APP_NAME") ||
+										 * (panCardDetails.has(EkycConstants.CONSTANT_ERROR_DESC) && StringUtil.isEqual(
+										 * panCardDetails .getString(EkycConstants.CONSTANT_ERROR_DESC),
+										 * MessageConstants.ERROR_MSG_INVALID_PAN))) { savingEntity =
+										 * repository.save(oldUserEntity);
+										 * rejectionStatusHelper.insertArchiveTableRecord(oldUserEntity.getId(),
+										 * EkycConstants.PAGE_PAN); ckycService.saveCkycResponse(userEntity.getId()); //
+										 * RejectionStatusHelper
+										 **/
+										if (panCardDetails.has("APP_NAME")) {
+											profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
+													userEntity.getId(), panCardStatus);
+											// ckycService.saveCkycResponse(userEntity.getId());
+										}
+										/** } **/
+										else {
 											if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_MSG)) {
 												responseModel = commonMethods.constructFailedMsg(
 														panCardDetails.getString(EkycConstants.CONSTANT_ERROR_MSG));
@@ -144,7 +143,7 @@ public class PanService implements IPanService {
 								} else {
 									// ckycService.saveCkycResponse(userEntity.getId());
 									savingEntity = repository.save(oldUserEntity);
-									ckycService.saveCkycResponse(userEntity.getId());
+									// ckycService.saveCkycResponse(userEntity.getId());
 								}
 							} else {
 								if (pancardResponse.has(EkycConstants.CONSTANT_ERROR_MSG)) {

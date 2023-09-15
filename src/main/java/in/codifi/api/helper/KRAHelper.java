@@ -57,7 +57,7 @@ public class KRAHelper {
 	ApplicationUserRepository repository;
 	@Inject
 	AccessLogManager accessLogManager;
-	
+
 	private static final Logger logger = LogManager.getLogger(KRAHelper.class);
 	private static String OS = System.getProperty("os.name").toLowerCase();
 
@@ -68,14 +68,15 @@ public class KRAHelper {
 	 * @param xmlCode
 	 * @return
 	 */
-	public JSONObject getPanCardStatus(String panCard,Long id) {
+	public JSONObject getPanCardStatus(String panCard, Long id) {
 		try {
 			CommonMethods.trustedManagement();
 			/*
 			 * covert xml into json
 			 */
 			String panStatus = kraPanRestService.getpanStatus(panCard);
-			accessLogManager.insertRestAccessLogsIntoDB(Long.toString(id),panCard,panStatus,"getPanCardStatus","/pan/saveDOB");
+			accessLogManager.insertRestAccessLogsIntoDB(Long.toString(id), panCard, panStatus, "getPanCardStatus",
+					"/pan/saveDOB");
 			JSONObject result = XML.toJSONObject(panStatus);
 			if (result != null) {
 				JSONObject panRoot = (JSONObject) result.get(EkycConstants.CONST_KRA_APP_RES_ROOT);
@@ -119,7 +120,8 @@ public class KRAHelper {
 					+ "</APP_KRA_CODE><FETCH_TYPE>I</FETCH_TYPE>" + "</APP_PAN_INQ></APP_REQ_ROOT>";
 			CommonMethods.trustedManagement();
 			String result = kraPanRestService.getPanKra(xmlCode);
-			accessLogManager.insertRestAccessLogsIntoDB(Long.toString(applicationId),xmlCode,result,"getPanCardDetails","/pan/saveDOB");
+			accessLogManager.insertRestAccessLogsIntoDB(Long.toString(applicationId), xmlCode, result,
+					"getPanCardDetails", "/pan/saveDOB");
 			writeXmlFile(result, applicationId, Pancard);
 			ObjectMapper xmlMapper = new XmlMapper();
 			Object obj = xmlMapper.readValue(result, Object.class);
@@ -154,7 +156,7 @@ public class KRAHelper {
 	 * @param pDto
 	 * @return
 	 */
-	public ProfileEntity updateDetailsFromKRA(JSONObject kraDetails, Long applicationId) {
+	public ProfileEntity updateDetailsFromKRA(JSONObject kraDetails, Long applicationId, int panCardStatus) {
 		ProfileEntity savedProfileEntity = null;
 		try {
 			ProfileEntity profileEntity = profileRepository.findByapplicationId(applicationId);
@@ -267,7 +269,11 @@ public class KRAHelper {
 			if (savedProfileEntity != null) {
 				commonMethods.UpdateStep(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY, applicationId);
 			}
-			addressEntity.setIsKra(1);
+			if (checkAppStatus(panCardStatus)) {
+				addressEntity.setIsKra(1);
+			} else {
+				addressEntity.setIsKra(0);
+			}
 			addressRepository.save(addressEntity);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
@@ -279,6 +285,15 @@ public class KRAHelper {
 		}
 		return savedProfileEntity;
 
+	}
+
+	public boolean checkAppStatus(int appStatuscode) {
+		boolean isPresent = false;
+		if (appStatuscode == 7 || appStatuscode == 007 || appStatuscode == 107 || appStatuscode == 207
+				|| appStatuscode == 307 || appStatuscode == 407 || appStatuscode == 507) {
+			isPresent = true;
+		}
+		return isPresent;
 	}
 
 	public String getKraDesc(int appStatus) {

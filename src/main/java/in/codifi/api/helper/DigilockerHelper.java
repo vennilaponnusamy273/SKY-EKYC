@@ -142,7 +142,7 @@ public class DigilockerHelper {
 			CommonMethods.trustedManagement();
 			//System.out.println("the getXMlAadhar is running");
 			String response = digilockerRestService.getXml(accessToken);
-			//System.out.println("the responsexml"+response);
+			System.out.println("the responsexml"+response);
 			accessLogManager.insertRestAccessLogsIntoDB(Long.toString(applicationId) ,accessToken,response,"getXMlAadhar","getXMlAadhar");
 			if (StringUtil.isNotNullOrEmpty(response)) {
 				org.json.JSONObject result = XML.toJSONObject(response);
@@ -172,39 +172,72 @@ public class DigilockerHelper {
 									entity.setIsdigi(1);
 									entity.setAccessToken(accessToken);
 									entity.setCo((String) PoaDetails.get("co"));
-									if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
+									/*8if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
 										entity.setFlatNo(PoaDetails.get("house").toString());
 									} else {
 										entity.setFlatNo((String) PoaDetails.get("house"));
-									}
+									}**/
+									entity.setFlatNo((String) PoaDetails.get("house").toString());
 									entity.setAddress1((String) PoaDetails.get("vtc"));
 									entity.setAddress2((String) PoaDetails.get("loc"));
-									entity.setLandmark((String) PoaDetails.get("lm"));
+									Object streetObject = PoaDetails.get("lm");
+									if (streetObject != null) {
+									    if (streetObject instanceof String) {
+									        String streetString = (String) streetObject;
+									        entity.setLandmark(streetString);
+									    } else if (streetObject instanceof Long) {
+									        Long streetLong = (Long) streetObject;
+									        entity.setLandmark(String.valueOf(streetLong));
+									        System.out.println("Street (Long): " + streetLong);
+									    } else {
+									        System.out.println("Street is of unknown type");
+									    }
+									} else {
+									    System.out.println("Street is null");
+									}
+									//entity.setLandmark((String) PoaDetails.get("lm"));
 									entity.setStreet((String) PoaDetails.get("street"));
 									entity.setDistrict((String) PoaDetails.get("dist"));
 									entity.setState((String) PoaDetails.get("state"));
 									entity.setCountry((String) PoaDetails.get("country"));
-									entity.setPincode((Long) PoaDetails.get("pc"));
+								//	String Pincode = (String) PoaDetails.get("pc");
+									entity.setPincode ((Long) PoaDetails.get("pc"));
 									entity.setAadharNo(AatharNo);
 									updatedAddEntity = addressRepository.save(entity);
 								} else {
 									clearKraDetails(applicationId);
-									if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
+									/**if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
 										checkExit.setFlatNo(PoaDetails.get("house").toString());
 									} else {
 										checkExit.setFlatNo((String) PoaDetails.get("house"));
-									}
+									}**/
+									checkExit.setFlatNo((String) PoaDetails.get("house").toString());
 									checkExit.setCo((String) PoaDetails.get("co"));
 									checkExit.setAccessToken(accessToken);
 									checkExit.setIsdigi(1);
 									checkExit.setAddress1((String) PoaDetails.get("vtc"));
 									checkExit.setAddress2((String) PoaDetails.get("loc"));
-									checkExit.setLandmark((String) PoaDetails.get("lm"));
+									Object streetObject = PoaDetails.get("lm");
+									if (streetObject != null) {
+									    if (streetObject instanceof String) {
+									        String streetString = (String) streetObject;
+									        checkExit.setLandmark(streetString);
+									    } else if (streetObject instanceof Long) {
+									        Long streetLong = (Long) streetObject;
+									        checkExit.setLandmark(String.valueOf(streetLong));
+									        System.out.println("Street (Long): " + streetLong);
+									    } else {
+									        System.out.println("Street is of unknown type");
+									    }
+									} else {
+									    System.out.println("Street is null");
+									}
+									//checkExit.setLandmark((String) PoaDetails.get("lm"));
 									checkExit.setStreet((String) PoaDetails.get("street"));
 									checkExit.setDistrict((String) PoaDetails.get("dist"));
 									checkExit.setState((String) PoaDetails.get("state"));
 									checkExit.setCountry((String) PoaDetails.get("country"));
-									checkExit.setPincode((Long) PoaDetails.get("pc"));
+									checkExit.setPincode ((Long) PoaDetails.get("pc"));
 									checkExit.setAadharNo(AatharNo);
 									updatedAddEntity = addressRepository.save(checkExit);
 								}
@@ -238,10 +271,12 @@ public class DigilockerHelper {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.AADHAR_INTERNAL_SERVER_ERR);**/
 		} catch (Exception ex) {
 			logger.error("An error occurred: " + ex.getMessage());
+			 ex.printStackTrace(); // This will print the line of error in the console
 			commonMethods.SaveLog(applicationId, "DigilockerHelper", "getXMlAadhar", ex.getMessage());
 			commonMethods
 					.sendErrorMail("An error occurred while processing your request, In getXMlAadhar for the Error: "
 							+ ex.getMessage(), "ERR-001");
+			System.out.println("the error is a"+ ex.getMessage());
 			responseModel = commonMethods.constructFailedMsg(ex.getMessage());
 		}
 		return responseModel;
