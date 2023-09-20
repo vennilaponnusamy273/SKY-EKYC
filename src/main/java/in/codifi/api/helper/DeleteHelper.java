@@ -14,7 +14,6 @@ import in.codifi.api.repository.AccesslogRepository;
 import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.BankRepository;
-import in.codifi.api.repository.CkycResponseRepos;
 import in.codifi.api.repository.DocumentRepository;
 import in.codifi.api.repository.GuardianRepository;
 import in.codifi.api.repository.NomineeRepository;
@@ -36,8 +35,8 @@ public class DeleteHelper {
 	AddressRepository addressRepository;
 	@Inject
 	BankRepository bankRepository;
-	@Inject
-	CkycResponseRepos ckycResponseRepos;
+//	@Inject
+//	CkycResponseRepos ckycResponseRepos;
 	@Inject
 	DocumentRepository documentRepository;
 	@Inject
@@ -85,7 +84,7 @@ public class DeleteHelper {
 		accesslogRepository.deleteByApplicationId(applicationUserEntity.getId().toString());
 		addressRepository.deleteByApplicationId(applicationUserEntity.getId());
 		bankRepository.deleteByApplicationId(applicationUserEntity.getId());
-		ckycResponseRepos.deleteByApplicationId(applicationUserEntity.getId());
+//		ckycResponseRepos.deleteByApplicationId(applicationUserEntity.getId());
 		documentRepository.deleteByApplicationId(applicationUserEntity.getId());
 		guardianRepository.deleteByApplicationId(applicationUserEntity.getId());
 		nomineeRepository.deleteByApplicationId(applicationUserEntity.getId());

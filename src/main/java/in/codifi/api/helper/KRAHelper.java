@@ -271,6 +271,24 @@ public class KRAHelper {
 			}
 			if (checkAppStatus(panCardStatus)) {
 				addressEntity.setIsKra(1);
+				if (StringUtil.isEqual(
+						HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.ADDRESS_PROOF + kycID),
+						"AADHAAR")) {
+					String AatharNumber = addCharAtAadhar(kycIDNumber);
+					// System.out.println("the kycIDNumber" + AatharNumber);
+					if (AatharNumber.length() >= 4) {
+						String lastFourDigits = AatharNumber.substring(AatharNumber.length() - 4);
+						if (lastFourDigits.matches("\\d{4}")) {
+							addressEntity.setIsKra(1);
+						} else {
+							addressEntity.setIsKra(0);
+						}
+					}
+				} else {
+					if (kycIDNumber == null || kycIDNumber.isEmpty() || kycIDNumber.equals("NA")) {
+						addressEntity.setIsKra(0);
+					}
+				}
 			} else {
 				addressEntity.setIsKra(0);
 			}
