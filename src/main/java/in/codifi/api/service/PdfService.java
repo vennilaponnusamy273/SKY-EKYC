@@ -516,6 +516,7 @@ public class PdfService implements IPdfService {
 					map.put("Occupaton Others", profileEntity.getOccupation());
 				}
 			}
+			if (profileEntity != null && profileEntity.getPoliticalExposure() != null) {
 			if (profileEntity.getPoliticalExposure().equalsIgnoreCase("yes")) {
 				map.put("Please Tick, as Applicable Politcally Exposed Person (PEP) /",
 						profileEntity.getPoliticalExposure());
@@ -526,7 +527,7 @@ public class PdfService implements IPdfService {
 						profileEntity.getPoliticalExposure());
 				map.put("Please Tick, as Applicable Not a Related to a Politcally Exposed Person (PEP)",
 						profileEntity.getPoliticalExposure());
-			}
+			}}
 			map.put("SettlementCycle", profileEntity.getSettlementCycle());
 			map.put("Title", profileEntity.getTitle());
 			// map.put("TradingExperience", profileEntity.getTradingExperience());
@@ -768,10 +769,10 @@ public class PdfService implements IPdfService {
 					map.put("PermenentPincode", null);
 					map.put("CurrentPincode", null);
 				}
-				if (address.getLandmark() != null || !address.getLandmark().isEmpty()) {
-					map.put("landmark", address.getLandmark());
-				} else {
-					map.put("landmark", address.getStreet());
+				if (address.getLandmark() != null && !address.getLandmark().isEmpty()) {
+				    map.put("landmark", address.getLandmark());
+				} else if (address.getStreet() != null && !address.getStreet().isEmpty()) {
+				    map.put("landmark", address.getStreet());
 				}
 				map.put("CurrentState1", address.getState());
 				map.put("PermenentState", address.getState());

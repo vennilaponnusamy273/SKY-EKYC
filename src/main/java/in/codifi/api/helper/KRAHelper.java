@@ -269,7 +269,7 @@ public class KRAHelper {
 			if (savedProfileEntity != null) {
 				commonMethods.UpdateStep(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY, applicationId);
 			}
-			if (checkAppStatus(panCardStatus)) {
+			/**if (checkAppStatus(panCardStatus)) {
 				addressEntity.setIsKra(1);
 				if (StringUtil.isEqual(
 						HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.ADDRESS_PROOF + kycID),
@@ -291,7 +291,8 @@ public class KRAHelper {
 				}
 			} else {
 				addressEntity.setIsKra(0);
-			}
+			}**/
+			addressEntity.setIsKra(0);
 			addressRepository.save(addressEntity);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
