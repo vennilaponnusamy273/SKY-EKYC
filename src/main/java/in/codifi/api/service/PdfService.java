@@ -964,7 +964,7 @@ public class PdfService implements IPdfService {
 			for (int i = 0; i < nomineeEntity.size(); i++) {
 				if (i == 0) {
 					map.put("I/We wish to make a nominaton.", nomineeEntity.get(i).getFirstname());
-					map.put("Details of 1st Nominee Name of the nominee(s)", nomineeEntity.get(i).getFirstname());
+					//map.put("Details of 1st Nominee Name of the nominee(s)", nomineeEntity.get(i).getFirstname());
 					if (nomineeEntity.get(i).getAllocation() > 0) {
 						map.put("Details of 1st Nominee Share of each Nominee",
 								Integer.toString(nomineeEntity.get(i).getAllocation()));
@@ -1015,12 +1015,23 @@ public class PdfService implements IPdfService {
 					}
 					// map.put("1stNEmailaddress", nomineeEntity.get(i).getEmailaddress());
 					map.put("1stNPancard", nomineeEntity.get(i).getPancard());
-					map.put("Signature1stNFirstname", nomineeEntity.get(i).getFirstname());
-					map.put("Name(s) of Holder(s) Sole/First Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
+					String nameOfNominee = nomineeEntity.get(i).getFirstname()+" "+nomineeEntity.get(i).getLastname();
+					if(nameOfNominee!=null) {
+					map.put("Name(s) of Holder(s) Sole/First Holder (Mr./Ms.)",
+							nameOfNominee.substring(0, Math.min(26, nameOfNominee.length())));
+					map.put("Signature1stNFirstname",
+							nameOfNominee.substring(0, Math.min(26, nameOfNominee.length())));
+					map.put("Details of 1st Nominee Name of the nominee(s)",nameOfNominee.substring(0, Math.min(26, nameOfNominee.length())));
+					}
+					//map.put("Signature1stNFirstname", nomineeEntity.get(i).getFirstname());
+					//map.put("Name(s) of Holder(s) Sole/First Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
 					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeEntity.get(i).getId());
 					if (guardianEntity != null) {
 						map.put("1stNDateOfbirth", nomineeEntity.get(i).getDateOfbirth());
-						map.put("Details of 1st Nominee Name of Guardian", guardianEntity.getFirstname());
+						String GurName=guardianEntity.getFirstname()+" "+guardianEntity.getLastname();
+						if(GurName!=null) {
+						map.put("Details of 1st Nominee Name of Guardian",GurName.substring(0, Math.min(26, GurName.length())));
+						}
 						if (guardianEntity.getAddress1() != null) {
 							String addressOfgur = guardianEntity.getAddress1();
 							map.put("Details of 1st Nominee Address of Guardian(s)",
@@ -1068,7 +1079,7 @@ public class PdfService implements IPdfService {
 						}
 					}
 				} else if (i == 1) {
-					map.put("Details of  2nd Nominee Name of the nominee(s)", nomineeEntity.get(i).getFirstname());
+					//map.put("Details of  2nd Nominee Name of the nominee(s)", nomineeEntity.get(i).getFirstname());
 					if (nomineeEntity.get(i).getAllocation() > 0) {
 						map.put("Details of 2nd Nominee Share of each Nominee",
 								Integer.toString(nomineeEntity.get(i).getAllocation()));
@@ -1116,13 +1127,25 @@ public class PdfService implements IPdfService {
 						map.put("2ndNEmailaddress", emailOfNominee.substring(0, Math.min(26, emailOfNominee.length())));
 					}
 					// map.put("2ndNEmailaddress", nomineeEntity.get(i).getEmailaddress());
-					map.put("Signature2ndNFirstname", nomineeEntity.get(i).getFirstname());
-					map.put("Name(s) of Holder(s) Second Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
+					String nameOfNominee = nomineeEntity.get(i).getFirstname()+" "+nomineeEntity.get(i).getLastname();
+					if(nameOfNominee!=null) {
+					map.put("Name(s) of Holder(s) Second Holder (Mr./Ms.)",
+							nameOfNominee.substring(0, Math.min(26, nameOfNominee.length())));
+					map.put("Signature2ndNFirstname",
+							nameOfNominee.substring(0, Math.min(26, nameOfNominee.length())));
+					map.put("Details of  2nd Nominee Name of the nominee(s)",nameOfNominee.substring(0, Math.min(26, nameOfNominee.length())));
+					}
+					//map.put("Signature2ndNFirstname", nomineeEntity.get(i).getFirstname());
+					//map.put("Name(s) of Holder(s) Second Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
 					map.put("2ndNPancard", nomineeEntity.get(i).getPancard());
 					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeEntity.get(i).getId());
 					if (guardianEntity != null) {
 						map.put("2ndNDateOfbirth", nomineeEntity.get(i).getDateOfbirth());
-						map.put("Details of 2nd Nominee Name of Guardian", guardianEntity.getFirstname());
+						String GurName=guardianEntity.getFirstname()+" "+guardianEntity.getLastname();
+						if(GurName!=null) {
+						map.put("Details of 2nd Nominee Name of Guardian",GurName.substring(0, Math.min(26, GurName.length())));
+						}
+						//map.put("Details of 2nd Nominee Name of Guardian", guardianEntity.getFirstname());
 						if (guardianEntity.getAddress1() != null) {
 							String addressOfgur = guardianEntity.getAddress1();
 							map.put("Details of 2nd Nominee Address of Guardian(s)",
@@ -1172,7 +1195,7 @@ public class PdfService implements IPdfService {
 						}
 					}
 				} else if (i == 2) {
-					map.put("Details of 3rd Nominee Name of the nominee(s)", nomineeEntity.get(i).getFirstname());
+					//map.put("Details of 3rd Nominee Name of the nominee(s)", nomineeEntity.get(i).getFirstname());
 					if (nomineeEntity.get(i).getAllocation() > 0) {
 						map.put("Details of 3rd Nominee Share of each Nominee",
 								Integer.toString(nomineeEntity.get(i).getAllocation()));
@@ -1219,13 +1242,25 @@ public class PdfService implements IPdfService {
 						map.put("3rdNMobilenumber", null);
 					}
 					// map.put("3rdNEmailaddress", nomineeEntity.get(i).getEmailaddress());
-					map.put("Signature3rdNFirstname", nomineeEntity.get(i).getFirstname());
-					map.put("Name(s) of Holder(s) Third Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
+					String nameOfNominee = nomineeEntity.get(i).getFirstname()+" "+nomineeEntity.get(i).getLastname();
+					if(nameOfNominee!=null) {
+					map.put("Name(s) of Holder(s) Third Holder (Mr./Ms.)",
+							nameOfNominee.substring(0, Math.min(26, nameOfNominee.length())));
+					map.put("Signature3rdNFirstname",
+							nameOfNominee.substring(0, Math.min(26, nameOfNominee.length())));
+					map.put("Details of 3rd Nominee Name of the nominee(s)",nameOfNominee.substring(0, Math.min(26, nameOfNominee.length())));
+					}
+					//map.put("Signature3rdNFirstname", nomineeEntity.get(i).getFirstname());
+					//map.put("Name(s) of Holder(s) Third Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
 					map.put("3rdNPancard", nomineeEntity.get(i).getPancard());
 					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeEntity.get(i).getId());
 					if (guardianEntity != null) {
 						map.put("3rdNDateOfbirth", nomineeEntity.get(i).getDateOfbirth());
-						map.put("Details of 3rd Nominee Name of Guardian", guardianEntity.getFirstname());
+						String GurName=guardianEntity.getFirstname()+" "+guardianEntity.getLastname();
+						if(GurName!=null) {
+						map.put("Details of 3rd Nominee Name of Guardian",GurName.substring(0, Math.min(26, GurName.length())));
+						}
+						//map.put("Details of 3rd Nominee Name of Guardian", guardianEntity.getFirstname());
 						if (guardianEntity.getAddress1() != null) {
 							String addressOfgur = guardianEntity.getAddress1();
 							map.put("Details of 3rd Nominee Address of Guardian(s)",
