@@ -211,8 +211,16 @@ public class DigilockerHelper {
 									} else {
 										checkExit.setFlatNo((String) PoaDetails.get("house"));
 									}**/
-									checkExit.setFlatNo((String) PoaDetails.get("house").toString());
-									checkExit.setCo((String) PoaDetails.get("co"));
+									Object houseValue = PoaDetails.get("house");
+
+									if (houseValue != null) {
+									    checkExit.setFlatNo(houseValue.toString());
+									}
+									Object co = PoaDetails.get("co");
+									if (co != null) {
+										checkExit.setCo(co.toString());
+									}
+									//checkExit.setCo((String) PoaDetails.get("co"));
 									checkExit.setAccessToken(accessToken);
 									checkExit.setIsdigi(1);
 									checkExit.setAddress1((String) PoaDetails.get("vtc"));
@@ -233,7 +241,11 @@ public class DigilockerHelper {
 									    System.out.println("Street is null");
 									}
 									//checkExit.setLandmark((String) PoaDetails.get("lm"));
-									checkExit.setStreet((String) PoaDetails.get("street"));
+									Object street = PoaDetails.get("street");
+									if (street!=null) {
+										checkExit.setStreet(street.toString());
+									}
+									//checkExit.setStreet((String) PoaDetails.get("street"));
 									checkExit.setDistrict((String) PoaDetails.get("dist"));
 									checkExit.setState((String) PoaDetails.get("state"));
 									checkExit.setCountry((String) PoaDetails.get("country"));
