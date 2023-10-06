@@ -171,15 +171,32 @@ public class DigilockerHelper {
 									entity.setApplicationId(applicationId);
 									entity.setIsdigi(1);
 									entity.setAccessToken(accessToken);
-									entity.setCo((String) PoaDetails.get("co"));
+									//entity.setCo((String) PoaDetails.get("co"));
 									/*8if (PoaDetails.containsKey("house") && PoaDetails.get("house") instanceof Long) {
 										entity.setFlatNo(PoaDetails.get("house").toString());
 									} else {
 										entity.setFlatNo((String) PoaDetails.get("house"));
 									}**/
-									entity.setFlatNo((String) PoaDetails.get("house").toString());
-									entity.setAddress1((String) PoaDetails.get("vtc"));
-									entity.setAddress2((String) PoaDetails.get("loc"));
+									//entity.setFlatNo((String) PoaDetails.get("house").toString());
+									Object houseValue = PoaDetails.get("house");
+
+									if (houseValue != null) {
+										entity.setFlatNo(houseValue.toString());
+									}
+									Object co = PoaDetails.get("co");
+									if (co != null) {
+										entity.setCo(co.toString());
+									}
+									Object vtcvalue=PoaDetails.get("vtc");
+									if(vtcvalue!=null) {
+										entity.setAddress1(vtcvalue.toString());
+									}
+									Object locvalue=PoaDetails.get("loc");
+									if(locvalue!=null) {
+										entity.setAddress2(locvalue.toString());
+									}
+									//entity.setAddress1((String) PoaDetails.get("vtc"));
+									//entity.setAddress2((String) PoaDetails.get("loc"));
 									Object streetObject = PoaDetails.get("lm");
 									if (streetObject != null) {
 									    if (streetObject instanceof String) {
@@ -196,12 +213,31 @@ public class DigilockerHelper {
 									    System.out.println("Street is null");
 									}
 									//entity.setLandmark((String) PoaDetails.get("lm"));
-									entity.setStreet((String) PoaDetails.get("street"));
-									entity.setDistrict((String) PoaDetails.get("dist"));
-									entity.setState((String) PoaDetails.get("state"));
-									entity.setCountry((String) PoaDetails.get("country"));
-								//	String Pincode = (String) PoaDetails.get("pc");
-									entity.setPincode ((Long) PoaDetails.get("pc"));
+									Object streetvalue=PoaDetails.get("street");
+									if(streetvalue!=null) {
+										entity.setStreet(streetvalue.toString());
+									}
+									//entity.setStreet((String) PoaDetails.get("street"));
+									Object distvalue=PoaDetails.get("dist");
+									if(distvalue!=null) {
+										entity.setDistrict(distvalue.toString());
+									}
+									//entity.setDistrict((String) PoaDetails.get("dist"));
+									Object statevalue=PoaDetails.get("state");
+									if(statevalue!=null) {
+										entity.setState(statevalue.toString());
+									}
+								//	entity.setState((String) PoaDetails.get("state"));
+									Object countryvalue=PoaDetails.get("country");
+									if(countryvalue!=null) {
+										entity.setCountry(countryvalue.toString());
+									}
+									//entity.setCountry((String) PoaDetails.get("country"));
+									Object pcvalue=PoaDetails.get("pc");
+									if(pcvalue!=null) {
+										entity.setPincode((Long)pcvalue);
+									}
+									//entity.setPincode ((Long) PoaDetails.get("pc"));
 									entity.setAadharNo(AatharNo);
 									updatedAddEntity = addressRepository.save(entity);
 								} else {
@@ -223,8 +259,16 @@ public class DigilockerHelper {
 									//checkExit.setCo((String) PoaDetails.get("co"));
 									checkExit.setAccessToken(accessToken);
 									checkExit.setIsdigi(1);
-									checkExit.setAddress1((String) PoaDetails.get("vtc"));
-									checkExit.setAddress2((String) PoaDetails.get("loc"));
+									Object vtcvalue=PoaDetails.get("vtc");
+									if(vtcvalue!=null) {
+										checkExit.setAddress1(vtcvalue.toString());
+									}
+									Object locvalue=PoaDetails.get("loc");
+									if(locvalue!=null) {
+										checkExit.setAddress2(locvalue.toString());
+									}
+									//checkExit.setAddress1((String) PoaDetails.get("vtc"));
+									//checkExit.setAddress2((String) PoaDetails.get("loc"));
 									Object streetObject = PoaDetails.get("lm");
 									if (streetObject != null) {
 									    if (streetObject instanceof String) {
@@ -245,11 +289,31 @@ public class DigilockerHelper {
 									if (street!=null) {
 										checkExit.setStreet(street.toString());
 									}
+									//entity.setStreet((String) PoaDetails.get("street"));
+									Object distvalue=PoaDetails.get("dist");
+									if(distvalue!=null) {
+										checkExit.setDistrict(distvalue.toString());
+									}
+									//entity.setDistrict((String) PoaDetails.get("dist"));
+									Object statevalue=PoaDetails.get("state");
+									if(statevalue!=null) {
+										checkExit.setState(statevalue.toString());
+									}
+								//	entity.setState((String) PoaDetails.get("state"));
+									Object countryvalue=PoaDetails.get("country");
+									if(countryvalue!=null) {
+										checkExit.setCountry(countryvalue.toString());
+									}
+									//entity.setCountry((String) PoaDetails.get("country"));
+									Object pcvalue=PoaDetails.get("pc");
+									if(pcvalue!=null) {
+										checkExit.setPincode((Long)pcvalue);
+									}
 									//checkExit.setStreet((String) PoaDetails.get("street"));
-									checkExit.setDistrict((String) PoaDetails.get("dist"));
+									//checkExit.setDistrict((String) PoaDetails.get("dist"));
 									checkExit.setState((String) PoaDetails.get("state"));
-									checkExit.setCountry((String) PoaDetails.get("country"));
-									checkExit.setPincode ((Long) PoaDetails.get("pc"));
+									//checkExit.setCountry((String) PoaDetails.get("country"));
+									//checkExit.setPincode ((Long) PoaDetails.get("pc"));
 									checkExit.setAadharNo(AatharNo);
 									updatedAddEntity = addressRepository.save(checkExit);
 								}
