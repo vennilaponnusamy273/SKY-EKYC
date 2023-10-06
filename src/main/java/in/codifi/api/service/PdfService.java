@@ -1014,7 +1014,18 @@ public class PdfService implements IPdfService {
 						map.put("1stNEmailaddress", emailOfNominee.substring(0, Math.min(26, emailOfNominee.length())));
 					}
 					// map.put("1stNEmailaddress", nomineeEntity.get(i).getEmailaddress());
-					map.put("1stNPancard", nomineeEntity.get(i).getPancard());
+					if(nomineeEntity.get(i).getTypeOfProof() != null) {
+					    if(nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Pan")) {
+					        map.put("1stNPancard", nomineeEntity.get(i).getTypeOfProof());
+					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
+					        map.put("Details of 1st Nominee Aadhaar", nomineeEntity.get(i).getTypeOfProof());
+					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Voter ID") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Driving licence") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Passport")) {
+					        map.put("Details of 1st Nominee Proof of Identty",nomineeEntity.get(i).getTypeOfProof());
+					    }
+					}
 					String nameOfNominee = nomineeEntity.get(i).getFirstname()+" "+nomineeEntity.get(i).getLastname();
 					if(nameOfNominee!=null) {
 					map.put("Name(s) of Holder(s) Sole/First Holder (Mr./Ms.)",
@@ -1073,9 +1084,21 @@ public class PdfService implements IPdfService {
 						// map.put("1stNGEmailaddress", guardianEntity.getEmailaddress());
 						map.put("Details of 1st Nominee Relatonship of Guardian with nominee",
 								guardianEntity.getRelationship());
-						if (guardianEntity.getPancard() != null) {
+						/**if (guardianEntity.getPancard() != null) {
 							map.put("1stNGPancardcheck", guardianEntity.getPancard());
 							map.put("1stNGPancard", guardianEntity.getPancard());
+						}**/
+						if(guardianEntity.getTypeOfProof() != null) {
+						    if(guardianEntity.getTypeOfProof().equalsIgnoreCase("Pan")) {
+						        map.put("1stNGPancardcheck", guardianEntity.getTypeOfProof());
+						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
+						        map.put("Details of 1st Nominee Guardian Identfcaton details Aadhaar", guardianEntity.getTypeOfProof());
+						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Voter ID") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Driving licence") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Passport")) {
+						        map.put("Details of 1st Nominee Guardian Identfcaton details Proof of Identty", guardianEntity.getTypeOfProof());
+						    }
 						}
 					}
 				} else if (i == 1) {
@@ -1137,7 +1160,19 @@ public class PdfService implements IPdfService {
 					}
 					//map.put("Signature2ndNFirstname", nomineeEntity.get(i).getFirstname());
 					//map.put("Name(s) of Holder(s) Second Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
-					map.put("2ndNPancard", nomineeEntity.get(i).getPancard());
+					if(nomineeEntity.get(i).getTypeOfProof() != null) {
+					    if(nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Pan")) {
+					        map.put("2ndNPancard", nomineeEntity.get(i).getTypeOfProof());
+					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
+					        map.put("Details of 2nd Nominee Aadhaar", nomineeEntity.get(i).getTypeOfProof());
+					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Voter ID") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Driving licence") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Passport")) {
+					        map.put("Details of 2nd Nominee Proof of Identty",nomineeEntity.get(i).getTypeOfProof());
+					    }
+					}
+					//map.put("2ndNPancard", nomineeEntity.get(i).getPancard());
 					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeEntity.get(i).getId());
 					if (guardianEntity != null) {
 						map.put("2ndNDateOfbirth", nomineeEntity.get(i).getDateOfbirth());
@@ -1183,15 +1218,27 @@ public class PdfService implements IPdfService {
 						// map.put("2ndNGEmailaddress", guardianEntity.getEmailaddress());
 						map.put("Details of 2nd Nominee Relatonship of Guardian with nominee",
 								guardianEntity.getRelationship());
-						map.put("2ndNGPancard", guardianEntity.getPancard());
+						//map.put("2ndNGPancard", guardianEntity.getPancard());
 						if (guardianEntity.getMobilenumber() > 0) {
 							map.put("2ndNGMobilenumber", Long.toString(guardianEntity.getMobilenumber()));
 						} else {
 							map.put("2ndNGMobilenumber", null);
 						}
-						if (guardianEntity.getPancard() != null) {
+						/**if (guardianEntity.getPancard() != null) {
 							map.put("1stNGPancardcheck", guardianEntity.getPancard());
 							map.put("2ndNGPancard", guardianEntity.getPancard());
+						}**/
+						if(guardianEntity.getTypeOfProof() != null) {
+						    if(guardianEntity.getTypeOfProof().equalsIgnoreCase("Pan")) {
+						        map.put("2ndNGPancard", guardianEntity.getTypeOfProof() );
+						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
+						        map.put("Details of 2nd Nominee Guardian Identfcaton details Aadhaar",guardianEntity.getTypeOfProof() );
+						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Voter ID") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Driving licence") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Passport")) {
+						        map.put("Details of 2nd Nominee Guardian Identfcaton details Proof of Identty", guardianEntity.getTypeOfProof() );
+						    }
 						}
 					}
 				} else if (i == 2) {
@@ -1252,7 +1299,19 @@ public class PdfService implements IPdfService {
 					}
 					//map.put("Signature3rdNFirstname", nomineeEntity.get(i).getFirstname());
 					//map.put("Name(s) of Holder(s) Third Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
-					map.put("3rdNPancard", nomineeEntity.get(i).getPancard());
+					if(nomineeEntity.get(i).getTypeOfProof() != null) {
+					    if(nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Pan")) {
+					        map.put("3rdNPancard", nomineeEntity.get(i).getTypeOfProof());
+					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
+					        map.put("Details of 3rd Nominee Aadhaar",nomineeEntity.get(i).getTypeOfProof());
+					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Voter ID") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Driving licence") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Passport")) {
+					        map.put("Details of 3rd Nominee Proof of Identty", nomineeEntity.get(i).getTypeOfProof());
+					    }
+					}
+					//map.put("3rdNPancard", nomineeEntity.get(i).getPancard());
 					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeEntity.get(i).getId());
 					if (guardianEntity != null) {
 						map.put("3rdNDateOfbirth", nomineeEntity.get(i).getDateOfbirth());
@@ -1307,9 +1366,21 @@ public class PdfService implements IPdfService {
 						} else {
 							map.put("3rdNGNomineeId", null);
 						}
-						if (guardianEntity.getPancard() != null) {
+						/**if (guardianEntity.getPancard() != null) {
 							map.put("1stNGPancardcheck", guardianEntity.getPancard());
 							map.put("3rdNGPancard", guardianEntity.getPancard());
+						}**/
+						if(guardianEntity.getTypeOfProof() != null) {
+						    if(guardianEntity.getTypeOfProof().equalsIgnoreCase("Pan")) {
+						        map.put("3rdNGPancard", guardianEntity.getTypeOfProof());
+						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
+						        map.put("Details of 3rd Nominee Guardian Identfcaton details Aadhaar",guardianEntity.getTypeOfProof());
+						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Voter ID") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Driving licence") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Passport")) {
+						        map.put("Details of 3rd Nominee Guardian Identfcaton details Proof of Identty", guardianEntity.getTypeOfProof());
+						    }
 						}
 						map.put("Details of 3rd Nominee Relatonship of Guardian with nominee",
 								guardianEntity.getRelationship());

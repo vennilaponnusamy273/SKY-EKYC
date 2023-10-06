@@ -43,8 +43,8 @@ public class GuardianEntity extends CommonEntity implements Serializable {
 	@Column(name = "dob")
 	private String dateOfbirth;
 
-	@Column(name = "pancard")
-	private String pancard;
+	@Column(name = "typeOfProof")
+	private String typeOfProof;
 
 	@Column(name = "mobile_number")
 	private long mobilenumber;
