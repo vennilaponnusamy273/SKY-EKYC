@@ -498,7 +498,7 @@ public class PdfService implements IPdfService {
 					map.put("Occupaton Private Sector", profileEntity.getOccupation());
 				} else if (profileEntity.getOccupation().equalsIgnoreCase("Public Sector")) {
 					map.put("Occupaton Public Sector", profileEntity.getOccupation());
-				} else if (profileEntity.getOccupation().equalsIgnoreCase("Govt. Service")) {
+				} else if (profileEntity.getOccupation().equalsIgnoreCase("Government Sector")) {
 					map.put("Occupaton Govt. Service ", profileEntity.getOccupation());
 				} else if (profileEntity.getOccupation().equalsIgnoreCase("Business")) {
 					map.put("Occupaton Business", profileEntity.getOccupation());
@@ -506,7 +506,7 @@ public class PdfService implements IPdfService {
 					map.put("Occupaton Professional", profileEntity.getOccupation());
 				} else if (profileEntity.getOccupation().equalsIgnoreCase("Agriculturist")) {
 					map.put("Occupaton Agriculturist", profileEntity.getOccupation());
-				} else if (profileEntity.getOccupation().equalsIgnoreCase("Retred")) {
+				} else if (profileEntity.getOccupation().equalsIgnoreCase("Retired")) {
 					map.put("Occupaton Retred", profileEntity.getOccupation());
 				} else if (profileEntity.getOccupation().equalsIgnoreCase("House Wife")) {
 					map.put("Occupaton House Wife", profileEntity.getOccupation());
