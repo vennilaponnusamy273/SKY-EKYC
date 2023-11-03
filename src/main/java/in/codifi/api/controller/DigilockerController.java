@@ -45,7 +45,7 @@ public class DigilockerController implements IDigilockerController {
 		ResponseModel responseModel = new ResponseModel();
 		try {
 			if (StringUtil.isNotNullOrEmpty(code) && StringUtil.isNotNullOrEmpty(state) && applicationId > 0) {
-				responseModel = digilockerHelper.saveDigi(code, state, applicationId);
+			//	responseModel = digilockerHelper.saveDigi(code, state, applicationId);
 			} else {
 				if (StringUtil.isNullOrEmpty(code)) {
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.DIGI_CODE_NULL);

@@ -161,5 +161,11 @@ public class ApplicationProperties {
 	@ConfigProperty(name = "appconfig.esign.pdf.pan")
 	String panPdfPath;
 	
-	
+	// digio
+	@ConfigProperty(name = "appconfig.digio.baseurl")
+	String digioBaseUrl;
+	@ConfigProperty(name = "appconfig.digio.finalurl")
+	String digioFinalUrl;
+	@ConfigProperty(name = "appconfig.digio.auth.key")
+	String digioAuthKey;
 }

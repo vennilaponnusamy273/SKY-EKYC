@@ -513,7 +513,8 @@ public class PdfService implements IPdfService {
 				} else if (profileEntity.getOccupation().equalsIgnoreCase("Student")) {
 					map.put("Occupaton Student", profileEntity.getOccupation());
 				} else if (profileEntity.getOccupation().equalsIgnoreCase("Others")) {
-					map.put("Occupaton Others", profileEntity.getOccupation());
+					map.put("Occupaton Business", "Business");
+					//map.put("Occupaton Others",);
 				}
 			}
 			if (profileEntity != null && profileEntity.getPoliticalExposure() != null) {
@@ -642,12 +643,12 @@ public class PdfService implements IPdfService {
 				} else {
 					map.put("CurrentCity", address.getKraCity());
 				}
-				if (address.getDistrict() != null) {
+				if (address.getKraPerCity() != null) {
 					map.put("CurrentDistrict", address.getKraPerCity());
 				} else {
 					map.put("CurrentDistrict", address.getKraCity());// TODO
 				}
-				if (address.getPincode() != null) {
+				if (address.getKraPerPin()>0) {
 					map.put("CurrentPincode", Integer.toString(address.getKraPerPin()));
 				} else {
 					map.put("CurrentPincode", Integer.toString(address.getKraPin()));
@@ -678,42 +679,16 @@ public class PdfService implements IPdfService {
 				map.put("aadharPDF", "aadharPDF");
 				if (address != null) {
 					StringBuilder addressBuilder = new StringBuilder();
-
-					if (address.getFlatNo() != null) {
-						addressBuilder.append(address.getFlatNo());
-					}
-
-					if (address.getStreet() != null) {
+					if (address.getDigiPerAddress() != null) {
 						if (addressBuilder.length() > 0) {
 							addressBuilder.append(" ");
 						}
-						addressBuilder.append(address.getStreet());
-					}
-
-					if (address.getLandmark() != null) {
-						if (addressBuilder.length() > 0) {
-							addressBuilder.append(" ");
-						}
-						addressBuilder.append(address.getLandmark());
-					}
-
-					if (address.getAddress1() != null) {
-						if (addressBuilder.length() > 0) {
-							addressBuilder.append(" ");
-						}
-						addressBuilder.append(address.getAddress1());
-					}
-					if (address.getAddress2() != null) {
-						if (addressBuilder.length() > 0) {
-							addressBuilder.append(" ");
-						}
-						addressBuilder.append(address.getAddress2());
+						addressBuilder.append(address.getDigiPerAddress());
 					}
 					String fullAddress = addressBuilder.toString();
 					System.out.println("the fullAddress" + fullAddress);
 					map.put("PermanentAddress", fullAddress);
 				}
-
 				String dematAddress = map.get("PermanentAddress");
 				if (dematAddress != null) {
 					map.put("PermenentAddress1", dematAddress.substring(0, Math.min(80, dematAddress.length())));
@@ -746,43 +721,29 @@ public class PdfService implements IPdfService {
 				// map.put("PermenentAddress2", address.getAddress2());
 				// map.put("CurrentAddressLine2", address.getAddress2());
 				// map.put("PermenentAddress3", "");
+				map.put("CurrentCity", address.getDigiCurLocality() != null ? address.getDigiCurLocality() : "");
+				map.put("PermenentCity", address.getDigiPerLocality() != null ? address.getDigiPerLocality() : "");
 
-				if (address.getLandmark() != null && !address.getLandmark().isEmpty()) {
-					map.put("CurrentCity", address.getLandmark());
-					map.put("PermenentCity", address.getLandmark());
-				} else {
-					map.put("CurrentCity", address.getAddress1());
-					map.put("PermenentCity", address.getAddress1());
+				map.put("PermenentDistrict", address.getDigiPerDistrict()!=null?address.getDigiPerDistrict():"");
+				map.put("CurrentDistrict", address.getDigiCurDistrict()!=null?address.getDigiCurDistrict():"");
+				if (address.getDigiPerDistrict() != null) {
+					map.put("Place", address.getDigiPerDistrict());
+				} else if (address.getDigiPerLocality() != null) {
+					map.put("Place", address.getDigiPerLocality());
 				}
-
-				map.put("PermenentDistrict", address.getDistrict());
-				map.put("CurrentDistrict", address.getDistrict());
-				if (address.getDistrict() != null) {
-					map.put("Place", address.getDistrict());
-				} else if (address.getLandmark() != null) {
-					map.put("Place", address.getLandmark());
+					map.put("PermenentPincode", address.getDigiPerPincode()!=null?address.getDigiPerPincode():"");
+					map.put("CurrentPincode", address.getDigiCurPincode()!=null?address.getDigiCurPincode():"");
+				if (address.getDigiCurLocality() != null && !address.getDigiCurLocality().isEmpty()) {
+				    map.put("landmark", address.getDigiCurLocality());
 				}
-				if (address.getPincode() != null) {
-					map.put("PermenentPincode", address.getPincode().toString());
-					map.put("CurrentPincode", address.getPincode().toString());
-				} else {
-					map.put("PermenentPincode", null);
-					map.put("CurrentPincode", null);
-				}
-				if (address.getLandmark() != null && !address.getLandmark().isEmpty()) {
-				    map.put("landmark", address.getLandmark());
-				} else if (address.getStreet() != null && !address.getStreet().isEmpty()) {
-				    map.put("landmark", address.getStreet());
-				}
-				map.put("CurrentState1", address.getState());
-				map.put("PermenentState", address.getState());
-				map.put("PermenentCountry", "INDIA");
+				map.put("CurrentState1", address.getDigiCurState()!=null? address.getDigiCurState():"");
+				map.put("PermenentState", address.getDigiPerState()!=null? address.getDigiPerState():"");
+				map.put("PermenentCountry",  address.getDigiPerCountry()!=null? address.getDigiPerCountry():"");
 				// map.put("Place", address.getKraPerCity());
-				map.put("CurrentCountry", "INDIA");
+				map.put("CurrentCountry",  address.getDigiCurCountry()!=null? address.getDigiCurCountry():"");
 			}
-
 			if (address.getIsdigi() == 1) {
-				map.put("s/o,c/o", address.getCo());
+			//	map.put("s/o,c/o", address.getCo());
 				map.put("OthersProof", Integer.toString(address.getIsdigi()));
 				map.put("Others(Please Specify)", "AADHAR CARD");
 				map.put("UID Aadhaar", Integer.toString(address.getIsdigi()));
@@ -975,7 +936,7 @@ public class PdfService implements IPdfService {
 							nomineeEntity.get(i).getRelationship());
 
 					if (nomineeEntity.get(i).getAddress1() != null) {
-						String addressOfNominee = nomineeEntity.get(i).getAddress1();
+						String addressOfNominee = nomineeEntity.get(i).getAddress1()+(nomineeEntity.get(i).getAddress2()!=null?nomineeEntity.get(i).getAddress2():"");
 						map.put("Details of 1st Nominee Address of Nominee(s)",
 								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
 						if (addressOfNominee.length() >= 26) {
@@ -988,11 +949,11 @@ public class PdfService implements IPdfService {
 						}
 
 					}
-					if (nomineeEntity.get(i).getAddress2() != null) {
-						String addressOfNominee = nomineeEntity.get(i).getAddress2();
-						map.put("Details of 1st Nominee City / Place:",
-								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
-					}
+//					if (nomineeEntity.get(i).getAddress2() != null) {
+//						String addressOfNominee = nomineeEntity.get(i).getAddress2();
+//						map.put("Details of 1st Nominee City / Place:",
+//								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
+//					}
 					// map.put("Details of 1st Nominee Address of Nominee(s)",
 					// nomineeEntity.get(i).getAddress1());
 					// map.put("Details of 1st Nominee City / Place:",
@@ -1014,7 +975,19 @@ public class PdfService implements IPdfService {
 						map.put("1stNEmailaddress", emailOfNominee.substring(0, Math.min(26, emailOfNominee.length())));
 					}
 					// map.put("1stNEmailaddress", nomineeEntity.get(i).getEmailaddress());
-					map.put("1stNPancard", nomineeEntity.get(i).getPancard());
+					//map.put("1stNPancard", nomineeEntity.get(i).getPancard());
+					if(nomineeEntity.get(i).getTypeOfProof() != null) {
+					    if(nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Pan")) {
+					        map.put("1stNPancard", nomineeEntity.get(i).getTypeOfProof());
+					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
+					        map.put("Details of 1st Nominee Aadhaar", nomineeEntity.get(i).getTypeOfProof());
+					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Voter ID") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Driving licence") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Passport")) {
+					        map.put("Details of 1st Nominee Proof of Identty",nomineeEntity.get(i).getTypeOfProof());
+					    }
+					}
 					String nameOfNominee = nomineeEntity.get(i).getFirstname()+" "+nomineeEntity.get(i).getLastname();
 					if(nameOfNominee!=null) {
 					map.put("Name(s) of Holder(s) Sole/First Holder (Mr./Ms.)",
@@ -1033,7 +1006,7 @@ public class PdfService implements IPdfService {
 						map.put("Details of 1st Nominee Name of Guardian",GurName.substring(0, Math.min(26, GurName.length())));
 						}
 						if (guardianEntity.getAddress1() != null) {
-							String addressOfgur = guardianEntity.getAddress1();
+						    String addressOfgur = guardianEntity.getAddress1() + (guardianEntity.getAddress2() != null ? guardianEntity.getAddress2():"");
 							map.put("Details of 1st Nominee Address of Guardian(s)",
 									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
 							if (addressOfgur.length() >= 26) {
@@ -1046,11 +1019,11 @@ public class PdfService implements IPdfService {
 							}
 
 						}
-						if (guardianEntity.getAddress2() != null) {
-							String addressOfgur = guardianEntity.getAddress2();
-							map.put("Details of 1st GNominee City / Place:",
-									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
-						}
+//						if (guardianEntity.getAddress2() != null) {
+//							String addressOfgur = guardianEntity.getAddress2();
+//							map.put("Details of 1st GNominee City / Place:",
+//									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
+//						}
 						// map.put("Details of 1st Nominee Address of Guardian(s)",
 						// guardianEntity.getAddress1());
 						// map.put("Details of 1st GNominee City / Place:",
@@ -1073,9 +1046,17 @@ public class PdfService implements IPdfService {
 						// map.put("1stNGEmailaddress", guardianEntity.getEmailaddress());
 						map.put("Details of 1st Nominee Relatonship of Guardian with nominee",
 								guardianEntity.getRelationship());
-						if (guardianEntity.getPancard() != null) {
-							map.put("1stNGPancardcheck", guardianEntity.getPancard());
-							map.put("1stNGPancard", guardianEntity.getPancard());
+						if(guardianEntity.getTypeOfProof() != null) {
+						    if(guardianEntity.getTypeOfProof().equalsIgnoreCase("Pan")) {
+						        map.put("1stNGPancardcheck", guardianEntity.getTypeOfProof());
+						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
+						        map.put("Details of 1st Nominee Guardian Identfcaton details Aadhaar", guardianEntity.getTypeOfProof());
+						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Voter ID") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Driving licence") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Passport")) {
+						        map.put("Details of 1st Nominee Guardian Identfcaton details Proof of Identty", guardianEntity.getTypeOfProof());
+						    }
 						}
 					}
 				} else if (i == 1) {
@@ -1089,7 +1070,7 @@ public class PdfService implements IPdfService {
 					map.put("Details of 2nd Nominee Relatonship with the Applicant (if any)",
 							nomineeEntity.get(i).getRelationship());
 					if (nomineeEntity.get(i).getAddress1() != null) {
-						String addressOfNominee = nomineeEntity.get(i).getAddress1();
+						String addressOfNominee = nomineeEntity.get(i).getAddress1()+(nomineeEntity.get(i).getAddress2()!=null?nomineeEntity.get(i).getAddress2():"");
 						map.put("Details of 2nd Nominee Address of Nominee(s)",
 								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
 						if (addressOfNominee.length() >= 26) {
@@ -1102,11 +1083,11 @@ public class PdfService implements IPdfService {
 						}
 
 					}
-					if (nomineeEntity.get(i).getAddress2() != null) {
-						String addressOfNominee = nomineeEntity.get(i).getAddress2();
-						map.put("Details of 2nd Nominee City / Place:",
-								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
-					}
+//					if (nomineeEntity.get(i).getAddress2() != null) {
+//						String addressOfNominee = nomineeEntity.get(i).getAddress2();
+//						map.put("Details of 2nd Nominee City / Place:",
+//								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
+//					}
 					// map.put("Details of 2nd Nominee Address of Nominee(s)",
 					// nomineeEntity.get(i).getAddress1());
 					// map.put("Details of 2nd Nominee City / Place:",
@@ -1137,7 +1118,19 @@ public class PdfService implements IPdfService {
 					}
 					//map.put("Signature2ndNFirstname", nomineeEntity.get(i).getFirstname());
 					//map.put("Name(s) of Holder(s) Second Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
-					map.put("2ndNPancard", nomineeEntity.get(i).getPancard());
+					//map.put("2ndNPancard", nomineeEntity.get(i).getPancard());
+					if(nomineeEntity.get(i).getTypeOfProof() != null) {
+					    if(nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Pan")) {
+					        map.put("2ndNPancard", nomineeEntity.get(i).getTypeOfProof());
+					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
+					        map.put("Details of 2nd Nominee Aadhaar", nomineeEntity.get(i).getTypeOfProof());
+					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Voter ID") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Driving licence") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Passport")) {
+					        map.put("Details of 2nd Nominee Proof of Identty",nomineeEntity.get(i).getTypeOfProof());
+					    }
+					}
 					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeEntity.get(i).getId());
 					if (guardianEntity != null) {
 						map.put("2ndNDateOfbirth", nomineeEntity.get(i).getDateOfbirth());
@@ -1147,7 +1140,7 @@ public class PdfService implements IPdfService {
 						}
 						//map.put("Details of 2nd Nominee Name of Guardian", guardianEntity.getFirstname());
 						if (guardianEntity.getAddress1() != null) {
-							String addressOfgur = guardianEntity.getAddress1();
+							String addressOfgur = guardianEntity.getAddress1()+(guardianEntity.getAddress2() != null?guardianEntity.getAddress2():"");
 							map.put("Details of 2nd Nominee Address of Guardian(s)",
 									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
 							if (addressOfgur.length() >= 26) {
@@ -1160,11 +1153,11 @@ public class PdfService implements IPdfService {
 							}
 
 						}
-						if (guardianEntity.getAddress2() != null) {
-							String addressOfgur = guardianEntity.getAddress2();
-							map.put("Details of 2nd Nominee City / Place of Guardian(s):",
-									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
-						}
+//						if (guardianEntity.getAddress2() != null) {
+//							String addressOfgur = guardianEntity.getAddress2();
+//							map.put("Details of 2nd Nominee City / Place of Guardian(s):",
+//									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
+//						}
 						// map.put("Details of 2nd Nominee Address of Guardian(s)",
 						// guardianEntity.getAddress1());
 						// map.put("Details of 2nd Nominee City / Place of Guardian(s):",
@@ -1183,15 +1176,23 @@ public class PdfService implements IPdfService {
 						// map.put("2ndNGEmailaddress", guardianEntity.getEmailaddress());
 						map.put("Details of 2nd Nominee Relatonship of Guardian with nominee",
 								guardianEntity.getRelationship());
-						map.put("2ndNGPancard", guardianEntity.getPancard());
+						//map.put("2ndNGPancard", guardianEntity.getPancard());
 						if (guardianEntity.getMobilenumber() > 0) {
 							map.put("2ndNGMobilenumber", Long.toString(guardianEntity.getMobilenumber()));
 						} else {
 							map.put("2ndNGMobilenumber", null);
 						}
-						if (guardianEntity.getPancard() != null) {
-							map.put("1stNGPancardcheck", guardianEntity.getPancard());
-							map.put("2ndNGPancard", guardianEntity.getPancard());
+						if(guardianEntity.getTypeOfProof() != null) {
+						    if(guardianEntity.getTypeOfProof().equalsIgnoreCase("Pan")) {
+						        map.put("2ndNGPancard", guardianEntity.getTypeOfProof() );
+						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
+						        map.put("Details of 2nd Nominee Guardian Identfcaton details Aadhaar",guardianEntity.getTypeOfProof() );
+						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Voter ID") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Driving licence") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Passport")) {
+						        map.put("Details of 2nd Nominee Guardian Identfcaton details Proof of Identty", guardianEntity.getTypeOfProof() );
+						    }
 						}
 					}
 				} else if (i == 2) {
@@ -1205,7 +1206,7 @@ public class PdfService implements IPdfService {
 					map.put("Details of 3rd Nominee Relatonship with the Applicant (if any)",
 							nomineeEntity.get(i).getRelationship());
 					if (nomineeEntity.get(i).getAddress1() != null) {
-						String addressOfNominee = nomineeEntity.get(i).getAddress1();
+						String addressOfNominee = nomineeEntity.get(i).getAddress1()+(nomineeEntity.get(i).getAddress2()!=null?nomineeEntity.get(i).getAddress2():"");
 						map.put("Details of 3rd Nominee Address of Nominee(s)",
 								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
 						if (addressOfNominee.length() >= 26) {
@@ -1217,11 +1218,11 @@ public class PdfService implements IPdfService {
 									addressOfNominee.substring(52, Math.min(78, addressOfNominee.length())));
 						}
 					}
-					if (nomineeEntity.get(i).getAddress2() != null) {
-						String addressOfNominee = nomineeEntity.get(i).getAddress2();
-						map.put("Details of 3rd Nominee City / Place:",
-								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
-					}
+//					if (nomineeEntity.get(i).getAddress2() != null) {
+//						String addressOfNominee = nomineeEntity.get(i).getAddress2();
+//						map.put("Details of 3rd Nominee City / Place:",
+//								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
+//					}
 					if (nomineeEntity.get(i).getEmailaddress() != null) {
 						String emailOfNominee = nomineeEntity.get(i).getEmailaddress();
 						map.put("3rdNEmailaddress", emailOfNominee.substring(0, Math.min(26, emailOfNominee.length())));
@@ -1252,7 +1253,19 @@ public class PdfService implements IPdfService {
 					}
 					//map.put("Signature3rdNFirstname", nomineeEntity.get(i).getFirstname());
 					//map.put("Name(s) of Holder(s) Third Holder (Mr./Ms.)", nomineeEntity.get(i).getFirstname());
-					map.put("3rdNPancard", nomineeEntity.get(i).getPancard());
+				//	map.put("3rdNPancard", nomineeEntity.get(i).getPancard());
+					if(nomineeEntity.get(i).getTypeOfProof() != null) {
+					    if(nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Pan")) {
+					        map.put("3rdNPancard", nomineeEntity.get(i).getTypeOfProof());
+					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
+					        map.put("Details of 3rd Nominee Aadhaar",nomineeEntity.get(i).getTypeOfProof());
+					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Voter ID") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Driving licence") ||
+					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Passport")) {
+					        map.put("Details of 3rd Nominee Proof of Identty", nomineeEntity.get(i).getTypeOfProof());
+					    }
+					}
 					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeEntity.get(i).getId());
 					if (guardianEntity != null) {
 						map.put("3rdNDateOfbirth", nomineeEntity.get(i).getDateOfbirth());
@@ -1262,7 +1275,7 @@ public class PdfService implements IPdfService {
 						}
 						//map.put("Details of 3rd Nominee Name of Guardian", guardianEntity.getFirstname());
 						if (guardianEntity.getAddress1() != null) {
-							String addressOfgur = guardianEntity.getAddress1();
+							String addressOfgur = guardianEntity.getAddress1()+(guardianEntity.getAddress2() != null?guardianEntity.getAddress2():"");
 							map.put("Details of 3rd Nominee Address of Guardian(s)",
 									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
 							if (addressOfgur.length() >= 26) {
@@ -1275,11 +1288,11 @@ public class PdfService implements IPdfService {
 							}
 
 						}
-						if (guardianEntity.getAddress2() != null) {
-							String addressOfgur = guardianEntity.getAddress2();
-							map.put("Details of 3rd GNominee City / Place:",
-									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
-						}
+//						if (guardianEntity.getAddress2() != null) {
+//							String addressOfgur = guardianEntity.getAddress2();
+//							map.put("Details of 3rd GNominee City / Place:",
+//									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
+//						}
 						// map.put("Details of 3rd Nominee Address of Guardian(s)",
 						// guardianEntity.getAddress1());
 						// map.put("Details of 3rd GNominee City / Place:",
@@ -1307,9 +1320,17 @@ public class PdfService implements IPdfService {
 						} else {
 							map.put("3rdNGNomineeId", null);
 						}
-						if (guardianEntity.getPancard() != null) {
-							map.put("1stNGPancardcheck", guardianEntity.getPancard());
-							map.put("3rdNGPancard", guardianEntity.getPancard());
+						if(guardianEntity.getTypeOfProof() != null) {
+						    if(guardianEntity.getTypeOfProof().equalsIgnoreCase("Pan")) {
+						        map.put("3rdNGPancard", guardianEntity.getTypeOfProof());
+						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
+						        map.put("Details of 3rd Nominee Guardian Identfcaton details Aadhaar",guardianEntity.getTypeOfProof());
+						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Voter ID") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Driving licence") ||
+						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Passport")) {
+						        map.put("Details of 3rd Nominee Guardian Identfcaton details Proof of Identty", guardianEntity.getTypeOfProof());
+						    }
 						}
 						map.put("Details of 3rd Nominee Relatonship of Guardian with nominee",
 								guardianEntity.getRelationship());
@@ -1393,17 +1414,21 @@ public class PdfService implements IPdfService {
 											+ userEntity.get().getPanNumber() + EkycConstants.PDF_EXTENSION,
 									filePath, msg,
 									StringUtil.isNotNullOrEmpty(name) ? name : userEntity.get().getUserName(),
-									entity.getIsdigi() == 1 ? entity.getState() : entity.getKraCity(),
+									entity.getIsdigi() == 1 ? entity.getDigiPerState() : entity.getKraCity(),
 									userEntity.get().getId());
 							if (StringUtil.isNotNullOrEmpty(resposne)) {
 								String esignedFileName = userEntity.get().getPanNumber() + "_signedFinal"
 										+ EkycConstants.PDF_EXTENSION;
 								String path = filePath + slash + esignedFileName;
-								applicationUserRepository.updateEsignStage(detailsEntity.getApplicationId(),
+//								applicationUserRepository.updateEsignStage(detailsEntity.getApplicationId(),
+//										EkycConstants.EKYC_STATUS_ESIGN_COMPLETED,
+//										EkycConstants.PAGE_COMPLETED_EMAIL_ATTACHED, 1, 1,
+//										StringUtil.isNotNullOrEmpty(name) ? name : userEntity.get().getUserName());
+								saveEsignDocumntDetails(userEntity.get().getId(), path, esignedFileName);
+								updateEsignStage(detailsEntity.getApplicationId(),
 										EkycConstants.EKYC_STATUS_ESIGN_COMPLETED,
 										EkycConstants.PAGE_COMPLETED_EMAIL_ATTACHED, 1, 1,
 										StringUtil.isNotNullOrEmpty(name) ? name : userEntity.get().getUserName());
-								saveEsignDocumntDetails(userEntity.get().getId(), path, esignedFileName);
 								java.net.URI finalPage = new java.net.URI(EkycConstants.SITE_URL_FILE);
 								// public void sendEsignedMail(String mailIds, String name, String filePath,
 								// String fileName)
@@ -1431,6 +1456,21 @@ public class PdfService implements IPdfService {
 
 		return null;
 	}
+	private void updateEsignStage(Long applicationId, String status,
+			String stage, int EsignCom, int pdfGen, String EsignNAmw) {
+		Optional<ApplicationUserEntity> isUserPresent = applicationUserRepository.findById(applicationId);
+		if(isUserPresent.isPresent()) {
+			ApplicationUserEntity oldUserEntity = isUserPresent.get();
+			oldUserEntity.setStage(stage);
+			oldUserEntity.setStatus(status);
+			oldUserEntity.setEsignCompleted(EsignCom);
+			oldUserEntity.setPdfGenerated(pdfGen);
+			oldUserEntity.setEsigedName(EsignNAmw);
+			applicationUserRepository.save(oldUserEntity);
+		}
+		
+	}
+
 
 	public void saveEsignDocumntDetails(long applicationId, String documentPath, String fileName) {
 		DocumentEntity oldEntity = docrepository.findByApplicationIdAndDocumentType(applicationId,

@@ -581,6 +581,21 @@ public class CommonMethods {
 	    }
 	    return uccCode;
 	}
-
+	/**
+	 * Method to random Generated key
+	 * 
+	 * @author prade
+	 * @param count
+	 * @return
+	 */
+	public String randomAlphaNumericNew(int count) {
+		StringBuilder builder = new StringBuilder();
+		while (count-- != 0) {
+			int character = (int) (Math.random() * ALPHA_NUMERIC_STRING.length());
+			builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+		}
+		return builder.toString();
+	}
+	
 
 }

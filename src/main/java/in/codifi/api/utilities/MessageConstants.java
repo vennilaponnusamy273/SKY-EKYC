@@ -134,4 +134,10 @@ public class MessageConstants {
 	public static final String FAILED = "Failed";
 	public static final String INVAILD_BROKERAGE_TYPE = "Brokerage type contains only sky prime or sky discount";
 	public static final String ERROR_MSG_INVALID_PAN = "INVALID DOB (APP_DOB_INCORP) PROVIDED";
+	
+	// DIGIO
+	public static final String DIGIO_REQ_FAILED = "Failed to construct DIGIO Request";
+	public static final String DIGIO_INI_RES_NULL = "Digio Initailize Response null";
+	public final static String GUARDIAN_REQUIRED_PROOF = "Guardian Proof is Required, because Nominee is minor";
+	public static final String BANK_ID_NULL = "YOUR BANK ID IS NULL FOR ATOM , CONTACT SUPPORT TEAM";
 }

@@ -283,4 +283,10 @@ public class EkycConstants {
 	
 	public static final String ADDRESS_PROOF = "9_PROOF OF ADDRESS_";
 	public static final String TABLE_CREATED = "Table Created Successfully";
+	
+	// Digi Xml
+	public static final String AADHAR_KEYWORD = "AADHAAR";
+	public static final String AADHAR_XML = "true";
+	public static final String XMLNAME = "_DIGIO";
+	public static final String IMAGE_NAME = "_Aadhar_UID_NO";
 }

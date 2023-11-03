@@ -44,8 +44,8 @@ public class NomineeEntity extends CommonEntity implements Serializable {
 	@Column(name = "dob")
 	private String dateOfbirth;
 
-	@Column(name = "pancard")
-	private String pancard;
+	@Column(name = "typeOfProof",nullable = false)
+	private String typeOfProof;
 
 	@Column(name = "mobile_number", length = 10)
 	private long mobilenumber;
