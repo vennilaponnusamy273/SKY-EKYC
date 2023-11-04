@@ -978,14 +978,19 @@ public class PdfService implements IPdfService {
 					//map.put("1stNPancard", nomineeEntity.get(i).getPancard());
 					if(nomineeEntity.get(i).getTypeOfProof() != null) {
 					    if(nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Pan")) {
-					        map.put("1stNPancard", nomineeEntity.get(i).getTypeOfProof());
+					        map.put("1stNPancard", nomineeEntity.get(i).getProofId()!=null?nomineeEntity.get(i).getProofId():"");
 					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
-					        map.put("Details of 1st Nominee Aadhaar", nomineeEntity.get(i).getTypeOfProof());
+					    	if(nomineeEntity.get(i).getProofId()!=null) {
+					    		String AttharNo = "XXXX-XXXX-" + nomineeEntity.get(i).getProofId();
+						        map.put("Details of 1st Nominee Aadhaar",AttharNo);
+					    	}else {
+					    	map.put("Details of 1st Nominee Aadhaar","");
+					    	}
 					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
 					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Voter ID") ||
 					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Driving licence") ||
 					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Passport")) {
-					        map.put("Details of 1st Nominee Proof of Identty",nomineeEntity.get(i).getTypeOfProof());
+					        map.put("Details of 1st Nominee Proof of Identty",nomineeEntity.get(i).getProofId()!=null?nomineeEntity.get(i).getProofId():"");
 					    }
 					}
 					String nameOfNominee = nomineeEntity.get(i).getFirstname()+" "+nomineeEntity.get(i).getLastname();
@@ -1048,14 +1053,19 @@ public class PdfService implements IPdfService {
 								guardianEntity.getRelationship());
 						if(guardianEntity.getTypeOfProof() != null) {
 						    if(guardianEntity.getTypeOfProof().equalsIgnoreCase("Pan")) {
-						        map.put("1stNGPancardcheck", guardianEntity.getTypeOfProof());
+						        map.put("1stNGPancardcheck", guardianEntity.getProofId()!=null?guardianEntity.getProofId():"");
 						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
-						        map.put("Details of 1st Nominee Guardian Identfcaton details Aadhaar", guardianEntity.getTypeOfProof());
+						    	if(guardianEntity.getProofId()!=null) {
+						    	String AttharNo = "XXXX-XXXX-" +guardianEntity.getProofId();
+						    	 map.put("Details of 1st Nominee Guardian Identfcaton details Aadhaar", AttharNo);
+						    	}else {
+						    		 map.put("Details of 1st Nominee Guardian Identfcaton details Aadhaar", "");
+						    	}
 						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
 						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Voter ID") ||
 						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Driving licence") ||
 						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Passport")) {
-						        map.put("Details of 1st Nominee Guardian Identfcaton details Proof of Identty", guardianEntity.getTypeOfProof());
+						        map.put("Details of 1st Nominee Guardian Identfcaton details Proof of Identty", guardianEntity.getProofId()!=null?guardianEntity.getProofId():"");
 						    }
 						}
 					}
@@ -1121,14 +1131,19 @@ public class PdfService implements IPdfService {
 					//map.put("2ndNPancard", nomineeEntity.get(i).getPancard());
 					if(nomineeEntity.get(i).getTypeOfProof() != null) {
 					    if(nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Pan")) {
-					        map.put("2ndNPancard", nomineeEntity.get(i).getTypeOfProof());
+					        map.put("2ndNPancard", nomineeEntity.get(i).getProofId()!=null?nomineeEntity.get(i).getProofId():"");
 					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
-					        map.put("Details of 2nd Nominee Aadhaar", nomineeEntity.get(i).getTypeOfProof());
+					    	if(nomineeEntity.get(i).getProofId()!=null) {
+					    	String AttharNo = "XXXX-XXXX-" + nomineeEntity.get(i).getProofId();
+					        map.put("Details of 2nd Nominee Aadhaar", AttharNo);
+					    	}else {
+					    		map.put("Details of 2nd Nominee Aadhaar", "");
+					    	}
 					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
 					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Voter ID") ||
 					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Driving licence") ||
 					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Passport")) {
-					        map.put("Details of 2nd Nominee Proof of Identty",nomineeEntity.get(i).getTypeOfProof());
+					        map.put("Details of 2nd Nominee Proof of Identty",nomineeEntity.get(i).getProofId()!=null?nomineeEntity.get(i).getProofId():"");
 					    }
 					}
 					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeEntity.get(i).getId());
@@ -1184,14 +1199,19 @@ public class PdfService implements IPdfService {
 						}
 						if(guardianEntity.getTypeOfProof() != null) {
 						    if(guardianEntity.getTypeOfProof().equalsIgnoreCase("Pan")) {
-						        map.put("2ndNGPancard", guardianEntity.getTypeOfProof() );
+						        map.put("2ndNGPancard", guardianEntity.getProofId()!=null?guardianEntity.getProofId():"" );
 						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
-						        map.put("Details of 2nd Nominee Guardian Identfcaton details Aadhaar",guardianEntity.getTypeOfProof() );
+						    	if(guardianEntity.getProofId()!=null) {
+						    	String AttharNo = "XXXX-XXXX-" + guardianEntity.getProofId();
+						        map.put("Details of 2nd Nominee Guardian Identfcaton details Aadhaar",AttharNo );
+						    	}else {
+						    		 map.put("Details of 2nd Nominee Guardian Identfcaton details Aadhaar","" );
+						    	}
 						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
 						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Voter ID") ||
 						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Driving licence") ||
 						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Passport")) {
-						        map.put("Details of 2nd Nominee Guardian Identfcaton details Proof of Identty", guardianEntity.getTypeOfProof() );
+						        map.put("Details of 2nd Nominee Guardian Identfcaton details Proof of Identty", guardianEntity.getProofId()!=null?guardianEntity.getProofId():"" );
 						    }
 						}
 					}
@@ -1256,14 +1276,19 @@ public class PdfService implements IPdfService {
 				//	map.put("3rdNPancard", nomineeEntity.get(i).getPancard());
 					if(nomineeEntity.get(i).getTypeOfProof() != null) {
 					    if(nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Pan")) {
-					        map.put("3rdNPancard", nomineeEntity.get(i).getTypeOfProof());
+					        map.put("3rdNPancard", nomineeEntity.get(i).getProofId()!=null?nomineeEntity.get(i).getProofId():"");
 					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
-					        map.put("Details of 3rd Nominee Aadhaar",nomineeEntity.get(i).getTypeOfProof());
+					    	if( nomineeEntity.get(i).getProofId()!=null) {
+					    	String AttharNo = "XXXX-XXXX-" + nomineeEntity.get(i).getProofId();
+					        map.put("Details of 3rd Nominee Aadhaar",AttharNo);
+					    	}else {
+					    		 map.put("Details of 3rd Nominee Aadhaar","");
+					    	}
 					    } else if (nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
 					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Voter ID") ||
 					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Driving licence") ||
 					               nomineeEntity.get(i).getTypeOfProof().equalsIgnoreCase("Passport")) {
-					        map.put("Details of 3rd Nominee Proof of Identty", nomineeEntity.get(i).getTypeOfProof());
+					        map.put("Details of 3rd Nominee Proof of Identty", nomineeEntity.get(i).getProofId()!=null?nomineeEntity.get(i).getProofId():"");
 					    }
 					}
 					GuardianEntity guardianEntity = guardianRepository.findByNomineeId(nomineeEntity.get(i).getId());
@@ -1322,14 +1347,19 @@ public class PdfService implements IPdfService {
 						}
 						if(guardianEntity.getTypeOfProof() != null) {
 						    if(guardianEntity.getTypeOfProof().equalsIgnoreCase("Pan")) {
-						        map.put("3rdNGPancard", guardianEntity.getTypeOfProof());
+						        map.put("3rdNGPancard", guardianEntity.getProofId()!=null?guardianEntity.getProofId():"");
 						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Aadhar card")) {
-						        map.put("Details of 3rd Nominee Guardian Identfcaton details Aadhaar",guardianEntity.getTypeOfProof());
+						    	if(guardianEntity.getProofId()!=null) {
+						    	String AttharNo = "XXXX-XXXX-" + guardianEntity.getProofId();
+						        map.put("Details of 3rd Nominee Guardian Identfcaton details Aadhaar",AttharNo);
+						    	}else {
+						    		map.put("Details of 3rd Nominee Guardian Identfcaton details Aadhaar","");
+						    	}
 						    } else if (guardianEntity.getTypeOfProof().equalsIgnoreCase("Proof of Identity") ||
 						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Voter ID") ||
 						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Driving licence") ||
 						    		guardianEntity.getTypeOfProof().equalsIgnoreCase("Passport")) {
-						        map.put("Details of 3rd Nominee Guardian Identfcaton details Proof of Identty", guardianEntity.getTypeOfProof());
+						        map.put("Details of 3rd Nominee Guardian Identfcaton details Proof of Identty", guardianEntity.getProofId()!=null?guardianEntity.getProofId():"");
 						    }
 						}
 						map.put("Details of 3rd Nominee Relatonship of Guardian with nominee",
@@ -1456,6 +1486,7 @@ public class PdfService implements IPdfService {
 
 		return null;
 	}
+
 	private void updateEsignStage(Long applicationId, String status,
 			String stage, int EsignCom, int pdfGen, String EsignNAmw) {
 		Optional<ApplicationUserEntity> isUserPresent = applicationUserRepository.findById(applicationId);

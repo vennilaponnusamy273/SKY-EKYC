@@ -45,6 +45,9 @@ public class GuardianEntity extends CommonEntity implements Serializable {
 
 	@Column(name = "typeOfProof")
 	private String typeOfProof;
+	
+	@Column(name = "proofId")
+	private String proofId;
 
 	@Column(name = "mobile_number")
 	private long mobilenumber;
