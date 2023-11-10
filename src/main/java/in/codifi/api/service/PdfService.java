@@ -947,6 +947,18 @@ public class PdfService implements IPdfService {
 							map.put("Details of 1st Nominee Address2 of Nominee(s)",
 									addressOfNominee.substring(52, Math.min(78, addressOfNominee.length())));
 						}
+						if (addressOfNominee.length() >= 78) {
+							map.put("Details of 1st Nominee Address3 of Nominee(s)",
+									addressOfNominee.substring(78, Math.min(104, addressOfNominee.length())));
+						}
+						if (addressOfNominee.length() >= 104) {
+							map.put("Details of 1st Nominee Address4 of Nominee(s)",
+									addressOfNominee.substring(104, Math.min(130, addressOfNominee.length())));
+						}
+						if (addressOfNominee.length() >= 130) {
+							map.put("Details of 1st Nominee Address5 of Nominee(s)",
+									addressOfNominee.substring(130, Math.min(156, addressOfNominee.length())));
+						}
 
 					}
 //					if (nomineeEntity.get(i).getAddress2() != null) {
@@ -1090,6 +1102,18 @@ public class PdfService implements IPdfService {
 						if (addressOfNominee.length() >= 52) {
 							map.put("Details of 2nd Nominee Address2 of Nominee(s)",
 									addressOfNominee.substring(52, Math.min(78, addressOfNominee.length())));
+						}
+						if (addressOfNominee.length() >= 78) {
+							map.put("Details of 2nd Nominee Address3 of Nominee(s)",
+									addressOfNominee.substring(78, Math.min(104, addressOfNominee.length())));
+						}
+						if (addressOfNominee.length() >= 104) {
+							map.put("Details of 2nd Nominee Address4 of Nominee(s)",
+									addressOfNominee.substring(104, Math.min(130, addressOfNominee.length())));
+						}
+						if (addressOfNominee.length() >= 130) {
+							map.put("Details of 2nd Nominee Address5 of Nominee(s)",
+									addressOfNominee.substring(130, Math.min(156, addressOfNominee.length())));
 						}
 
 					}
@@ -1236,6 +1260,18 @@ public class PdfService implements IPdfService {
 						if (addressOfNominee.length() >= 52) {
 							map.put("Details of 3rd Nominee Address2 of Nominee(s)",
 									addressOfNominee.substring(52, Math.min(78, addressOfNominee.length())));
+						}
+						if (addressOfNominee.length() >= 78) {
+							map.put("Details of 3rd Nominee Address3 of Nominee(s)",
+									addressOfNominee.substring(78, Math.min(104, addressOfNominee.length())));
+						}
+						if (addressOfNominee.length() >= 104) {
+							map.put("Details of 3rd Nominee Address4 of Nominee(s)",
+									addressOfNominee.substring(104, Math.min(130, addressOfNominee.length())));
+						}
+						if (addressOfNominee.length() >= 130) {
+							map.put("Details of 3rd Nominee Address5 of Nominee(s)",
+									addressOfNominee.substring(130, Math.min(156, addressOfNominee.length())));
 						}
 					}
 //					if (nomineeEntity.get(i).getAddress2() != null) {
