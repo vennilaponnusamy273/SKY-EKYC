@@ -738,9 +738,9 @@ public class PdfService implements IPdfService {
 				}
 				map.put("CurrentState1", address.getDigiCurState()!=null? address.getDigiCurState():"");
 				map.put("PermenentState", address.getDigiPerState()!=null? address.getDigiPerState():"");
-				map.put("PermenentCountry",  address.getDigiPerCountry()!=null? address.getDigiPerCountry():"");
+				map.put("PermenentCountry",  address.getDigiPerCountry()!=null? address.getDigiPerCountry():"INDIA");
 				// map.put("Place", address.getKraPerCity());
-				map.put("CurrentCountry",  address.getDigiCurCountry()!=null? address.getDigiCurCountry():"");
+				map.put("CurrentCountry",  address.getDigiCurCountry()!=null? address.getDigiCurCountry():"INDIA");
 			}
 			if (address.getIsdigi() == 1) {
 			//	map.put("s/o,c/o", address.getCo());
