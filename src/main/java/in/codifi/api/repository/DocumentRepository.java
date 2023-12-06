@@ -23,4 +23,13 @@ public interface DocumentRepository extends CrudRepository<DocumentEntity, Long>
 	@Transactional 
 	@Query(value = "SELECT u FROM tbl_document_details u WHERE TIMESTAMPDIFF(MINUTE, u.createdOn, CURRENT_TIMESTAMP) < 5")
     List<DocumentEntity> findRecentlyDocUsers();
+	
+	
+	@Query("SELECT d FROM tbl_document_details d WHERE d.applicationId = :applicationId ORDER BY " +
+            "CASE d.documentType " +
+            "WHEN 'PAN' THEN 1 " +
+            "WHEN 'SIGNATURE' THEN 2 " +
+            "WHEN 'AADHAR_IMAGE' THEN 3 " +
+            "ELSE 4 END DESC")
+    List<DocumentEntity> findByApplicationIdOrderByDocumentTypeDesc(Long applicationId);
 }

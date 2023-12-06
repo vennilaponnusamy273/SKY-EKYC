@@ -20,6 +20,7 @@ import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.KraKeyValueEntity;
 import in.codifi.api.entity.PennyDropEntity;
 import in.codifi.api.entity.ProfileEntity;
+import in.codifi.api.entity.ReferralEntity;
 import in.codifi.api.entity.SegmentEntity;
 import in.codifi.api.helper.DeleteHelper;
 import in.codifi.api.helper.UserHelper;
@@ -32,6 +33,7 @@ import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.KraKeyValueRepository;
 import in.codifi.api.repository.PennyDropRepository;
 import in.codifi.api.repository.ProfileRepository;
+import in.codifi.api.repository.ReferralRepository;
 import in.codifi.api.repository.SegmentRepository;
 import in.codifi.api.restservice.keycloak.KeyCloakAdminRestService;
 import in.codifi.api.service.spec.IUserService;
@@ -66,6 +68,8 @@ public class UserService implements IUserService {
 	IPennyController iPennyController;
 	@Inject
 	ApiStatusRepository apiStatusRepository;
+	@Inject 
+	ReferralRepository referralRepository;
 
 	private static final Logger logger = LogManager.getLogger(UserService.class);
 
@@ -136,6 +140,17 @@ public class UserService implements IUserService {
 						oldUserEntity.setSmsVerified(1);
 						if (oldUserEntity.getEmailVerified() == 0) {
 							oldUserEntity.setStage(EkycConstants.PAGE_SMS);
+						}
+						if (userEntity.getReferralBy() != null&&!userEntity.getReferralBy().isEmpty()&&!userEntity.getReferralBy().isBlank()) {
+						    ReferralEntity referralEntity = referralRepository.findByMobileNo(userEntity.getMobileNo());
+						    if (referralEntity == null) {
+						        referralEntity = new ReferralEntity();
+						        referralEntity.setMobileNo(userEntity.getMobileNo());
+						    }
+						    referralEntity.setReferralBy(userEntity.getReferralBy());
+						    referralEntity.setRefByDesignation(userEntity.getReferralType());
+						    referralEntity.setRefByName(userEntity.getReferralBy());
+						    referralRepository.save(referralEntity);
 						}
 						updatedUserDetails = repository.save(oldUserEntity);
 						HazleCacheController.getInstance().getVerifyOtp().remove(mapKey);

@@ -177,8 +177,8 @@ public class PdfService implements IPdfService {
 				}
 				List<PdfDataCoordinatesEntity> pdfDatas = pdfDataCoordinatesrepository.getCoordinates();
 				pdfInsertCoordinates(document, pdfDatas, map);
-				addDocument(document, applicationId);
 				addIPvDocument(document, applicationId);
+				addDocument(document, applicationId);
 				String fileName = userEntity.get().getPanNumber() + EkycConstants.PDF_EXTENSION;
 				document.save(outputPath + slash + fileName);
 				document.close();
@@ -281,7 +281,8 @@ public class PdfService implements IPdfService {
 		try {
 			// Add a new page to the document
 			String attachmentUrl = null;
-			List<DocumentEntity> documents = docrepository.findByApplicationId(applicationNo);
+			List<DocumentEntity> documents = docrepository.findByApplicationIdOrderByDocumentTypeDesc(applicationNo);
+			//List<DocumentEntity> documents = docrepository.findByApplicationId(applicationNo);
 			int originalPages = document.getNumberOfPages(); // Store the original number of pages
 
 			// Load the verification image only once
@@ -835,20 +836,23 @@ public class PdfService implements IPdfService {
 			}
 		}
 		ReferralEntity referralEntity = referralRepository.findByMobileNo(applicationData.get().getMobileNo());
-		if (referralEntity != null) {
-			if (referralEntity.getName() != null) {
-				map.put("Name of the Introducer", referralEntity.getRefByName());
-				map.put("Signature of the Introducer", referralEntity.getRefByName());
-				map.put("Status of the Introducer Existng Client", referralEntity.getRefByName());
-			} else if (referralEntity.getReferralBy() != null) {
-				map.put("Name of the Introducer", referralEntity.getReferralBy());
-				map.put("Signature of the Introducer", referralEntity.getReferralBy());
-				map.put("Status of the Introducer Existng Client", referralEntity.getReferralBy());
+		if(referralEntity!=null) {
+			if (referralEntity.getName() != null||referralEntity.getReferralBy()!=null) {
+				map.put("Name of the Introducer", referralEntity.getReferralBy()!=null?referralEntity.getReferralBy(): referralEntity.getRefByName());
+				if(referralEntity.getRefByDesignation()!=null) {
+					if(referralEntity.getRefByDesignation().equals("1")) {
+						map.put("Status of the Introducer Existng Client","1");
+					}else if(referralEntity.getRefByDesignation().equals("2")) {
+						map.put("Status of the Introducer Authorized Person /","2");
+					}else if(referralEntity.getRefByDesignation().equals("3")) {
+						map.put("Status of the Introducer Others, please specify","3");
+					}
+				}
+				//map.put("Status of the Introducer Existng Client", referralEntity.getRefByName());
 			}
 			if (referralEntity.getRefByBranch() != null) {
 				map.put("Address of the Introducer", referralEntity.getRefByBranch());
-			}
-		}
+			}}
 		if (profileEntity.getFatherName() != null) {
 			map.put("i)FFirst Name", profileEntity.getFatherName());
 			map.put("Father's / Spouse Name - Prefix", "MR");
@@ -1479,7 +1483,7 @@ public class PdfService implements IPdfService {
 									props.getFileBasePath() + detailsEntity.getApplicationId() + slash
 											+ userEntity.get().getPanNumber() + EkycConstants.PDF_EXTENSION,
 									filePath, msg,
-									StringUtil.isNotNullOrEmpty(name) ? name : userEntity.get().getUserName(),
+									userEntity.get().getUserName(),
 									entity.getIsdigi() == 1 ? entity.getDigiPerState() : entity.getKraCity(),
 									userEntity.get().getId());
 							if (StringUtil.isNotNullOrEmpty(resposne)) {

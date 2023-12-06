@@ -21,11 +21,13 @@ import org.w3c.dom.Element;
 import com.nsdl.esign.preverifiedNo.controller.EsignApplication;
 
 import in.codifi.api.config.ApplicationProperties;
+import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.PdfDataCoordinatesEntity;
 import in.codifi.api.entity.SegmentEntity;
 import in.codifi.api.entity.TxnDetailsEntity;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.NomineeRepository;
 import in.codifi.api.repository.PdfDataCoordinatesrepository;
@@ -38,6 +40,8 @@ public class Esign {
 	private static String OS = System.getProperty("os.name").toLowerCase();
 	@Inject
 	ApplicationProperties props;
+	@Inject
+	AddressRepository addressRepository;
 	@Inject
 	NomineeRepository nomineeRepository;
 	@Inject
@@ -94,6 +98,7 @@ public class Esign {
 	private String getXmlForEsignSinglePage(String outPutPath, long applicationId) {
 		String response = "";
 		try {
+			Optional<ApplicationUserEntity> applicationData = applicationUserRepository.findById(applicationId);
 			// Set up eSign application parameters
 			String ekycID = "";
 			String pdfReadServerPath = outPutPath;
@@ -103,13 +108,16 @@ public class Esign {
 			String p12CertificatePath = props.getEsignLocation();
 			String p12CertiPwd = props.getEsignPassword();
 			String tickImagePath = props.getEsignTickImage();
-			int serverTime = 15;
+			int serverTime = 10;
 			String alias = props.getEsignAlias();
 			String pdfPassword = "";
 			String txn = "";
 			String reasonForSign = "";
-			String nameToShowOnSignatureStamp = "Test";
-			String locationToShowOnSignatureStamp = "Madurai";
+			String nameToShowOnSignatureStamp = applicationData.get().getUserName().toUpperCase();
+			AddressEntity addentity = addressRepository.findByapplicationId(applicationId);
+			String locationToShowOnSignatureStamp = addentity.getIsdigi() == 1
+					? addentity.getDigiPerState().toUpperCase()
+					: addentity.getKraCity().toUpperCase();
 
 			// Get PDF data coordinates from database
 			List<PdfDataCoordinatesEntity> coordinatesList = pdfDataCoordinatesrepository
@@ -210,6 +218,10 @@ public class Esign {
 				}
 
 				// Generate eSign request XML using coordinates and other parameters
+				System.out.println(" ekycID - "+ekycID+" pdfReadServerPath - "+ pdfReadServerPath+" aspId - "+  aspId+" authMode- "+  authMode+" responseUrl - "+  responseUrl+"p12CertificatePath  - "+ 
+						p12CertificatePath+" p12CertiPwd - "+  p12CertiPwd+" tickImagePath  - "+  tickImagePath+" serverTime - "+  serverTime+" alias - "+  alias+" nameToShowOnSignatureStamp - "+  nameToShowOnSignatureStamp+" locationToShowOnSignatureStamp - "+ 
+						locationToShowOnSignatureStamp+" reasonForSign - "+  reasonForSign+" pdfPassword - "+  pdfPassword+" txn - "+  txn+" PageNo - "+  PageNo+" xCoordinatesList - "+  xCoordinatesList+" yCoordinatesList - "+ 
+						yCoordinatesList+" height  - "+  height+ " width - "+  width);
 				EsignApplication eSignApp = new EsignApplication();
 				response = eSignApp.getEsignRequestXml(ekycID, pdfReadServerPath, aspId, authMode, responseUrl,
 						p12CertificatePath, p12CertiPwd, tickImagePath, serverTime, alias, nameToShowOnSignatureStamp,
@@ -230,6 +242,7 @@ public class Esign {
 			String tickImagePath = props.getEsignTickImage();
 			;
 			int serverTime = 10;
+//			Optional<ApplicationUserEntity> applicationData = applicationUserRepository.findById(applicationID);
 			String nameToShowOnSignatureStamp = applicantName.toUpperCase();
 			String locationToShowOnSignatureStamp = city.toUpperCase();
 			String reasonForSign = "";
@@ -309,18 +322,7 @@ public class Esign {
 						height.add(heightValue);
 						width.add(widthValue);
 					}
-					// Apply default coordinates to pages after the 38th page
-					PDDocument document = PDDocument.load(new File(documentLocation));
-					int pageCount = document.getNumberOfPages();
-					if (pageCount > 38) {
-						for (int i = 38; i < pageCount; i++) {
-							xCoordinatesList.add(60);
-							yCoordinatesList.add(300);
-							PageNo.add(i + 1);
-							height.add(40); // Change this to the actual height value
-							width.add(100); // Change this to the actual width value
-						}
-					}
+
 					// Loop through coordinates and add to respective lists
 					for (PdfDataCoordinatesEntity entity : coordinatesList) {
 						int xCoordinate = Integer.parseInt(entity.getXCoordinate());
@@ -333,6 +335,21 @@ public class Esign {
 						width.add(100); // Change this to the actual width value
 					}
 
+					// Apply default coordinates to pages after the 38th page
+					PDDocument document = PDDocument.load(new File(documentLocation));
+					int pageCount = document.getNumberOfPages();
+					if (pageCount > 38) {
+						for (int i = 38; i < pageCount; i++) {
+							xCoordinatesList.add(60);
+							yCoordinatesList.add(300);
+							PageNo.add(i + 1);
+							height.add(40); // Change this to the actual height value
+							width.add(100); // Change this to the actual width value
+						}
+					}
+					System.out.println(" pathToPDF - "+pathToPDF+" tickImagePath  - "+ tickImagePath+" serverTime - "+ serverTime+" nameToShowOnSignatureStamp - "+
+							nameToShowOnSignatureStamp+" locationToShowOnSignatureStamp - "+ locationToShowOnSignatureStamp+" reasonForSign  - "+ reasonForSign+"  pdfPassword - "+ pdfPassword+" returnPath - "+
+							returnPath+" PageNo - "+ PageNo+" xCoordinatesList - "+ xCoordinatesList+" yCoordinatesList - "+ yCoordinatesList+" height - "+ height+" width - "+ width);
 					responseText = eSignApp.getSignOnDocument(esignXml, pathToPDF, tickImagePath, serverTime,
 							nameToShowOnSignatureStamp, locationToShowOnSignatureStamp, reasonForSign, pdfPassword,
 							returnPath, PageNo, xCoordinatesList, yCoordinatesList, height, width);

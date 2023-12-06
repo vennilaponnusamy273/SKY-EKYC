@@ -112,4 +112,9 @@ public class ApplicationUserEntity extends CommonEntity implements Serializable 
 
 	@Transient
 	private String authToken;
+	
+	@Transient
+	private String referralBy;
+	@Transient
+	private String referralType;
 }

@@ -103,6 +103,7 @@ public class MessageConstants {
 	public final static String PENNY_ACCOUNT_CREATED = "Already Contact and account Created";
 	public final static String PENNY_DROP_NOT_PROCEED = "Penny Drop Cannot be proceed";
 	public final static String PENNY_ALREADY_DONE = "Penny Drop already performed";
+	public final static String PENNY_SUCCESS = "Penny Drop  performed SuccessFully";
 	public final static String PENNY_CONTACT_ID_NULL = "Contact Id is Null ";
 	public final static String FUND_ACCOUNT_ID_NULL = "Fund account Id is Null ";
 	public final static String ACCOUNT_IFSC_NULL = "Bank account number or IFSC is null";
