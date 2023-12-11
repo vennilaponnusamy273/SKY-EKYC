@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,20 +34,21 @@ public class PennyVerificationResponseEntity extends CommonEntity implements Ser
 	@Column(name = "verified")
     private String verified;
 
+
 	@Column(name = "verified_at")
-    private Date verifiedAt;
+    private String verifiedAt;
 
 	@Column(name = "beneficiary_name_with_bank")
     private String beneficiaryNameWithBank;
 
-	@Column(name = "fuzzy_match_result")
-    private String fuzzyMatchResult;
-
-	@Column(name = "fuzzy_match_score")
-    private int fuzzyMatchScore;
+//	@Column(name = "fuzzy_match_result")
+//    private String fuzzyMatchResult;
+//
+//	@Column(name = "fuzzy_match_score")
+//    private int fuzzyMatchScore;
 	
 	@Column(name = "pennyConfirm")
-    private int pennyConfirm;
+    private int pennyConfirm=0;
 	
 	@Column(name = "account_number")
 	private String accountNo;

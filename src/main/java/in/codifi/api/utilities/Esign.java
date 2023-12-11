@@ -108,7 +108,7 @@ public class Esign {
 			String p12CertificatePath = props.getEsignLocation();
 			String p12CertiPwd = props.getEsignPassword();
 			String tickImagePath = props.getEsignTickImage();
-			int serverTime = 10;
+			int serverTime =0;
 			String alias = props.getEsignAlias();
 			String pdfPassword = "";
 			String txn = "";
@@ -241,7 +241,7 @@ public class Esign {
 			String pathToPDF = documentLocation;
 			String tickImagePath = props.getEsignTickImage();
 			;
-			int serverTime = 10;
+			int serverTime =0;
 //			Optional<ApplicationUserEntity> applicationData = applicationUserRepository.findById(applicationID);
 			String nameToShowOnSignatureStamp = applicantName.toUpperCase();
 			String locationToShowOnSignatureStamp = city.toUpperCase();

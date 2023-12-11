@@ -19,6 +19,7 @@ import in.codifi.api.entity.ApiStatusEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.KraKeyValueEntity;
 import in.codifi.api.entity.PennyDropEntity;
+import in.codifi.api.entity.PennyVerificationResponseEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.entity.ReferralEntity;
 import in.codifi.api.entity.SegmentEntity;
@@ -32,6 +33,7 @@ import in.codifi.api.repository.ApiStatusRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.KraKeyValueRepository;
 import in.codifi.api.repository.PennyDropRepository;
+import in.codifi.api.repository.PennyVerificationRepository;
 import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.repository.ReferralRepository;
 import in.codifi.api.repository.SegmentRepository;
@@ -70,6 +72,8 @@ public class UserService implements IUserService {
 	ApiStatusRepository apiStatusRepository;
 	@Inject 
 	ReferralRepository referralRepository;
+	@Inject
+	PennyVerificationRepository pennyVerificationRepository;
 
 	private static final Logger logger = LogManager.getLogger(UserService.class);
 
@@ -362,7 +366,8 @@ public class UserService implements IUserService {
 		try {
 			iPennyController.ValidateDetails(applicationId);
 			Optional<ApplicationUserEntity> user = repository.findById(applicationId);
-			PennyDropEntity PennyUser = PennyRepository.findByapplicationId(applicationId);
+			PennyVerificationResponseEntity PennyUser = pennyVerificationRepository.findByapplicationId(applicationId);
+			//PennyDropEntity PennyUser = PennyRepository.findByapplicationId(applicationId);
 			SegmentEntity savedSegmentEntity = segmentRepository.findByapplicationId(applicationId);
 			List<KraKeyValueEntity> list = keyValueRepository.findByMasterIdAndMasterName("6", "DOCUMENT_UPLOAD");
 			List<String> proofType = new ArrayList<>();
@@ -380,8 +385,8 @@ public class UserService implements IUserService {
 						docReqModel.setIncomeProofRequired(false);
 					}
 				}
-				if (PennyUser != null && StringUtil.isNotNullOrEmpty(PennyUser.getAccountHolderName())) {
-					String accountHolderName = PennyUser.getAccountHolderName();
+				if (PennyUser != null && StringUtil.isNotNullOrEmpty(PennyUser.getBeneficiaryNameWithBank())&&PennyUser.getVerified().contains("true")) {
+					String accountHolderName = PennyUser.getBeneficiaryNameWithBank();
 					String firstname = user.get().getFirstName();
 					String lastname = user.get().getLastName();
 					String middleName = user.get().getMiddleName();

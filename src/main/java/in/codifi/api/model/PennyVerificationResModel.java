@@ -20,16 +20,17 @@ public class PennyVerificationResModel {
     @JsonProperty("verified")
     private String verified;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+   
     @JsonProperty("verified_at")
-    private Date verifiedAt;
+    private String verifiedAt;
 
     @JsonProperty("beneficiary_name_with_bank")
     private String beneficiaryNameWithBank;
 
-    @JsonProperty("fuzzy_match_result")
-    private String fuzzyMatchResult;
-
-    @JsonProperty("fuzzy_match_score")
-    private int fuzzyMatchScore;
+//    @JsonProperty("fuzzy_match_result")
+//    private String fuzzyMatchResult;
+//
+//    @JsonProperty("fuzzy_match_score")
+//    private int fuzzyMatchScore;
+    
 }

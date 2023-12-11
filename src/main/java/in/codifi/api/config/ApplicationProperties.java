@@ -168,4 +168,8 @@ public class ApplicationProperties {
 	String digioFinalUrl;
 	@ConfigProperty(name = "appconfig.digio.auth.key")
 	String digioAuthKey;
+	
+	// pennyDrop
+	@ConfigProperty(name = "appconfig.esign.pennyDropPdfPath")
+	String pennyDropPdfPath;
 }

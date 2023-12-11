@@ -46,6 +46,7 @@ import in.codifi.api.entity.GuardianEntity;
 import in.codifi.api.entity.IvrEntity;
 import in.codifi.api.entity.NomineeEntity;
 import in.codifi.api.entity.PdfDataCoordinatesEntity;
+import in.codifi.api.entity.PennyVerificationResponseEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.entity.ReferralEntity;
 import in.codifi.api.entity.SegmentEntity;
@@ -62,6 +63,7 @@ import in.codifi.api.repository.IvrRepository;
 import in.codifi.api.repository.KraKeyValueRepository;
 import in.codifi.api.repository.NomineeRepository;
 import in.codifi.api.repository.PdfDataCoordinatesrepository;
+import in.codifi.api.repository.PennyVerificationRepository;
 import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.repository.ReferralRepository;
 import in.codifi.api.repository.SegmentRepository;
@@ -116,6 +118,8 @@ public class PdfService implements IPdfService {
 	RazorpayIfscRestService commonRestService;
 	@Inject
 	ReferralRepository referralRepository;
+	@Inject
+	PennyVerificationRepository pennyVerificationRepository;
 	private static final Logger logger = LogManager.getLogger(PennyService.class);
 
 	/**
@@ -176,6 +180,34 @@ public class PdfService implements IPdfService {
 					}
 				}
 				List<PdfDataCoordinatesEntity> pdfDatas = pdfDataCoordinatesrepository.getCoordinates();
+				if (StringUtil.isNotNullOrEmpty(map.get("pennystatus"))) {
+					File pennyDropFile = new File(props.getPennyDropPdfPath());
+					PDDocument combine1 = PDDocument.load(pennyDropFile);
+					PDFMergerUtility merger1 = new PDFMergerUtility();
+					merger1.appendDocument(document, combine1);
+					merger1.mergeDocuments();
+					combine1.close();
+					if (StringUtil.isNotNullOrEmpty(map.get("pennystatus"))) {
+						File verifyImageFile = new File(props.getVerifyImage());
+						if (verifyImageFile.exists()) {
+							int pageIndex = 39; // Change this to the actual index of the page you want to add the image to
+							if (pageIndex >= 0 && pageIndex < document.getNumberOfPages()) {
+								PDPage page = document.getPage(pageIndex);
+								PDImageXObject importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(),
+										document);
+
+								// Create a new content stream for appending content to the existing page
+								PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true);
+								contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
+								contentStream.close(); // Close the content stream
+							} else {
+								System.err.println("Invalid page index.");
+							}
+						} else {
+							System.err.println("Failed to load the verification image.");
+						}
+					}
+					}
 				pdfInsertCoordinates(document, pdfDatas, map);
 				addIPvDocument(document, applicationId);
 				addDocument(document, applicationId);
@@ -357,6 +389,8 @@ public class PdfService implements IPdfService {
 				float x = Float.parseFloat(pdfData.getXCoordinate());
 				float y = Float.parseFloat(pdfData.getYCoordinate());
 				int pageNo = Integer.parseInt(pdfData.getPageNo());
+				int numberOfPages = document.getNumberOfPages(); // Get the total number of pages
+				if (pageNo >= 0 && pageNo < numberOfPages) {
 				PDPage page = document.getPage(pageNo);
 				PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true);
 				contentStream.setFont(font, 7);
@@ -386,7 +420,19 @@ public class PdfService implements IPdfService {
 						contentStream.showText(inputText.toUpperCase());
 					}
 					contentStream.endText();
-				} else if (columnType.equalsIgnoreCase("text") || columnType.equalsIgnoreCase("line")) {
+				}else if (StringUtil.isNotNullOrEmpty(columnType) && StringUtil.isNotNullOrEmpty(columnNames)
+						&& columnType.equalsIgnoreCase("textPENNY") && StringUtil.isNotNullOrEmpty(map.get("pennystatus"))) {
+					contentStream.beginText();
+					contentStream.setNonStrokingColor(0, 0, 0);
+					contentStream.newLineAtOffset(x, y);
+					String inputText = map.get(columnNames);
+					if (inputText != null) {
+						inputText = inputText.replaceAll("\n", " ");
+						contentStream.showText(inputText.toUpperCase());
+					}
+					contentStream.endText();
+				}
+				else if (columnType.equalsIgnoreCase("text") || columnType.equalsIgnoreCase("line")) {
 					contentStream.beginText();
 					contentStream.setNonStrokingColor(0, 0, 0);
 					contentStream.newLineAtOffset(x, y);
@@ -430,7 +476,7 @@ public class PdfService implements IPdfService {
 					}
 				}
 				contentStream.close();
-			}
+			}}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -820,7 +866,26 @@ public class PdfService implements IPdfService {
 				map.put("State", model.getState());
 				map.put("Country", "INDIA");
 				map.put("Branch Name", model.getBranch());
+				// Check penny verification status
+			    PennyVerificationResponseEntity pennyVerificationResponseEntity = pennyVerificationRepository.findByapplicationId(applicationId);
+			    if (pennyVerificationResponseEntity != null && pennyVerificationResponseEntity.getPennyConfirm() == 1) {
+				map.put("pennystatus", "Verified by penny drop.");
+				map.put("Account Holder Name", pennyVerificationResponseEntity.getBeneficiaryNameWithBank());
+				map.put("Account Number", pennyVerificationResponseEntity.getAccountNo());
+				map.put("Bank Name penny", model.getBank());
+				map.put("IFSC Code", bankDetails.getIfsc());
+				map.put("MICR Code", bankDetails.getMicr());
+				map.put("Bank Address", bankDetails.getAddress());
+				String addressForBank = bankDetails.getAddress();
+				map.put("BankAddress1", addressForBank.substring(0, Math.min(66, addressForBank.length())));
+				if (addressForBank.length() >= 66) {
+					map.put("BankAddress2", addressForBank.substring(66, Math.min(138, addressForBank.length())));
+				}
+				map.put("Bank Response", pennyVerificationResponseEntity.getVerified());
+				map.put("Bank Ref ID", pennyVerificationResponseEntity.getPaymentid());
+				map.put("Verified by penny drop on", pennyVerificationResponseEntity.getVerifiedAt().toString());
 			}
+		}
 		}
 
 		IvrEntity ivrEntity = ivrRepository.findByApplicationId(applicationId);
