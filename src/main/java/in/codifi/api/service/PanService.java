@@ -124,15 +124,21 @@ public class PanService implements IPanService {
 											if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_MSG)) {
 												responseModel = commonMethods.constructFailedMsg(
 														panCardDetails.getString(EkycConstants.CONSTANT_ERROR_MSG));
-
+												responseModel.setPage(EkycConstants.PAGE_AADHAR);
+												savingEntity = repository.save(oldUserEntity);
+												return responseModel;
 											} else if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_DESC)) {
 												responseModel = commonMethods.constructFailedMsg(
 														panCardDetails.getString(EkycConstants.CONSTANT_ERROR_DESC));
-												responseModel.setPage(EkycConstants.PAGE_PAN_KRA_DOB_ENTRY);
+												responseModel.setPage(EkycConstants.PAGE_AADHAR);
+												savingEntity = repository.save(oldUserEntity);
 												return responseModel;
 											} else {
 												responseModel = commonMethods
 														.constructFailedMsg(MessageConstants.KRA_FAILED);
+												responseModel.setPage(EkycConstants.PAGE_AADHAR);
+												savingEntity = repository.save(oldUserEntity);
+												return responseModel;
 											}
 										}
 									} else {
