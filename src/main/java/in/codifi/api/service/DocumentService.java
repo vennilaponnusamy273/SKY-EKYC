@@ -149,8 +149,9 @@ public class DocumentService implements IDocumentService {
 				slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
 			}
 			DocumentEntity updatedDocEntity = null;
+			System.out.println("the data.getTypeOfProof()"+data.getTypeOfProof());
 			DocumentEntity oldRecord = docrepository.findByApplicationIdAndDocumentType(data.getApplicationId(),
-					data.getTypeOfProof());
+					data.getDocumentType());
 			if (oldRecord != null) {
 				oldRecord.setAttachement(fileName);
 				oldRecord.setDocumentType(data.getDocumentType());

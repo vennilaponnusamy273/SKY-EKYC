@@ -22,6 +22,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.codifi.api.cache.HazleCacheController;
@@ -65,42 +67,56 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 			public void run() {
 				try {
 					ObjectMapper objMapper = new ObjectMapper();
-					//AccesslogEntity logModel = new AccesslogEntity();
 					AccessLogModel accessLogModel = new AccessLogModel();
 					UriInfo uriInfo = requestContext.getUriInfo();
 					MultivaluedMap<String, String> headers = requestContext.getHeaders();
-				/**	logModel.setContentType(headers.getFirst(EkycConstants.CONSTANT_CONTENT_TYPE));
-					logModel.setDeviceIp(deviceIp);
-					logModel.setMethod(requestContext.getMethod());**/
 					accessLogModel.setContentType(headers.getFirst(EkycConstants.CONSTANT_CONTENT_TYPE));
-					accessLogModel.setDeviceIp(deviceIp);
+					accessLogModel.setDeviceIp(headers.getFirst("X-Forwarded-For"));
 					accessLogModel.setMethod(requestContext.getMethod());
 					String queryParams = uriInfo.getRequestUri().getQuery();
 					if (StringUtil.isNotNullOrEmpty(queryParams)) {
-						//logModel.setReqBody(queryParams);
 						accessLogModel.setReqBody(queryParams);
+						//System.out.println("the queryParams: " + queryParams);
+						MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+						String applicationId = findApplicationId(queryParameters);
+						//System.out.println("the applicationId: " + applicationId);
+						accessLogModel.setApplicationId(applicationId);
 					} else {
-						/**logModel.setReqBody(
-								objMapper.writeValueAsString(requestContext.getProperty(EkycConstants.CONST_REQ_BODY)));**/
-						accessLogModel.setReqBody(
-								objMapper.writeValueAsString(requestContext.getProperty(EkycConstants.CONST_REQ_BODY)));
+						String requestBody = (String) requestContext.getProperty(EkycConstants.CONST_REQ_BODY);
+						accessLogModel.setReqBody(requestBody);
+						String contentType = headers.getFirst(EkycConstants.CONSTANT_CONTENT_TYPE);
+						if ("application/json".equalsIgnoreCase(contentType)) {
+						try {
+							JsonNode jsonNode = objMapper.readTree(requestBody);
+							String id = jsonNode.path("id").asText(null);
+							String applicationId = jsonNode.path("applicationId").asText(null);
+							String mobileNo = jsonNode.path("mobileNo").asText(null);
+							String emailId = jsonNode.path("emailId").asText(null);
+							if (id != null) {
+								//System.out.println("the Filter sid: " + id);
+								accessLogModel.setApplicationId(id);
+							} else if (applicationId != null) {
+								//System.out.println("the Filter applicationId: " + applicationId);
+								accessLogModel.setApplicationId(applicationId);
+							} else if (mobileNo != null) {
+								//System.out.println("the Filter mobileNo: " + mobileNo);
+								accessLogModel.setApplicationId(mobileNo);
+							} 	else if (emailId != null) {
+								//System.out.println("the Filter EmailId: " + emailId);
+								accessLogModel.setApplicationId(emailId);
+							} 
+							else {
+								System.out.println("Neither id nor applicationId found in the JSON.");
+							}
+						} catch (JsonProcessingException e) {
+							System.out.println("Error parsing JSON: " + e.getMessage());
+						}
+						}
 					}
 					Object reponseObj = responseContext.getEntity();
-					/**logModel.setResBody(objMapper.writeValueAsString(reponseObj));
-					logModel.setUri(uriInfo.getPath().toString());
-					logModel.setUserAgent(headers.getFirst(EkycConstants.USER_AGENT));
-					logModel.setApplicationId(
-							objMapper.writeValueAsString(requestContext.getProperty("applicationId")));
-					logModel.setReqId(requestContext.getProperty("threadId") != null
-							? requestContext.getProperty("threadId").toString()
-							: "singlecapture");
-					Long thredId = Thread.currentThread().getId();
-					logRepository.save(logModel);**/
 					accessLogModel.setResBody(objMapper.writeValueAsString(reponseObj));
 					accessLogModel.setUri(uriInfo.getPath().toString());
 					accessLogModel.setUserAgent(headers.getFirst(EkycConstants.USER_AGENT));
-					accessLogModel.setApplicationId(
-							objMapper.writeValueAsString(requestContext.getProperty("applicationId")));
 					accessLogModel.setReqId(requestContext.getProperty("threadId") != null
 							? requestContext.getProperty("threadId").toString()
 							: "singlecapture");
@@ -112,7 +128,18 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 			}
 		});
 		pool.shutdown();
+	}
+	
+	private String findApplicationId(MultivaluedMap<String, String> queryParameters) {
+		String[] possibleKeys = { "applicationId","id" }; // Add other variations as needed
 
+		for (String key : possibleKeys) {
+			if (queryParameters.containsKey(key)) {
+				return queryParameters.getFirst(key);
+			}
+		}
+
+		return null; // Or handle the case when applicationId is not found
 	}
 
 	@Override
