@@ -266,8 +266,8 @@ public class NomineeService implements INomineeService {
 	
 	 public void saveDoc(long applicationId,String fileName, String outputPath, String imageName) {
     	 DocumentEntity documentEntity=new DocumentEntity();
-    	 	DocumentEntity oldRecord = docrepository.findByApplicationIdAndAttachement(applicationId,
-    	 			fileName);
+    	 	DocumentEntity oldRecord = docrepository.findByApplicationIdAndDocumentType(applicationId,
+    	 			imageName);
     	 	if (oldRecord!=null) {
     	 		documentEntity.setId(oldRecord.getId());
     	 		documentEntity=oldRecord;
