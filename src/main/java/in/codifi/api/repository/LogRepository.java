@@ -79,6 +79,8 @@ public class LogRepository {
 						+ " (id int AUTO_INCREMENT  PRIMARY KEY, application_id VARCHAR(15),"
 						+ "uri text,method varchar(150),req_id VARCHAR(15),"
 						+ "req_body longtext,res_body longtext,device_ip varchar(100),"
+						+ "createdOn TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+						+ "updatedOn TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"
 						+ "user_agent longtext,content_type varchar(200),session mediumtext)";
 				statement.executeUpdate(sql);
 			}
