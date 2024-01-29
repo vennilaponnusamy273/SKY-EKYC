@@ -125,17 +125,20 @@ public class PanService implements IPanService {
 												responseModel = commonMethods.constructFailedMsg(
 														panCardDetails.getString(EkycConstants.CONSTANT_ERROR_MSG));
 												responseModel.setPage(EkycConstants.PAGE_AADHAR);
+												responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 												savingEntity = repository.save(oldUserEntity);
 												return responseModel;
 											} else if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_DESC)) {
 												responseModel = commonMethods.constructFailedMsg(
 														panCardDetails.getString(EkycConstants.CONSTANT_ERROR_DESC));
+												responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 												responseModel.setPage(EkycConstants.PAGE_AADHAR);
 												savingEntity = repository.save(oldUserEntity);
 												return responseModel;
 											} else {
 												responseModel = commonMethods
 														.constructFailedMsg(MessageConstants.KRA_FAILED);
+												responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 												responseModel.setPage(EkycConstants.PAGE_AADHAR);
 												savingEntity = repository.save(oldUserEntity);
 												return responseModel;
@@ -162,6 +165,7 @@ public class PanService implements IPanService {
 							responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
 						}
 					}
+					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 					responseModel.setPage(EkycConstants.PAGE_AADHAR);
 					responseModel.setResult(
 							savingEntity != null ? savingEntity : profileEntity != null ? profileEntity : "");
