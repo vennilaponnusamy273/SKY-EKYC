@@ -22,7 +22,6 @@ import org.json.JSONObject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.IvrEntity;

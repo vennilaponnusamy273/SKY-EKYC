@@ -258,6 +258,7 @@ public class EkycConstants {
 	public static final String PATH_LOG_TABLE = "/logs/Logtables";
 	public static final String PATH_REST_LOG_TABLE = "/logs/RestServiceLogtables";
 	public static final String DIGIO_WEBHOOK = "/digio/whDigilocker";
+	public static final String IVR_SEND_LINK = "/ivr/sendLink/";
 	
 	
 	public static final String CONST_REQ_BODY = "reqBody";
