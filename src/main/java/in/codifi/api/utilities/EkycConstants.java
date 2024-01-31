@@ -257,6 +257,7 @@ public class EkycConstants {
 	public static final String PATH_GET_USR_DETAILS = "/user/getUsrDetails";
 	public static final String PATH_LOG_TABLE = "/logs/Logtables";
 	public static final String PATH_REST_LOG_TABLE = "/logs/RestServiceLogtables";
+	public static final String DIGIO_WEBHOOK = "/digio/whDigilocker";
 	
 	
 	public static final String CONST_REQ_BODY = "reqBody";
@@ -289,4 +290,5 @@ public class EkycConstants {
 	public static final String AADHAR_XML = "true";
 	public static final String XMLNAME = "_DIGIO";
 	public static final String IMAGE_NAME = "_Aadhar_UID_NO";
+	public static final String CONST_FILTER_NEW = "8_FILTER_01";
 }

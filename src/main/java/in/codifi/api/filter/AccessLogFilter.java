@@ -49,7 +49,7 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 	CommonMethods commonMethods;
 	private static final List<String> disablepaths = Arrays.asList(EkycConstants.PATH_SEND_SMS_OTP,
 			EkycConstants.PATH_TEST, EkycConstants.PATH_VERIFY_SMS_OTP, EkycConstants.PATH_RELOAD_KRAKEYVALUE,
-			EkycConstants.PATH_GET_NSDL_ESIGN,EkycConstants.PATH_LOG_TABLE,EkycConstants.PATH_REST_LOG_TABLE);
+			EkycConstants.PATH_GET_NSDL_ESIGN,EkycConstants.PATH_LOG_TABLE,EkycConstants.PATH_REST_LOG_TABLE,EkycConstants.DIGIO_WEBHOOK);
 
 	/**
 	 * Method to capture and single save request and response
@@ -159,8 +159,9 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 			requestContext.setProperty(EkycConstants.CONST_REQ_BODY, formedReq);
 			String path = requestContext.getUriInfo().getPath();
 			boolean visible = disablepaths.stream().anyMatch(visibleType -> visibleType.contains(path));
+			System.out.println("the visible"+visible+" "+"path"+path);
 			if (!visible && StringUtil.isEqual(
-					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.CONST_FILTER),
+					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.CONST_FILTER_NEW),
 					EkycConstants.TRUE)) {
 				String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
 				if (StringUtil.isNullOrEmpty(authorizationHeader)) {

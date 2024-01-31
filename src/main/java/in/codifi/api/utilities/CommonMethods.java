@@ -435,7 +435,7 @@ public class CommonMethods {
 
 	public ApplicationUserEntity generateAuthToken(ApplicationUserEntity updatedUserDetails) {
 		String authToken = randomAlphaNumeric(updatedUserDetails.getMobileNo(), updatedUserDetails.getId());
-		HazleCacheController.getInstance().getAuthToken().put(updatedUserDetails.getMobileNo().toString(), authToken,
+		HazleCacheController.getInstance().getAuthToken().put(updatedUserDetails.getMobileNo().toString()+ "_" +updatedUserDetails.getId(), authToken,
 				300, TimeUnit.SECONDS);
 		updatedUserDetails.setAuthToken(authToken);
 		return updatedUserDetails;
