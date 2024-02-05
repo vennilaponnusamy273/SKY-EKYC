@@ -22,6 +22,7 @@ import org.json.JSONObject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import in.codifi.api.cache.HazleCacheController;
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.IvrEntity;
@@ -205,13 +206,13 @@ public class IvrService implements IIvrService {
 					.encodeToString(UUID.randomUUID().toString().getBytes());
 			String baseUrl = props.getIvrBaseUrl();
 			String apiKey = props.getBitlyAccessToken();
-			ApplicationUserEntity updatedUserDetails=isUserPresent.get();
-			ApplicationUserEntity applicationUserEntity=commonMethods.generateAuthToken(updatedUserDetails);
-//			String session = HazleCacheController.getInstance().getAuthToken()
-//					.get(isUserPresent.get().getMobileNo().toString() + "_" + isUserPresent.get().getId().toString());
+//			ApplicationUserEntity updatedUserDetails=isUserPresent.get();
+//			ApplicationUserEntity applicationUserEntity=commonMethods.generateAuthToken(updatedUserDetails);
+			String session = HazleCacheController.getInstance().getAuthToken()
+					.get(isUserPresent.get().getMobileNo().toString() + "_" + isUserPresent.get().getId().toString());
 			String url = baseUrl + EkycConstants.IVR_KEY + apiKey + EkycConstants.IVR_APPLICATIONID + applicationId
 					+ EkycConstants.IVR_NAME + FirstName + EkycConstants.IVR_USER_DOMAIN_AND_RANDOMKEY
-					+ RandomencodedUuid + EkycConstants.IVR_SESSION +applicationUserEntity.getAuthToken();
+					+ RandomencodedUuid + EkycConstants.IVR_SESSION +session;
 			try {
 //				String generateShortLink1 = cuttlyServiceCheck.shortenUrl(url);
 				String generateShortLink = generateShortLink(url);
@@ -305,15 +306,15 @@ public class IvrService implements IIvrService {
 		ResponseModel responseModel = new ResponseModel();
 		String url = "";
 		try {
-			IvrEntity oldRecord = ivrRepository.findByApplicationId(userEntity.getId());
-			if (oldRecord == null || StringUtil.isNullOrEmpty(oldRecord.getUrl())) {
+//			IvrEntity oldRecord = ivrRepository.findByApplicationId(userEntity.getId());
+//			if (oldRecord == null || StringUtil.isNullOrEmpty(oldRecord.getUrl())) {
 				ResponseModel newModel = getIvrLink(userEntity.getId());
 				if (newModel.getStat() == 1 && StringUtil.isEqual(newModel.getMessage(), EkycConstants.SUCCESS_MSG)) {
 					url = newModel.getReason();
 				}
-			} else {
-				url = oldRecord.getUrl();
-			}
+//			} else {
+//				url = oldRecord.getUrl();
+//			}
 			if (StringUtil.isNotNullOrEmpty(url)) {
 				userRepository.updateIvrStage(userEntity.getId(), EkycConstants.PAGE_DOCUMENT);
 				if (type.equalsIgnoreCase(EkycConstants.IVR_SMS_KEY)) {
