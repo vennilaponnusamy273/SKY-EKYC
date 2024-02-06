@@ -161,7 +161,7 @@ public class DigioHelper {
 	}
 	public static String sanitizeString(String input) {
 	    // Define the pattern for allowed characters
-	    String allowedCharactersPattern = "[^0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&()_\\-\\[\\]\\\\,./]+";
+	    String allowedCharactersPattern = "[^0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&()_\\-\\[\\]\\\\,./ ]+";
 	    // Replace non-allowed characters with an empty string
 	    return input.replaceAll(allowedCharactersPattern, "");
 	}
