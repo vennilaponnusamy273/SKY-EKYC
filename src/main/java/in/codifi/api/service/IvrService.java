@@ -212,7 +212,7 @@ public class IvrService implements IIvrService {
 					.get(isUserPresent.get().getMobileNo().toString() + "_" + isUserPresent.get().getId().toString());
 			String url = baseUrl + EkycConstants.IVR_KEY + apiKey + EkycConstants.IVR_APPLICATIONID + applicationId
 					+ EkycConstants.IVR_NAME + FirstName + EkycConstants.IVR_USER_DOMAIN_AND_RANDOMKEY
-					+ RandomencodedUuid + EkycConstants.IVR_SESSION +session;
+					+ RandomencodedUuid + EkycConstants.IVR_SESSION +URLEncoder.encode(session);
 			try {
 //				String generateShortLink1 = cuttlyServiceCheck.shortenUrl(url);
 				String generateShortLink = generateShortLink(url);
