@@ -406,7 +406,7 @@ public class PdfService implements IPdfService {
 					contentStream.newLineAtOffset(x, y);
 					String inputText = map.get(columnNames);
 					if (inputText != null) {
-						inputText = inputText.replaceAll("\n", " ");
+						inputText = inputText.replaceAll("[\n\t]", " ");
 						contentStream.showText(inputText.toUpperCase());
 					}
 					contentStream.endText();
@@ -416,7 +416,7 @@ public class PdfService implements IPdfService {
 					contentStream.newLineAtOffset(x, y);
 					String inputText = map.get(columnNames);
 					if (inputText != null) {
-						inputText = inputText.replaceAll("\n", " ");
+						inputText = inputText.replaceAll("[\n\t]", " ");
 						contentStream.showText(inputText.toUpperCase());
 					}
 					contentStream.endText();
@@ -427,7 +427,7 @@ public class PdfService implements IPdfService {
 					contentStream.newLineAtOffset(x, y);
 					String inputText = map.get(columnNames);
 					if (inputText != null) {
-						inputText = inputText.replaceAll("\n", " ");
+						inputText = inputText.replaceAll("[\n\t]", " ");
 						contentStream.showText(inputText.toUpperCase());
 					}
 					contentStream.endText();
@@ -447,7 +447,7 @@ public class PdfService implements IPdfService {
 						inputText = map.get(columnNames);
 					}
 					if (inputText != null) {
-						inputText = inputText.replaceAll("\n", " ");
+						 inputText = inputText.replaceAll("[\n\t]", " ");
 						contentStream.showText(inputText.toUpperCase());
 					}
 
