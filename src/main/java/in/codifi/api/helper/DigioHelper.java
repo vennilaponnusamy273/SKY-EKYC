@@ -45,6 +45,7 @@ public class DigioHelper {
 			digioEntity.setXmlrequestId(addResponse.getActions().get(0).getExecutionRequestId());
 			digioRepository.save(digioEntity);
 			digioRestService.getXml(addResponse.getActions().get(0).getExecutionRequestId(), applicationId);
+			digioRestService.savePANXmlDocument(addResponse.getActions().get(0).getExecutionRequestId(), applicationId);
 		}
 		System.out.println("the whDigilocker 7");
 		AddressEntity checkExit = addressRepository.findByapplicationId(applicationId);

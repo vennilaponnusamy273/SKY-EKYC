@@ -292,4 +292,6 @@ public class EkycConstants {
 	public static final String XMLNAME = "_DIGIO";
 	public static final String IMAGE_NAME = "_Aadhar_UID_NO";
 	public static final String CONST_FILTER_NEW = "8_FILTER_01";
+	public static final String PAN_XML_NAME = "_PAN";
+	public static final String PAN_XML = "false";
 }

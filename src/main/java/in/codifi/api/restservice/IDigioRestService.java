@@ -9,6 +9,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
@@ -48,5 +49,13 @@ public interface IDigioRestService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "")
 	String getDigiXml(@HeaderParam("Authorization") String digioAuthKey,
+			@PathParam("param") String param,@QueryParam("doc_type") String payload,@QueryParam("xml") String xml);
+	
+	@Path("/media/{param}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@APIResponse(description = "")
+	Response getPanXml(@HeaderParam("Authorization") String digioAuthKey,
 			@PathParam("param") String param,@QueryParam("doc_type") String payload,@QueryParam("xml") String xml);
 }

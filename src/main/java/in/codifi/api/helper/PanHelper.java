@@ -42,6 +42,9 @@ import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.util.encoders.Base64;
 import org.json.simple.JSONObject;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.model.ResponseModel;
@@ -414,5 +417,44 @@ public class PanHelper {
 			commonMethods.sendErrorMail("An error occurred while processing your request, In stringToJson for the Error: " + e.getMessage(),"ERR-001");
 		}
 		return response;
+	}
+	
+	public ResponseModel saveSuccessResult(String result, ApplicationUserEntity userEntity) {
+		ResponseModel responseModel = new ResponseModel();
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode tempResult = objectMapper.readTree(result);
+
+			// Check if "full_name" is present in the response
+			if (tempResult.has("full_name")) {
+				String fullName = tempResult.get("full_name").asText();
+				String panNumber = tempResult.get("pan").asText();
+				String category = tempResult.get("category").asText();
+				String status = tempResult.get("status").asText();
+				Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
+				if (isUserPresent.isPresent()) {
+					ApplicationUserEntity updatedUserDetails = isUserPresent.get();
+					updatedUserDetails.setUserName(fullName);
+					updatedUserDetails.setPanNumber(panNumber);
+					updatedUserDetails.setPanStatus(status);
+					updatedUserDetails.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
+					updatedUserDetails = repository.save(updatedUserDetails);
+					commonMethods.UpdateStep(EkycConstants.PAGE_PAN_NSDL_DATA_CONFIRM, userEntity.getId());
+
+					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+					responseModel.setResult(updatedUserDetails);
+					responseModel.setPage(EkycConstants.PAGE_PAN_CONFIRM);
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+				}
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
+		return responseModel;
 	}
 }

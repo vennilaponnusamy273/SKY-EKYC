@@ -128,6 +128,7 @@ public class DigioService implements IDigioService {
 		action.setFaceMatchObjType("MATCH_REQUIRED");
 		List<String> docList = new ArrayList<>();
 		docList.add("AADHAAR");
+		docList.add("PAN");
 		action.setDocumentTypes(docList);
 		List<DigioAction> listActions = new ArrayList<>();
 		listActions.add(action);

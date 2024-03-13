@@ -16,8 +16,10 @@ import in.codifi.api.helper.KRAHelper;
 import in.codifi.api.helper.PanHelper;
 import in.codifi.api.helper.RejectionStatusHelper;
 import in.codifi.api.model.ResponseModel;
+import in.codifi.api.repository.AccessLogManager;
 import in.codifi.api.repository.AddressRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
+import in.codifi.api.restservice.PanDigioRestService;
 import in.codifi.api.service.spec.IPanService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
@@ -40,7 +42,11 @@ public class PanService implements IPanService {
 	CkycService ckycService;
 	@Inject
 	RejectionStatusHelper rejectionStatusHelper;
-
+	
+	@Inject
+	PanDigioRestService panDigioRestService;
+	@Inject
+	AccessLogManager accessLogManager;
 	private static final Logger logger = LogManager.getLogger(PanService.class);
 
 	/**
@@ -54,13 +60,17 @@ public class PanService implements IPanService {
 			ApplicationUserEntity panNumberPresent = repository.findByPanNumber(userEntity.getPanNumber());
 			if (isUserPresent.isPresent() && (panNumberPresent == null
 					|| panNumberPresent != null && userEntity.getId() == panNumberPresent.getId())) {
-				String result = panHelper.getPanDetailsFromNSDL(userEntity.getPanNumber(), userEntity.getId());
-				if (result != null && !result.equalsIgnoreCase("")) {
-					responseModel = panHelper.saveResult(result, isUserPresent.get());
-				} else {
+				String result = panDigioRestService.getPanDetails(userEntity.getPanNumber());
+				accessLogManager.insertRestAccessLogsIntoDB(userEntity.getId().toString(),
+						userEntity.getPanNumber() , result, "getPanDetails", "/pan/getPan");
+				System.out.println("the pan resposne is "+result);
+				if (result != null && !result.isEmpty()) {
+	                if (result.contains("full_name")) {
+	                    responseModel = panHelper.saveSuccessResult(result, isUserPresent.get());
+	                }} else {
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);
 				}
-			} else {
+			 }else {
 				if (!isUserPresent.isPresent()) {
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 				} else {
