@@ -49,11 +49,46 @@ public class PanService implements IPanService {
 	AccessLogManager accessLogManager;
 	private static final Logger logger = LogManager.getLogger(PanService.class);
 
+	
 	/**
 	 * Method to get PAN details
 	 */
 	@Override
 	public ResponseModel getPanDetails(ApplicationUserEntity userEntity) {
+		ResponseModel responseModel = new ResponseModel();
+		try {
+			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
+			ApplicationUserEntity panNumberPresent = repository.findByPanNumber(userEntity.getPanNumber());
+			if (isUserPresent.isPresent() && (panNumberPresent == null
+					|| panNumberPresent != null && userEntity.getId() == panNumberPresent.getId())) {
+				String result = panHelper.getPanDetailsFromNSDL(userEntity.getPanNumber(), userEntity.getId());
+				if (result != null && !result.equalsIgnoreCase("")) {
+					responseModel = panHelper.saveResult(result, isUserPresent.get());
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);
+				}
+			} else {
+				if (!isUserPresent.isPresent()) {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.PAN_ALREADY_AVAILABLE);
+				}
+			}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(userEntity.getId(), "PanService", "getPanDetails", e.getMessage());
+			commonMethods
+					.sendErrorMail("An error occurred while processing your request, In getPanDetails for this Error :"
+							+ e.getMessage(), "ERR-001");
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
+		return responseModel;
+	}
+	/**
+	 * Method to get PAN details
+	 */
+	
+	public ResponseModel getPanDetails1(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
 			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());

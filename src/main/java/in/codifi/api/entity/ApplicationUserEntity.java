@@ -109,6 +109,9 @@ public class ApplicationUserEntity extends CommonEntity implements Serializable 
 	
 	@Column(name = "pan_status")
 	private String panStatus;
+	
+	@Column(name = "panNsdlLink")
+	private String panNsdlLink;
 
 	@Transient
 	private String gender;
