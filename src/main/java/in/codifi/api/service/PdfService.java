@@ -875,13 +875,13 @@ public class PdfService implements IPdfService {
 			map.put("MICR", bankDetails.getMicr());
 			map.put("VerifyAccNumber", bankDetails.getVerifyAccNumber());
 			map.put("BankPincode", bankDetails.getPincode());
-			BankAddressModel model = commonRestService.getBankAddressByIfsc(bankDetails.getIfsc());
-			if (model != null) {
-				map.put("Bank Name", model.getBank());
-				map.put("City", model.getCity());
-				map.put("State", model.getState());
+//			BankAddressModel model = commonRestService.getBankAddressByIfsc(bankDetails.getIfsc());
+//			if (model != null) {
+				map.put("Bank Name", bankDetails.getBank());
+				map.put("City", bankDetails.getBankCity());
+				map.put("State", bankDetails.getBankState());
 				map.put("Country", "INDIA");
-				map.put("Branch Name", model.getBranch());
+				map.put("Branch Name", bankDetails.getBranchName());
 				// Check penny verification status
 				PennyVerificationResponseEntity pennyVerificationResponseEntity = pennyVerificationRepository
 						.findByapplicationId(applicationId);
@@ -889,7 +889,7 @@ public class PdfService implements IPdfService {
 					map.put("pennystatus", "Verified by penny drop.");
 					map.put("Account Holder Name", pennyVerificationResponseEntity.getBeneficiaryNameWithBank());
 					map.put("Account Number", pennyVerificationResponseEntity.getAccountNo());
-					map.put("Bank Name penny", model.getBank());
+					map.put("Bank Name penny", bankDetails.getBank());
 					map.put("IFSC Code", bankDetails.getIfsc());
 					map.put("MICR Code", bankDetails.getMicr());
 					map.put("Bank Address", bankDetails.getAddress());
@@ -901,7 +901,7 @@ public class PdfService implements IPdfService {
 					map.put("Bank Response", pennyVerificationResponseEntity.getVerified());
 					map.put("Bank Ref ID", pennyVerificationResponseEntity.getPaymentid());
 					map.put("Verified by penny drop on", pennyVerificationResponseEntity.getVerifiedAt().toString());
-				}
+				//}
 			}
 		}
 

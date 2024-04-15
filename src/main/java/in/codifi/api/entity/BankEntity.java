@@ -48,5 +48,14 @@ public class BankEntity extends CommonEntity implements Serializable {
 
 	@Column(name = "verify_acc_numr")
 	private String verifyAccNumber;
+	
+	@Column(name = "bank")
+	private String bank;
+	
+	@Column(name = "bankCity")
+	private String bankCity;
+	
+	@Column(name = "bankState")
+	private String bankState;
 
 }

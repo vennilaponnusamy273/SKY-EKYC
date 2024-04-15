@@ -23,5 +23,11 @@ public class NomineeDocModel {
 
 	@FormParam(value = "nomineeDetails")
 	private String nomineeDetails;
+	
+	@FormParam(value = "nomineepassword")
+	private String nomineepassword;
+	
+	@FormParam(value = "gurpassword")
+	private String gurpassword;
 
 }

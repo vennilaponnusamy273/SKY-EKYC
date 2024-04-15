@@ -1,6 +1,7 @@
 package in.codifi.api.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +29,7 @@ import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.entity.GuardianEntity;
 import in.codifi.api.entity.NomineeEntity;
 import in.codifi.api.helper.RejectionStatusHelper;
+import in.codifi.api.model.FormDataModel;
 import in.codifi.api.model.NomineeDocModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
@@ -58,6 +61,7 @@ public class NomineeService implements INomineeService {
 	@Inject
 	DocumentRepository docrepository;
 	private static final Logger logger = LogManager.getLogger(NomineeService.class);
+
 	/**
 	 * Method to get Nominee Details
 	 * 
@@ -67,19 +71,21 @@ public class NomineeService implements INomineeService {
 	public ResponseModel getNominee(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-		List<NomineeEntity> savedEntity = populateNomineeAndGuardian(applicationId);
-		if (StringUtil.isListNotNullOrEmpty(savedEntity)) {
-			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-			responseModel.setResult(savedEntity);
-			responseModel.setPage(EkycConstants.PAGE_NOMINEE);
-		} else {
-			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
-		}
+			List<NomineeEntity> savedEntity = populateNomineeAndGuardian(applicationId);
+			if (StringUtil.isListNotNullOrEmpty(savedEntity)) {
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setResult(savedEntity);
+				responseModel.setPage(EkycConstants.PAGE_NOMINEE);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
+			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"NomineeService","getNominee",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In getNominee for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(applicationId, "NomineeService", "getNominee", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In getNominee for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -95,15 +101,18 @@ public class NomineeService implements INomineeService {
 	public List<NomineeEntity> populateNomineeAndGuardian(long applicationId) {
 		List<NomineeEntity> savedEntity = nomineeRepository.findByapplicationId(applicationId);
 		try {
-		if (StringUtil.isListNotNullOrEmpty(savedEntity)) {
-			savedEntity.forEach(entity -> {
-				entity.setGuardianEntity(guardianRepository.findByNomineeId(entity.getId()));
-			});
-		}
+			if (StringUtil.isListNotNullOrEmpty(savedEntity)) {
+				savedEntity.forEach(entity -> {
+					entity.setGuardianEntity(guardianRepository.findByNomineeId(entity.getId()));
+				});
+			}
 		} catch (Exception e) {
-			commonMethods.sendErrorMail("An error occurred while processing your request, In populateNomineeAndGuardian for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In populateNomineeAndGuardian for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"NomineeService","populateNomineeAndGuardian",e.getMessage());
+			commonMethods.SaveLog(applicationId, "NomineeService", "populateNomineeAndGuardian", e.getMessage());
 		}
 		return savedEntity;
 	}
@@ -120,6 +129,29 @@ public class NomineeService implements INomineeService {
 		ResponseModel responseModel = new ResponseModel();
 		try {
 			if (fileModel.getNomFile() != null && StringUtil.isNotNullOrEmpty(fileModel.getNomFile().contentType())) {
+				System.out.println("the fileModel.getNomFile().contentType()" + fileModel.getNomFile().contentType());
+				System.out
+						.println("the fileModel.getGuardFile().contentType()" + fileModel.getGuardFile().contentType());
+				String errorMsg = "";
+				String errorMsgGur = "";
+				boolean content = (EkycConstants.CONST_APPLICATION_PDF.equals(fileModel.getNomFile().contentType()));
+				boolean Gurcontent = (EkycConstants.CONST_APPLICATION_PDF
+						.equals(fileModel.getGuardFile().contentType()));
+				System.out.println("the content" + content);
+				System.out.println("the Gurcontent" + Gurcontent);
+				if (content) {
+					errorMsg = checkPasswordProtected(fileModel);
+					if (!StringUtil.isNullOrEmpty(errorMsg)) {
+						return commonMethods.constructFailedMsg(errorMsg);
+					}
+				}
+				if (Gurcontent) {
+					errorMsgGur = checkPasswordProtectedGur(fileModel);
+					if (!StringUtil.isNullOrEmpty(errorMsgGur)) {
+						return commonMethods.constructFailedMsg(errorMsgGur);
+					}
+				}
+				// Proceed with file operations and saving nominee details
 				String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
 				if (OS.contains(EkycConstants.OS_WINDOWS)) {
 					slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
@@ -129,29 +161,90 @@ public class NomineeService implements INomineeService {
 					dir.mkdirs();
 				}
 				Long countNominee = nomineeRepository.countByApplicationId(fileModel.getApplicationId());
-				String nomineeId="Nominee_" + (countNominee + 1);
+				String nomineeId = "Nominee_" + (countNominee + 1);
 				FileUpload f = fileModel.getNomFile();
 				String ext = f.fileName().substring(f.fileName().indexOf("."), f.fileName().length());
-				String fileName = nomineeId + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF
-						+ ext;
-				String filePath = props.getFileBasePath() + fileModel.getApplicationId() +slash+ fileName;
+				String fileName = nomineeId + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF + ext;
+				String filePath = props.getFileBasePath() + fileModel.getApplicationId() + slash + fileName;
 				Path path = Paths.get(filePath);
 				if (Files.exists(path)) {
 					Files.delete(path);
 				}
-				Files.copy(fileModel.getNomFile().filePath(), path);
-				saveDoc(fileModel.getApplicationId(),fileName, filePath, nomineeId + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF);
+				if (content) {
+					Path path1 = fileModel.getNomFile().filePath();
+					PDDocument document = PDDocument.load(new File(path1.toString()), fileModel.getNomineepassword());
+					document.getClass();
+					if (document.isEncrypted()) {
+						document.setAllSecurityToBeRemoved(true);
+						document.save(filePath);
+						document.close();
+					}
+				} else {
+					Files.copy(fileModel.getNomFile().filePath(), path);
+				}
+				saveDocNominee(fileModel.getApplicationId(), fileName, filePath,
+						nomineeId + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF, fileModel.getNomineepassword());
 				responseModel = saveNomineeDetails(fileModel, filePath);
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.NOM_FILE_NULL);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(fileModel.getApplicationId(),"NomineeService","uploadDocNominee",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In uploadDocNominee for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(fileModel.getApplicationId(), "NomineeService", "uploadDocNominee", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In uploadDocNominee for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
+	}
+
+	public String checkPasswordProtected(NomineeDocModel fileModel) throws IOException {
+		String error = "";
+		try {
+			Path path = fileModel.getNomFile().filePath();
+			File nomineeFile = new File(path.toString());
+			PDDocument document = PDDocument.load(nomineeFile, fileModel.getNomineepassword());
+			if (document.isEncrypted()) {
+				document.setAllSecurityToBeRemoved(true);
+				document.close();
+			}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(fileModel.getApplicationId(), "DocumentService", "checkPasswordProtected",
+					e.getMessage());
+//			commonMethods.sendErrorMail(
+//					"An error occurred while processing your request, In checkPasswordProtected for the Error: "
+//							+ e.getMessage(),
+//					"ERR-001");
+			error = "Cannot decrypt PDF of Nominee, the password is incorrect";
+		}
+		return error;
+	}
+
+	public String checkPasswordProtectedGur(NomineeDocModel fileModel) {
+		String error = "";
+		try {
+			Path pathGur = fileModel.getGuardFile().filePath();
+			File guardFile = new File(pathGur.toString());
+			PDDocument documentGur = PDDocument.load(guardFile, fileModel.getGurpassword());
+			if (documentGur.isEncrypted()) {
+				documentGur.setAllSecurityToBeRemoved(true);
+				documentGur.close();
+			}
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(fileModel.getApplicationId(), "DocumentService", "checkPasswordProtectedGur",
+					e.getMessage());
+//			commonMethods.sendErrorMail(
+//					"An error occurred while processing your request, In checkPasswordProtectedGur for the Error: "
+//							+ e.getMessage(),
+//					"ERR-001");
+			error = "Cannot decrypt PDF of Guardian, the password is incorrect";
+		}
+		return error;
 	}
 
 	/**
@@ -175,20 +268,35 @@ public class NomineeService implements INomineeService {
 			}
 			FileUpload f = fileModel.getGuardFile();
 			String ext = f.fileName().substring(f.fileName().indexOf("."), f.fileName().length());
-			String fileName = NomineID + EkycConstants.UNDERSCORE + EkycConstants.GUARDINA_PROOF
-					 + ext;
+			String fileName = NomineID + EkycConstants.UNDERSCORE + EkycConstants.GUARDINA_PROOF + ext;
 			String filePath = props.getFileBasePath() + fileModel.getApplicationId() + slash + fileName;
 			Path path = Paths.get(filePath);
 			if (Files.exists(path)) {
 				Files.delete(path);
 			}
-			Files.copy(fileModel.getGuardFile().filePath(), path);
-			saveDoc(fileModel.getApplicationId(),fileName, filePath, NomineID + EkycConstants.UNDERSCORE + EkycConstants.GUARDINA_PROOF);
+			boolean Gurcontent = (EkycConstants.CONST_APPLICATION_PDF.equals(fileModel.getGuardFile().contentType()));
+			if (Gurcontent) {
+				Path path1 = fileModel.getGuardFile().filePath();
+				PDDocument document = PDDocument.load(new File(path1.toString()), fileModel.getGurpassword());
+				document.getClass();
+				if (document.isEncrypted()) {
+					document.setAllSecurityToBeRemoved(true);
+					document.save(filePath);
+					document.close();
+				}
+			} else {
+				Files.copy(fileModel.getGuardFile().filePath(), path);
+			}
+			saveDoc(fileModel.getApplicationId(), fileName, filePath,
+					NomineID + EkycConstants.UNDERSCORE + EkycConstants.GUARDINA_PROOF, fileModel.getGurpassword());
 			fileUrl = filePath;
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(fileModel.getApplicationId(),"NomineeService","uploadDocGuardian",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In uploadDocGuardian for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(fileModel.getApplicationId(), "NomineeService", "uploadDocGuardian", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In uploadDocGuardian for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 		}
 		return fileUrl;
 	}
@@ -256,28 +364,47 @@ public class NomineeService implements INomineeService {
 					EkycConstants.PAGE_NOMINEE);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(nomineeEntity.getApplicationId(),"NomineeService","saveNomineeDetails",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In saveNomineeDetails for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(nomineeEntity.getApplicationId(), "NomineeService", "saveNomineeDetails",
+					e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In saveNomineeDetails for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
 	}
-	
-	
-	 public void saveDoc(long applicationId,String fileName, String outputPath, String imageName) {
-    	 DocumentEntity documentEntity=new DocumentEntity();
-    	 	DocumentEntity oldRecord = docrepository.findByApplicationIdAndDocumentType(applicationId,
-    	 			imageName);
-    	 	if (oldRecord!=null) {
-    	 		documentEntity.setId(oldRecord.getId());
-    	 		documentEntity=oldRecord;
-    	 	}
-    	 	documentEntity.setAttachementUrl(outputPath);
-    	 	documentEntity.setDocumentType(imageName);
-    	 	documentEntity.setAttachement(fileName);
-    	 	documentEntity.setApplicationId(applicationId);
-    	 	documentEntity.setTypeOfProof(imageName);
-    	 	docrepository.save(documentEntity);
+
+	public void saveDoc(long applicationId, String fileName, String outputPath, String imageName, String pswd) {
+		DocumentEntity documentEntity = new DocumentEntity();
+		DocumentEntity oldRecord = docrepository.findByApplicationIdAndDocumentType(applicationId, imageName);
+		if (oldRecord != null) {
+			documentEntity.setId(oldRecord.getId());
+			documentEntity = oldRecord;
+		}
+		documentEntity.setPassword(pswd);
+		documentEntity.setAttachementUrl(outputPath);
+		documentEntity.setDocumentType(imageName);
+		documentEntity.setAttachement(fileName);
+		documentEntity.setApplicationId(applicationId);
+		documentEntity.setTypeOfProof(imageName);
+		docrepository.save(documentEntity);
+	}
+
+	public void saveDocNominee(long applicationId, String fileName, String outputPath, String imageName, String paswd) {
+		DocumentEntity documentEntity = new DocumentEntity();
+		DocumentEntity oldRecord = docrepository.findByApplicationIdAndDocumentType(applicationId, imageName);
+		if (oldRecord != null) {
+			documentEntity.setId(oldRecord.getId());
+			documentEntity = oldRecord;
+		}
+		documentEntity.setPassword(paswd);
+		documentEntity.setAttachementUrl(outputPath);
+		documentEntity.setDocumentType(imageName);
+		documentEntity.setAttachement(fileName);
+		documentEntity.setApplicationId(applicationId);
+		documentEntity.setTypeOfProof(imageName);
+		docrepository.save(documentEntity);
 	}
 
 	/**
@@ -290,48 +417,51 @@ public class NomineeService implements INomineeService {
 	public ResponseModel allocationForNomiee(Long ApplicationId, Long id) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-		responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-		responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-		List<NomineeEntity> nomineeEntities = nomineeRepository.findByapplicationId(ApplicationId);
-		Collections.sort(nomineeEntities, new Comparator<NomineeEntity>() {
-			public int compare(NomineeEntity e1, NomineeEntity e2) {
-				return Integer.compare(Math.toIntExact(e1.getId()), Math.toIntExact(e2.getId()));
-			}
-		});
-		if (nomineeEntities.size() == 1) {
-			for (NomineeEntity neList : nomineeEntities) {
-				neList.setAllocation(100);
-			}
-			nomineeRepository.saveAll(nomineeEntities);
-			commonMethods.UpdateStep(EkycConstants.PAGE_NOMINEE_1, ApplicationId);
-			responseModel.setPage(EkycConstants.PAGE_NOMINEE_2);
-		} else if (nomineeEntities.size() == 2) {
-			for (NomineeEntity neList : nomineeEntities) {
-				neList.setAllocation(50);
-			}
-			nomineeRepository.saveAll(nomineeEntities);
-			commonMethods.UpdateStep(EkycConstants.PAGE_NOMINEE_2, ApplicationId);
-			responseModel.setPage(EkycConstants.PAGE_NOMINEE_3);
-		} else if (nomineeEntities.size() == 3) {
-			int count = 1;
-			for (NomineeEntity neList : nomineeEntities) {
-				if (count == 1) {
-					neList.setAllocation(34);
-				} else {
-					neList.setAllocation(33);
+			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+			List<NomineeEntity> nomineeEntities = nomineeRepository.findByapplicationId(ApplicationId);
+			Collections.sort(nomineeEntities, new Comparator<NomineeEntity>() {
+				public int compare(NomineeEntity e1, NomineeEntity e2) {
+					return Integer.compare(Math.toIntExact(e1.getId()), Math.toIntExact(e2.getId()));
 				}
-				count++;
+			});
+			if (nomineeEntities.size() == 1) {
+				for (NomineeEntity neList : nomineeEntities) {
+					neList.setAllocation(100);
+				}
+				nomineeRepository.saveAll(nomineeEntities);
+				commonMethods.UpdateStep(EkycConstants.PAGE_NOMINEE_1, ApplicationId);
+				responseModel.setPage(EkycConstants.PAGE_NOMINEE_2);
+			} else if (nomineeEntities.size() == 2) {
+				for (NomineeEntity neList : nomineeEntities) {
+					neList.setAllocation(50);
+				}
+				nomineeRepository.saveAll(nomineeEntities);
+				commonMethods.UpdateStep(EkycConstants.PAGE_NOMINEE_2, ApplicationId);
+				responseModel.setPage(EkycConstants.PAGE_NOMINEE_3);
+			} else if (nomineeEntities.size() == 3) {
+				int count = 1;
+				for (NomineeEntity neList : nomineeEntities) {
+					if (count == 1) {
+						neList.setAllocation(34);
+					} else {
+						neList.setAllocation(33);
+					}
+					count++;
+				}
+				nomineeRepository.saveAll(nomineeEntities);
+				commonMethods.UpdateStep(EkycConstants.PAGE_NOMINEE_3, ApplicationId);
+				responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
 			}
-			nomineeRepository.saveAll(nomineeEntities);
-			commonMethods.UpdateStep(EkycConstants.PAGE_NOMINEE_3, ApplicationId);
-			responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
-		}
-		List<NomineeEntity> updatedNomineeList = nomineeRepository.findByapplicationId(ApplicationId);
-		responseModel.setResult(updatedNomineeList);
+			List<NomineeEntity> updatedNomineeList = nomineeRepository.findByapplicationId(ApplicationId);
+			responseModel.setResult(updatedNomineeList);
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(ApplicationId,"NomineeService","allocationForNomiee",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In allocationForNomiee for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(ApplicationId, "NomineeService", "allocationForNomiee", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In allocationForNomiee for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -347,19 +477,23 @@ public class NomineeService implements INomineeService {
 	private int calculateNomineeAllocation(NomineeEntity entity, int countNominee) {
 		int allocationTally = 0;
 		try {
-		if (countNominee == 1) {
-			allocationTally = 100;
-		} else if (countNominee == 2 && entity.getNomOneAllocation() > 0 && entity.getNomTwoAllocation() > 0) {
-			allocationTally = entity.getNomOneAllocation() + entity.getNomTwoAllocation();
-		} else if (countNominee == 3 && entity.getNomOneAllocation() > 0 && entity.getNomTwoAllocation() > 0
-				&& entity.getNomThreeAllocation() > 0) {
-			allocationTally = entity.getNomOneAllocation() + entity.getNomTwoAllocation()
-					+ entity.getNomThreeAllocation();
-		}
+			if (countNominee == 1) {
+				allocationTally = 100;
+			} else if (countNominee == 2 && entity.getNomOneAllocation() > 0 && entity.getNomTwoAllocation() > 0) {
+				allocationTally = entity.getNomOneAllocation() + entity.getNomTwoAllocation();
+			} else if (countNominee == 3 && entity.getNomOneAllocation() > 0 && entity.getNomTwoAllocation() > 0
+					&& entity.getNomThreeAllocation() > 0) {
+				allocationTally = entity.getNomOneAllocation() + entity.getNomTwoAllocation()
+						+ entity.getNomThreeAllocation();
+			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(entity.getApplicationId(),"NomineeService","calculateNomineeAllocation",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In calculateNomineeAllocation for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(entity.getApplicationId(), "NomineeService", "calculateNomineeAllocation",
+					e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In calculateNomineeAllocation for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 		}
 		return allocationTally;
 	}
@@ -375,54 +509,58 @@ public class NomineeService implements INomineeService {
 	public ResponseModel updateNomineeAllocation(NomineeEntity entity) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-		responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-		responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-		List<NomineeEntity> nomineeEntities = nomineeRepository.findByapplicationId(entity.getApplicationId());
-		Collections.sort(nomineeEntities, new Comparator<NomineeEntity>() {
-			public int compare(NomineeEntity e1, NomineeEntity e2) {
-				return Integer.compare(Math.toIntExact(e1.getId()), Math.toIntExact(e2.getId()));
-			}
-		});
-		int allocataionTally = calculateNomineeAllocation(entity, nomineeEntities.size());
-		if (allocataionTally == 100) {
-			if (nomineeEntities.size() == 1) {
-				for (NomineeEntity neList : nomineeEntities) {
-					neList.setAllocation(100);
+			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+			List<NomineeEntity> nomineeEntities = nomineeRepository.findByapplicationId(entity.getApplicationId());
+			Collections.sort(nomineeEntities, new Comparator<NomineeEntity>() {
+				public int compare(NomineeEntity e1, NomineeEntity e2) {
+					return Integer.compare(Math.toIntExact(e1.getId()), Math.toIntExact(e2.getId()));
 				}
-			} else if (nomineeEntities.size() == 2) {
-				int count = 1;
-				for (NomineeEntity neList : nomineeEntities) {
-					if (count == 1) {
-						neList.setAllocation(entity.getNomOneAllocation());
-					} else {
-						neList.setAllocation(entity.getNomTwoAllocation());
+			});
+			int allocataionTally = calculateNomineeAllocation(entity, nomineeEntities.size());
+			if (allocataionTally == 100) {
+				if (nomineeEntities.size() == 1) {
+					for (NomineeEntity neList : nomineeEntities) {
+						neList.setAllocation(100);
 					}
-					count++;
-				}
-			} else if (nomineeEntities.size() == 3) {
-				int count = 1;
-				for (NomineeEntity neList : nomineeEntities) {
-					if (count == 1) {
-						neList.setAllocation(entity.getNomOneAllocation());
-					} else if (count == 2) {
-						neList.setAllocation(entity.getNomTwoAllocation());
-					} else {
-						neList.setAllocation(entity.getNomThreeAllocation());
+				} else if (nomineeEntities.size() == 2) {
+					int count = 1;
+					for (NomineeEntity neList : nomineeEntities) {
+						if (count == 1) {
+							neList.setAllocation(entity.getNomOneAllocation());
+						} else {
+							neList.setAllocation(entity.getNomTwoAllocation());
+						}
+						count++;
 					}
-					count++;
+				} else if (nomineeEntities.size() == 3) {
+					int count = 1;
+					for (NomineeEntity neList : nomineeEntities) {
+						if (count == 1) {
+							neList.setAllocation(entity.getNomOneAllocation());
+						} else if (count == 2) {
+							neList.setAllocation(entity.getNomTwoAllocation());
+						} else {
+							neList.setAllocation(entity.getNomThreeAllocation());
+						}
+						count++;
+					}
 				}
+				nomineeRepository.saveAll(nomineeEntities);
+				commonMethods.UpdateStep(EkycConstants.PAGE_NOMINEE_3, entity.getApplicationId());
+				responseModel.setResult(nomineeEntities);
+				responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
+			} else {
+				return commonMethods.constructFailedMsg(MessageConstants.ALLOCATION_NOT_TALLY);
 			}
-			nomineeRepository.saveAll(nomineeEntities);
-			commonMethods.UpdateStep(EkycConstants.PAGE_NOMINEE_3, entity.getApplicationId());
-			responseModel.setResult(nomineeEntities);
-			responseModel.setPage(EkycConstants.PAGE_DOCUMENT);
-		} else {
-			return commonMethods.constructFailedMsg(MessageConstants.ALLOCATION_NOT_TALLY);
-		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(entity.getApplicationId(),"NomineeService","updateNomineeAllocation",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In updateNomineeAllocation for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(entity.getApplicationId(), "NomineeService", "updateNomineeAllocation",
+					e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In updateNomineeAllocation for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -435,21 +573,23 @@ public class NomineeService implements INomineeService {
 	public ResponseModel deleteNom(long id) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-		Optional<NomineeEntity> nominee = nomineeRepository.findById(id);
-		if (nominee.isPresent()) {
-			GuardianEntity savedGuardianEntity = guardianRepository.findByNomineeId(id);
-			if (savedGuardianEntity != null && savedGuardianEntity.getId() > 0) {
-				guardianRepository.deleteById(savedGuardianEntity.getId());
+			Optional<NomineeEntity> nominee = nomineeRepository.findById(id);
+			if (nominee.isPresent()) {
+				GuardianEntity savedGuardianEntity = guardianRepository.findByNomineeId(id);
+				if (savedGuardianEntity != null && savedGuardianEntity.getId() > 0) {
+					guardianRepository.deleteById(savedGuardianEntity.getId());
+				}
+				nomineeRepository.deleteById(id);
+				updateAllocaionAfterDelete(nominee.get().getApplicationId());
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 			}
-			nomineeRepository.deleteById(id);
-			updateAllocaionAfterDelete(nominee.get().getApplicationId());
-			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(id,"NomineeService","deleteNom",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In deleteNom for the Error: " + e.getMessage(),"ERR-001");
+			commonMethods.SaveLog(id, "NomineeService", "deleteNom", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In deleteNom for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
@@ -461,27 +601,30 @@ public class NomineeService implements INomineeService {
 	public void updateAllocaionAfterDelete(long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-		responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-		responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-		List<NomineeEntity> nomineeEntities = nomineeRepository.findByapplicationId(applicationId);
-		if (nomineeEntities.size() == 1) {
-			for (NomineeEntity neList : nomineeEntities) {
-				neList.setAllocation(100);
+			responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+			responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+			List<NomineeEntity> nomineeEntities = nomineeRepository.findByapplicationId(applicationId);
+			if (nomineeEntities.size() == 1) {
+				for (NomineeEntity neList : nomineeEntities) {
+					neList.setAllocation(100);
+				}
+			} else if (nomineeEntities.size() == 2) {
+				for (NomineeEntity neList : nomineeEntities) {
+					neList.setAllocation(50);
+				}
+				responseModel.setResult(nomineeEntities);
 			}
-		} else if (nomineeEntities.size() == 2) {
-			for (NomineeEntity neList : nomineeEntities) {
-				neList.setAllocation(50);
-			}
-			responseModel.setResult(nomineeEntities);
+			nomineeRepository.saveAll(nomineeEntities);
+
+		} catch (Exception e) {
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.SaveLog(applicationId, "NomineeService", "updateAllocaionAfterDelete", e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In updateAllocaionAfterDelete for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
-		nomineeRepository.saveAll(nomineeEntities);
-	
-	} catch (Exception e) {
-		logger.error("An error occurred: " + e.getMessage());
-		commonMethods.SaveLog(applicationId,"NomineeService","updateAllocaionAfterDelete",e.getMessage());
-		commonMethods.sendErrorMail("An error occurred while processing your request, In updateAllocaionAfterDelete for the Error: " + e.getMessage(),"ERR-001");
-		responseModel = commonMethods.constructFailedMsg(e.getMessage());
-	}
 	}
 
 }
