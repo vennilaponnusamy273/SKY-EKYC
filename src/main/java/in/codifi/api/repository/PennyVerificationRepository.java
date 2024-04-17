@@ -7,4 +7,5 @@ import in.codifi.api.entity.PennyVerificationResponseEntity;
 public interface PennyVerificationRepository extends CrudRepository<PennyVerificationResponseEntity, Long> {
 
 	PennyVerificationResponseEntity findByapplicationId(Long applicationId);
+	void deleteByApplicationId(long applicationId);
 }

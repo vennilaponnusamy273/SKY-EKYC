@@ -79,8 +79,8 @@ public class DigioPennyDropService implements IDigioPennyDropService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
 			}
 			} else {
-				responseModel.setStat(EkycConstants.FAILED_STATUS);
-				responseModel.setMessage(EkycConstants.FAILED_MSG);
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setReason(MessageConstants.PENNY_ALREADY_DONE);
 				responseModel.setPage(EkycConstants.PAGE_SEGMENT);
 			}

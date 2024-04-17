@@ -18,7 +18,7 @@ import in.codifi.api.repository.DocumentRepository;
 import in.codifi.api.repository.GuardianRepository;
 import in.codifi.api.repository.NomineeRepository;
 import in.codifi.api.repository.PaymentRepository;
-import in.codifi.api.repository.PennyDropRepository;
+import in.codifi.api.repository.PennyVerificationRepository;
 import in.codifi.api.repository.ProfileRepository;
 import in.codifi.api.repository.ReqResRepository;
 import in.codifi.api.repository.SegmentRepository;
@@ -46,7 +46,7 @@ public class DeleteHelper {
 	@Inject
 	PaymentRepository paymentRepository;
 	@Inject
-	PennyDropRepository pennyDropRepository;
+	PennyVerificationRepository pennyDropRepository;
 	@Inject
 	ProfileRepository profileRepository;
 	@Inject
