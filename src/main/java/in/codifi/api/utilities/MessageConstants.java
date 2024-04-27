@@ -135,10 +135,29 @@ public class MessageConstants {
 	public static final String FAILED = "Failed";
 	public static final String INVAILD_BROKERAGE_TYPE = "Brokerage type contains only sky prime or sky discount";
 	public static final String ERROR_MSG_INVALID_PAN = "INVALID DOB (APP_DOB_INCORP) PROVIDED";
-	
+
 	// DIGIO
 	public static final String DIGIO_REQ_FAILED = "Failed to construct DIGIO Request";
 	public static final String DIGIO_INI_RES_NULL = "Digio Initailize Response null";
 	public final static String GUARDIAN_REQUIRED_PROOF = "Guardian Proof is Required, because Nominee is minor";
 	public static final String BANK_ID_NULL = "YOUR BANK ID IS NULL FOR ATOM , CONTACT SUPPORT TEAM";
+
+	// PAN ERROR MESSAGE
+	public static final String MARKED_AS_FAKE = "PAN marked as Fake";
+	public static final String MARKED_AS_DEACTIVATED = "PAN marked as Deactivated";
+	public static final String MARKED_AS_DELETED = "PAN marked as Deleted";
+	public static final String RECORD_NOT_FOUND = "Record (PAN) Not Found in ITD Database/Invalid PAN";
+	public static final String EVENT_AMALGAMATION = "PAN marked as Amalgamation";
+	public static final String EVENT_ACQUISITION = "PAN marked as Acquisition";
+	public static final String EVENT_DEATH = "PAN marked as Death";
+	public static final String EVENT_DISSOLUTION = "PAN marked as Dissolution";
+	public static final String EVENT_LIQUIDATED = "PAN marked as Liquidated";
+	public static final String EVENT_MERGER = "PAN marked as Merger";
+	public static final String EVENT_PARTITION = "PAN marked as Partition";
+	public static final String EVENT_SPLIT = "PAN marked as Split";
+	public static final String EVENT_UNDER_LIQUIDATION = "PAN marked as Under Liquidation";
+	public static final String PAN_NAME_MISMATCHED = "Name not matched with Database";
+	public static final String PAN_DOB_MISMATCHED = "DOB not matched with Database";
+	public static final String PAN_SEEDIND_STATUS_MISMATCHED_1 = "Inoperative PAN";
+	public static final String PAN_SEEDIND_STATUS_MISMATCHED_2 = "For all non-Individual PANs";
 }

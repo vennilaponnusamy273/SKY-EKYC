@@ -21,6 +21,8 @@ import java.security.cert.CertStore;
 import java.security.cert.Certificate;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.X509Certificate;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,7 +42,8 @@ import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.util.encoders.Base64;
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,6 +54,7 @@ import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AccessLogManager;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.restservice.NsdlPanRestService;
+import in.codifi.api.service.PanService;
 import in.codifi.api.utilities.APIBased.DummyTrustManager;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
@@ -70,9 +74,11 @@ public class PanHelper {
 	NsdlPanRestService nsdlPanService;
 	@Inject
 	AccessLogManager accessLogManager;
+	@Inject
+	PanService panService;
 
 	private static final Logger logger = LogManager.getLogger(PanHelper.class);
-	public String getPanDetailsFromNSDL(String panCard, Long applicationId) {
+	public String getPanDetailsFromNSDL(String panCard, Long applicationId, String userName, String dob) {
 		/**
 		 * To create the create the jks file for the given application id
 		 */
@@ -80,11 +86,11 @@ public class PanHelper {
 		/**
 		 * To create the sig file from the jks file
 		 */
-		pkcs7Generate(applicationId, panCard);
+		pkcs7Generate(applicationId, panCard, userName, dob);
 		/**
 		 * TO get the result from the NSDL
 		 */
-		String result = apiCallForPanVerififcation(applicationId, panCard);
+		String result = apiCallForPanVerififcation(applicationId, panCard, userName, dob);
 		if (result != null && !result.equalsIgnoreCase("")) {
 			return result;
 		} else {
@@ -158,10 +164,12 @@ public class PanHelper {
 	 * method to generate pan pkcs7Generate
 	 */
 
-	public void pkcs7Generate(Long applicationId, String panCard) {
+	public void pkcs7Generate(Long applicationId, String panCard, String userName, String dob) {
 		try {
 			CommonMethods.trustedManagement();
-			String data = props.getPanPfxUserId() + "^" + panCard;
+			// String data = props.getPanPfxUserId() + "^" + panCard;
+			String data = "[{\"pan\":\"" + panCard + "\",\"name\":\"" + userName + "\",\"fathername\":\"\",\"dob\":\""
+					+ dob + "\"}]";
 			String jksFileLocation = props.getPanFilePath() + applicationId + EkycConstants.UBUNTU_FILE_SEPERATOR
 					+ applicationId + EkycConstants.FILE_JKS;
 			String signatureFile = props.getPanFilePath() + applicationId + EkycConstants.UBUNTU_FILE_SEPERATOR
@@ -178,8 +186,9 @@ public class PanHelper {
 				char[] password = args1[1].toCharArray();
 				keystore.load(input, password);
 			} catch (IOException e) {
-				commonMethods.sendErrorMail("An error occurred while processing your request, In pkcs7Generate.","ERR-001");
-				commonMethods.SaveLog(applicationId,"PanHelper","pkcs7Generate",e.getMessage());
+				commonMethods.sendErrorMail("An error occurred while processing your request, In pkcs7Generate.",
+						"ERR-001");
+				// commonMethods.SaveLog(applicationId,"PanHelper","pkcs7Generate",e.getMessage());
 				logger.error("An error occurred: " + e.getMessage());
 			} finally {
 
@@ -217,9 +226,12 @@ public class PanHelper {
 			System.out.println(MessageConstants.PAN_SIGN_OUT + args1[EkycConstants.FILE_ARGS]);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"PanHelper","pkcs7Generate",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In pkcs7Generate for the Error: " + e.getMessage(),"ERR-001");
+			// commonMethods.SaveLog(applicationId,"PanHelper","pkcs7Generate",e.getMessage());
+			commonMethods
+					.sendErrorMail("An error occurred while processing your request, In pkcs7Generate for the Error: "
+							+ e.getMessage(), "ERR-001");
 		}
 	}
 
@@ -227,7 +239,133 @@ public class PanHelper {
 	 * method to call the apiCallForPanVerififcation
 	 */
 
-	public String apiCallForPanVerififcation(Long applicationId, String panCard) {
+//	public String apiCallForPanVerififcation(Long applicationId, String panCard) {
+//		String result = "";
+//		BufferedWriter out = null;
+//		URL url = null;
+//		try {
+//			CommonMethods.trustedManagement();
+//			String data = null;
+//			String signature = null;
+//			final String version = props.getPanVersion();
+//			Date startTime = null;
+//			Calendar c1 = Calendar.getInstance();
+//			startTime = c1.getTime();
+//			Date connectionStartTime = null;
+//			String logMsg = "\n-";
+//			FileWriter fstream = null;
+//			Calendar c = Calendar.getInstance();
+//			long nonce = c.getTimeInMillis();
+//			try {
+//				data = props.getPanPfxUserId() + "^" + panCard;
+//				/**
+//				 * read the signature file for the user and assign for the user
+//				 */
+//				signature = new String(Files.readAllBytes(Paths.get(props.getPanFilePath() + applicationId
+//						+ EkycConstants.UBUNTU_FILE_SEPERATOR + EkycConstants.OUTPUT_SIG)));
+//			} catch (Exception e) {
+//				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
+//						+ MessageConstants.PAN_PRG_NO + nonce;
+//				logger.error("An error occurred: " + e.getMessage());
+//				commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
+//				commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation  for the Error: " + e.getMessage(),"ERR-001");
+//			}
+//			try {
+//				File f = new File(props.getPanLogsUrl());
+//				if (!f.exists()) {
+//					f.mkdir();
+//				}
+//				fstream = new FileWriter(props.getPanLogsUrl(), true);
+//				out = new BufferedWriter(fstream);
+//			} catch (Exception e) {
+//				logger.error("An error occurred: " + e.getMessage());
+//				commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
+//				commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation for the Error: " + e.getMessage(),"ERR-001");
+//				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
+//						+ MessageConstants.PAN_PRG_NO + nonce;
+//				System.out.println(logMsg);
+//				out.write(logMsg);
+//				out.close();
+//			}
+//			SSLContext sslcontext = null;
+//			try {
+//				sslcontext = SSLContext.getInstance(EkycConstants.SSL);
+//				sslcontext.init(new KeyManager[0], new TrustManager[] { new DummyTrustManager() }, new SecureRandom());
+//			} catch (NoSuchAlgorithmException e) {
+//				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
+//						+ MessageConstants.PAN_PRG_NO + nonce;
+//				e.printStackTrace(System.err);
+//				logger.error("An error occurred: " + e.getMessage());
+//				commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
+//				commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation.","ERR-001");
+//				out.write(logMsg);
+//				out.close();
+//			} catch (KeyManagementException e) {
+//				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
+//						+ MessageConstants.PAN_PRG_NO + nonce;
+//				e.printStackTrace(System.err);
+//				out.write(logMsg);
+//				out.close();
+//			}
+//			SSLSocketFactory factory = sslcontext.getSocketFactory();
+//			result = nsdlPanService.GetNSdlDEtails(data, signature, version);
+//			accessLogManager.insertRestAccessLogsIntoDB(applicationId.toString(),data +" "+signature+" "+version,result,"GetNSdlDEtails","/pan/getPan");
+//		} catch (Exception e) {
+//			logger.error("An error occurred: " + e.getMessage());
+//			commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
+//			commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation for the Error: " + e.getMessage(),"ERR-001");
+//		} finally {
+//
+//		}
+//		return result;
+//	}
+//
+//	public ResponseModel saveResult(String result, ApplicationUserEntity userEntity) {
+//		ResponseModel responseModel = new ResponseModel();
+//		try {
+//		if (result != null && !result.isEmpty()) {
+//			JSONObject tempResult = stringToJson(result);
+//			if (tempResult.containsKey(EkycConstants.PAN_FIRSTNAME)) {
+//				String firstName = (String) tempResult.get(EkycConstants.PAN_FIRSTNAME);
+//				String panNumber = (String) tempResult.get(EkycConstants.PAN_CARD);
+//				String middleName = (String) tempResult.get(EkycConstants.PAN_MIDDLENAME);
+//				String lastName = (String) tempResult.get(EkycConstants.PAN_LASTNAME);
+//				String panCardname = firstName + " " + middleName + " " + lastName;
+//				String lastUpdatedDate = (String) tempResult.get(EkycConstants.PAN_LAST_UPDATED_DATE);
+//				String nameOnCard = (String) tempResult.get(EkycConstants.PAN_NAMEONCARD);
+//				String aathar_status = (String) tempResult.get(EkycConstants.PAN_AADHAR_STATUS);
+//				Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
+//				if (isUserPresent.isPresent()) {
+//					ApplicationUserEntity updatedUserDetails = null;
+//					ApplicationUserEntity oldUserEntity = isUserPresent.get();
+//					oldUserEntity.setFirstName(firstName);
+//					oldUserEntity.setLastName(lastName);
+//					oldUserEntity.setMiddleName(middleName);
+//					oldUserEntity.setUserName(panCardname);
+//					oldUserEntity.setPanNumber(panNumber);
+//					 oldUserEntity.setPanNsdlLink(aathar_status);
+//					oldUserEntity.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
+//					updatedUserDetails = repository.save(oldUserEntity);
+//					commonMethods.UpdateStep(EkycConstants.PAGE_PAN_NSDL_DATA_CONFIRM, userEntity.getId());
+//					responseModel = new ResponseModel();
+//					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+//					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+//					responseModel.setResult(updatedUserDetails);
+//					responseModel.setPage(EkycConstants.PAGE_PAN_CONFIRM);
+//				}
+//			} else {
+//				responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);
+//			}
+//		}
+//		} catch (Exception e) {
+//			logger.error("An error occurred: " + e.getMessage());
+//			commonMethods.SaveLog(userEntity.getId(),"PanHelper","saveResult",e.getMessage());
+//			commonMethods.sendErrorMail("An error occurred while processing your request, In saveResult for the Error:" + e.getMessage(),"ERR-001");
+//			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+//		}
+//		return responseModel;
+//	}
+	public String apiCallForPanVerififcation(Long applicationId, String panCard, String userName, String dob) {
 		String result = "";
 		BufferedWriter out = null;
 		URL url = null;
@@ -235,7 +373,6 @@ public class PanHelper {
 			CommonMethods.trustedManagement();
 			String data = null;
 			String signature = null;
-			final String version = props.getPanVersion();
 			Date startTime = null;
 			Calendar c1 = Calendar.getInstance();
 			startTime = c1.getTime();
@@ -245,7 +382,8 @@ public class PanHelper {
 			Calendar c = Calendar.getInstance();
 			long nonce = c.getTimeInMillis();
 			try {
-				data = props.getPanPfxUserId() + "^" + panCard;
+				// data = props.getPanPfxUserId() + "^" + panCard;
+
 				/**
 				 * read the signature file for the user and assign for the user
 				 */
@@ -255,8 +393,11 @@ public class PanHelper {
 				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
 						+ MessageConstants.PAN_PRG_NO + nonce;
 				logger.error("An error occurred: " + e.getMessage());
-				commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
-				commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation  for the Error: " + e.getMessage(),"ERR-001");
+				// commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
+				commonMethods.sendErrorMail(
+						"An error occurred while processing your request, In apiCallForPanVerififcation  for the Error: "
+								+ e.getMessage(),
+						"ERR-001");
 			}
 			try {
 				File f = new File(props.getPanLogsUrl());
@@ -267,8 +408,11 @@ public class PanHelper {
 				out = new BufferedWriter(fstream);
 			} catch (Exception e) {
 				logger.error("An error occurred: " + e.getMessage());
-				commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
-				commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation for the Error: " + e.getMessage(),"ERR-001");
+				// commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
+				commonMethods.sendErrorMail(
+						"An error occurred while processing your request, In apiCallForPanVerififcation for the Error: "
+								+ e.getMessage(),
+						"ERR-001");
 				logMsg += MessageConstants.PAN_EXE_MSG + e.getMessage() + MessageConstants.PAN_PRG_SRT_TIME + startTime
 						+ MessageConstants.PAN_PRG_NO + nonce;
 				System.out.println(logMsg);
@@ -284,8 +428,9 @@ public class PanHelper {
 						+ MessageConstants.PAN_PRG_NO + nonce;
 				e.printStackTrace(System.err);
 				logger.error("An error occurred: " + e.getMessage());
-				commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
-				commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation.","ERR-001");
+				// commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
+				commonMethods.sendErrorMail(
+						"An error occurred while processing your request, In apiCallForPanVerififcation.", "ERR-001");
 				out.write(logMsg);
 				out.close();
 			} catch (KeyManagementException e) {
@@ -296,12 +441,20 @@ public class PanHelper {
 				out.close();
 			}
 			SSLSocketFactory factory = sslcontext.getSocketFactory();
-			result = nsdlPanService.GetNSdlDEtails(data, signature, version);
-			accessLogManager.insertRestAccessLogsIntoDB(applicationId.toString(),data +" "+signature+" "+version,result,"GetNSdlDEtails","/pan/getPan");
+			System.out.println("the signature" + signature);
+			String inputString = "{\"inputData\":[{\"pan\":\"" + panCard + "\",\"name\":\"" + userName
+					+ "\",\"fathername\":\"\",\"dob\":\"" + dob + "\"}],\"signature\":\"" + signature + "\"}";
+			result = nsdlPanService.GetNSdlDEtails(inputString);
+			accessLogManager.insertRestAccessLogsIntoDB(String.valueOf(applicationId), inputString, result,
+					"GetNSdlDEtails", "/pan/getPan");
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In apiCallForPanVerififcation for the Error: " + e.getMessage(),"ERR-001");
+			// commonMethods.SaveLog(applicationId,"PanHelper","apiCallForPanVerififcation",e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In apiCallForPanVerififcation for the Error: "
+							+ e.getMessage(),
+					"ERR-001");
 		} finally {
 
 		}
@@ -310,45 +463,148 @@ public class PanHelper {
 
 	public ResponseModel saveResult(String result, ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
+		ApplicationUserEntity oldUserEntity = null;
 		try {
-		if (result != null && !result.isEmpty()) {
-			JSONObject tempResult = stringToJson(result);
-			if (tempResult.containsKey(EkycConstants.PAN_FIRSTNAME)) {
-				String firstName = (String) tempResult.get(EkycConstants.PAN_FIRSTNAME);
-				String panNumber = (String) tempResult.get(EkycConstants.PAN_CARD);
-				String middleName = (String) tempResult.get(EkycConstants.PAN_MIDDLENAME);
-				String lastName = (String) tempResult.get(EkycConstants.PAN_LASTNAME);
-				String panCardname = firstName + " " + middleName + " " + lastName;
-				String lastUpdatedDate = (String) tempResult.get(EkycConstants.PAN_LAST_UPDATED_DATE);
-				String nameOnCard = (String) tempResult.get(EkycConstants.PAN_NAMEONCARD);
-				String aathar_status = (String) tempResult.get(EkycConstants.PAN_AADHAR_STATUS);
-				Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
-				if (isUserPresent.isPresent()) {
-					ApplicationUserEntity updatedUserDetails = null;
-					ApplicationUserEntity oldUserEntity = isUserPresent.get();
-					oldUserEntity.setFirstName(firstName);
-					oldUserEntity.setLastName(lastName);
-					oldUserEntity.setMiddleName(middleName);
-					oldUserEntity.setUserName(panCardname);
-					oldUserEntity.setPanNumber(panNumber);
-					 oldUserEntity.setPanNsdlLink(aathar_status);
-					oldUserEntity.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
-					updatedUserDetails = repository.save(oldUserEntity);
-					commonMethods.UpdateStep(EkycConstants.PAGE_PAN_NSDL_DATA_CONFIRM, userEntity.getId());
-					responseModel = new ResponseModel();
-					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-					responseModel.setResult(updatedUserDetails);
-					responseModel.setPage(EkycConstants.PAGE_PAN_CONFIRM);
+			if (result != null && !result.isEmpty()) {
+				JSONObject tempResult = new JSONObject(result);
+
+				if (tempResult.has("outputData")) {
+					JSONArray outputDataArray = tempResult.getJSONArray("outputData");
+					if (outputDataArray.length() > 0) {
+						JSONObject outputData = outputDataArray.getJSONObject(0);
+						String panStatus = outputData.optString("pan_status");
+						System.out.println("the panStatus" + panStatus);
+						String name = outputData.optString("name");
+						System.out.println("the name" + name);
+						String dob = outputData.optString("dob");
+						System.out.println("the dob" + dob);
+						String seeding_status = outputData.optString("seeding_status");
+						System.out.println("the seeding_status" + seeding_status);
+						if ("E".equals(panStatus) && "Y".equals(name) && "Y".equals(dob)
+								&& "Y".equals(seeding_status)) {
+							Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
+							if (isUserPresent.isPresent()) {
+								commonMethods.UpdateStep(EkycConstants.PAGE_PAN_NSDL_DATA_CONFIRM, userEntity.getId());
+								ApplicationUserEntity updatedUserDetails = isUserPresent.get();
+								updatedUserDetails.setUserName(userEntity.getUserName());
+								updatedUserDetails.setPanNumber(userEntity.getPanNumber());
+								updatedUserDetails.setPanStatus(seeding_status);
+								updatedUserDetails.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
+								updatedUserDetails = repository.save(updatedUserDetails);
+
+								responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+								responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+								responseModel.setResult(oldUserEntity);
+								responseModel.setPage(EkycConstants.PAGE_PAN_CONFIRM);
+								DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+								DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+								// Parse the input date string to LocalDate
+								LocalDate date = LocalDate.parse(userEntity.getDob(), inputFormatter);
+
+								// Format the LocalDate to the desired format
+								String formattedDate = date.format(outputFormatter);
+								userEntity.setDob(formattedDate);
+								System.out.println("the kra date of birth format" + userEntity.getDob());
+								System.out.println("Formatted Date: " + formattedDate);
+								responseModel = panService.saveDob(userEntity);
+							} else {
+								responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+							}
+						} else {
+							responseModel = makeErrorResponse(panStatus, name, dob, seeding_status);
+							// responseModel =
+							// commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_STATUS);
+						}
+					} else {
+						responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);
+					}
+				} else {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);
 				}
-			} else {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);
 			}
-		}
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(userEntity.getId(),"PanHelper","saveResult",e.getMessage());
-			commonMethods.sendErrorMail("An error occurred while processing your request, In saveResult for the Error:" + e.getMessage(),"ERR-001");
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In saveResult for the Error: " + e.getMessage(),
+					"ERR-001");
+			responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		}
+		return responseModel;
+	}
+
+	private ResponseModel makeErrorResponse(String panStatus, String name, String dob, String seeding_status) {
+		ResponseModel responseModel = new ResponseModel();
+		try {
+			if (!panStatus.equalsIgnoreCase("E")) {
+				switch (panStatus) {
+				case "F":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.MARKED_AS_FAKE);
+					break;
+				case "X":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.MARKED_AS_DEACTIVATED);
+					break;
+				case "D":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.MARKED_AS_DELETED);
+					break;
+				case "N":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.RECORD_NOT_FOUND);
+					break;
+				case "EA":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.EVENT_AMALGAMATION);
+					break;
+				case "EC":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.EVENT_ACQUISITION);
+					break;
+				case "ED":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.EVENT_DEATH);
+					break;
+				case "EI":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.EVENT_DISSOLUTION);
+					break;
+				case "EL":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.EVENT_LIQUIDATED);
+					break;
+				case "EM":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.EVENT_MERGER);
+					break;
+				case "EP":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.EVENT_PARTITION);
+					break;
+				case "ES":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.EVENT_SPLIT);
+					break;
+				case "EU":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.EVENT_UNDER_LIQUIDATION);
+					break;
+				default:
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);
+					break;
+				}
+			} else if (!name.equalsIgnoreCase("Y")) {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.PAN_NAME_MISMATCHED);
+			} else if (!dob.equalsIgnoreCase("Y")) {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.PAN_DOB_MISMATCHED);
+			} else if (!seeding_status.equalsIgnoreCase("Y")) {
+				switch (panStatus) {
+				case "R":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.PAN_SEEDIND_STATUS_MISMATCHED_1);
+					break;
+				case "NA":
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.PAN_SEEDIND_STATUS_MISMATCHED_2);
+					break;
+				default:
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.INVALID_PAN_MSG);
+					break;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("An error occurred: " + e.getMessage());
+			commonMethods.sendErrorMail(
+					"An error occurred while processing your request, In saveResult for the Error: " + e.getMessage(),
+					"ERR-001");
 			responseModel = commonMethods.constructFailedMsg(e.getMessage());
 		}
 		return responseModel;
