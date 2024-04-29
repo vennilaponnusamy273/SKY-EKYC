@@ -294,4 +294,8 @@ public class EkycConstants {
 	public static final String CONST_FILTER_NEW = "8_FILTER_01";
 	public static final String PAN_XML_NAME = "_PAN";
 	public static final String PAN_XML = "false";
+	
+	public static final String CAMS_REDIRECT_URL = "https://kyc.skybroking.com/documentupload";
+	public static final String CAMS_WEBHOOK = "/cams/getCamsPdf";
+	public static final String CAMS_GETURL = "/cams/getCamsRedirectUrl";
 }

@@ -113,7 +113,7 @@ public class ApplicationProperties {
 	@ConfigProperty(name = "appconfig.mail.ivr.text")
 	String bitText;
 	@ConfigProperty(name = "appconfig.ipv.base.url")
-	String ivrBaseUrl;	
+	String ivrBaseUrl;
 	@ConfigProperty(name = "appconfig.address.url")
 	String addressFetchUrl;
 	// esign config
@@ -146,7 +146,7 @@ public class ApplicationProperties {
 
 	@ConfigProperty(name = "appconfig.esign.return.url")
 	String eSignReturnUrl;
-	
+
 	@ConfigProperty(name = "quarkus.mailer.host")
 	String mailhost;
 	@ConfigProperty(name = "quarkus.mailer.username")
@@ -155,12 +155,12 @@ public class ApplicationProperties {
 	String MailPort;
 	@ConfigProperty(name = "quarkus.mailer.password")
 	String mailpassword;
-	
+
 	@ConfigProperty(name = "appconfig.esign.pdf.aadhar")
 	String aadharPdfPath;
 	@ConfigProperty(name = "appconfig.esign.pdf.pan")
 	String panPdfPath;
-	
+
 	// digio
 	@ConfigProperty(name = "appconfig.digio.baseurl")
 	String digioBaseUrl;
@@ -168,8 +168,21 @@ public class ApplicationProperties {
 	String digioFinalUrl;
 	@ConfigProperty(name = "appconfig.digio.auth.key")
 	String digioAuthKey;
-	
+
 	// pennyDrop
 	@ConfigProperty(name = "appconfig.esign.pennyDropPdfPath")
 	String pennyDropPdfPath;
+
+	// CAMS
+	@ConfigProperty(name = "quarkus.cams.fiuid")
+	String camsFiuid;
+
+	@ConfigProperty(name = "quarkus.cams.userid")
+	String camsUserId;
+
+	@ConfigProperty(name = "quarkus.cams.redirectkey")
+	String camsreDirectId;
+
+	@ConfigProperty(name = "quarkus.cams.useCaseid")
+	String camsreuseCaseId;
 }

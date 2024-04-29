@@ -112,6 +112,9 @@ public class ApplicationUserEntity extends CommonEntity implements Serializable 
 	
 	@Column(name = "panNsdlLink")
 	private String panNsdlLink;
+	
+	@Column(name = "cams_Income")
+	private String camsIncome;
 
 	@Transient
 	private String gender;

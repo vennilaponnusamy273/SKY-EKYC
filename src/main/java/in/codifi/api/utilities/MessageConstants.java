@@ -160,4 +160,7 @@ public class MessageConstants {
 	public static final String PAN_DOB_MISMATCHED = "DOB not matched with Database";
 	public static final String PAN_SEEDIND_STATUS_MISMATCHED_1 = "Inoperative PAN";
 	public static final String PAN_SEEDIND_STATUS_MISMATCHED_2 = "For all non-Individual PANs";
+	//CAMS
+	public static final String NONEED_TO_DOCUMENT = "Your segment does not require a bank statement.";
+	public static final String BANK_NAME_NULL = "YOUR BANK NAME IS NULL , CONTACT SUPPORT TEAM";
 }
