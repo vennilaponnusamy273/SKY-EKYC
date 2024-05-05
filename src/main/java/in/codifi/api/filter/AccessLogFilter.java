@@ -203,7 +203,7 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 							requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
 						}
 					}
-					HazleCacheController.getInstance().getAuthToken().put(mobileNumber, fullToken, 300,
+					HazleCacheController.getInstance().getAuthToken().put(mobileNumber, fullToken, 1800,
 							TimeUnit.SECONDS);
 				} else {
 					requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
