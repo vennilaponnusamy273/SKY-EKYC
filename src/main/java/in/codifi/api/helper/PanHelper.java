@@ -587,7 +587,7 @@ public class PanHelper {
 			} else if (!dob.equalsIgnoreCase("Y")) {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.PAN_DOB_MISMATCHED);
 			} else if (!seeding_status.equalsIgnoreCase("Y")) {
-				switch (panStatus) {
+				switch (seeding_status) {
 				case "R":
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.PAN_SEEDIND_STATUS_MISMATCHED_1);
 					break;
