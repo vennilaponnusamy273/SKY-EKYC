@@ -176,9 +176,9 @@ public class NomineeService implements INomineeService {
 					document.getClass();
 					if (document.isEncrypted()) {
 						document.setAllSecurityToBeRemoved(true);
-						document.save(filePath);
-						document.close();
 					}
+					document.save(filePath);
+					document.close();
 				} else {
 					Files.copy(fileModel.getNomFile().filePath(), path);
 				}
@@ -281,9 +281,9 @@ public class NomineeService implements INomineeService {
 				document.getClass();
 				if (document.isEncrypted()) {
 					document.setAllSecurityToBeRemoved(true);
-					document.save(filePath);
-					document.close();
 				}
+				document.save(filePath);
+				document.close();
 			} else {
 				Files.copy(fileModel.getGuardFile().filePath(), path);
 			}
