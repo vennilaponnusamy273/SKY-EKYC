@@ -96,7 +96,7 @@ public class MessageConstants {
 	public static final String GUARDIAN_MSG = "No Need to Guardian for this Nominee ,otherwise Nominee details saved ";
 	public final static String NOMINEE_COUNT = "This ApplicationID Against Three Nominee's  Allocated Done";
 	public final static String GUARDIAN_REQUIRED = "Guardian Required For this Nominee";
-	public final static String ALLOCATION_NOT_TALLY = "please give correct allocation";
+	public final static String ALLOCATION_NOT_TALLY = "Please give correct allocation";
 	// KRA
 	public final static String KRA_FAILED = "YOUR REQUEST COULD NOT BE PROCESSED.";
 	public final static String PENNY_DETAILS_NULL = "Penny Drop Details null";
