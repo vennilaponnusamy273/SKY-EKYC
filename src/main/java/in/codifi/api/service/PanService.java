@@ -162,6 +162,9 @@ public class PanService implements IPanService {
 	/**
 	 * Method to save Date of Birth
 	 */
+	/**
+	 * Method to save Date of Birth gopocket
+	 */
 	@Override
 	public ResponseModel saveDob(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
@@ -186,22 +189,28 @@ public class PanService implements IPanService {
 											oldUserEntity.getPanNumber(), userEntity.getDob(), panCardStatus,
 											userEntity.getId());
 									if (panCardDetails != null) {
-										
-										if (panCardDetails.has("APP_NAME")
+										boolean kraProofCheck = kraProofPresent(panCardDetails);
+										if (!kraProofCheck && panCardDetails.has("APP_NAME")
 												|| (panCardDetails.has(EkycConstants.CONSTANT_ERROR_DESC)
 														&& StringUtil.isEqual(
 																panCardDetails
 																		.getString(EkycConstants.CONSTANT_ERROR_DESC),
 																MessageConstants.ERROR_MSG_INVALID_PAN))) {
 											savingEntity = repository.save(oldUserEntity);
-										 
-										if (panCardDetails.has("APP_NAME")) {
-											profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
-													userEntity.getId(), panCardStatus);
-											// ckycService.saveCkycResponse(userEntity.getId());
-										}
-										 } 
-										else {
+
+											// RejectionStatusHelper
+											if (panCardDetails.has("APP_NAME")) {
+												profileEntity = kraHelper.updateDetailsFromKRA(panCardDetails,
+														userEntity.getId(), panCardStatus);
+												// ckycService.saveCkycResponse(userEntity.getId());
+											}
+										} else {
+											if (kraProofCheck) {
+												responseModel = commonMethods
+														.constructFailedMsg(MessageConstants.KRA_PROOF_FAILED);
+												responseModel.setPage(EkycConstants.PAGE_AADHAR);
+												responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+											}
 											if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_MSG)) {
 												responseModel = commonMethods.constructFailedMsg(
 														panCardDetails.getString(EkycConstants.CONSTANT_ERROR_MSG));
@@ -212,15 +221,15 @@ public class PanService implements IPanService {
 											} else if (panCardDetails.has(EkycConstants.CONSTANT_ERROR_DESC)) {
 												responseModel = commonMethods.constructFailedMsg(
 														panCardDetails.getString(EkycConstants.CONSTANT_ERROR_DESC));
-												responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 												responseModel.setPage(EkycConstants.PAGE_AADHAR);
+												responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 												savingEntity = repository.save(oldUserEntity);
 												return responseModel;
 											} else {
 												responseModel = commonMethods
 														.constructFailedMsg(MessageConstants.KRA_FAILED);
-												responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 												responseModel.setPage(EkycConstants.PAGE_AADHAR);
+												responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 												savingEntity = repository.save(oldUserEntity);
 												return responseModel;
 											}
@@ -265,6 +274,8 @@ public class PanService implements IPanService {
 						responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 					} else {
 						responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVING_DOB);
+						responseModel.setPage(EkycConstants.PAGE_AADHAR);
+						responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 					}
 				}
 			} else {
@@ -291,6 +302,31 @@ public class PanService implements IPanService {
 			isPresent = true;
 		}
 		return isPresent;
+	}
+	
+	public boolean kraProofPresent(JSONObject panCardDetails) {
+		boolean result = false;
+		try {
+			if (panCardDetails.has("APP_PER_ADD_PROOF") && panCardDetails.has("APP_PER_ADD_REF")) {
+				String kycID = panCardDetails.getString("APP_PER_ADD_PROOF");
+				String kycIDNumber = panCardDetails.getString("APP_PER_ADD_REF");
+				if (StringUtil.isNotNullOrEmpty(kycID) && StringUtil.isNotNullOrEmpty(kycIDNumber)) {
+					if (StringUtil.isEqual(kycIDNumber, "NA") || StringUtil.isEqual(kycIDNumber, "XXXXXXXXXXXX")
+							|| StringUtil.isEqual(kycIDNumber, "XXXXXXXXXXNA")
+							|| StringUtil.isEqual(kycIDNumber, "XXXXXXXXXX00")
+							|| StringUtil.isEqual(kycIDNumber, "XXXXXXXX0000")) {
+						return true;
+					}
+				} else {
+					return true;
+				}
+			} else {
+				return true;
+			}
+		} catch (Exception e) {
+			return true;
+		}
+		return result;
 	}
 
 	/**

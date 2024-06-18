@@ -610,7 +610,7 @@ public class PdfService implements IPdfService {
 				String proofAddress = address.getKraaddressproof();
 				if (proofAddress != null) {
 					map.put("proof of address (POA)", proofAddress.substring(0, Math.min(70, proofAddress.length())));
-					if (proofAddress.length() >= 80) {
+					if (proofAddress.length() >= 70) {
 						map.put("proof of address (POA)1",
 								proofAddress.substring(70, Math.min(140, proofAddress.length())));
 					}
@@ -644,7 +644,7 @@ public class PdfService implements IPdfService {
 				String dematAddress = map.get("dematAddress");
 				if (dematAddress != null) {
 					map.put("dematAddress1", dematAddress.substring(0, Math.min(70, dematAddress.length())));
-					if (dematAddress.length() >= 80) {
+					if (dematAddress.length() >= 70) {
 						map.put("dematAddress2", dematAddress.substring(70, Math.min(140, dematAddress.length())));
 					}
 				}

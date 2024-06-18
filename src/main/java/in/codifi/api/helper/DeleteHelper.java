@@ -80,6 +80,11 @@ public class DeleteHelper {
 		applicationUserEntity.setStatus(EkycConstants.EKYC_STATUS_INPROGRESS);
 		applicationUserEntity.setUserName(null);
 		applicationUserEntity.setUpdatedOn(new Date());
+		applicationUserEntity.setAadharPanLink(null);
+		applicationUserEntity.setCamsIncome(null);
+		applicationUserEntity.setPanNsdlLink(null);
+		applicationUserEntity.setPanStatus(null);
+		applicationUserEntity.setPanConfirm(0);
 		repository.save(applicationUserEntity);
 		accesslogRepository.deleteByApplicationId(applicationUserEntity.getId().toString());
 		addressRepository.deleteByApplicationId(applicationUserEntity.getId());

@@ -45,7 +45,7 @@ public class DigioHelper {
 			digioEntity.setXmlrequestId(addResponse.getActions().get(0).getExecutionRequestId());
 			digioRepository.save(digioEntity);
 			digioRestService.getXml(addResponse.getActions().get(0).getExecutionRequestId(), applicationId);
-			digioRestService.savePANXmlDocument(addResponse.getActions().get(0).getExecutionRequestId(), applicationId);
+			//digioRestService.savePANXmlDocument(addResponse.getActions().get(0).getExecutionRequestId(), applicationId);
 		}
 		System.out.println("the whDigilocker 7");
 		AddressEntity checkExit = addressRepository.findByapplicationId(applicationId);
@@ -54,6 +54,7 @@ public class DigioHelper {
 			AddressEntity entity = new AddressEntity();
 			entity.setApplicationId(applicationId);
 			entity.setIsdigi(1);
+			entity.setIsKra(0);
 			entity.setAccessToken(addResponse.getId());
 			if (StringUtil.isListNotNullOrEmpty(addResponse.getActions())) {
 				entity.setAadharNo(addResponse.getActions().get(0).getDetails().getAadhaar().getIdNumber());
@@ -103,6 +104,7 @@ public class DigioHelper {
 		} else {
 			checkExit.setApplicationId(applicationId);
 			checkExit.setIsdigi(1);
+			checkExit.setIsKra(0);
 			checkExit.setAccessToken(addResponse.getId());
 			System.out.println("the whDigilocker 10");
 			if (StringUtil.isListNotNullOrEmpty(addResponse.getActions())) {
