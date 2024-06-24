@@ -314,7 +314,8 @@ public class PanService implements IPanService {
 					if (StringUtil.isEqual(kycIDNumber, "NA") || StringUtil.isEqual(kycIDNumber, "XXXXXXXXXXXX")
 							|| StringUtil.isEqual(kycIDNumber, "XXXXXXXXXXNA")
 							|| StringUtil.isEqual(kycIDNumber, "XXXXXXXXXX00")
-							|| StringUtil.isEqual(kycIDNumber, "XXXXXXXX0000")) {
+							|| StringUtil.isEqual(kycIDNumber, "XXXXXXXX0000")
+							|| StringUtil.isEqual(kycIDNumber, "999999999999")) {
 						return true;
 					}
 				} else {
