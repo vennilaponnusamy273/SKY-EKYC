@@ -621,15 +621,15 @@ public class PdfService implements IPdfService {
 					map.put("dematAddress",
 							address.getKraPerAddress1() + " " + address.getKraPerAddress2() + " "
 									+ address.getKraPerAddress3() + " " + address.getKraPerCity() + " "
-									+ Integer.toString(address.getKraPerPin()));
+									+ address.getKraPerPin());
 				} else if (address.getKraPerAddress1() != null && address.getKraPerAddress2() != null) {
 					map.put("dematAddress", address.getKraPerAddress1() + " " + address.getKraPerAddress2() + " "
-							+ address.getKraPerCity() + " " + Integer.toString(address.getKraPerPin()));
+							+ address.getKraPerCity() + " " + address.getKraPerPin());
 				} else if (address.getKraAddress1() != null) {
 					map.put("dematAddress", address.getKraAddress1() + " " + address.getKraPerCity() + " "
-							+ Integer.toString(address.getKraPerPin()));
+							+address.getKraPerPin());
 				} else {
-					map.put("CurrentPincode", Integer.toString(address.getKraPerPin()));
+					map.put("CurrentPincode", address.getKraPerPin());
 					if (address.getKraPerAddress1() != null && address.getKraPerAddress2() != null
 							&& address.getKraPerAddress3() != null) {
 						map.put("dematAddress", address.getKraPerAddress1() + " " + address.getKraPerAddress2() + " "
@@ -710,10 +710,10 @@ public class PdfService implements IPdfService {
 				} else {
 					map.put("CurrentDistrict", address.getKraCity());// TODO
 				}
-				if (address.getKraPerPin() > 0) {
-					map.put("CurrentPincode", Integer.toString(address.getKraPerPin()));
+				if (address.getKraPerPin() !=null) {
+					map.put("CurrentPincode",address.getKraPerPin());
 				} else {
-					map.put("CurrentPincode", Integer.toString(address.getKraPin()));
+					map.put("CurrentPincode",address.getKraPin());
 				}
 				map.put("Place", address.getKraPerCity());
 				map.put("CurrentState1", address.getKraState());
@@ -726,8 +726,8 @@ public class PdfService implements IPdfService {
 				// map.put("Aadhaar Number", address.getAadharNo());
 				// map.put("Sole / First Holder’s Name UID", address.getAadharNo());
 				map.put("PermenentDistrict", address.getKraPerCity());// TODO
-				if (address.getKraPerPin() > 0) {
-					map.put("PermenentPincode", Integer.toString(address.getKraPerPin()));
+				if (address.getKraPerPin()!=null) {
+					map.put("PermenentPincode",address.getKraPerPin());
 				} else {
 					map.put("PermenentPincode", null);
 				}

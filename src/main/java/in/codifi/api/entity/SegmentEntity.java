@@ -49,6 +49,9 @@ public class SegmentEntity extends CommonEntity implements Serializable {
 	@Column(name = "consent")
 	private int consent;
 	
+	@Column(name = "bsda")
+	private int bsda;
+	
 	@Column(name = "brokerageacc")
 	private String brokerageacc;
 

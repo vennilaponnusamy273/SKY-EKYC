@@ -224,7 +224,7 @@ public class KRAHelper {
 			addressEntity.setKraAddress2(corrsAdd2);
 			addressEntity.setKraAddress3(corrsAdd3);
 			addressEntity.setKraCity(corrsCity);
-			addressEntity.setKraPin(corrsPinCode);
+			addressEntity.setKraPin(String.valueOf(corrsPinCode));
 
 			addressEntity.setKraState(
 					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.STATEKEY + corrsState));
@@ -244,7 +244,7 @@ public class KRAHelper {
 			addressEntity.setKraPerAddress2(perAddress2);
 			addressEntity.setKraPerAddress3(perAddress3);
 			addressEntity.setKraPerCity(perCity);
-			addressEntity.setKraPerPin(perPinCode);
+			addressEntity.setKraPerPin(String.valueOf(perPinCode));
 			addressEntity.setKraPerState(
 					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.STATEKEY + perState));
 			addressEntity.setKraPerCountry(

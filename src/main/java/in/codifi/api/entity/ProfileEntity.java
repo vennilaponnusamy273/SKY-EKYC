@@ -72,5 +72,38 @@ public class ProfileEntity extends CommonEntity implements Serializable {
 
 	@Column(name = "net_worth_date")
 	private String netWorthDate;
+	
+	@Column(name = "standing_instruction_one")
+	private String standInsOne;
+
+	@Column(name = "standing_instruction_two")
+	private String standInsTwo;
+
+	@Column(name = "standing_instruction_three")
+	private String standInsThree;
+
+	@Column(name = "standing_instruction_four")
+	private String standInsFour;
+
+	@Column(name = "standing_instruction_five")
+	private String standInsFive;
+
+	@Column(name = "standing_instruction_six")
+	private String standInsSix;
+
+	@Column(name = "standing_instruction_seven")
+	private String standInsSeven;
+
+	@Column(name = "standing_instruction_eight")
+	private String standInsEight;
+
+	@Column(name = "standing_instruction_nine")
+	private String standInsNine;
+
+	@Column(name = "standing_instruction_ten")
+	private String standInsTen;
+
+	@Column(name = "standing_instruction_eleven")
+	private String standInsEleven;
 
 }

@@ -102,7 +102,7 @@ public class AddressEntity extends CommonEntity implements Serializable {
 	private String kraAddress3;
 
 	@Column(name = "kra_pin")
-	private int kraPin;
+	private String kraPin;
 
 	@Column(name = "kra_city")
 	private String kraCity;
@@ -123,7 +123,7 @@ public class AddressEntity extends CommonEntity implements Serializable {
 	private String kraPerAddress3;
 
 	@Column(name = "kra_per_pin")
-	private int kraPerPin;
+	private String kraPerPin;
 
 	@Column(name = "kra_per_city")
 	private String kraPerCity;
