@@ -141,6 +141,22 @@ public class PdfService implements IPdfService {
 			Optional<ApplicationUserEntity> userEntity = applicationUserRepository.findById(applicationId);
 			if (userEntity.isPresent() && userEntity.get().getSmsVerified() == 1
 					&& userEntity.get().getEmailVerified() == 1) {
+				//Create UCC
+				String uccCode = null;
+				if (userEntity.get().getUccCodePrefix() == null && userEntity.get().getUccCodeSuffix() == null) {
+					uccCode = commonMethods.generateUccCode();
+					System.out.println("the uccCode" + uccCode);
+					if (StringUtil.isNotNullOrEmpty(uccCode)) {
+						if (uccCode.length() > 2) {
+							userEntity.get().setUccCodePrefix(uccCode.substring(0, 3));
+						}
+						if (uccCode.length() > 5) {
+							userEntity.get().setUccCodeSuffix(uccCode.substring(3));
+						}
+						applicationUserRepository.save(userEntity.get());
+					}
+				}
+
 				HashMap<String, String> map = mapping(applicationId);
 				File file = new File(props.getPdfPath());
 				PDDocument document = PDDocument.load(file);
@@ -626,8 +642,8 @@ public class PdfService implements IPdfService {
 					map.put("dematAddress", address.getKraPerAddress1() + " " + address.getKraPerAddress2() + " "
 							+ address.getKraPerCity() + " " + address.getKraPerPin());
 				} else if (address.getKraAddress1() != null) {
-					map.put("dematAddress", address.getKraAddress1() + " " + address.getKraPerCity() + " "
-							+address.getKraPerPin());
+					map.put("dematAddress",
+							address.getKraAddress1() + " " + address.getKraPerCity() + " " + address.getKraPerPin());
 				} else {
 					map.put("CurrentPincode", address.getKraPerPin());
 					if (address.getKraPerAddress1() != null && address.getKraPerAddress2() != null
@@ -710,10 +726,10 @@ public class PdfService implements IPdfService {
 				} else {
 					map.put("CurrentDistrict", address.getKraCity());// TODO
 				}
-				if (address.getKraPerPin() !=null) {
-					map.put("CurrentPincode",address.getKraPerPin());
+				if (address.getKraPerPin() != null) {
+					map.put("CurrentPincode", address.getKraPerPin());
 				} else {
-					map.put("CurrentPincode",address.getKraPin());
+					map.put("CurrentPincode", address.getKraPin());
 				}
 				map.put("Place", address.getKraPerCity());
 				map.put("CurrentState1", address.getKraState());
@@ -726,8 +742,8 @@ public class PdfService implements IPdfService {
 				// map.put("Aadhaar Number", address.getAadharNo());
 				// map.put("Sole / First Holder’s Name UID", address.getAadharNo());
 				map.put("PermenentDistrict", address.getKraPerCity());// TODO
-				if (address.getKraPerPin()!=null) {
-					map.put("PermenentPincode",address.getKraPerPin());
+				if (address.getKraPerPin() != null) {
+					map.put("PermenentPincode", address.getKraPerPin());
 				} else {
 					map.put("PermenentPincode", null);
 				}
@@ -877,31 +893,31 @@ public class PdfService implements IPdfService {
 			map.put("BankPincode", bankDetails.getPincode());
 //			BankAddressModel model = commonRestService.getBankAddressByIfsc(bankDetails.getIfsc());
 //			if (model != null) {
-				map.put("Bank Name", bankDetails.getBank());
-				map.put("City", bankDetails.getBankCity());
-				map.put("State", bankDetails.getBankState());
-				map.put("Country", "INDIA");
-				map.put("Branch Name", bankDetails.getBranchName());
-				// Check penny verification status
-				PennyVerificationResponseEntity pennyVerificationResponseEntity = pennyVerificationRepository
-						.findByapplicationId(applicationId);
-				if (pennyVerificationResponseEntity != null && pennyVerificationResponseEntity.getPennyConfirm() == 1) {
-					map.put("pennystatus", "Verified by penny drop.");
-					map.put("Account Holder Name", pennyVerificationResponseEntity.getBeneficiaryNameWithBank());
-					map.put("Account Number", pennyVerificationResponseEntity.getAccountNo());
-					map.put("Bank Name penny", bankDetails.getBank());
-					map.put("IFSC Code", bankDetails.getIfsc());
-					map.put("MICR Code", bankDetails.getMicr());
-					map.put("Bank Address", bankDetails.getAddress());
-					String addressForBank = bankDetails.getAddress();
-					map.put("BankAddress1", addressForBank.substring(0, Math.min(66, addressForBank.length())));
-					if (addressForBank.length() >= 66) {
-						map.put("BankAddress2", addressForBank.substring(66, Math.min(138, addressForBank.length())));
-					}
-					map.put("Bank Response", pennyVerificationResponseEntity.getVerified());
-					map.put("Bank Ref ID", pennyVerificationResponseEntity.getPaymentid());
-					map.put("Verified by penny drop on", pennyVerificationResponseEntity.getVerifiedAt().toString());
-				//}
+			map.put("Bank Name", bankDetails.getBank());
+			map.put("City", bankDetails.getBankCity());
+			map.put("State", bankDetails.getBankState());
+			map.put("Country", "INDIA");
+			map.put("Branch Name", bankDetails.getBranchName());
+			// Check penny verification status
+			PennyVerificationResponseEntity pennyVerificationResponseEntity = pennyVerificationRepository
+					.findByapplicationId(applicationId);
+			if (pennyVerificationResponseEntity != null && pennyVerificationResponseEntity.getPennyConfirm() == 1) {
+				map.put("pennystatus", "Verified by penny drop.");
+				map.put("Account Holder Name", pennyVerificationResponseEntity.getBeneficiaryNameWithBank());
+				map.put("Account Number", pennyVerificationResponseEntity.getAccountNo());
+				map.put("Bank Name penny", bankDetails.getBank());
+				map.put("IFSC Code", bankDetails.getIfsc());
+				map.put("MICR Code", bankDetails.getMicr());
+				map.put("Bank Address", bankDetails.getAddress());
+				String addressForBank = bankDetails.getAddress();
+				map.put("BankAddress1", addressForBank.substring(0, Math.min(66, addressForBank.length())));
+				if (addressForBank.length() >= 66) {
+					map.put("BankAddress2", addressForBank.substring(66, Math.min(138, addressForBank.length())));
+				}
+				map.put("Bank Response", pennyVerificationResponseEntity.getVerified());
+				map.put("Bank Ref ID", pennyVerificationResponseEntity.getPaymentid());
+				map.put("Verified by penny drop on", pennyVerificationResponseEntity.getVerifiedAt().toString());
+				// }
 			}
 		}
 

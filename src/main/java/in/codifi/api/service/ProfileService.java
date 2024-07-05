@@ -55,20 +55,20 @@ public class ProfileService implements IProfileService {
 				rejectionStatusHelper.insertArchiveTableRecord(userEntity.getApplicationId(),
 						EkycConstants.PAGE_PROFILE);
 				if (updatedEntity != null && updatedEntity.getId() > 0) {
-					String uccCode=null;	
-					if(user.get().getUccCodePrefix()==null&&user.get().getUccCodeSuffix()==null) {
-					 uccCode = commonMethods.generateUccCode();
-					System.out.println("the uccCode"+uccCode);
-					if (StringUtil.isNotNullOrEmpty(uccCode)) {
-						if (uccCode.length() > 2) {
-							user.get().setUccCodePrefix(uccCode.substring(0, 3));
-						}
-						if (uccCode.length() > 5) {
-							user.get().setUccCodeSuffix(uccCode.substring(3));
-						}
-						applicationUserRepository.save(user.get());
-					}
-					}
+//					String uccCode=null;	
+//					if(user.get().getUccCodePrefix()==null&&user.get().getUccCodeSuffix()==null) {
+//					 uccCode = commonMethods.generateUccCode();
+//					System.out.println("the uccCode"+uccCode);
+//					if (StringUtil.isNotNullOrEmpty(uccCode)) {
+//						if (uccCode.length() > 2) {
+//							user.get().setUccCodePrefix(uccCode.substring(0, 3));
+//						}
+//						if (uccCode.length() > 5) {
+//							user.get().setUccCodeSuffix(uccCode.substring(3));
+//						}
+//						applicationUserRepository.save(user.get());
+//					}
+//					}
 					//System.out.println(uccCode);
 					commonMethods.UpdateStep(EkycConstants.PAGE_PROFILE, userEntity.getApplicationId());
 					iPennyController.createContact(userEntity.getApplicationId());
