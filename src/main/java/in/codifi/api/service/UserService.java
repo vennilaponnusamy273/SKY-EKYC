@@ -145,7 +145,8 @@ public class UserService implements IUserService {
 						if (oldUserEntity.getEmailVerified() == 0) {
 							oldUserEntity.setStage(EkycConstants.PAGE_SMS);
 						}
-						if (userEntity.getReferralBy() != null&&!userEntity.getReferralBy().isEmpty()&&!userEntity.getReferralBy().isBlank()) {
+						if (userEntity.getReferralBy() != null&&!userEntity.getReferralBy().isEmpty()&&!userEntity.getReferralBy().isBlank()&&!StringUtil.isEqual(oldUserEntity.getStatus(),
+								EkycConstants.EKYC_STATUS_ESIGN_COMPLETED)&&oldUserEntity.getStage()!="13") {
 						    ReferralEntity referralEntity = referralRepository.findByMobileNo(userEntity.getMobileNo());
 						    if (referralEntity == null) {
 						        referralEntity = new ReferralEntity();
