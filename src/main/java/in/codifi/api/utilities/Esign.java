@@ -3,6 +3,8 @@ package in.codifi.api.utilities;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,16 +73,29 @@ public class Esign {
 				applicationId);
 		long timeInmillsecods = System.currentTimeMillis();
 		String folderName = String.valueOf(timeInmillsecods);
+		String newFilePath = props.getFileBasePath() + applicationId + slash + folderName;
 		if (getXml != null) {
-			String filePath = props.getFileBasePath() + applicationId + slash + folderName;
-			toCreateNewXMLFile(filePath, getXml);
-			String txnId = toGetTxnFromXMlpath(filePath + slash + "FirstResponse.xml");
+			 TxnDetailsEntity existingEntity = txnDetailsRepository.findByapplicationId(applicationId);
+		        if (existingEntity != null) {
+		            String existingFolderPath = existingEntity.getFolderLocation();
+		            deleteFolderIfExists(existingFolderPath); // Delete existing folder if it exists
+		        }
+			toCreateNewXMLFile(newFilePath, getXml);
+			String txnId = toGetTxnFromXMlpath(newFilePath + slash + "FirstResponse.xml");
 			if (StringUtil.isNotNullOrEmpty(txnId)) {
-				TxnDetailsEntity savingEntity = new TxnDetailsEntity();
-				savingEntity.setApplicationId(applicationId);
-				savingEntity.setTxnId(txnId);
-				savingEntity.setFolderLocation(filePath);
-				TxnDetailsEntity savedEntity = txnDetailsRepository.save(savingEntity);
+				TxnDetailsEntity savedEntity=null;
+				TxnDetailsEntity exitingEntity=txnDetailsRepository.findByapplicationId(applicationId);
+				if (existingEntity == null) {
+	                TxnDetailsEntity savingEntity = new TxnDetailsEntity();
+	                savingEntity.setApplicationId(applicationId);
+	                savingEntity.setTxnId(txnId);
+	                savingEntity.setFolderLocation(newFilePath);
+	                savedEntity = txnDetailsRepository.save(savingEntity);
+	            } else {
+	                existingEntity.setTxnId(txnId);
+	                existingEntity.setFolderLocation(newFilePath);
+	                savedEntity = txnDetailsRepository.save(existingEntity);
+	            }
 				if (savedEntity != null) {
 					StringBuilder buff = new StringBuilder();
 					buff.append(getXml);
@@ -95,6 +110,20 @@ public class Esign {
 		return responseModel;
 	}
 
+	private void deleteFolderIfExists(String folderPath) {
+	    File folder = new File(folderPath);
+	    if (folder.exists() && folder.isDirectory()) {
+	        try {
+	            Files.walk(Paths.get(folderPath))
+	                .map(java.nio.file.Path::toFile)
+	                .sorted((f1, f2) -> -f1.compareTo(f2)) // Sort in reverse to delete files first
+	                .forEach(File::delete);
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            // Handle the exception (e.g., log the error or throw a custom exception)
+	        }
+	    }
+	}
 	private String getXmlForEsignSinglePage(String outPutPath, long applicationId) {
 		String response = "";
 		try {
