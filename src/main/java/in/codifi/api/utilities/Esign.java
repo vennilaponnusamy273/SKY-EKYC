@@ -74,56 +74,59 @@ public class Esign {
 		long timeInmillsecods = System.currentTimeMillis();
 		String folderName = String.valueOf(timeInmillsecods);
 		String newFilePath = props.getFileBasePath() + applicationId + slash + folderName;
+		List<TxnDetailsEntity> existingEntities = null;
 		if (getXml != null) {
-			 TxnDetailsEntity existingEntity = txnDetailsRepository.findByapplicationId(applicationId);
-		        if (existingEntity != null) {
-		            String existingFolderPath = existingEntity.getFolderLocation();
-		            deleteFolderIfExists(existingFolderPath); // Delete existing folder if it exists
-		        }
-			toCreateNewXMLFile(newFilePath, getXml);
-			String txnId = toGetTxnFromXMlpath(newFilePath + slash + "FirstResponse.xml");
-			if (StringUtil.isNotNullOrEmpty(txnId)) {
-				TxnDetailsEntity savedEntity=null;
-				TxnDetailsEntity exitingEntity=txnDetailsRepository.findByapplicationId(applicationId);
-				if (existingEntity == null) {
-	                TxnDetailsEntity savingEntity = new TxnDetailsEntity();
-	                savingEntity.setApplicationId(applicationId);
-	                savingEntity.setTxnId(txnId);
-	                savingEntity.setFolderLocation(newFilePath);
-	                savedEntity = txnDetailsRepository.save(savingEntity);
-	            } else {
-	                existingEntity.setTxnId(txnId);
-	                existingEntity.setFolderLocation(newFilePath);
-	                savedEntity = txnDetailsRepository.save(existingEntity);
-	            }
-				if (savedEntity != null) {
-					StringBuilder buff = new StringBuilder();
-					buff.append(getXml);
-					responseModel.setResult(buff);
-					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-				} else {
-					responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_CREATING_XML);
-				}
+			existingEntities = txnDetailsRepository.findByapplicationId(applicationId);
+			// Delete existing folders and update entities
+			for (TxnDetailsEntity entity : existingEntities) {
+				String existingFolderPath = entity.getFolderLocation();
+				deleteFolderIfExists(existingFolderPath); // Delete existing folder if it exist
+				txnDetailsRepository.deleteById(entity.getId());
+			}
+		}
+		toCreateNewXMLFile(newFilePath, getXml);
+		String txnId = toGetTxnFromXMlpath(newFilePath + slash + "FirstResponse.xml");
+		if (StringUtil.isNotNullOrEmpty(txnId)) {
+			TxnDetailsEntity savedEntity = null;
+			if (existingEntities.isEmpty()) {
+				TxnDetailsEntity newEntity = new TxnDetailsEntity();
+				newEntity.setApplicationId(applicationId);
+				newEntity.setTxnId(txnId);
+				newEntity.setFolderLocation(newFilePath);
+				savedEntity = txnDetailsRepository.save(newEntity);
+			} else {
+				TxnDetailsEntity existingEntity = existingEntities.get(0); // Use the first entity if list is not empty
+				existingEntity.setTxnId(txnId);
+				existingEntity.setFolderLocation(newFilePath);
+				savedEntity = txnDetailsRepository.save(existingEntity);
+			}
+			if (savedEntity != null) {
+				StringBuilder buff = new StringBuilder();
+				buff.append(getXml);
+				responseModel.setResult(buff);
+				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+			} else {
+				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_CREATING_XML);
 			}
 		}
 		return responseModel;
+
 	}
 
 	private void deleteFolderIfExists(String folderPath) {
-	    File folder = new File(folderPath);
-	    if (folder.exists() && folder.isDirectory()) {
-	        try {
-	            Files.walk(Paths.get(folderPath))
-	                .map(java.nio.file.Path::toFile)
-	                .sorted((f1, f2) -> -f1.compareTo(f2)) // Sort in reverse to delete files first
-	                .forEach(File::delete);
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	            // Handle the exception (e.g., log the error or throw a custom exception)
-	        }
-	    }
+		File folder = new File(folderPath);
+		if (folder.exists() && folder.isDirectory()) {
+			try {
+				Files.walk(Paths.get(folderPath)).map(java.nio.file.Path::toFile).sorted((f1, f2) -> -f1.compareTo(f2))
+						.forEach(File::delete);
+			} catch (IOException e) {
+				e.printStackTrace();
+				// Handle the exception (e.g., log the error or throw a custom exception)
+			}
+		}
 	}
+
 	private String getXmlForEsignSinglePage(String outPutPath, long applicationId) {
 		String response = "";
 		try {
@@ -137,7 +140,7 @@ public class Esign {
 			String p12CertificatePath = props.getEsignLocation();
 			String p12CertiPwd = props.getEsignPassword();
 			String tickImagePath = props.getEsignTickImage();
-			int serverTime =0;
+			int serverTime = 0;
 			String alias = props.getEsignAlias();
 			String pdfPassword = "";
 			String txn = "";
@@ -247,10 +250,15 @@ public class Esign {
 				}
 
 				// Generate eSign request XML using coordinates and other parameters
-				System.out.println(" ekycID - "+ekycID+" pdfReadServerPath - "+ pdfReadServerPath+" aspId - "+  aspId+" authMode- "+  authMode+" responseUrl - "+  responseUrl+"p12CertificatePath  - "+ 
-						p12CertificatePath+" p12CertiPwd - "+  p12CertiPwd+" tickImagePath  - "+  tickImagePath+" serverTime - "+  serverTime+" alias - "+  alias+" nameToShowOnSignatureStamp - "+  nameToShowOnSignatureStamp+" locationToShowOnSignatureStamp - "+ 
-						locationToShowOnSignatureStamp+" reasonForSign - "+  reasonForSign+" pdfPassword - "+  pdfPassword+" txn - "+  txn+" PageNo - "+  PageNo+" xCoordinatesList - "+  xCoordinatesList+" yCoordinatesList - "+ 
-						yCoordinatesList+" height  - "+  height+ " width - "+  width);
+				System.out.println(" ekycID - " + ekycID + " pdfReadServerPath - " + pdfReadServerPath + " aspId - "
+						+ aspId + " authMode- " + authMode + " responseUrl - " + responseUrl + "p12CertificatePath  - "
+						+ p12CertificatePath + " p12CertiPwd - " + p12CertiPwd + " tickImagePath  - " + tickImagePath
+						+ " serverTime - " + serverTime + " alias - " + alias + " nameToShowOnSignatureStamp - "
+						+ nameToShowOnSignatureStamp + " locationToShowOnSignatureStamp - "
+						+ locationToShowOnSignatureStamp + " reasonForSign - " + reasonForSign + " pdfPassword - "
+						+ pdfPassword + " txn - " + txn + " PageNo - " + PageNo + " xCoordinatesList - "
+						+ xCoordinatesList + " yCoordinatesList - " + yCoordinatesList + " height  - " + height
+						+ " width - " + width);
 				EsignApplication eSignApp = new EsignApplication();
 				response = eSignApp.getEsignRequestXml(ekycID, pdfReadServerPath, aspId, authMode, responseUrl,
 						p12CertificatePath, p12CertiPwd, tickImagePath, serverTime, alias, nameToShowOnSignatureStamp,
@@ -270,7 +278,7 @@ public class Esign {
 			String pathToPDF = documentLocation;
 			String tickImagePath = props.getEsignTickImage();
 			;
-			int serverTime =0;
+			int serverTime = 0;
 //			Optional<ApplicationUserEntity> applicationData = applicationUserRepository.findById(applicationID);
 			String nameToShowOnSignatureStamp = applicantName.toUpperCase();
 			String locationToShowOnSignatureStamp = city.toUpperCase();
@@ -376,9 +384,13 @@ public class Esign {
 							width.add(100); // Change this to the actual width value
 						}
 					}
-					System.out.println(" pathToPDF - "+pathToPDF+" tickImagePath  - "+ tickImagePath+" serverTime - "+ serverTime+" nameToShowOnSignatureStamp - "+
-							nameToShowOnSignatureStamp+" locationToShowOnSignatureStamp - "+ locationToShowOnSignatureStamp+" reasonForSign  - "+ reasonForSign+"  pdfPassword - "+ pdfPassword+" returnPath - "+
-							returnPath+" PageNo - "+ PageNo+" xCoordinatesList - "+ xCoordinatesList+" yCoordinatesList - "+ yCoordinatesList+" height - "+ height+" width - "+ width);
+					System.out.println(" pathToPDF - " + pathToPDF + " tickImagePath  - " + tickImagePath
+							+ " serverTime - " + serverTime + " nameToShowOnSignatureStamp - "
+							+ nameToShowOnSignatureStamp + " locationToShowOnSignatureStamp - "
+							+ locationToShowOnSignatureStamp + " reasonForSign  - " + reasonForSign + "  pdfPassword - "
+							+ pdfPassword + " returnPath - " + returnPath + " PageNo - " + PageNo
+							+ " xCoordinatesList - " + xCoordinatesList + " yCoordinatesList - " + yCoordinatesList
+							+ " height - " + height + " width - " + width);
 					responseText = eSignApp.getSignOnDocument(esignXml, pathToPDF, tickImagePath, serverTime,
 							nameToShowOnSignatureStamp, locationToShowOnSignatureStamp, reasonForSign, pdfPassword,
 							returnPath, PageNo, xCoordinatesList, yCoordinatesList, height, width);
