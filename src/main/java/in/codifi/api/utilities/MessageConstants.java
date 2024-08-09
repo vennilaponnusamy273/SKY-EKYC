@@ -164,4 +164,6 @@ public class MessageConstants {
 	public static final String NONEED_TO_DOCUMENT = "Your segment does not require a bank statement.";
 	public static final String BANK_NAME_NULL = "YOUR BANK NAME IS NULL , CONTACT SUPPORT TEAM";
 	public final static String KRA_PROOF_FAILED = "KRA PROOF NULL";
+	public static final String MICR_CODE_INVALID_MESSAGE = "The MICR code is invalid.";
+
 }

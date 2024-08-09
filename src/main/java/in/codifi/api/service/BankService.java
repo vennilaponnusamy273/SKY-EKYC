@@ -62,6 +62,7 @@ public class BankService implements IBankService {
 		try {
 		BankEntity updatedEntity = null;
 		Optional<ApplicationUserEntity> user = applicationUserRepository.findById(bankEntity.getApplicationId());
+		if(validateMICRCode(bankEntity.getMicr())){
 		if (user.isPresent() && user.get().getSmsVerified() > 0 && user.get().getEmailVerified() > 0
 				&& StringUtil.isEqual(bankEntity.getAccountNo(), bankEntity.getVerifyAccNumber())) {
 			BankEntity savedBankEntity = bankRepository.findByapplicationId(bankEntity.getApplicationId());
@@ -83,6 +84,7 @@ public class BankService implements IBankService {
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.ERROR_WHILE_SAVING_BANK_DETAILS);
 			}
+		
 		} else {
 			if (user.isEmpty()) {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
@@ -92,6 +94,9 @@ public class BankService implements IBankService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_NOT_VERIFIED);
 			}
 		}
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.MICR_CODE_INVALID_MESSAGE);
+		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
 			commonMethods.SaveLog(bankEntity.getApplicationId(),"BankService","saveBank",e.getMessage());
@@ -100,7 +105,15 @@ public class BankService implements IBankService {
 		}
 		return responseModel;
 	}
-
+	
+	 private static final String MICR_REGEX = "^[0-9]{9}$";
+	 
+	 public static boolean validateMICRCode(String micrCode) {
+	        if (micrCode == null || micrCode.isEmpty()) {
+	            return false;
+	        }
+	        return micrCode.matches(MICR_REGEX);
+	    }
 	/**
 	 * Method to get Bank Details
 	 */
