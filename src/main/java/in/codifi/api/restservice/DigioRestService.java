@@ -82,7 +82,7 @@ public class DigioRestService {
 					String fileName = isUserPresent.get().getPanNumber() + EkycConstants.XMLNAME
 							+ EkycConstants.XML_EXTENSION;
 					String xmlPath = createXmlFile(outputPath, message, fileName);
-					return xmlPath;
+					return message;
 				}
 			}
 		} catch (Exception e) {
