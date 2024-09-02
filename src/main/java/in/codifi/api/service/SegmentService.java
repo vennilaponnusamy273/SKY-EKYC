@@ -46,8 +46,8 @@ public class SegmentService implements ISegmentService {
 		if (user.isPresent() && user.get().getSmsVerified() > 0 && user.get().getEmailVerified() > 0) {
 			SegmentEntity savedSegmentEntity = segmentRepository.findByapplicationId(segmentEntity.getApplicationId());
 			if (savedSegmentEntity != null) {
-				if(savedSegmentEntity.getBrokerageacc()!=null) {
-					segmentEntity.setBrokerageacc(savedSegmentEntity.getBrokerageacc());
+				if(savedSegmentEntity.getBrokerageAcc()!=null||segmentEntity.getBrokerageAcc()!=null) {
+					segmentEntity.setBrokerageAcc(segmentEntity.getBrokerageAcc()!=null?segmentEntity.getBrokerageAcc():savedSegmentEntity.getBrokerageAcc());
 				}
 				segmentEntity.setId(savedSegmentEntity.getId());
 				updatedEntity = segmentRepository.save(segmentEntity);
@@ -117,7 +117,7 @@ public class SegmentService implements ISegmentService {
 	            segmentEntity.setApplicationId(applicationId); // Set the applicationId for a new entity
 	        }
 
-	        segmentEntity.setBrokerageacc(brokerageAcc);
+	        segmentEntity.setBrokerageAcc(brokerageAcc);
 	        segmentRepository.save(segmentEntity); // Save or update the entity in the repository
 
 	        responseModel.setMessage(EkycConstants.SUCCESS_MSG);

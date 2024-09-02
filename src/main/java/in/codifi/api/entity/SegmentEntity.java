@@ -53,6 +53,6 @@ public class SegmentEntity extends CommonEntity implements Serializable {
 	private int bsda;
 	
 	@Column(name = "brokerageacc")
-	private String brokerageacc;
+	private String brokerageAcc;
 
 }

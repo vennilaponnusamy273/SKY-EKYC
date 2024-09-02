@@ -1003,10 +1003,10 @@ public class PdfService implements IPdfService {
 			if (TradeBuilder.length() >= 28) {
 				map.put("not wish to trade1", TradeBuilder.substring(28, Math.min(180, TradeBuilder.length())));
 			}
-			if (segmentEntity.getBrokerageacc().equalsIgnoreCase("sky prime")) {
-				map.put("SKY PRIME", segmentEntity.getBrokerageacc());
-			} else if (segmentEntity.getBrokerageacc().equalsIgnoreCase("sky discount")) {
-				map.put("SKY DISCOUNT", segmentEntity.getBrokerageacc());
+			if (segmentEntity.getBrokerageAcc()!=null&&segmentEntity.getBrokerageAcc().equalsIgnoreCase("sky prime")) {
+				map.put("SKY PRIME", segmentEntity.getBrokerageAcc());
+			} else if (segmentEntity.getBrokerageAcc()!=null&&segmentEntity.getBrokerageAcc().equalsIgnoreCase("sky discount")) {
+				map.put("SKY DISCOUNT", segmentEntity.getBrokerageAcc());
 			}
 		}
 
