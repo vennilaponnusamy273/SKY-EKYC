@@ -141,7 +141,7 @@ public class PdfService implements IPdfService {
 			Optional<ApplicationUserEntity> userEntity = applicationUserRepository.findById(applicationId);
 			if (userEntity.isPresent() && userEntity.get().getSmsVerified() == 1
 					&& userEntity.get().getEmailVerified() == 1) {
-				//Create UCC
+				// Create UCC
 				String uccCode = null;
 				if (userEntity.get().getUccCodePrefix() == null && userEntity.get().getUccCodeSuffix() == null) {
 					uccCode = commonMethods.generateUccCode();
@@ -665,15 +665,15 @@ public class PdfService implements IPdfService {
 					}
 				}
 				// For page 7 current address
-				if (address.getKraAddress1() != null)
-					map.put("CurrentAddressLine1", address.getKraPerAddress1());
-				else {
+				if (StringUtil.isNotNullOrEmpty(address.getKraAddress1())) {
 					map.put("CurrentAddressLine1", address.getKraAddress1());
-				}
-				if (address.getKraAddress2() != null) {
-					map.put("CurrentAddressLine2", address.getKraPerAddress2());
 				} else {
+					map.put("CurrentAddressLine1", address.getKraPerAddress1());
+				}
+				if (StringUtil.isNotNullOrEmpty(address.getKraAddress2())) {
 					map.put("CurrentAddressLine2", address.getKraAddress2());
+				} else {
+					map.put("CurrentAddressLine2", address.getKraPerAddress2());
 				}
 				if (address.getIsdigi() == 1) {
 					map.put("UID Aadhaar", "yes");
@@ -715,7 +715,11 @@ public class PdfService implements IPdfService {
 						}
 					}
 				}
-				map.put("CurrentAddressLine3", address.getKraAddress3());
+				if (StringUtil.isNotNullOrEmpty(address.getKraAddress3())) {
+					map.put("CurrentAddressLine3", address.getKraAddress3());
+				} else {
+					map.put("CurrentAddressLine3", address.getKraPerAddress3());
+				}
 				if (address.getKraCity() != null) {
 					map.put("CurrentCity", address.getKraPerCity());
 				} else {
@@ -1003,9 +1007,11 @@ public class PdfService implements IPdfService {
 			if (TradeBuilder.length() >= 28) {
 				map.put("not wish to trade1", TradeBuilder.substring(28, Math.min(180, TradeBuilder.length())));
 			}
-			if (segmentEntity.getBrokerageAcc()!=null&&segmentEntity.getBrokerageAcc().equalsIgnoreCase("sky prime")) {
+			if (segmentEntity.getBrokerageAcc() != null
+					&& segmentEntity.getBrokerageAcc().equalsIgnoreCase("sky prime")) {
 				map.put("SKY PRIME", segmentEntity.getBrokerageAcc());
-			} else if (segmentEntity.getBrokerageAcc()!=null&&segmentEntity.getBrokerageAcc().equalsIgnoreCase("sky discount")) {
+			} else if (segmentEntity.getBrokerageAcc() != null
+					&& segmentEntity.getBrokerageAcc().equalsIgnoreCase("sky discount")) {
 				map.put("SKY DISCOUNT", segmentEntity.getBrokerageAcc());
 			}
 		}

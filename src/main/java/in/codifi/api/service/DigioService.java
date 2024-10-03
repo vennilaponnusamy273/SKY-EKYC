@@ -66,7 +66,7 @@ public class DigioService implements IDigioService {
 					if (iniResponseModel != null && StringUtil.isNotNullOrEmpty(iniResponseModel.getId())) {
 						String randomKey = commonMethods.randomAlphaNumericNew(6);
 						String url = props.getDigioBaseUrl() + iniResponseModel.getId() + "/" + randomKey + "/"
-								+ Long.toString(user.get().getMobileNo()) + "/" + props.getDigioFinalUrl();
+								+ Long.toString(user.get().getMobileNo()) + "/" + props.getDigioFinalUrl()+iniResponseModel.getAccessToken().getId();
 						DigioEntity digioEntity = new DigioEntity();
 						digioEntity.setApplicationId(applicationId);
 						digioEntity.setMobileNo(Long.toString(user.get().getMobileNo()));
