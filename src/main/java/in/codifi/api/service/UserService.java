@@ -1,6 +1,7 @@
 package in.codifi.api.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -18,7 +19,6 @@ import in.codifi.api.entity.AddressEntity;
 import in.codifi.api.entity.ApiStatusEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.KraKeyValueEntity;
-import in.codifi.api.entity.PennyDropEntity;
 import in.codifi.api.entity.PennyVerificationResponseEntity;
 import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.entity.ReferralEntity;
@@ -386,24 +386,74 @@ public class UserService implements IUserService {
 						docReqModel.setIncomeProofRequired(false);
 					}
 				}
-				if (PennyUser != null && StringUtil.isNotNullOrEmpty(PennyUser.getBeneficiaryNameWithBank())&&PennyUser.getVerified().contains("true")) {
-					String accountHolderName = PennyUser.getBeneficiaryNameWithBank();
-					String firstname = user.get().getFirstName();
-					String lastname = user.get().getLastName();
-					String middleName = user.get().getMiddleName();
-					String fullName = user.get().getUserName();
-					if ((StringUtil.isNotNullOrEmpty(firstname)
-							&& accountHolderName.toLowerCase().contains(firstname.toLowerCase()))
-							|| (StringUtil.isNotNullOrEmpty(lastname)
-									&& accountHolderName.toLowerCase().contains(lastname.toLowerCase()))
-							|| (StringUtil.isNotNullOrEmpty(middleName)
-									&& accountHolderName.toLowerCase().contains(middleName.toLowerCase()))
-							|| (StringUtil.isNotNullOrEmpty(fullName)
-									&& accountHolderName.toLowerCase().contains(fullName.toLowerCase()))) {
-						docReqModel.setChequeRequired(false);
-						docReqModel.setNameMismatch(false);
-					}
-				}
+//				if (PennyUser != null && StringUtil.isNotNullOrEmpty(PennyUser.getBeneficiaryNameWithBank())&&PennyUser.getVerified().contains("true")) {
+//					String accountHolderName = PennyUser.getBeneficiaryNameWithBank();
+//					String firstname = user.get().getFirstName();
+//					String lastname = user.get().getLastName();
+//					String middleName = user.get().getMiddleName();
+//					String fullName = user.get().getUserName();
+//					if ((StringUtil.isNotNullOrEmpty(firstname)
+//							&& accountHolderName.toLowerCase().contains(firstname.toLowerCase()))
+//							|| (StringUtil.isNotNullOrEmpty(lastname)
+//									&& accountHolderName.toLowerCase().contains(lastname.toLowerCase()))
+//							|| (StringUtil.isNotNullOrEmpty(middleName)
+//									&& accountHolderName.toLowerCase().contains(middleName.toLowerCase()))
+//							|| (StringUtil.isNotNullOrEmpty(fullName)
+//									&& accountHolderName.toLowerCase().contains(fullName.toLowerCase()))) {
+//						docReqModel.setChequeRequired(false);
+//						docReqModel.setNameMismatch(false);
+//					}
+//				}
+				
+				if (PennyUser != null 
+				        && StringUtil.isNotNullOrEmpty(PennyUser.getBeneficiaryNameWithBank())
+				        && PennyUser.getVerified().contains("true")) {
+				    
+				    String accountHolderName = PennyUser.getBeneficiaryNameWithBank().toLowerCase();
+				    String firstName = user.get().getFirstName();
+				    String lastName = user.get().getLastName();
+				    String middleName = user.get().getMiddleName();
+				    String fullName = user.get().getUserName();
+
+				    // Split accountHolderName into words
+				    List<String> accountHolderWords = Arrays.asList(accountHolderName.split("\\s+"));
+
+				    boolean matchFound = false;
+
+				    // Split each part of the user's name into words and check for a match
+				    if (StringUtil.isNotNullOrEmpty(firstName)) {
+				        List<String> firstNameWords = Arrays.asList(firstName.toLowerCase().split("\\s+"));
+				        if (accountHolderWords.containsAll(firstNameWords)) {
+				            matchFound = true;
+				        }
+				    }
+				    
+				    if (StringUtil.isNotNullOrEmpty(lastName)) {
+				        List<String> lastNameWords = Arrays.asList(lastName.toLowerCase().split("\\s+"));
+				        if (accountHolderWords.containsAll(lastNameWords)) {
+				            matchFound = true;
+				        }
+				    }
+				    
+				    if (StringUtil.isNotNullOrEmpty(middleName)) {
+				        List<String> middleNameWords = Arrays.asList(middleName.toLowerCase().split("\\s+"));
+				        if (accountHolderWords.containsAll(middleNameWords)) {
+				            matchFound = true;
+				        }
+				    }
+				    
+				    if (StringUtil.isNotNullOrEmpty(fullName)) {
+				        List<String> fullNameWords = Arrays.asList(fullName.toLowerCase().split("\\s+"));
+				        if (accountHolderWords.containsAll(fullNameWords)) {
+				            matchFound = true;
+				        }
+				    }
+
+				    if (matchFound) {
+				    	docReqModel.setChequeRequired(false);
+				    	docReqModel.setNameMismatch(false);
+				    }
+				}				
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setResult(docReqModel);
