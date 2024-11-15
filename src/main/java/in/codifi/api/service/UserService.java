@@ -70,7 +70,7 @@ public class UserService implements IUserService {
 	IPennyController iPennyController;
 	@Inject
 	ApiStatusRepository apiStatusRepository;
-	@Inject 
+	@Inject
 	ReferralRepository referralRepository;
 	@Inject
 	PennyVerificationRepository pennyVerificationRepository;
@@ -87,16 +87,13 @@ public class UserService implements IUserService {
 			ApplicationUserEntity oldUserEntity = repository.findByMobileNo(userEntity.getMobileNo());
 			String mapKey = String.valueOf(userEntity.getMobileNo()) + EkycConstants.SMS_KEY;
 			if (oldUserEntity == null) {
-			/**	String uccCode = commonMethods.generateUccCode();
-				if (StringUtil.isNotNullOrEmpty(uccCode)) {
-					if (uccCode.length() > 2) {
-						userEntity.setUccCodePrefix(uccCode.substring(0, 2));
-					}
-					if (uccCode.length() > 5) {
-						userEntity.setUccCodeSuffix(uccCode.substring(2, 6));
-					}
-				}
-				System.out.println(uccCode);**/
+				/**
+				 * String uccCode = commonMethods.generateUccCode(); if
+				 * (StringUtil.isNotNullOrEmpty(uccCode)) { if (uccCode.length() > 2) {
+				 * userEntity.setUccCodePrefix(uccCode.substring(0, 2)); } if (uccCode.length()
+				 * > 5) { userEntity.setUccCodeSuffix(uccCode.substring(2, 6)); } }
+				 * System.out.println(uccCode);
+				 **/
 				// send OTP
 				updatedUserDetails = userHelper.saveOrUpdateSmsTrigger(userEntity);
 			} else {
@@ -151,12 +148,11 @@ public class UserService implements IUserService {
 						    if (referralEntity == null) {
 						        referralEntity = new ReferralEntity();
 						        referralEntity.setMobileNo(userEntity.getMobileNo());
-						    }
-						    referralEntity.setReferralBy(userEntity.getReferralBy());
-						    referralEntity.setRefByDesignation(userEntity.getReferralType());
-						    referralEntity.setRefByName(userEntity.getReferralBy());
-						    referralRepository.save(referralEntity);
-						}
+						        referralEntity.setReferralBy(userEntity.getReferralBy());
+						        referralEntity.setRefByDesignation(userEntity.getReferralType());
+						        referralEntity.setRefByName(userEntity.getReferralBy());
+						        referralRepository.save(referralEntity);
+						}}
 						updatedUserDetails = repository.save(oldUserEntity);
 						HazleCacheController.getInstance().getVerifyOtp().remove(mapKey);
 						HazleCacheController.getInstance().getRetryOtp().remove(mapKey);
@@ -216,10 +212,13 @@ public class UserService implements IUserService {
 		try {
 			ApplicationUserEntity updatedUserDetails = null;
 			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
-			/**List<GetUserInfoResp> emailExist = keyCloakAdminRestService.getUserInfoByAttribute("email",
-					userEntity.getEmailId());
-			if (emailExist != null && emailExist.size() > 0)
-				return commonMethods.constructFailedMsg(MessageConstants.KEYCLOAK_EMAIL_EXIST);**/
+			/**
+			 * List<GetUserInfoResp> emailExist =
+			 * keyCloakAdminRestService.getUserInfoByAttribute("email",
+			 * userEntity.getEmailId()); if (emailExist != null && emailExist.size() > 0)
+			 * return
+			 * commonMethods.constructFailedMsg(MessageConstants.KEYCLOAK_EMAIL_EXIST);
+			 **/
 			ApplicationUserEntity emailPresent = repository.findByEmailId(userEntity.getEmailId());
 			if (isUserPresent.isPresent() && isUserPresent.get().getSmsVerified() > 0 && (emailPresent == null
 					|| emailPresent != null && emailPresent.getMobileNo() == isUserPresent.get().getMobileNo())) {
@@ -368,7 +367,8 @@ public class UserService implements IUserService {
 			iPennyController.ValidateDetails(applicationId);
 			Optional<ApplicationUserEntity> user = repository.findById(applicationId);
 			PennyVerificationResponseEntity PennyUser = pennyVerificationRepository.findByapplicationId(applicationId);
-			//PennyDropEntity PennyUser = PennyRepository.findByapplicationId(applicationId);
+			// PennyDropEntity PennyUser =
+			// PennyRepository.findByapplicationId(applicationId);
 			SegmentEntity savedSegmentEntity = segmentRepository.findByapplicationId(applicationId);
 			List<KraKeyValueEntity> list = keyValueRepository.findByMasterIdAndMasterName("6", "DOCUMENT_UPLOAD");
 			List<String> proofType = new ArrayList<>();
@@ -404,56 +404,55 @@ public class UserService implements IUserService {
 //						docReqModel.setNameMismatch(false);
 //					}
 //				}
-				
-				if (PennyUser != null 
-				        && StringUtil.isNotNullOrEmpty(PennyUser.getBeneficiaryNameWithBank())
-				        && PennyUser.getVerified().contains("true")) {
-				    
-				    String accountHolderName = PennyUser.getBeneficiaryNameWithBank().toLowerCase();
-				    String firstName = user.get().getFirstName();
-				    String lastName = user.get().getLastName();
-				    String middleName = user.get().getMiddleName();
-				    String fullName = user.get().getUserName();
 
-				    // Split accountHolderName into words
-				    List<String> accountHolderWords = Arrays.asList(accountHolderName.split("\\s+"));
+				if (PennyUser != null && StringUtil.isNotNullOrEmpty(PennyUser.getBeneficiaryNameWithBank())
+						&& PennyUser.getVerified().contains("true")) {
 
-				    boolean matchFound = false;
+					String accountHolderName = PennyUser.getBeneficiaryNameWithBank().toLowerCase();
+					String firstName = user.get().getFirstName();
+					String lastName = user.get().getLastName();
+					String middleName = user.get().getMiddleName();
+					String fullName = user.get().getUserName();
 
-				    // Split each part of the user's name into words and check for a match
-				    if (StringUtil.isNotNullOrEmpty(firstName)) {
-				        List<String> firstNameWords = Arrays.asList(firstName.toLowerCase().split("\\s+"));
-				        if (accountHolderWords.containsAll(firstNameWords)) {
-				            matchFound = true;
-				        }
-				    }
-				    
-				    if (StringUtil.isNotNullOrEmpty(lastName)) {
-				        List<String> lastNameWords = Arrays.asList(lastName.toLowerCase().split("\\s+"));
-				        if (accountHolderWords.containsAll(lastNameWords)) {
-				            matchFound = true;
-				        }
-				    }
-				    
-				    if (StringUtil.isNotNullOrEmpty(middleName)) {
-				        List<String> middleNameWords = Arrays.asList(middleName.toLowerCase().split("\\s+"));
-				        if (accountHolderWords.containsAll(middleNameWords)) {
-				            matchFound = true;
-				        }
-				    }
-				    
-				    if (StringUtil.isNotNullOrEmpty(fullName)) {
-				        List<String> fullNameWords = Arrays.asList(fullName.toLowerCase().split("\\s+"));
-				        if (accountHolderWords.containsAll(fullNameWords)) {
-				            matchFound = true;
-				        }
-				    }
+					// Split accountHolderName into words
+					List<String> accountHolderWords = Arrays.asList(accountHolderName.split("\\s+"));
 
-				    if (matchFound) {
-				    	docReqModel.setChequeRequired(false);
-				    	docReqModel.setNameMismatch(false);
-				    }
-				}				
+					boolean matchFound = false;
+
+					// Split each part of the user's name into words and check for a match
+					if (StringUtil.isNotNullOrEmpty(firstName)) {
+						List<String> firstNameWords = Arrays.asList(firstName.toLowerCase().split("\\s+"));
+						if (accountHolderWords.containsAll(firstNameWords)) {
+							matchFound = true;
+						}
+					}
+
+					if (StringUtil.isNotNullOrEmpty(lastName)) {
+						List<String> lastNameWords = Arrays.asList(lastName.toLowerCase().split("\\s+"));
+						if (accountHolderWords.containsAll(lastNameWords)) {
+							matchFound = true;
+						}
+					}
+
+					if (StringUtil.isNotNullOrEmpty(middleName)) {
+						List<String> middleNameWords = Arrays.asList(middleName.toLowerCase().split("\\s+"));
+						if (accountHolderWords.containsAll(middleNameWords)) {
+							matchFound = true;
+						}
+					}
+
+					if (StringUtil.isNotNullOrEmpty(fullName)) {
+						List<String> fullNameWords = Arrays.asList(fullName.toLowerCase().split("\\s+"));
+						if (accountHolderWords.containsAll(fullNameWords)) {
+							matchFound = true;
+						}
+					}
+
+					if (matchFound) {
+						docReqModel.setChequeRequired(false);
+						docReqModel.setNameMismatch(false);
+					}
+				}
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setResult(docReqModel);
@@ -477,54 +476,49 @@ public class UserService implements IUserService {
 	@Override
 	public ResponseModel userCreation(ApplicationUserEntity userEntity) {
 		ResponseModel responseModel = new ResponseModel();
-		/**try {
-			Optional<ApplicationUserEntity> isUserPresent = repository.findById(userEntity.getId());
-			if (isUserPresent.isPresent()) {
-				List<GetUserInfoResp> emailExist = keyCloakAdminRestService.getUserInfoByAttribute("mobile",
-						isUserPresent.get().getMobileNo().toString());
-				if (emailExist != null && emailExist.size() > 0)
-					return commonMethods.constructFailedMsg(MessageConstants.KEYCLOAK_MOBILE_EXIST);
-				ApplicationUserEntity savingEntity = isUserPresent.get();
-				savingEntity.setPassword(userEntity.getPassword());
-				ApplicationUserEntity savedEntity = repository.save(savingEntity);
-				if (savedEntity != null) {
-					CreateUserRequestModel requestModel = new CreateUserRequestModel();
-					List<CreateUserCredentialsModel> userCredentilList = new ArrayList<>();
-					requestModel.setEmail(savedEntity.getEmailId());
-					requestModel.setUsername(savedEntity.getMobileNo().toString());
-					requestModel.setFirstName("Guest");
-					requestModel.setLastName("User");
-					requestModel.setEnabled(true);
-					requestModel.setEmailVerified(true);
-					CreateUserCredentialsModel credentialsModel = new CreateUserCredentialsModel();
-					credentialsModel.setType("password");
-					credentialsModel.setValue(savedEntity.getPassword());
-					userCredentilList.add(credentialsModel);
-					requestModel.setCredentials(userCredentilList);
-					String message = keyCloakAdminRestService.addNewUser(requestModel);
-					if (StringUtil.isNotNullOrEmpty(message)) {
-						responseModel.setReason(message);**/
-						commonMethods.UpdateStep(EkycConstants.PAGE_PASSWORD, userEntity.getId());
-						responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-						responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-						responseModel.setPage(EkycConstants.PAGE_PAN);
-					/**} else {
-						responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
-					}
-				} else {
-					responseModel = commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR);
-				}
-			} else {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
-			}
-		} catch (Exception e) {
-			logger.error("An error occurred: " + e.getMessage());
-			commonMethods.SaveLog(userEntity.getId(), "UserService", "userCreation", e.getMessage());
-			commonMethods.sendErrorMail(
-					"An error occurred while processing your request, In userCreation for the Error: " + e.getMessage(),
-					"ERR-001");
-			responseModel = commonMethods.constructFailedMsg(e.getMessage());
-		}**/
+		/**
+		 * try { Optional<ApplicationUserEntity> isUserPresent =
+		 * repository.findById(userEntity.getId()); if (isUserPresent.isPresent()) {
+		 * List<GetUserInfoResp> emailExist =
+		 * keyCloakAdminRestService.getUserInfoByAttribute("mobile",
+		 * isUserPresent.get().getMobileNo().toString()); if (emailExist != null &&
+		 * emailExist.size() > 0) return
+		 * commonMethods.constructFailedMsg(MessageConstants.KEYCLOAK_MOBILE_EXIST);
+		 * ApplicationUserEntity savingEntity = isUserPresent.get();
+		 * savingEntity.setPassword(userEntity.getPassword()); ApplicationUserEntity
+		 * savedEntity = repository.save(savingEntity); if (savedEntity != null) {
+		 * CreateUserRequestModel requestModel = new CreateUserRequestModel();
+		 * List<CreateUserCredentialsModel> userCredentilList = new ArrayList<>();
+		 * requestModel.setEmail(savedEntity.getEmailId());
+		 * requestModel.setUsername(savedEntity.getMobileNo().toString());
+		 * requestModel.setFirstName("Guest"); requestModel.setLastName("User");
+		 * requestModel.setEnabled(true); requestModel.setEmailVerified(true);
+		 * CreateUserCredentialsModel credentialsModel = new
+		 * CreateUserCredentialsModel(); credentialsModel.setType("password");
+		 * credentialsModel.setValue(savedEntity.getPassword());
+		 * userCredentilList.add(credentialsModel);
+		 * requestModel.setCredentials(userCredentilList); String message =
+		 * keyCloakAdminRestService.addNewUser(requestModel); if
+		 * (StringUtil.isNotNullOrEmpty(message)) { responseModel.setReason(message);
+		 **/
+		commonMethods.UpdateStep(EkycConstants.PAGE_PASSWORD, userEntity.getId());
+		responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+		responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+		responseModel.setPage(EkycConstants.PAGE_PAN);
+		/**
+		 * } else { responseModel =
+		 * commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR); } }
+		 * else { responseModel =
+		 * commonMethods.constructFailedMsg(MessageConstants.INTERNAL_SERVER_ERROR); } }
+		 * else { responseModel =
+		 * commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID); } } catch
+		 * (Exception e) { logger.error("An error occurred: " + e.getMessage());
+		 * commonMethods.SaveLog(userEntity.getId(), "UserService", "userCreation",
+		 * e.getMessage()); commonMethods.sendErrorMail( "An error occurred while
+		 * processing your request, In userCreation for the Error: " + e.getMessage(),
+		 * "ERR-001"); responseModel = commonMethods.constructFailedMsg(e.getMessage());
+		 * }
+		 **/
 		return responseModel;
 	}
 
