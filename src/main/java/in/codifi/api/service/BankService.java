@@ -62,7 +62,7 @@ public class BankService implements IBankService {
 		try {
 		BankEntity updatedEntity = null;
 		Optional<ApplicationUserEntity> user = applicationUserRepository.findById(bankEntity.getApplicationId());
-		if(validateMICRCode(bankEntity.getMicr())){
+//		if(validateMICRCode(bankEntity.getMicr())){
 		if (user.isPresent() && user.get().getSmsVerified() > 0 && user.get().getEmailVerified() > 0
 				&& StringUtil.isEqual(bankEntity.getAccountNo(), bankEntity.getVerifyAccNumber())) {
 			BankEntity savedBankEntity = bankRepository.findByapplicationId(bankEntity.getApplicationId());
@@ -94,9 +94,9 @@ public class BankService implements IBankService {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_NOT_VERIFIED);
 			}
 		}
-		} else {
-			responseModel = commonMethods.constructFailedMsg(MessageConstants.MICR_CODE_INVALID_MESSAGE);
-		}
+//		} else {
+//			responseModel = commonMethods.constructFailedMsg(MessageConstants.MICR_CODE_INVALID_MESSAGE);
+//		}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
 			commonMethods.SaveLog(bankEntity.getApplicationId(),"BankService","saveBank",e.getMessage());
