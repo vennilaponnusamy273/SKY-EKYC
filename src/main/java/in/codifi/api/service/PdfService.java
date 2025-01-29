@@ -51,7 +51,7 @@ import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.entity.ReferralEntity;
 import in.codifi.api.entity.SegmentEntity;
 import in.codifi.api.entity.TxnDetailsEntity;
-import in.codifi.api.model.BankAddressModel;
+import in.codifi.api.helper.RejectionStatusHelper;
 import in.codifi.api.model.PdfApplicationDataModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AddressRepository;
@@ -120,6 +120,8 @@ public class PdfService implements IPdfService {
 	ReferralRepository referralRepository;
 	@Inject
 	PennyVerificationRepository pennyVerificationRepository;
+	@Inject
+	RejectionStatusHelper rejectionStatusHelper;
 	private static final Logger logger = LogManager.getLogger(PennyService.class);
 
 	/**
@@ -1649,6 +1651,7 @@ public class PdfService implements IPdfService {
 								// String fileName)
 								commonMethods.sendEsignedMail(userEntity.get().getEmailId(),
 										userEntity.get().getUserName(), path, esignedFileName);
+								rejectionStatusHelper.deleteInsertArchiveTableRecord(detailsEntity.getApplicationId());
 								Response.ResponseBuilder responseBuilder = Response
 										.status(Response.Status.MOVED_PERMANENTLY).location(finalPage);
 								return responseBuilder.build();

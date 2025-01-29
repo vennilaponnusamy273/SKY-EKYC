@@ -24,28 +24,45 @@ public class RejectionStatusHelper {
 
 	public ApiStatusArchiveEntity insertArchiveTableRecord(long applicationId, String stage) {
 		ApiStatusArchiveEntity updatedEntity = null;
+//		try {
+//			if (StringUtil.isNotEqual(stage, EkycConstants.PAGE_DOCUMENT)) {
+//				ApiStatusEntity apiStatusEntity = apiStatusRepository
+//						.findByApplicationIdAndStageAndStatus(applicationId, stage, 0);
+//				if (apiStatusEntity != null) {
+//					ApiStatusArchiveEntity apiStatusArchiveEntity = new ApiStatusArchiveEntity();
+//					BeanUtils.copyProperties(apiStatusArchiveEntity, apiStatusEntity);
+//					apiStatusArchiveEntity.setId(null);
+//					updatedEntity = apiStatusArchiveRepository.save(apiStatusArchiveEntity);
+//					apiStatusRepository.deleteById(apiStatusEntity.getId());
+//				}
+//			} else {
+//				List<ApiStatusEntity> docResult = apiStatusRepository.getResultForDoc(applicationId, stage, 0);
+//				if (StringUtil.isListNotNullOrEmpty(docResult)) {
+//					for (ApiStatusEntity apiStatusEntity : docResult) {
+//						ApiStatusArchiveEntity apiStatusArchiveEntity = new ApiStatusArchiveEntity();
+//						BeanUtils.copyProperties(apiStatusArchiveEntity, apiStatusEntity);
+//						apiStatusArchiveEntity.setId(null);
+//						updatedEntity = apiStatusArchiveRepository.save(apiStatusArchiveEntity);
+//						apiStatusRepository.deleteById(apiStatusEntity.getId());
+//					}
+//				}
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+		return updatedEntity;
+	}
+
+	public ApiStatusArchiveEntity deleteInsertArchiveTableRecord(long applicationId) {
+		ApiStatusArchiveEntity updatedEntity = null;
 		try {
-			if (StringUtil.isNotEqual(stage, EkycConstants.PAGE_DOCUMENT)) {
-				ApiStatusEntity apiStatusEntity = apiStatusRepository
-						.findByApplicationIdAndStageAndStatus(applicationId, stage, 0);
-				if (apiStatusEntity != null) {
-					ApiStatusArchiveEntity apiStatusArchiveEntity = new ApiStatusArchiveEntity();
-					BeanUtils.copyProperties(apiStatusArchiveEntity, apiStatusEntity);
-					apiStatusArchiveEntity.setId(null);
-					updatedEntity = apiStatusArchiveRepository.save(apiStatusArchiveEntity);
-					apiStatusRepository.deleteById(apiStatusEntity.getId());
-				}
-			} else {
-				List<ApiStatusEntity> docResult = apiStatusRepository.getResultForDoc(applicationId, stage, 0);
-				if (StringUtil.isListNotNullOrEmpty(docResult)) {
-					for (ApiStatusEntity apiStatusEntity : docResult) {
-						ApiStatusArchiveEntity apiStatusArchiveEntity = new ApiStatusArchiveEntity();
-						BeanUtils.copyProperties(apiStatusArchiveEntity, apiStatusEntity);
-						apiStatusArchiveEntity.setId(null);
-						updatedEntity = apiStatusArchiveRepository.save(apiStatusArchiveEntity);
-						apiStatusRepository.deleteById(apiStatusEntity.getId());
-					}
-				}
+			List<ApiStatusEntity> docResult = apiStatusRepository.findByApplicationIdAndStatus(applicationId, 0);
+			for (ApiStatusEntity apiStatusEntity : docResult) {
+				ApiStatusArchiveEntity apiStatusArchiveEntity = new ApiStatusArchiveEntity();
+				BeanUtils.copyProperties(apiStatusArchiveEntity, apiStatusEntity);
+				apiStatusArchiveEntity.setId(null);
+				updatedEntity = apiStatusArchiveRepository.save(apiStatusArchiveEntity);
+				apiStatusRepository.deleteById(apiStatusEntity.getId());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
