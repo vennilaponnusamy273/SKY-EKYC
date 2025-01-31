@@ -492,7 +492,7 @@ public class PdfService implements IPdfService {
 							contentStream.showText(tick);
 							contentStream.endText();
 						}
-					} else if (columnType.equalsIgnoreCase("image")) {
+					} else if (columnType.equalsIgnoreCase("image") || columnType.equalsIgnoreCase("imageSign")) {
 						String imageKey = columnNames;
 						String image = map.get(imageKey);
 						if (StringUtil.isNotNullOrEmpty(image)) {
@@ -500,6 +500,11 @@ public class PdfService implements IPdfService {
 							// Adjust the width and height as needed
 							float width = 72;
 							float height = 70;
+
+							if (pageNo == 2 && imageKey.contains("SIGNATURE image")) {
+								width = 72;
+								height = 40;
+							}
 							PDImageXObject pdImage = JPEGFactory.createFromImage(document, bimg, 0.5f);
 							contentStream.drawImage(pdImage, x, y, width, height);
 						}
@@ -523,6 +528,11 @@ public class PdfService implements IPdfService {
 		map.put("eSignDate", formatter.format(date));
 		map.put("MandatoryTick", "MandatoryTick");
 		map.put("ApplicationNo", applicationId.toString());
+		map.put("Application Type - New", "yes");
+		map.put("KYC Mode", "yes");
+		map.put("MobileNumber Prefix", "+91");
+		DocumentEntity documentEntity = docrepository.findByApplicationIdAndDocumentType(applicationId, "SIGNATURE");
+		map.put("SIGNATURE image", documentEntity.getAttachementUrl());
 		ProfileEntity profileEntity = profileRepository.findByapplicationId(applicationId);
 		if (profileEntity != null) {
 			map.put("UserName", profileEntity.getApplicantName());
@@ -539,6 +549,9 @@ public class PdfService implements IPdfService {
 			if (profileEntity.getGender() != null) {
 				map.put("Gender*", profileEntity.getGender());
 			}
+			map.put("Name prefix", map.get("GenderPrefix"));
+			map.put("Nationality", "India");
+			map.put("Resident Individual", "Resident Individual");
 			if (profileEntity.getMaritalStatus().equalsIgnoreCase("Single")) {
 				map.put("MaritalStatusSingle", profileEntity.getMaritalStatus());
 			} else if (profileEntity.getMaritalStatus().equalsIgnoreCase("Married")) {
@@ -677,6 +690,10 @@ public class PdfService implements IPdfService {
 				}
 				if (address.getIsdigi() == 1) {
 					map.put("UID Aadhaar", "yes");
+//					map.put("Aadhaar Number1", String.valueOf(address.getAadharNo().charAt(8)));
+//					map.put("Aadhaar Number2", String.valueOf(address.getAadharNo().charAt(9)));
+//					map.put("Aadhaar Number3", String.valueOf(address.getAadharNo().charAt(10)));
+//					map.put("Aadhaar Number4", String.valueOf(address.getAadharNo().charAt(11)));
 				} else if (address != null && address.getIsKra() == 1) {
 					if (address.getKraaddressproof() != null) {
 						if (address.getKraaddressproof().equalsIgnoreCase("PASSPORT")) {
@@ -770,7 +787,13 @@ public class PdfService implements IPdfService {
 					String fullAddress = addressBuilder.toString();
 					System.out.println("the fullAddress" + fullAddress);
 					map.put("PermanentAddress", fullAddress);
+					map.put("UID Aadhaar", "yes");
+					map.put("Aadhaar Number1", String.valueOf(address.getAadharNo().charAt(8)));
+					map.put("Aadhaar Number2", String.valueOf(address.getAadharNo().charAt(9)));
+					map.put("Aadhaar Number3", String.valueOf(address.getAadharNo().charAt(10)));
+					map.put("Aadhaar Number4", String.valueOf(address.getAadharNo().charAt(11)));
 				}
+
 				String dematAddress = map.get("PermanentAddress");
 				if (dematAddress != null) {
 					map.put("PermenentAddress1", dematAddress.substring(0, Math.min(80, dematAddress.length())));
@@ -831,6 +854,10 @@ public class PdfService implements IPdfService {
 				map.put("Others(Please Specify)", "AADHAR CARD");
 				map.put("UID Aadhaar", Integer.toString(address.getIsdigi()));
 				map.put("Aadhaar Number", address.getAadharNo());
+				map.put("Aadhaar Number1", String.valueOf(address.getAadharNo().charAt(8)));
+				map.put("Aadhaar Number2", String.valueOf(address.getAadharNo().charAt(9)));
+				map.put("Aadhaar Number3", String.valueOf(address.getAadharNo().charAt(10)));
+				map.put("Aadhaar Number4", String.valueOf(address.getAadharNo().charAt(11)));
 				map.put("F-Proof of Possission of Aadhaar", address.getAadharNo());
 				map.put("Sole / First Holder’s Name UID", address.getAadharNo());
 				if (address != null && address.getIsdigi() == 1) {
@@ -1045,6 +1072,8 @@ public class PdfService implements IPdfService {
 					} else {
 						map.put("Details of 1st Nominee Share of each Nominee", null);
 					}
+					map.put("Details of 1st Nominee DOB", "yes");
+					map.put("Details of 1st Nominee DOB text", nomineeEntity.get(i).getDateOfbirth());
 					map.put("Details of 1st Nominee Relatonship with the Applicant (if any)",
 							nomineeEntity.get(i).getRelationship());
 
@@ -1214,6 +1243,8 @@ public class PdfService implements IPdfService {
 					} else {
 						map.put("Details of 2nd Nominee Share of each Nominee", null);
 					}
+					map.put("Details of 2nd Nominee DOB", "yes");
+					map.put("Details of 2nd Nominee DOB text", nomineeEntity.get(i).getDateOfbirth());
 					map.put("Details of 2nd Nominee Relatonship with the Applicant (if any)",
 							nomineeEntity.get(i).getRelationship());
 					if (nomineeEntity.get(i).getAddress1() != null) {
@@ -1385,6 +1416,8 @@ public class PdfService implements IPdfService {
 					} else {
 						map.put("Details of 3rd Nominee Share of each Nominee", null);
 					}
+					map.put("Details of 3rd Nominee DOB", "yes");
+					map.put("Details of 3rd Nominee DOB text", nomineeEntity.get(i).getDateOfbirth());
 					map.put("Details of 3rd Nominee Relatonship with the Applicant (if any)",
 							nomineeEntity.get(i).getRelationship());
 					if (nomineeEntity.get(i).getAddress1() != null) {

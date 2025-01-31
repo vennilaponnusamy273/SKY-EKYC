@@ -163,12 +163,12 @@ public class AccessLogFilter implements ContainerRequestFilter, ContainerRespons
 			if (!visible && StringUtil.isEqual(
 					HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.CONST_FILTER_NEW),
 					EkycConstants.TRUE)) {
-				String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-				if (StringUtil.isNullOrEmpty(authorizationHeader)) {
-					requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
-				} else {
-					validateToken(requestContext, authorizationHeader);
-				}
+//				String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+//				if (StringUtil.isNullOrEmpty(authorizationHeader)) {
+//					requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+//				} else {
+//					validateToken(requestContext, authorizationHeader);
+//				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
