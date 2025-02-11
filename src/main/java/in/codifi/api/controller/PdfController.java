@@ -28,13 +28,13 @@ public class PdfController implements IPdfController {
 	 */
 	public Response savePdf(long applicationId) {
 		if (applicationId > 0) {
-			return iPdfService.savePdf(applicationId);
+			return iPdfService.savePdf(applicationId,0);
 		} else {
 			if (applicationId <= 0) {
-				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(MessageConstants.USER_ID_NULL)
+				return Response.status(Response.Status.OK).entity(MessageConstants.USER_ID_NULL)
 						.build();
 			} else {
-				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(MessageConstants.PARAMETER_NULL)
+				return Response.status(Response.Status.OK).entity(MessageConstants.PARAMETER_NULL)
 						.build();
 			}
 		}

@@ -271,6 +271,7 @@ public class KRAHelper {
 			}
 			if (checkAppStatus(panCardStatus)) {
 				addressEntity.setIsKra(1);
+				addressEntity.setIsdigi(0);
 				if (StringUtil.isEqual(
 						HazleCacheController.getInstance().getKraKeyValue().get(EkycConstants.ADDRESS_PROOF + kycID),
 						"AADHAAR")) {
@@ -280,6 +281,7 @@ public class KRAHelper {
 						String lastFourDigits = AatharNumber.substring(AatharNumber.length() - 4);
 						if (lastFourDigits.matches("\\d{4}")) {
 							addressEntity.setIsKra(1);
+							addressEntity.setIsdigi(0);
 						} else {
 							addressEntity.setIsKra(0);
 						}

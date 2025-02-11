@@ -1,14 +1,17 @@
 package in.codifi.api.service;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.imageio.ImageIO;
@@ -19,6 +22,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -39,6 +43,8 @@ import org.w3c.dom.Element;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.AddressEntity;
+import in.codifi.api.entity.ApiStatusArchiveEntity;
+import in.codifi.api.entity.ApiStatusEntity;
 import in.codifi.api.entity.ApplicationUserEntity;
 import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.DocumentEntity;
@@ -51,10 +57,11 @@ import in.codifi.api.entity.ProfileEntity;
 import in.codifi.api.entity.ReferralEntity;
 import in.codifi.api.entity.SegmentEntity;
 import in.codifi.api.entity.TxnDetailsEntity;
-import in.codifi.api.helper.RejectionStatusHelper;
 import in.codifi.api.model.PdfApplicationDataModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.AddressRepository;
+import in.codifi.api.repository.ApiStatusArchiveRepository;
+import in.codifi.api.repository.ApiStatusRepository;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.BankRepository;
 import in.codifi.api.repository.DocumentRepository;
@@ -121,7 +128,12 @@ public class PdfService implements IPdfService {
 	@Inject
 	PennyVerificationRepository pennyVerificationRepository;
 	@Inject
-	RejectionStatusHelper rejectionStatusHelper;
+	IPdfService ipdfService;
+	@Inject
+	ApiStatusRepository apiStatusRepository;
+	@Inject
+	ApiStatusArchiveRepository apiStatusArchiveRepository;
+
 	private static final Logger logger = LogManager.getLogger(PennyService.class);
 
 	/**
@@ -132,7 +144,7 @@ public class PdfService implements IPdfService {
 	 */
 	@Override
 	@Transactional
-	public Response savePdf(long applicationId) {
+	public Response savePdf(long applicationId, int retryCount) {
 		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
 		if (OS.contains(EkycConstants.OS_WINDOWS)) {
 			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
@@ -248,17 +260,25 @@ public class PdfService implements IPdfService {
 				return response.build();
 			} else {
 				if (userEntity.isEmpty()) {
-					return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-							.entity(MessageConstants.USER_ID_INVALID).build();
+					return Response.status(Response.Status.OK).entity(MessageConstants.USER_ID_INVALID).build();
 				} else {
-					return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-							.entity(MessageConstants.USER_NOT_VERIFIED).build();
+					return Response.status(Response.Status.OK).entity(MessageConstants.USER_NOT_VERIFIED).build();
 				}
 			}
 		} catch (Exception e) {
+			System.out.println("In method  savePdf Exception");
 			e.printStackTrace();
+			System.out.println("Exception In method savePdf, RetryCount = " + (retryCount + 1));
+			e.printStackTrace();
+			if (retryCount < 5) {
+				++retryCount;
+//				Log.error(e);
+				System.out.println("----------------------------Exception Retry Count : " + retryCount
+						+ "--------------------------");
+				ipdfService.savePdf(applicationId, retryCount);
+			}
+			return Response.status(Response.Status.OK).entity(MessageConstants.ERR_SAVE_PDF).build();
 		}
-		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(MessageConstants.FILE_NOT_FOUND).build();
 	}
 
 	public void addIPvDocument(PDDocument document, long applicationNo) {
@@ -361,6 +381,15 @@ public class PdfService implements IPdfService {
 						}
 					} else {
 						BufferedImage image = ImageIO.read(new File(attachmentUrl));
+						System.out.println("the attachmentUrl" + attachmentUrl);
+						if (image.getType() == BufferedImage.TYPE_CUSTOM) {
+							BufferedImage standardImage = new BufferedImage(image.getWidth(), image.getHeight(),
+									BufferedImage.TYPE_INT_RGB);
+							Graphics2D g = standardImage.createGraphics();
+							g.drawImage(image, 0, 0, null);
+							g.dispose();
+							image = standardImage;
+						}
 
 						if (image != null) {
 							PDPage page = new PDPage();
@@ -464,6 +493,71 @@ public class PdfService implements IPdfService {
 						contentStream.setNonStrokingColor(0, 0, 0);
 						contentStream.newLineAtOffset(x, y);
 						String inputText;
+						if (pdfData.getColumnNames().equalsIgnoreCase("Bank Branch Address")
+								|| pdfData.getColumnNames().equalsIgnoreCase("Bank Branch Address2")
+								|| (pageNo == 18 && (pdfData.getColumnNames()
+										.equals("Details of 1st Nominee Address1 of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 1st Nominee Address2 of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 1st Nominee Address1 of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 1st Nominee Address2 of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 2nd Nominee Address1 of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 2nd Nominee Address2 of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 2nd Nominee Address1 of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 2nd Nominee Address2 of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 3rd Nominee Address1 of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 3rd Nominee Address2 of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 3rd Nominee Address1 of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 3rd Nominee Address2 of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 1st Nominee Address3 of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 1st Nominee Address4 of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 1st Nominee Address of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 1st Nominee Address of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 2nd Nominee Address of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 2nd Nominee Address of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 3rd Nominee Address of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 3rd Nominee Address of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 1st Nominee Address3 of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 1st Nominee Address4 of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 2nd Nominee Address3 of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 2nd Nominee Address4 of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 3rd Nominee Address3 of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 3rd Nominee Address4 of Guardian(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 2nd Nominee Address3 of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 2nd Nominee Address4 of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 3rd Nominee Address3 of Nominee(s)")
+										|| pdfData.getColumnNames()
+												.equals("Details of 3rd Nominee Address4 of Nominee(s)")))) {
+							contentStream.setFont(font, 5);
+						}
+
 						if (pdfData.getColumnNames().equals("notApplicableMessage")
 								|| pdfData.getColumnNames().equals("notApplicableMessageNominee")) {
 							inputText = map.get(columnNames);
@@ -494,18 +588,38 @@ public class PdfService implements IPdfService {
 							contentStream.showText(tick);
 							contentStream.endText();
 						}
-					} else if (columnType.equalsIgnoreCase("image")) {
+					} else if (columnType.equalsIgnoreCase("image") || columnType.equalsIgnoreCase("imageSign")) {
 						String imageKey = columnNames;
 						String image = map.get(imageKey);
+						System.out.println("the image" + image);
 						if (StringUtil.isNotNullOrEmpty(image)) {
-							BufferedImage bimg = ImageIO.read(new File(image));
+							File imageFile = new File(image);
+							if (!imageFile.exists() || !imageFile.isFile()) {
+								System.out.print("Invalid image file path: " + image);
+							}
+
+							BufferedImage bimg = ImageIO.read(imageFile);
+							if (bimg == null) {
+								System.out.print("Failed to read image: " + image);
+							}
+
 							// Adjust the width and height as needed
 							float width = 72;
 							float height = 70;
+
+							if (pageNo == 2 && imageKey.contains("SIGNATURE image")) {
+								width = 72;
+								height = 40;
+							}
+
+							// Create the PDImageXObject and draw it on the PDF
 							PDImageXObject pdImage = JPEGFactory.createFromImage(document, bimg, 0.5f);
 							contentStream.drawImage(pdImage, x, y, width, height);
+						} else {
+							System.out.println("Image is null or empty for key: " + imageKey);
 						}
 					}
+
 					contentStream.close();
 				}
 			}
@@ -525,6 +639,12 @@ public class PdfService implements IPdfService {
 		map.put("eSignDate", formatter.format(date));
 		map.put("MandatoryTick", "MandatoryTick");
 		map.put("ApplicationNo", applicationId.toString());
+		map.put("Application Type - New", "yes");
+		map.put("Address type", "yes");
+		map.put("KYC Mode", "yes");
+		map.put("MobileNumber Prefix", "+91");
+		DocumentEntity documentEntity = docrepository.findByApplicationIdAndDocumentType(applicationId, "SIGNATURE");
+		map.put("SIGNATURE image", documentEntity.getAttachementUrl());
 		ProfileEntity profileEntity = profileRepository.findByapplicationId(applicationId);
 		if (profileEntity != null) {
 			map.put("UserName", profileEntity.getApplicantName());
@@ -541,6 +661,9 @@ public class PdfService implements IPdfService {
 			if (profileEntity.getGender() != null) {
 				map.put("Gender*", profileEntity.getGender());
 			}
+			map.put("Name prefix", map.get("GenderPrefix"));
+			map.put("Nationality", "India");
+			map.put("Resident Individual", "Resident Individual");
 			if (profileEntity.getMaritalStatus().equalsIgnoreCase("Single")) {
 				map.put("MaritalStatusSingle", profileEntity.getMaritalStatus());
 			} else if (profileEntity.getMaritalStatus().equalsIgnoreCase("Married")) {
@@ -679,6 +802,10 @@ public class PdfService implements IPdfService {
 				}
 				if (address.getIsdigi() == 1) {
 					map.put("UID Aadhaar", "yes");
+//					map.put("Aadhaar Number1", String.valueOf(address.getAadharNo().charAt(8)));
+//					map.put("Aadhaar Number2", String.valueOf(address.getAadharNo().charAt(9)));
+//					map.put("Aadhaar Number3", String.valueOf(address.getAadharNo().charAt(10)));
+//					map.put("Aadhaar Number4", String.valueOf(address.getAadharNo().charAt(11)));
 				} else if (address != null && address.getIsKra() == 1) {
 					if (address.getKraaddressproof() != null) {
 						if (address.getKraaddressproof().equalsIgnoreCase("PASSPORT")) {
@@ -772,7 +899,15 @@ public class PdfService implements IPdfService {
 					String fullAddress = addressBuilder.toString();
 					System.out.println("the fullAddress" + fullAddress);
 					map.put("PermanentAddress", fullAddress);
+					map.put("UID Aadhaar", "yes");
+					if (address.getAadharNo() != null) {
+						map.put("Aadhaar Number1", String.valueOf(address.getAadharNo().charAt(8)));
+						map.put("Aadhaar Number2", String.valueOf(address.getAadharNo().charAt(9)));
+						map.put("Aadhaar Number3", String.valueOf(address.getAadharNo().charAt(10)));
+						map.put("Aadhaar Number4", String.valueOf(address.getAadharNo().charAt(11)));
+					}
 				}
+
 				String dematAddress = map.get("PermanentAddress");
 				if (dematAddress != null) {
 					map.put("PermenentAddress1", dematAddress.substring(0, Math.min(80, dematAddress.length())));
@@ -783,6 +918,11 @@ public class PdfService implements IPdfService {
 					if (dematAddress.length() >= 80) {
 						map.put("CurrentAddressLine2",
 								dematAddress.substring(80, Math.min(200, dematAddress.length())));
+					}
+					map.put("CurrentAddressLine138", dematAddress.substring(0, Math.min(75, dematAddress.length())));
+					if (dematAddress.length() >= 75) {
+						map.put("CurrentAddressLine238",
+								dematAddress.substring(75, Math.min(125, dematAddress.length())));
 					}
 					map.put("dematAddress1", dematAddress.substring(0, Math.min(80, dematAddress.length())));
 					if (dematAddress.length() >= 80) {
@@ -832,7 +972,13 @@ public class PdfService implements IPdfService {
 				map.put("OthersProof", Integer.toString(address.getIsdigi()));
 				map.put("Others(Please Specify)", "AADHAR CARD");
 				map.put("UID Aadhaar", Integer.toString(address.getIsdigi()));
-				map.put("Aadhaar Number", address.getAadharNo());
+				if (address.getAadharNo() != null) {
+					map.put("Aadhaar Number", address.getAadharNo());
+					map.put("Aadhaar Number1", String.valueOf(address.getAadharNo().charAt(8)));
+					map.put("Aadhaar Number2", String.valueOf(address.getAadharNo().charAt(9)));
+					map.put("Aadhaar Number3", String.valueOf(address.getAadharNo().charAt(10)));
+					map.put("Aadhaar Number4", String.valueOf(address.getAadharNo().charAt(11)));
+				}
 				map.put("F-Proof of Possission of Aadhaar", address.getAadharNo());
 				map.put("Sole / First Holder’s Name UID", address.getAadharNo());
 				if (address != null && address.getIsdigi() == 1) {
@@ -891,7 +1037,13 @@ public class PdfService implements IPdfService {
 		BankEntity bankDetails = bankRepository.findByapplicationId(applicationId);
 		if (bankDetails != null) {
 			map.put("Bank A/C Number*", bankDetails.getAccountNo());
-			map.put("Bank Branch Address", bankDetails.getAddress());
+			map.put("Bank Branch Address",
+					bankDetails.getAddress().substring(0, Math.min(110, bankDetails.getAddress().length())));
+			if (bankDetails.getAddress().length() > 110) {
+				map.put("Bank Branch Address2",
+						bankDetails.getAddress().substring(110, Math.min(210, bankDetails.getAddress().length())));
+			}
+//			map.put("Bank Branch Address", bankDetails.getAddress());
 			map.put("BranchName", bankDetails.getBranchName());
 			map.put("RTGS/NEFT/IFSC Code", bankDetails.getIfsc());
 			map.put("MICR", bankDetails.getMicr());
@@ -918,7 +1070,7 @@ public class PdfService implements IPdfService {
 				String addressForBank = bankDetails.getAddress();
 				map.put("BankAddress1", addressForBank.substring(0, Math.min(66, addressForBank.length())));
 				if (addressForBank.length() >= 66) {
-					map.put("BankAddress2", addressForBank.substring(66, Math.min(138, addressForBank.length())));
+					map.put("BankAddress2", addressForBank.substring(66, Math.min(131, addressForBank.length())));
 				}
 				map.put("Bank Response", pennyVerificationResponseEntity.getVerified());
 				map.put("Bank Ref ID", pennyVerificationResponseEntity.getPaymentid());
@@ -1047,6 +1199,8 @@ public class PdfService implements IPdfService {
 					} else {
 						map.put("Details of 1st Nominee Share of each Nominee", null);
 					}
+					map.put("Details of 1st Nominee DOB", "yes");
+					map.put("Details of 1st Nominee DOB text", nomineeEntity.get(i).getDateOfbirth());
 					map.put("Details of 1st Nominee Relatonship with the Applicant (if any)",
 							nomineeEntity.get(i).getRelationship());
 
@@ -1055,26 +1209,26 @@ public class PdfService implements IPdfService {
 								+ (nomineeEntity.get(i).getAddress2() != null ? nomineeEntity.get(i).getAddress2()
 										: "");
 						map.put("Details of 1st Nominee Address of Nominee(s)",
-								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
-						if (addressOfNominee.length() >= 26) {
+								addressOfNominee.substring(0, Math.min(34, addressOfNominee.length())));
+						if (addressOfNominee.length() >= 34) {
 							map.put("Details of 1st Nominee Address1 of Nominee(s)",
-									addressOfNominee.substring(26, Math.min(52, addressOfNominee.length())));
+									addressOfNominee.substring(34, Math.min(67, addressOfNominee.length())));
 						}
-						if (addressOfNominee.length() >= 52) {
+						if (addressOfNominee.length() >= 67) {
 							map.put("Details of 1st Nominee Address2 of Nominee(s)",
-									addressOfNominee.substring(52, Math.min(78, addressOfNominee.length())));
+									addressOfNominee.substring(67, Math.min(101, addressOfNominee.length())));
 						}
-						if (addressOfNominee.length() >= 78) {
+						if (addressOfNominee.length() >= 101) {
 							map.put("Details of 1st Nominee Address3 of Nominee(s)",
-									addressOfNominee.substring(78, Math.min(104, addressOfNominee.length())));
+									addressOfNominee.substring(101, Math.min(135, addressOfNominee.length())));
 						}
-						if (addressOfNominee.length() >= 104) {
+						if (addressOfNominee.length() >= 135) {
 							map.put("Details of 1st Nominee Address4 of Nominee(s)",
-									addressOfNominee.substring(104, Math.min(130, addressOfNominee.length())));
+									addressOfNominee.substring(135, Math.min(169, addressOfNominee.length())));
 						}
-						if (addressOfNominee.length() >= 130) {
+						if (addressOfNominee.length() >= 169) {
 							map.put("Details of 1st Nominee Address5 of Nominee(s)",
-									addressOfNominee.substring(130, Math.min(156, addressOfNominee.length())));
+									addressOfNominee.substring(169, Math.min(175, addressOfNominee.length())));
 						}
 
 					}
@@ -1145,18 +1299,28 @@ public class PdfService implements IPdfService {
 							map.put("Details of 1st Nominee Name of Guardian",
 									GurName.substring(0, Math.min(26, GurName.length())));
 						}
+						map.put("Details of 1st guardian DOB", "yes");
+						map.put("Details of 1st guardian DOB text", guardianEntity.getDateOfbirth());
 						if (guardianEntity.getAddress1() != null) {
 							String addressOfgur = guardianEntity.getAddress1()
 									+ (guardianEntity.getAddress2() != null ? guardianEntity.getAddress2() : "");
 							map.put("Details of 1st Nominee Address of Guardian(s)",
-									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
-							if (addressOfgur.length() >= 26) {
+									addressOfgur.substring(0, Math.min(34, addressOfgur.length())));
+							if (addressOfgur.length() >= 34) {
 								map.put("Details of 1st Nominee Address1 of Guardian(s)",
-										addressOfgur.substring(26, Math.min(52, addressOfgur.length())));
+										addressOfgur.substring(34, Math.min(70, addressOfgur.length())));
 							}
-							if (addressOfgur.length() >= 52) {
+							if (addressOfgur.length() >= 70) {
 								map.put("Details of 1st Nominee Address2 of Guardian(s)",
-										addressOfgur.substring(52, Math.min(78, addressOfgur.length())));
+										addressOfgur.substring(70, Math.min(105, addressOfgur.length())));
+							}
+							if (addressOfgur.length() >= 105) {
+								map.put("Details of 1st Nominee Address3 of Guardian(s)",
+										addressOfgur.substring(105, Math.min(140, addressOfgur.length())));
+							}
+							if (addressOfgur.length() >= 140) {
+								map.put("Details of 1st Nominee Address4 of Guardian(s)",
+										addressOfgur.substring(140, Math.min(175, addressOfgur.length())));
 							}
 
 						}
@@ -1216,6 +1380,8 @@ public class PdfService implements IPdfService {
 					} else {
 						map.put("Details of 2nd Nominee Share of each Nominee", null);
 					}
+					map.put("Details of 2nd Nominee DOB", "yes");
+					map.put("Details of 2nd Nominee DOB text", nomineeEntity.get(i).getDateOfbirth());
 					map.put("Details of 2nd Nominee Relatonship with the Applicant (if any)",
 							nomineeEntity.get(i).getRelationship());
 					if (nomineeEntity.get(i).getAddress1() != null) {
@@ -1223,26 +1389,26 @@ public class PdfService implements IPdfService {
 								+ (nomineeEntity.get(i).getAddress2() != null ? nomineeEntity.get(i).getAddress2()
 										: "");
 						map.put("Details of 2nd Nominee Address of Nominee(s)",
-								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
-						if (addressOfNominee.length() >= 26) {
+								addressOfNominee.substring(0, Math.min(34, addressOfNominee.length())));
+						if (addressOfNominee.length() >= 34) {
 							map.put("Details of 2nd Nominee Address1 of Nominee(s)",
-									addressOfNominee.substring(26, Math.min(52, addressOfNominee.length())));
+									addressOfNominee.substring(34, Math.min(67, addressOfNominee.length())));
 						}
-						if (addressOfNominee.length() >= 52) {
+						if (addressOfNominee.length() >= 67) {
 							map.put("Details of 2nd Nominee Address2 of Nominee(s)",
-									addressOfNominee.substring(52, Math.min(78, addressOfNominee.length())));
+									addressOfNominee.substring(67, Math.min(101, addressOfNominee.length())));
 						}
-						if (addressOfNominee.length() >= 78) {
+						if (addressOfNominee.length() >= 101) {
 							map.put("Details of 2nd Nominee Address3 of Nominee(s)",
-									addressOfNominee.substring(78, Math.min(104, addressOfNominee.length())));
+									addressOfNominee.substring(101, Math.min(135, addressOfNominee.length())));
 						}
-						if (addressOfNominee.length() >= 104) {
+						if (addressOfNominee.length() >= 135) {
 							map.put("Details of 2nd Nominee Address4 of Nominee(s)",
-									addressOfNominee.substring(104, Math.min(130, addressOfNominee.length())));
+									addressOfNominee.substring(135, Math.min(169, addressOfNominee.length())));
 						}
-						if (addressOfNominee.length() >= 130) {
+						if (addressOfNominee.length() >= 169) {
 							map.put("Details of 2nd Nominee Address5 of Nominee(s)",
-									addressOfNominee.substring(130, Math.min(156, addressOfNominee.length())));
+									addressOfNominee.substring(169, Math.min(175, addressOfNominee.length())));
 						}
 
 					}
@@ -1312,20 +1478,30 @@ public class PdfService implements IPdfService {
 							map.put("Details of 2nd Nominee Name of Guardian",
 									GurName.substring(0, Math.min(26, GurName.length())));
 						}
+						map.put("Details of 2nd guardian DOB", "yes");
+						map.put("Details of 2nd guardian DOB text", guardianEntity.getDateOfbirth());
 						// map.put("Details of 2nd Nominee Name of Guardian",
 						// guardianEntity.getFirstname());
 						if (guardianEntity.getAddress1() != null) {
 							String addressOfgur = guardianEntity.getAddress1()
 									+ (guardianEntity.getAddress2() != null ? guardianEntity.getAddress2() : "");
 							map.put("Details of 2nd Nominee Address of Guardian(s)",
-									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
-							if (addressOfgur.length() >= 26) {
+									addressOfgur.substring(0, Math.min(34, addressOfgur.length())));
+							if (addressOfgur.length() >= 34) {
 								map.put("Details of 2nd Nominee Address1 of Guardian(s)",
-										addressOfgur.substring(26, Math.min(52, addressOfgur.length())));
+										addressOfgur.substring(34, Math.min(70, addressOfgur.length())));
 							}
-							if (addressOfgur.length() >= 52) {
+							if (addressOfgur.length() >= 70) {
 								map.put("Details of 2nd Nominee Address2 of Guardian(s)",
-										addressOfgur.substring(52, Math.min(78, addressOfgur.length())));
+										addressOfgur.substring(70, Math.min(105, addressOfgur.length())));
+							}
+							if (addressOfgur.length() >= 105) {
+								map.put("Details of 2nd Nominee Address3 of Guardian(s)",
+										addressOfgur.substring(105, Math.min(140, addressOfgur.length())));
+							}
+							if (addressOfgur.length() >= 140) {
+								map.put("Details of 2nd Nominee Address4 of Guardian(s)",
+										addressOfgur.substring(140, Math.min(175, addressOfgur.length())));
 							}
 
 						}
@@ -1387,6 +1563,8 @@ public class PdfService implements IPdfService {
 					} else {
 						map.put("Details of 3rd Nominee Share of each Nominee", null);
 					}
+					map.put("Details of 3rd Nominee DOB", "yes");
+					map.put("Details of 3rd Nominee DOB text", nomineeEntity.get(i).getDateOfbirth());
 					map.put("Details of 3rd Nominee Relatonship with the Applicant (if any)",
 							nomineeEntity.get(i).getRelationship());
 					if (nomineeEntity.get(i).getAddress1() != null) {
@@ -1394,26 +1572,26 @@ public class PdfService implements IPdfService {
 								+ (nomineeEntity.get(i).getAddress2() != null ? nomineeEntity.get(i).getAddress2()
 										: "");
 						map.put("Details of 3rd Nominee Address of Nominee(s)",
-								addressOfNominee.substring(0, Math.min(26, addressOfNominee.length())));
-						if (addressOfNominee.length() >= 26) {
+								addressOfNominee.substring(0, Math.min(34, addressOfNominee.length())));
+						if (addressOfNominee.length() >= 34) {
 							map.put("Details of 3rd Nominee Address1 of Nominee(s)",
-									addressOfNominee.substring(26, Math.min(52, addressOfNominee.length())));
+									addressOfNominee.substring(34, Math.min(67, addressOfNominee.length())));
 						}
-						if (addressOfNominee.length() >= 52) {
+						if (addressOfNominee.length() >= 67) {
 							map.put("Details of 3rd Nominee Address2 of Nominee(s)",
-									addressOfNominee.substring(52, Math.min(78, addressOfNominee.length())));
+									addressOfNominee.substring(67, Math.min(101, addressOfNominee.length())));
 						}
-						if (addressOfNominee.length() >= 78) {
+						if (addressOfNominee.length() >= 101) {
 							map.put("Details of 3rd Nominee Address3 of Nominee(s)",
-									addressOfNominee.substring(78, Math.min(104, addressOfNominee.length())));
+									addressOfNominee.substring(101, Math.min(135, addressOfNominee.length())));
 						}
-						if (addressOfNominee.length() >= 104) {
+						if (addressOfNominee.length() >= 135) {
 							map.put("Details of 3rd Nominee Address4 of Nominee(s)",
-									addressOfNominee.substring(104, Math.min(130, addressOfNominee.length())));
+									addressOfNominee.substring(135, Math.min(169, addressOfNominee.length())));
 						}
-						if (addressOfNominee.length() >= 130) {
+						if (addressOfNominee.length() >= 169) {
 							map.put("Details of 3rd Nominee Address5 of Nominee(s)",
-									addressOfNominee.substring(130, Math.min(156, addressOfNominee.length())));
+									addressOfNominee.substring(169, Math.min(175, addressOfNominee.length())));
 						}
 					}
 //					if (nomineeEntity.get(i).getAddress2() != null) {
@@ -1482,20 +1660,30 @@ public class PdfService implements IPdfService {
 							map.put("Details of 3rd Nominee Name of Guardian",
 									GurName.substring(0, Math.min(26, GurName.length())));
 						}
+						map.put("Details of 3rd guardian DOB", "yes");
+						map.put("Details of 3rd guardian DOB text", guardianEntity.getDateOfbirth());
 						// map.put("Details of 3rd Nominee Name of Guardian",
 						// guardianEntity.getFirstname());
 						if (guardianEntity.getAddress1() != null) {
 							String addressOfgur = guardianEntity.getAddress1()
 									+ (guardianEntity.getAddress2() != null ? guardianEntity.getAddress2() : "");
 							map.put("Details of 3rd Nominee Address of Guardian(s)",
-									addressOfgur.substring(0, Math.min(26, addressOfgur.length())));
-							if (addressOfgur.length() >= 26) {
+									addressOfgur.substring(0, Math.min(34, addressOfgur.length())));
+							if (addressOfgur.length() >= 34) {
 								map.put("Details of 3rd Nominee Address1 of Guardian(s)",
-										addressOfgur.substring(26, Math.min(52, addressOfgur.length())));
+										addressOfgur.substring(34, Math.min(68, addressOfgur.length())));
 							}
-							if (addressOfgur.length() >= 52) {
+							if (addressOfgur.length() >= 68) {
 								map.put("Details of 3rd Nominee Address2 of Guardian(s)",
-										addressOfgur.substring(52, Math.min(78, addressOfgur.length())));
+										addressOfgur.substring(68, Math.min(103, addressOfgur.length())));
+							}
+							if (addressOfgur.length() >= 103) {
+								map.put("Details of 3rd Nominee Address3 of Guardian(s)",
+										addressOfgur.substring(103, Math.min(138, addressOfgur.length())));
+							}
+							if (addressOfgur.length() >= 138) {
+								map.put("Details of 3rd Nominee Address4 of Guardian(s)",
+										addressOfgur.substring(138, Math.min(173, addressOfgur.length())));
 							}
 
 						}
@@ -1570,7 +1758,7 @@ public class PdfService implements IPdfService {
 		ResponseModel model = null;
 		Optional<ApplicationUserEntity> userEntity = applicationUserRepository.findById(pdfModel.getApplicationNo());
 		if (userEntity.isPresent() && userEntity.get().getPdfGenerated() <= 0) {
-			savePdf(pdfModel.getApplicationNo());
+			savePdf(pdfModel.getApplicationNo(), 0);
 		}
 		model = esign.runMethod(props.getFileBasePath(), pdfModel.getApplicationNo());
 		return model;
@@ -1642,6 +1830,7 @@ public class PdfService implements IPdfService {
 //										EkycConstants.PAGE_COMPLETED_EMAIL_ATTACHED, 1, 1,
 //										StringUtil.isNotNullOrEmpty(name) ? name : userEntity.get().getUserName());
 								saveEsignDocumntDetails(userEntity.get().getId(), path, esignedFileName);
+								updateRejectionMastertable(detailsEntity.getApplicationId());
 								updateEsignStage(detailsEntity.getApplicationId(),
 										EkycConstants.EKYC_STATUS_ESIGN_COMPLETED,
 										EkycConstants.PAGE_COMPLETED_EMAIL_ATTACHED, 1, 1,
@@ -1651,7 +1840,6 @@ public class PdfService implements IPdfService {
 								// String fileName)
 								commonMethods.sendEsignedMail(userEntity.get().getEmailId(),
 										userEntity.get().getUserName(), path, esignedFileName);
-								rejectionStatusHelper.deleteInsertArchiveTableRecord(detailsEntity.getApplicationId());
 								Response.ResponseBuilder responseBuilder = Response
 										.status(Response.Status.MOVED_PERMANENTLY).location(finalPage);
 								return responseBuilder.build();
@@ -1673,6 +1861,33 @@ public class PdfService implements IPdfService {
 		}
 
 		return null;
+	}
+
+	@Transactional
+	private void updateRejectionMastertable(long applicationId) {
+		System.out.println("the updateRejectionMastertable");
+		List<ApiStatusEntity> checkExit = apiStatusRepository.findByApplicationId(applicationId);
+		if (checkExit != null && !checkExit.isEmpty()) {
+			// Check if any status in the checkExit list is equal to 2 (Rejected)
+			List<ApiStatusEntity> rejectedEntities = checkExit.stream().filter(apiStatus -> apiStatus.getStatus() == 0)
+					.collect(Collectors.toList());
+			if (!rejectedEntities.isEmpty()) {
+				for (ApiStatusEntity apiStatusEntity : rejectedEntities) {
+					try {
+						// Archive the rejected entity
+						ApiStatusArchiveEntity apiStatusArchiveEntity = new ApiStatusArchiveEntity();
+						BeanUtils.copyProperties(apiStatusArchiveEntity, apiStatusEntity);
+						apiStatusArchiveEntity.setId(null); // Set ID to null to generate a new one
+						apiStatusArchiveRepository.save(apiStatusArchiveEntity);
+
+						// Delete the original entity
+						apiStatusRepository.deleteById(apiStatusEntity.getId());
+					} catch (IllegalAccessException | InvocationTargetException e) {
+						logger.error("Error copying properties from ApiStatusEntity to ApiStatusArchiveEntity", e);
+					}
+				}
+			}
+		}
 	}
 
 	private void updateEsignStage(Long applicationId, String status, String stage, int EsignCom, int pdfGen,

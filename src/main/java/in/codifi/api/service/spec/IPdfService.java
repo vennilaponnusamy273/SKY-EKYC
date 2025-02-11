@@ -13,7 +13,7 @@ public interface IPdfService {
 	 * @author gowthaman
 	 * @return
 	 */
-	Response savePdf(long applicationId);
+	Response savePdf(long applicationId,int activeStatus);
 
 	/**
 	 * Method to generate Esign
