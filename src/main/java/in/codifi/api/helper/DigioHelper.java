@@ -244,7 +244,7 @@ public class DigioHelper {
 	            String pincode = poaElement.getAttribute("pc");
 	            String loc = poaElement.getAttribute("po");
 
-	            String address = buildAddress(co, house, street, vtc, sublist);
+	            String address = buildAddress(co, house, street, vtc,loc, sublist);
 	            System.out.println(address);
 	            addressEntity.setDigiCurAddress(address);
 	            addressEntity.setDigiPerAddress(address);

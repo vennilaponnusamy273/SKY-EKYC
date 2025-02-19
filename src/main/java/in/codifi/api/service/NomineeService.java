@@ -29,7 +29,6 @@ import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.entity.GuardianEntity;
 import in.codifi.api.entity.NomineeEntity;
 import in.codifi.api.helper.RejectionStatusHelper;
-import in.codifi.api.model.FormDataModel;
 import in.codifi.api.model.NomineeDocModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.repository.ApplicationUserRepository;
@@ -128,66 +127,67 @@ public class NomineeService implements INomineeService {
 	public ResponseModel uploadDocNominee(NomineeDocModel fileModel) {
 		ResponseModel responseModel = new ResponseModel();
 		try {
-			if (fileModel.getNomFile() != null && StringUtil.isNotNullOrEmpty(fileModel.getNomFile().contentType())) {
-				System.out.println("the fileModel.getNomFile().contentType()" + fileModel.getNomFile().contentType());
-				System.out
-						.println("the fileModel.getGuardFile().contentType()" + fileModel.getGuardFile().contentType());
-				String errorMsg = "";
-				String errorMsgGur = "";
-				boolean content = (EkycConstants.CONST_APPLICATION_PDF.equals(fileModel.getNomFile().contentType()));
-				boolean Gurcontent = (EkycConstants.CONST_APPLICATION_PDF
-						.equals(fileModel.getGuardFile().contentType()));
-				System.out.println("the content" + content);
-				System.out.println("the Gurcontent" + Gurcontent);
-				if (content) {
-					errorMsg = checkPasswordProtected(fileModel);
-					if (!StringUtil.isNullOrEmpty(errorMsg)) {
-						return commonMethods.constructFailedMsg(errorMsg);
-					}
-				}
-				if (Gurcontent) {
-					errorMsgGur = checkPasswordProtectedGur(fileModel);
-					if (!StringUtil.isNullOrEmpty(errorMsgGur)) {
-						return commonMethods.constructFailedMsg(errorMsgGur);
-					}
-				}
-				// Proceed with file operations and saving nominee details
-				String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
-				if (OS.contains(EkycConstants.OS_WINDOWS)) {
-					slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
-				}
-				File dir = new File(props.getFileBasePath() + fileModel.getApplicationId());
-				if (!dir.exists()) {
-					dir.mkdirs();
-				}
-				Long countNominee = nomineeRepository.countByApplicationId(fileModel.getApplicationId());
-				String nomineeId = "Nominee_" + (countNominee + 1);
-				FileUpload f = fileModel.getNomFile();
-				String ext = f.fileName().substring(f.fileName().indexOf("."), f.fileName().length());
-				String fileName = nomineeId + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF + ext;
-				String filePath = props.getFileBasePath() + fileModel.getApplicationId() + slash + fileName;
-				Path path = Paths.get(filePath);
-				if (Files.exists(path)) {
-					Files.delete(path);
-				}
-				if (content) {
-					Path path1 = fileModel.getNomFile().filePath();
-					PDDocument document = PDDocument.load(new File(path1.toString()), fileModel.getNomineepassword());
-					document.getClass();
-					if (document.isEncrypted()) {
-						document.setAllSecurityToBeRemoved(true);
-					}
-					document.save(filePath);
-					document.close();
-				} else {
-					Files.copy(fileModel.getNomFile().filePath(), path);
-				}
-				saveDocNominee(fileModel.getApplicationId(), fileName, filePath,
-						nomineeId + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF, fileModel.getNomineepassword());
-				responseModel = saveNomineeDetails(fileModel, filePath);
-			} else {
-				responseModel = commonMethods.constructFailedMsg(MessageConstants.NOM_FILE_NULL);
-			}
+//			if (fileModel.getNomFile() != null && StringUtil.isNotNullOrEmpty(fileModel.getNomFile().contentType())) {
+//				System.out.println("the fileModel.getNomFile().contentType()" + fileModel.getNomFile().contentType());
+//				System.out
+//						.println("the fileModel.getGuardFile().contentType()" + fileModel.getGuardFile().contentType());
+//				String errorMsg = "";
+//				String errorMsgGur = "";
+//				boolean content = (EkycConstants.CONST_APPLICATION_PDF.equals(fileModel.getNomFile().contentType()));
+//				boolean Gurcontent = (EkycConstants.CONST_APPLICATION_PDF
+//						.equals(fileModel.getGuardFile().contentType()));
+//				System.out.println("the content" + content);
+//				System.out.println("the Gurcontent" + Gurcontent);
+//				if (content) {
+//					errorMsg = checkPasswordProtected(fileModel);
+//					if (!StringUtil.isNullOrEmpty(errorMsg)) {
+//						return commonMethods.constructFailedMsg(errorMsg);
+//					}
+//				}
+//				if (Gurcontent) {
+//					errorMsgGur = checkPasswordProtectedGur(fileModel);
+//					if (!StringUtil.isNullOrEmpty(errorMsgGur)) {
+//						return commonMethods.constructFailedMsg(errorMsgGur);
+//					}
+//				}
+//				// Proceed with file operations and saving nominee details
+//				String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
+//				if (OS.contains(EkycConstants.OS_WINDOWS)) {
+//					slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
+//				}
+//				File dir = new File(props.getFileBasePath() + fileModel.getApplicationId());
+//				if (!dir.exists()) {
+//					dir.mkdirs();
+//				}
+//				Long countNominee = nomineeRepository.countByApplicationId(fileModel.getApplicationId());
+//				String nomineeId = "Nominee_" + (countNominee + 1);
+//				FileUpload f = fileModel.getNomFile();
+//				String ext = f.fileName().substring(f.fileName().indexOf("."), f.fileName().length());
+//				String fileName = nomineeId + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF + ext;
+//				String filePath = props.getFileBasePath() + fileModel.getApplicationId() + slash + fileName;
+//				Path path = Paths.get(filePath);
+//				if (Files.exists(path)) {
+//					Files.delete(path);
+//				}
+//				if (content) {
+//					Path path1 = fileModel.getNomFile().filePath();
+//					PDDocument document = PDDocument.load(new File(path1.toString()), fileModel.getNomineepassword());
+//					document.getClass();
+//					if (document.isEncrypted()) {
+//						document.setAllSecurityToBeRemoved(true);
+//					}
+//					document.save(filePath);
+//					document.close();
+//				} else {
+//					Files.copy(fileModel.getNomFile().filePath(), path);
+//				}
+//				saveDocNominee(fileModel.getApplicationId(), fileName, filePath,
+//						nomineeId + EkycConstants.UNDERSCORE + EkycConstants.NOM_PROOF, fileModel.getNomineepassword());
+			String filePath = "";
+			responseModel = saveNomineeDetails(fileModel, filePath);
+//			} else {
+//				responseModel = commonMethods.constructFailedMsg(MessageConstants.NOM_FILE_NULL);
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("An error occurred: " + e.getMessage());
@@ -330,17 +330,18 @@ public class NomineeService implements INomineeService {
 					if (p.getYears() >= 18) {
 						savingNominee = nomineeRepository.save(entity);
 					} else if (p.getYears() < 18 && entity.getGuardianEntity() != null) {
-						if (nomineeEntity.getGuardFile() != null
-								&& StringUtil.isNotNullOrEmpty(nomineeEntity.getGuardFile().contentType())) {
+//						if (nomineeEntity.getGuardFile() != null
+//								&& StringUtil.isNotNullOrEmpty(nomineeEntity.getGuardFile().contentType())) {
 							savingNominee = nomineeRepository.save(entity);
-							String guardFilePath = uploadDocGuardian(nomineeEntity, savingNominee.getNomineeId());
+//							String guardFilePath = uploadDocGuardian(nomineeEntity, savingNominee.getNomineeId());
+							String guardFilePath ="";
 							GuardianEntity guardian = entity.getGuardianEntity();
 							guardian.setNomineeId(savingNominee.getId());
 							guardian.setAttachementUrl(guardFilePath);
 							guardianRepository.save(guardian);
-						} else {
-							return commonMethods.constructFailedMsg(MessageConstants.GUARD_FILE_NULL);
-						}
+//						} else {
+//							return commonMethods.constructFailedMsg(MessageConstants.GUARD_FILE_NULL);
+//						}
 					} else {
 						return commonMethods.constructFailedMsg(MessageConstants.GUARDIAN_REQUIRED);
 					}
