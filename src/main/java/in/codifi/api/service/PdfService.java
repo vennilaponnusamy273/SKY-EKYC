@@ -381,14 +381,12 @@ public class PdfService implements IPdfService {
 						}
 					} else {
 						BufferedImage image = ImageIO.read(new File(attachmentUrl));
-						System.out.println("the attachmentUrl" + attachmentUrl);
-						if (image.getType() == BufferedImage.TYPE_CUSTOM) {
-							BufferedImage standardImage = new BufferedImage(image.getWidth(), image.getHeight(),
-									BufferedImage.TYPE_INT_RGB);
-							Graphics2D g = standardImage.createGraphics();
-							g.drawImage(image, 0, 0, null);
-							g.dispose();
-							image = standardImage;
+						if (image.getType() == BufferedImage.TYPE_CUSTOM || image.getType() != BufferedImage.TYPE_INT_RGB) {
+						    BufferedImage standardImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+						    Graphics2D g = standardImage.createGraphics();
+						    g.drawImage(image, 0, 0, null);
+						    g.dispose();
+						    image = standardImage;
 						}
 
 						if (image != null) {
