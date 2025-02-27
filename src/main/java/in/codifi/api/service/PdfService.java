@@ -1,20 +1,26 @@
 package in.codifi.api.service;
 
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
@@ -34,6 +40,7 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDTrueTypeFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
 import org.json.JSONObject;
@@ -300,8 +307,10 @@ public class PdfService implements IPdfService {
 						combine.close();
 					}
 				} else {
-					BufferedImage image = ImageIO.read(new File(attachmentUrl));
-
+					System.out.println("the attachmentUrl" + attachmentUrl);
+//					BufferedImage image = ImageIO.read(new File(attachmentUrl));
+					// 🔹 FIX: Load image safely to avoid ICC profile error
+					BufferedImage image = loadImageWithoutICC(attachmentUrl);
 					if (image != null) {
 						PDPage page = new PDPage();
 						document.addPage(page);
@@ -348,61 +357,94 @@ public class PdfService implements IPdfService {
 		}
 	}
 
+	private BufferedImage loadImageWithoutICC(String filePath) {
+	    try {
+	        File file = new File(filePath);
+	        
+	        // Create ImageInputStream
+	        ImageInputStream input = ImageIO.createImageInputStream(file);
+	        Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+
+	        if (!readers.hasNext()) {
+	            throw new IOException("No suitable image reader found for " + filePath);
+	        }
+
+	        ImageReader reader = readers.next();
+	        reader.setInput(input, true, true); // Ignore ICC profile by setting ignoreMetadata=true
+
+	        // Read image without ICC profile
+	        BufferedImage originalImage = reader.read(0);
+	        reader.dispose();
+	        input.close();
+
+	        if (originalImage == null) {
+	            throw new IOException("Invalid image file: " + filePath);
+	        }
+
+	        // Convert image to RGB mode to remove ICC profile
+	        BufferedImage rgbImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+	        Graphics2D graphics = rgbImage.createGraphics();
+	        graphics.drawImage(originalImage, 0, 0, null);
+	        graphics.dispose();
+
+	        return rgbImage;
+	    } catch (IOException e) {
+	        System.err.println("Error loading image: " + e.getMessage());
+	        return null;
+	    }
+	}
+	
 	public void addDocument(PDDocument document, long applicationNo) {
 		try {
-			// Add a new page to the document
-			String attachmentUrl = null;
+			// Fetch documents
 			List<DocumentEntity> documents = docrepository.findByApplicationIdOrderByDocumentTypeDesc(applicationNo);
-			// List<DocumentEntity> documents =
-			// docrepository.findByApplicationId(applicationNo);
-			int originalPages = document.getNumberOfPages(); // Store the original number of pages
+			int originalPages = document.getNumberOfPages();
 
-			// Load the verification image only once
-			File verifyImageFile = new File(props.getVerifyImage());
+			// Load verification image
 			PDImageXObject importedVerifyImage = null;
-
+			File verifyImageFile = new File(props.getVerifyImage());
 			if (verifyImageFile.exists()) {
 				importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(), document);
-			} else {
-				System.err.println("Failed to load the verification image.");
 			}
 
 			for (DocumentEntity entity : documents) {
 				if (!StringUtil.isStrContainsWithEqIgnoreCase(entity.getAttachement(), "signedFinal.pdf")) {
-					attachmentUrl = entity.getAttachementUrl();
+					String attachmentUrl = entity.getAttachementUrl();
 
 					if (attachmentUrl.endsWith(".pdf") || attachmentUrl.endsWith(".PDF")) {
 						try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
 							PDFMergerUtility merger = new PDFMergerUtility();
-							PDDocument combine = PDDocument.load(new File(attachmentUrl));
-							merger.appendDocument(document, combine);
+							merger.appendDocument(document, attachment);
 							merger.mergeDocuments();
-							combine.close();
 						}
 					} else {
-						BufferedImage image = ImageIO.read(new File(attachmentUrl));
-						if (image.getType() == BufferedImage.TYPE_CUSTOM || image.getType() != BufferedImage.TYPE_INT_RGB) {
-						    BufferedImage standardImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-						    Graphics2D g = standardImage.createGraphics();
-						    g.drawImage(image, 0, 0, null);
-						    g.dispose();
-						    image = standardImage;
-						}
-
+						System.out.println("the attachmentUrl" + attachmentUrl);
+						BufferedImage image = loadImageWithoutICC(attachmentUrl);
+//						BufferedImage image = ImageIO.read(new File(attachmentUrl));
 						if (image != null) {
+							int newWidth = 800, newHeight = 400;
+							BufferedImage outputImage = new BufferedImage(newWidth, newHeight,
+									BufferedImage.TYPE_INT_RGB);
+							Graphics2D graphics2D = outputImage.createGraphics();
+							graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+									RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+							graphics2D.drawImage(image, 0, 0, newWidth, newHeight, null);
+							graphics2D.dispose();
+
 							PDPage page = new PDPage();
 							document.addPage(page);
+
 							PDRectangle pageSize = page.getMediaBox();
-							float maxWidth = pageSize.getWidth() * 0.8f;
-							float maxHeight = pageSize.getHeight() * 0.8f;
-							float aspectRatio = (float) image.getWidth() / (float) image.getHeight();
-							float imageWidth = Math.min(maxWidth, maxHeight * aspectRatio);
-							float imageHeight = Math.min(maxHeight, maxWidth / aspectRatio);
+							float aspectRatio = (float) image.getWidth() / image.getHeight();
+							float targetSize = 500;
+							float imageWidth = (aspectRatio > 1) ? targetSize : targetSize * aspectRatio;
+							float imageHeight = (aspectRatio > 1) ? targetSize / aspectRatio : targetSize;
 							float centerX = (pageSize.getWidth() - imageWidth) / 2f;
 							float centerY = (pageSize.getHeight() - imageHeight) / 2f;
 
-							PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
-							try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+							PDImageXObject importedPage = LosslessFactory.createFromImage(document, outputImage);
+							try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true,
+									true)) {
 								contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
 							}
 						}
@@ -410,14 +452,12 @@ public class PdfService implements IPdfService {
 				}
 			}
 
-			// Iterate through all pages and add the verification image
-			for (int i = originalPages; i < document.getNumberOfPages(); i++) {
-				PDPage page = document.getPage(i);
-				try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true)) {
-					if (importedVerifyImage != null) {
+			// Add verification image to new pages
+			if (importedVerifyImage != null) {
+				for (int i = originalPages; i < document.getNumberOfPages(); i++) {
+					PDPage page = document.getPage(i);
+					try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true)) {
 						contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
-					} else {
-						System.err.println("Failed to load the verification image.");
 					}
 				}
 			}
@@ -425,6 +465,50 @@ public class PdfService implements IPdfService {
 			e.printStackTrace();
 		}
 	}
+
+	private BufferedImage loadAndCleanImage(String filePath) {
+	    try {
+	        File file = new File(filePath);
+	        
+	        // Create ImageInputStream
+	        ImageInputStream input = ImageIO.createImageInputStream(file);
+	        Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+
+	        if (!readers.hasNext()) {
+	            throw new IOException("No suitable image reader found for " + filePath);
+	        }
+
+	        ImageReader reader = readers.next();
+	        reader.setInput(input, true, true); // Ignore metadata (including ICC profile)
+
+	        // Read the original image
+	        BufferedImage originalImage = reader.read(0);
+	        reader.dispose();
+	        input.close();
+
+	        if (originalImage == null) {
+	            throw new IOException("Invalid image file: " + filePath);
+	        }
+
+	        // Create a new RGB image (removes ICC profile)
+	        BufferedImage rgbImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+	        Graphics2D g2d = rgbImage.createGraphics();
+	        g2d.drawImage(originalImage, 0, 0, null);
+	        g2d.dispose();
+
+	        // Save the cleaned image to a new file
+	        File cleanedFile = new File(filePath + "_cleaned.jpg");  // Save as new file
+	        ImageIO.write(rgbImage, "jpg", cleanedFile);
+
+	        // Return the cleaned BufferedImage
+	        return ImageIO.read(cleanedFile);
+	    } catch (IOException e) {
+	        System.err.println("Error loading image: " + e.getMessage());
+	        return null;
+	    }
+	}
+
+
 
 	public void pdfInsertCoordinates(PDDocument document, List<PdfDataCoordinatesEntity> pdfDatas,
 			HashMap<String, String> map) {
