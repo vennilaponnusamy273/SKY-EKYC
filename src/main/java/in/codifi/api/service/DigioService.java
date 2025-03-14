@@ -22,6 +22,7 @@ import in.codifi.api.model.DigioRequestModel;
 import in.codifi.api.model.DigioSaveAddResponse;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.model.WebhookDigioRequestModel;
+import in.codifi.api.repository.AccessLogManager;
 import in.codifi.api.repository.ApplicationUserRepository;
 import in.codifi.api.repository.DigioRepository;
 import in.codifi.api.restservice.DigioRestService;
@@ -46,6 +47,8 @@ public class DigioService implements IDigioService {
 	ApplicationProperties props;
 	@Inject
 	DigioHelper digioHelper;
+	@Inject
+	AccessLogManager accessLogManager;
 	private static final Logger logger = LogManager.getLogger(DigioService.class);
 
 	/**
@@ -149,9 +152,14 @@ public class DigioService implements IDigioService {
 			DigioEntity savedIniDigio = digioRepository.findByapplicationId(applicationId);
 			if (savedIniDigio != null && StringUtil.isNotNullOrEmpty(savedIniDigio.getRequestId())) {
 				DigioSaveAddResponse addResponse = digioRestService.saveDigiAddress(savedIniDigio.getRequestId());
+				ObjectMapper objectMapper = new ObjectMapper();
+				String addResponseJson = objectMapper.writeValueAsString(addResponse);
+				accessLogManager.insertRestAccessLogsIntoDB(String.valueOf(applicationId), savedIniDigio.getRequestId(),
+						addResponseJson.toString(), "saveDigioAadhar", "/digio/saveDigio");
 				if (addResponse != null) {
 					System.out.println("the whDigilocker 5");
 					responseModel = digioHelper.saveAddFromDigio(applicationId, addResponse);
+					
 				}
 			}
 		} catch (Exception e) {
