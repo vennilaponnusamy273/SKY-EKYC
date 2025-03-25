@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import javax.inject.Inject;
@@ -1023,6 +1022,7 @@ public class PdfService implements IPdfService {
 			} else if (address.getIsdigi() == 1) {
 				map.put("aadharPDF", "aadharPDF");
 				map.put("KYC Mode*: Digilocker", "yes");
+				map.put("UID Aadhaar tick", "yes");
 				if (address != null) {
 					StringBuilder addressBuilder = new StringBuilder();
 					if (address.getDigiPerAddress() != null) {
@@ -1104,8 +1104,8 @@ public class PdfService implements IPdfService {
 			}
 			if (address.getIsdigi() == 1) {
 				// map.put("s/o,c/o", address.getCo());
-				map.put("OthersProof", Integer.toString(address.getIsdigi()));
-				map.put("Others(Please Specify)", "AADHAR CARD");
+//				map.put("OthersProof", Integer.toString(address.getIsdigi()));
+//				map.put("Others(Please Specify)", "AADHAR CARD");
 				map.put("UID Aadhaar", Integer.toString(address.getIsdigi()));
 				if (address.getAadharNo() != null) {
 					map.put("Aadhaar Number", address.getAadharNo());
@@ -1114,7 +1114,7 @@ public class PdfService implements IPdfService {
 					map.put("Aadhaar Number3", String.valueOf(address.getAadharNo().charAt(10)));
 					map.put("Aadhaar Number4", String.valueOf(address.getAadharNo().charAt(11)));
 				}
-				map.put("F-Proof of Possission of Aadhaar", address.getAadharNo());
+//				map.put("F-Proof of Possission of Aadhaar", address.getAadharNo());
 				map.put("Sole / First Holder’s Name UID", address.getAadharNo());
 				if (address != null && address.getIsdigi() == 1) {
 					map.put("aadharPDF", "aadharPDF");
