@@ -358,42 +358,43 @@ public class PdfService implements IPdfService {
 	}
 
 	private BufferedImage loadImageWithoutICC(String filePath) {
-	    try {
-	        File file = new File(filePath);
-	        
-	        // Create ImageInputStream
-	        ImageInputStream input = ImageIO.createImageInputStream(file);
-	        Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+		try {
+			File file = new File(filePath);
 
-	        if (!readers.hasNext()) {
-	            throw new IOException("No suitable image reader found for " + filePath);
-	        }
+			// Create ImageInputStream
+			ImageInputStream input = ImageIO.createImageInputStream(file);
+			Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
 
-	        ImageReader reader = readers.next();
-	        reader.setInput(input, true, true); // Ignore ICC profile by setting ignoreMetadata=true
+			if (!readers.hasNext()) {
+				throw new IOException("No suitable image reader found for " + filePath);
+			}
 
-	        // Read image without ICC profile
-	        BufferedImage originalImage = reader.read(0);
-	        reader.dispose();
-	        input.close();
+			ImageReader reader = readers.next();
+			reader.setInput(input, true, true); // Ignore ICC profile by setting ignoreMetadata=true
 
-	        if (originalImage == null) {
-	            throw new IOException("Invalid image file: " + filePath);
-	        }
+			// Read image without ICC profile
+			BufferedImage originalImage = reader.read(0);
+			reader.dispose();
+			input.close();
 
-	        // Convert image to RGB mode to remove ICC profile
-	        BufferedImage rgbImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
-	        Graphics2D graphics = rgbImage.createGraphics();
-	        graphics.drawImage(originalImage, 0, 0, null);
-	        graphics.dispose();
+			if (originalImage == null) {
+				throw new IOException("Invalid image file: " + filePath);
+			}
 
-	        return rgbImage;
-	    } catch (IOException e) {
-	        System.err.println("Error loading image: " + e.getMessage());
-	        return null;
-	    }
+			// Convert image to RGB mode to remove ICC profile
+			BufferedImage rgbImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(),
+					BufferedImage.TYPE_INT_RGB);
+			Graphics2D graphics = rgbImage.createGraphics();
+			graphics.drawImage(originalImage, 0, 0, null);
+			graphics.dispose();
+
+			return rgbImage;
+		} catch (IOException e) {
+			System.err.println("Error loading image: " + e.getMessage());
+			return null;
+		}
 	}
-	
+
 	public void addDocument(PDDocument document, long applicationNo) {
 		try {
 			// Fetch documents
@@ -467,48 +468,47 @@ public class PdfService implements IPdfService {
 	}
 
 	private BufferedImage loadAndCleanImage(String filePath) {
-	    try {
-	        File file = new File(filePath);
-	        
-	        // Create ImageInputStream
-	        ImageInputStream input = ImageIO.createImageInputStream(file);
-	        Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+		try {
+			File file = new File(filePath);
 
-	        if (!readers.hasNext()) {
-	            throw new IOException("No suitable image reader found for " + filePath);
-	        }
+			// Create ImageInputStream
+			ImageInputStream input = ImageIO.createImageInputStream(file);
+			Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
 
-	        ImageReader reader = readers.next();
-	        reader.setInput(input, true, true); // Ignore metadata (including ICC profile)
+			if (!readers.hasNext()) {
+				throw new IOException("No suitable image reader found for " + filePath);
+			}
 
-	        // Read the original image
-	        BufferedImage originalImage = reader.read(0);
-	        reader.dispose();
-	        input.close();
+			ImageReader reader = readers.next();
+			reader.setInput(input, true, true); // Ignore metadata (including ICC profile)
 
-	        if (originalImage == null) {
-	            throw new IOException("Invalid image file: " + filePath);
-	        }
+			// Read the original image
+			BufferedImage originalImage = reader.read(0);
+			reader.dispose();
+			input.close();
 
-	        // Create a new RGB image (removes ICC profile)
-	        BufferedImage rgbImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
-	        Graphics2D g2d = rgbImage.createGraphics();
-	        g2d.drawImage(originalImage, 0, 0, null);
-	        g2d.dispose();
+			if (originalImage == null) {
+				throw new IOException("Invalid image file: " + filePath);
+			}
 
-	        // Save the cleaned image to a new file
-	        File cleanedFile = new File(filePath + "_cleaned.jpg");  // Save as new file
-	        ImageIO.write(rgbImage, "jpg", cleanedFile);
+			// Create a new RGB image (removes ICC profile)
+			BufferedImage rgbImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(),
+					BufferedImage.TYPE_INT_RGB);
+			Graphics2D g2d = rgbImage.createGraphics();
+			g2d.drawImage(originalImage, 0, 0, null);
+			g2d.dispose();
 
-	        // Return the cleaned BufferedImage
-	        return ImageIO.read(cleanedFile);
-	    } catch (IOException e) {
-	        System.err.println("Error loading image: " + e.getMessage());
-	        return null;
-	    }
+			// Save the cleaned image to a new file
+			File cleanedFile = new File(filePath + "_cleaned.jpg"); // Save as new file
+			ImageIO.write(rgbImage, "jpg", cleanedFile);
+
+			// Return the cleaned BufferedImage
+			return ImageIO.read(cleanedFile);
+		} catch (IOException e) {
+			System.err.println("Error loading image: " + e.getMessage());
+			return null;
+		}
 	}
-
-
 
 	public void pdfInsertCoordinates(PDDocument document, List<PdfDataCoordinatesEntity> pdfDatas,
 			HashMap<String, String> map) {
@@ -830,6 +830,7 @@ public class PdfService implements IPdfService {
 		if (address != null) {
 			if (address.getIsKra() == 1) {
 				map.put("panPDF", "panPDF");
+				map.put("KYC Mode*: Online KYC", "yes");
 				String proofAddress = address.getKraaddressproof();
 				if (proofAddress != null) {
 					map.put("proof of address (POA)", proofAddress.substring(0, Math.min(70, proofAddress.length())));
@@ -890,39 +891,90 @@ public class PdfService implements IPdfService {
 //					map.put("Aadhaar Number4", String.valueOf(address.getAadharNo().charAt(11)));
 				} else if (address != null && address.getIsKra() == 1) {
 					if (address.getKraaddressproof() != null) {
+
 						if (address.getKraaddressproof().equalsIgnoreCase("PASSPORT")) {
-							map.put("Passpost", address.getKraproofIdNumber());
-							map.put("A-Passport Number", address.getKraaddressproof());
+							map.put("Passpost",
+									StringUtil.isNotNullOrEmpty(address.getKraproofIdNumber())
+											? address.getKraproofIdNumber()
+											: "");
+							map.put("A-Passport Number",
+									StringUtil.isNotNullOrEmpty(address.getKraaddressproof())
+											? address.getKraaddressproof()
+											: "");
 						} else if (address.getKraaddressproof().equalsIgnoreCase("VOTER IDENTITY CARD")) {
-							map.put("B-Voter ID Card", address.getKraproofIdNumber());
-							map.put("Voter ID", address.getKraaddressproof());
+							map.put("B-Voter ID Card",
+									StringUtil.isNotNullOrEmpty(address.getKraproofIdNumber())
+											? address.getKraproofIdNumber()
+											: "");
+							map.put("Voter ID",
+									StringUtil.isNotNullOrEmpty(address.getKraaddressproof())
+											? address.getKraaddressproof()
+											: "");
 						} else if (address.getKraaddressproof().equalsIgnoreCase("DRIVING LICENSE")) {
-							map.put("C-Driving License", address.getKraproofIdNumber());
-							map.put("Driving Licence", address.getKraaddressproof());
+							map.put("C-Driving License",
+									StringUtil.isNotNullOrEmpty(address.getKraproofIdNumber())
+											? address.getKraproofIdNumber()
+											: "");
+							map.put("Driving Licence",
+									StringUtil.isNotNullOrEmpty(address.getKraaddressproof())
+											? address.getKraaddressproof()
+											: "");
 						} else if (address.getKraaddressproof().equalsIgnoreCase("RATION CARD")) {
-							map.put("Ration Card", address.getKraaddressproof());
+							map.put("Ration Card",
+									StringUtil.isNotNullOrEmpty(address.getKraaddressproof())
+											? address.getKraaddressproof()
+											: "");
 						} else if (address.getKraaddressproof()
 								.equalsIgnoreCase("REGISTERED LEASE / SALE AGREEMENT OF RESIDENCE")) {
-							map.put("Registered Lease/Sales Agreement of Residence", address.getKraaddressproof());
+							map.put("Registered Lease/Sales Agreement of Residence",
+									StringUtil.isNotNullOrEmpty(address.getKraaddressproof())
+											? address.getKraaddressproof()
+											: "");
 						} else if (address.getKraaddressproof().equalsIgnoreCase("LATEST BANK ACCOUNT STATEMENT")) {
-							map.put("Latest Bank A/C  Statement/Passbook", address.getKraaddressproof());
+							map.put("Latest Bank A/C  Statement/Passbook",
+									StringUtil.isNotNullOrEmpty(address.getKraaddressproof())
+											? address.getKraaddressproof()
+											: "");
 						} else if (address.getKraaddressproof().equalsIgnoreCase("LATEST LAND LINE TELEPHONE BILL")) {
-							map.put("Latest Telephone Bill(Only Land Line)", address.getKraaddressproof());
+							map.put("Latest Telephone Bill(Only Land Line)",
+									StringUtil.isNotNullOrEmpty(address.getKraaddressproof())
+											? address.getKraaddressproof()
+											: "");
 						} else if (address.getKraaddressproof().equalsIgnoreCase("LATEST ELECTRICITY BILL")) {
-							map.put("Latest Electricity Bill", address.getKraaddressproof());
+							map.put("Latest Electricity Bill",
+									StringUtil.isNotNullOrEmpty(address.getKraaddressproof())
+											? address.getKraaddressproof()
+											: "");
 						} else if (address.getKraaddressproof().equalsIgnoreCase("GAS BILL")) {
-							map.put("Latest Gas Bill", address.getKraaddressproof());
+							map.put("Latest Gas Bill",
+									StringUtil.isNotNullOrEmpty(address.getKraaddressproof())
+											? address.getKraaddressproof()
+											: "");
 						} else if (address.getKraaddressproof().equalsIgnoreCase("AADHAAR")) {
-							map.put("UID Aadhaar", address.getKraaddressproof());
-							map.put("F-Proof of Possission of Aadhaar", address.getKraproofIdNumber());
-							map.put("Others(Please Specify)", address.getKraaddressproof());
-							map.put("OthersProof", Integer.toString(address.getIsKra()));
-							map.put("Sole / First Holder’s Name UID", address.getKraproofIdNumber());
-							map.put("Aadhaar Number", address.getKraproofIdNumber());
+							map.put("UID Aadhaar",
+									StringUtil.isNotNullOrEmpty(address.getKraaddressproof())
+											? address.getKraaddressproof()
+											: "");
+							if (StringUtil.isNotNullOrEmpty(address.getKraproofIdNumber())) {
+
+								map.put("Aadhaar Number1", String.valueOf(address.getKraproofIdNumber().charAt(8)));
+
+								map.put("Aadhaar Number2", String.valueOf(address.getKraproofIdNumber().charAt(9)));
+
+								map.put("Aadhaar Number3", String.valueOf(address.getKraproofIdNumber().charAt(10)));
+
+								map.put("Aadhaar Number4", String.valueOf(address.getKraproofIdNumber().charAt(11)));
+
+								map.put("Sole / First Holder’s Name UID", address.getKraproofIdNumber());
+
+							}
+
+							map.put("UID Aadhaar tick", "yes");
 						} else {
 							map.put("OthersProof*", address.getKraaddressproof());
 							map.put("Others(Please Specify)", address.getKraaddressproof());
 							map.put("OthersProof", Integer.toString(address.getIsKra()));
+							map.put("F-Proof of Possission of Aadhaar", address.getKraproofIdNumber());
 						}
 					}
 				}
@@ -970,6 +1022,7 @@ public class PdfService implements IPdfService {
 				map.put("PermenentCountry", "INDIA");
 			} else if (address.getIsdigi() == 1) {
 				map.put("aadharPDF", "aadharPDF");
+				map.put("KYC Mode*: Digilocker", "yes");
 				if (address != null) {
 					StringBuilder addressBuilder = new StringBuilder();
 					if (address.getDigiPerAddress() != null) {
