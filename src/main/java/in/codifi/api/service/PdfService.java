@@ -830,6 +830,7 @@ public class PdfService implements IPdfService {
 		if (address != null) {
 			if (address.getIsKra() == 1) {
 				map.put("panPDF", "panPDF");
+				map.put("KYC Mode*: Online KYC", "yes");
 				String proofAddress = address.getKraaddressproof();
 				if (proofAddress != null) {
 					map.put("proof of address (POA)", proofAddress.substring(0, Math.min(70, proofAddress.length())));
@@ -913,10 +914,17 @@ public class PdfService implements IPdfService {
 						} else if (address.getKraaddressproof().equalsIgnoreCase("GAS BILL")) {
 							map.put("Latest Gas Bill", address.getKraaddressproof());
 						} else if (address.getKraaddressproof().equalsIgnoreCase("AADHAAR")) {
-							map.put("UID Aadhaar", address.getKraaddressproof());
+							map.put("UID Aadhaar tick", address.getKraaddressproof());
 							map.put("F-Proof of Possission of Aadhaar", address.getKraproofIdNumber());
-							map.put("Others(Please Specify)", address.getKraaddressproof());
-							map.put("OthersProof", Integer.toString(address.getIsKra()));
+
+							map.put("Aadhaar Number", address.getAadharNo());
+							map.put("Aadhaar Number1", String.valueOf(address.getAadharNo().charAt(8)));
+							map.put("Aadhaar Number2", String.valueOf(address.getAadharNo().charAt(9)));
+							map.put("Aadhaar Number3", String.valueOf(address.getAadharNo().charAt(10)));
+							map.put("Aadhaar Number4", String.valueOf(address.getAadharNo().charAt(11)));
+						
+//							map.put("Others(Please Specify)", address.getKraaddressproof());
+//							map.put("OthersProof", Integer.toString(address.getIsKra()));
 							map.put("Sole / First Holder’s Name UID", address.getKraproofIdNumber());
 							map.put("Aadhaar Number", address.getKraproofIdNumber());
 						} else {
@@ -970,6 +978,7 @@ public class PdfService implements IPdfService {
 				map.put("PermenentCountry", "INDIA");
 			} else if (address.getIsdigi() == 1) {
 				map.put("aadharPDF", "aadharPDF");
+				map.put("KYC Mode*: Digilocker", "yes");
 				if (address != null) {
 					StringBuilder addressBuilder = new StringBuilder();
 					if (address.getDigiPerAddress() != null) {
