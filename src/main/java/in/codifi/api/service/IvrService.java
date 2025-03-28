@@ -118,7 +118,7 @@ public class IvrService implements IIvrService {
 				LivenessCheckResModel model = aryaLivenessCheck.livenessCheck(reqModel);
 				accessLogManager.insertRestAccessLogsIntoDB(Long.toString(ivrModel.getApplicationId()),mapper.writeValueAsString(reqModel) ,mapper.writeValueAsString(model),"uploadIvr","/ivr/uploadIvr");
 				if (model != null && model.getDocJson() != null
-						&& Double.parseDouble(model.getDocJson().getReal()) >= 0.50) {
+						&& Double.parseDouble(model.getDocJson().getReal()) >= 0.75) {
 					String ivrName = documentHelper.convertBase64ToImage(ivrModel.getImageUrl(),
 							ivrModel.getApplicationId());
 					IvrEntity oldRecord = ivrRepository.findByApplicationId(ivrModel.getApplicationId());
