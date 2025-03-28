@@ -22,8 +22,8 @@ public class OldBanksEntity implements Serializable {
 	@Column(name = "id")
 	private Long id;
 
-	@Column(name = "bank_code")
-	private String bankCode;
+	@Column(name = "ifsc")
+	private String ifsc;
 
 	@Column(name = "bank_name")
 	private String bankName;

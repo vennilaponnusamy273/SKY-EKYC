@@ -6,6 +6,6 @@ import in.codifi.api.entity.OldBanksEntity;
 
 public interface OldBanksRepository extends JpaRepository<OldBanksEntity, Long> {
 
-	OldBanksEntity findByBankCode(String bankCode);
+	OldBanksEntity findByIfsc(String ifsc);
 
 }

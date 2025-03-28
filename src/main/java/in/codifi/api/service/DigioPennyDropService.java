@@ -61,7 +61,7 @@ public class DigioPennyDropService implements IDigioPennyDropService {
 		try {
 			savePennyEntity = pennyVerificationRepository.findByapplicationId(applicationId);
 			BankEntity savedBankEntity = bankRepository.findByapplicationId(applicationId);
-			if (!bankCheck(savedBankEntity)) {
+//			if (!bankCheck(savedBankEntity)) {
 				if (savePennyEntity == null
 						|| !savedBankEntity.getAccountNo().trim().equals(savePennyEntity.getAccountNo().trim())
 						|| savePennyEntity.getPennyConfirm() == 0) {
@@ -100,11 +100,11 @@ public class DigioPennyDropService implements IDigioPennyDropService {
 					responseModel.setReason(MessageConstants.PENNY_ALREADY_DONE);
 					responseModel.setPage(EkycConstants.PAGE_SEGMENT);
 				}
-			} else {
-				responseModel.setReason(MessageConstants.PENNY_DROP_NOT_ALLOWED);
-				responseModel.setMessage(EkycConstants.FAILED_MSG);
-				responseModel.setStat(EkycConstants.FAILED_STATUS);
-			}
+//			} else {
+//				responseModel.setReason(MessageConstants.PENNY_DROP_NOT_ALLOWED);
+//				responseModel.setMessage(EkycConstants.FAILED_MSG);
+//				responseModel.setStat(EkycConstants.FAILED_STATUS);
+//			}
 		} catch (Exception ex) {
 			logger.error("An error occurred: " + ex.getMessage());
 			System.out.println("the 1error is penny ruuning");
@@ -118,19 +118,19 @@ public class DigioPennyDropService implements IDigioPennyDropService {
 		return responseModel;
 	}
 
-	private boolean bankCheck(BankEntity savedBankEntity) {
-		// TODO Auto-generated method stub
-		if (savedBankEntity != null) {
-			BankAddressModel bankDetails = razorpayIfscRestService.getBankAddressByIfsc(savedBankEntity.getIfsc());
-			if (bankDetails != null) {
-				OldBanksEntity oldBanks = oldBanksRepository.findByBankCode(bankDetails.getBankcode().trim());
-				if (oldBanks!=null) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+//	private boolean bankCheck(BankEntity savedBankEntity) {
+//		// TODO Auto-generated method stub
+//		if (savedBankEntity != null) {
+////			BankAddressModel bankDetails = razorpayIfscRestService.getBankAddressByIfsc(savedBankEntity.getIfsc());
+//			if (bankDetails != null) {
+//				OldBanksEntity oldBanks = oldBanksRepository.findByBankCode(bankDetails.getBankcode().trim());
+//				if (oldBanks!=null) {
+//					return true;
+//				}
+//			}
+//		}
+//		return false;
+//	}
 
 	private PennyVerificationResponseEntity updatePennyVerificationEntity(long applicationId,
 			PennyVerificationResModel pennyRes, PennyVerificationResponseEntity saveEntity, String accNo)

@@ -9,6 +9,7 @@ import in.codifi.api.controller.spec.IBankController;
 import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.PaymentEntity;
 import in.codifi.api.helper.PaymentHelper;
+import in.codifi.api.model.FormDataModel;
 import in.codifi.api.model.ResponseModel;
 import in.codifi.api.service.spec.IBankService;
 import in.codifi.api.utilities.CommonMethods;
@@ -60,7 +61,7 @@ public class BankController implements IBankController {
 	 * Method to get Bank address by IFSC
 	 */
 	@Override
-	public ResponseModel getBankAdd(String ifsc,long applicationId) {
+	public ResponseModel getBankAdd(String ifsc, long applicationId) {
 		ResponseModel responseModel = new ResponseModel();
 		if (StringUtil.isNotNullOrEmptyAfterTrim(ifsc)) {
 			responseModel = bankService.getBankAdd(ifsc);
@@ -112,6 +113,20 @@ public class BankController implements IBankController {
 			responseModel = bankService.checkPayment(applicationId);
 		} else {
 			responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_NULL);
+		}
+		return responseModel;
+	}
+
+	/**
+	 * Method to store old bank detaails
+	 */
+	@Override
+	public ResponseModel oldBankDetails(FormDataModel fileModel) {
+		ResponseModel responseModel = new ResponseModel();
+		if (fileModel != null) {
+			responseModel = bankService.oldBankDetails(fileModel);
+		} else {
+			responseModel = commonMethods.constructFailedMsg(MessageConstants.INVLAID_PARAMETER);
 		}
 		return responseModel;
 	}
