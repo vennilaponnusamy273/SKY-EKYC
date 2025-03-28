@@ -8,11 +8,13 @@ import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
@@ -61,7 +63,7 @@ public class DigioPennyDropService implements IDigioPennyDropService {
 		try {
 			savePennyEntity = pennyVerificationRepository.findByapplicationId(applicationId);
 			BankEntity savedBankEntity = bankRepository.findByapplicationId(applicationId);
-			if (!bankCheck(savedBankEntity)) {
+			if (bankCheck(savedBankEntity)==0) {
 				if (savePennyEntity == null
 						|| !savedBankEntity.getAccountNo().trim().equals(savePennyEntity.getAccountNo().trim())
 						|| savePennyEntity.getPennyConfirm() == 0) {
@@ -100,7 +102,7 @@ public class DigioPennyDropService implements IDigioPennyDropService {
 					responseModel.setReason(MessageConstants.PENNY_ALREADY_DONE);
 					responseModel.setPage(EkycConstants.PAGE_SEGMENT);
 				}
-			} else {
+			} else if(bankCheck(savedBankEntity)==1){
 				responseModel.setReason(MessageConstants.PENNY_DROP_NOT_ALLOWED);
 				responseModel.setMessage(EkycConstants.FAILED_MSG);
 				responseModel.setStat(EkycConstants.FAILED_STATUS);
@@ -118,18 +120,38 @@ public class DigioPennyDropService implements IDigioPennyDropService {
 		return responseModel;
 	}
 
-	private boolean bankCheck(BankEntity savedBankEntity) {
+	private int bankCheck(BankEntity savedBankEntity) {
 		// TODO Auto-generated method stub
 		if (savedBankEntity != null) {
 			BankAddressModel bankDetails = razorpayIfscRestService.getBankAddressByIfsc(savedBankEntity.getIfsc());
 			if (bankDetails != null) {
-				OldBanksEntity oldBanks = oldBanksRepository.findByBankCode(bankDetails.getBankcode().trim());
-				if (oldBanks!=null) {
-					return true;
+				try {
+					OldBanksEntity oldBanks = oldBanksRepository.findByBankCode(bankDetails.getBankcode().trim());
+					if (oldBanks != null) {
+						return 1;
+					}
+				} catch (ClientWebApplicationException e) {
+					// logger.error("An error occurred: " + e.getMessage());
+					// commonMethods.SaveLog(null,"BankService","getBankAdd",e.getMessage());
+					// commonMethods.sendErrorMail("An error occurred while processing your request.
+					// In getBankAdd for the Error: " + e.getMessage(), "ERR-001");
+					if (e.getResponse().getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+						return -1;
+					} else {
+						e.printStackTrace();
+						logger.error("An error occurred: " + e.getMessage());
+						commonMethods.SaveLog(null, "BankService", "getBankAdd", e.getMessage());
+						commonMethods.sendErrorMail(
+								"An error occurred while processing your request. In getBankAdd for the Error: "
+										+ e.getMessage(),
+								"ERR-001");
+
+					}
 				}
 			}
 		}
-		return false;
+		return 0;
+
 	}
 
 	private PennyVerificationResponseEntity updatePennyVerificationEntity(long applicationId,
