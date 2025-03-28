@@ -167,5 +167,6 @@ public class MessageConstants {
 	public final static String KRA_PROOF_FAILED = "KRA PROOF NULL";
 	public static final String MICR_CODE_INVALID_MESSAGE = "The MICR code is invalid.";
 	public static final String ERR_SAVE_PDF = "Error occurred while saving the PDF. Please try again after sometime";
+	public static final String IFSC_INVALID_OLD = "This bank is not allowed. Please try with another bank.";
 
 }

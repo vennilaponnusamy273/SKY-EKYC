@@ -2,6 +2,7 @@ package in.codifi.api.service.spec;
 
 import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.PaymentEntity;
+import in.codifi.api.model.FormDataModel;
 import in.codifi.api.model.ResponseModel;
 
 public interface IBankService {
@@ -61,4 +62,13 @@ public interface IBankService {
 	 * @return
 	 */
 	ResponseModel checkPayment(long applicationId);
+
+	/**
+	 * Method to save old bank details
+	 * 
+	 * @author vinisha
+	 * @param fileModel
+	 * @return
+	 */
+	ResponseModel oldBankDetails(FormDataModel fileModel);
 }

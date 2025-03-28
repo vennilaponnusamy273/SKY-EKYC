@@ -9,10 +9,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.jboss.resteasy.reactive.MultipartForm;
 import org.wildfly.common.annotation.NotNull;
 
 import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.PaymentEntity;
+import in.codifi.api.model.FormDataModel;
 import in.codifi.api.model.ResponseModel;
 
 public interface IBankController {
@@ -54,7 +56,8 @@ public interface IBankController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to get bank address")
-	ResponseModel getBankAdd(@NotNull @QueryParam("ifsc") String ifsc,@NotNull @QueryParam("applicationId") long applicationId);
+	ResponseModel getBankAdd(@NotNull @QueryParam("ifsc") String ifsc,
+			@NotNull @QueryParam("applicationId") long applicationId);
 
 	/**
 	 * Method to create payment
@@ -94,4 +97,18 @@ public interface IBankController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to check payment")
 	ResponseModel checkPayment(@NotNull @QueryParam("applicationId") long applicationId);
+
+	/**
+	 * Method to save old bank details
+	 * 
+	 * @author vinisha
+	 * @param fileModel
+	 * @return
+	 */
+	@Path("/oldBankDetails")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@APIResponse(description = "Method to Upload proof Documnt")
+	public ResponseModel oldBankDetails(@MultipartForm FormDataModel fileModel);
 }
