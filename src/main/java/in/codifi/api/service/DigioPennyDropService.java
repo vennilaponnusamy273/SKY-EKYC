@@ -61,10 +61,8 @@ public class DigioPennyDropService implements IDigioPennyDropService {
 		try {
 			savePennyEntity = pennyVerificationRepository.findByapplicationId(applicationId);
 			BankEntity savedBankEntity = bankRepository.findByapplicationId(applicationId);
-//			if (!bankCheck(savedBankEntity)) {
 				if (savePennyEntity == null
-						|| !savedBankEntity.getAccountNo().trim().equals(savePennyEntity.getAccountNo().trim())
-						|| savePennyEntity.getPennyConfirm() == 0) {
+						|| !savedBankEntity.getAccountNo().trim().equals(savePennyEntity.getAccountNo().trim())) {
 					Optional<ApplicationUserEntity> user = applicationUserRepository.findById(applicationId);
 					if (savedBankEntity != null && user.isPresent()) {
 						String reqBody = constructPennyDropRequestBody(savedBankEntity);
@@ -100,12 +98,8 @@ public class DigioPennyDropService implements IDigioPennyDropService {
 					responseModel.setReason(MessageConstants.PENNY_ALREADY_DONE);
 					responseModel.setPage(EkycConstants.PAGE_SEGMENT);
 				}
-//			} else {
-//				responseModel.setReason(MessageConstants.PENNY_DROP_NOT_ALLOWED);
-//				responseModel.setMessage(EkycConstants.FAILED_MSG);
-//				responseModel.setStat(EkycConstants.FAILED_STATUS);
-//			}
 		} catch (Exception ex) {
+			  logger.error("SQL Error in createPennyDrop", ex); // Log full stack trace
 			logger.error("An error occurred: " + ex.getMessage());
 			System.out.println("the 1error is penny ruuning");
 			ex.printStackTrace(); // Print the exception stack trace

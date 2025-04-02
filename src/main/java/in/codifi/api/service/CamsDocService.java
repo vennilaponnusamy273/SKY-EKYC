@@ -37,6 +37,7 @@ import in.codifi.api.service.spec.ICamsDocService;
 import in.codifi.api.utilities.CommonMethods;
 import in.codifi.api.utilities.EkycConstants;
 import in.codifi.api.utilities.MessageConstants;
+import in.codifi.api.utilities.StringUtil;
 
 @ApplicationScoped
 public class CamsDocService implements ICamsDocService {
@@ -74,7 +75,12 @@ public class CamsDocService implements ICamsDocService {
 			// Extracting values from the JSON request
 			String timestamp = pushDataModel.getTimestamp();
 			String clienttxnid = pushDataModel.getClienttxnid();
-			String pdfBase64 = pushDataModel.getDataDetail().getPdfbase64();
+			String pdfBase64 = pushDataModel.getDataDetail() != null
+					? (!StringUtil.isNullOrEmpty(pushDataModel.getDataDetail().getPdfbase64()))
+							? pushDataModel.getDataDetail().getPdfbase64()
+							: ""
+					: "";
+//			String pdfBase64 = pushDataModel.getDataDetail().getPdfbase64();
 			// Printing the extracted values
 			System.out.println("Timestamp:" + timestamp);
 			System.out.println("Client Transaction ID:" + clienttxnid);
@@ -83,10 +89,13 @@ public class CamsDocService implements ICamsDocService {
 			ObjectMapper mapper = new ObjectMapper();
 			String responseBody = mapper.writeValueAsString(pushDataModel);
 			System.out.println("PushDataModel responseBody:" + responseBody);
-			
+
 			CamsEntity camsEntity = camsRepository.findByclientTxtId(clienttxnid);
 			if (camsEntity != null) {
-				convertBase64ToPdf(camsEntity.getApplicationId(), pdfBase64);
+//				convertBase64ToPdf(camsEntity.getApplicationId(), pdfBase64);
+				if (pdfBase64 != "") {
+					convertBase64ToPdf(camsEntity.getApplicationId(), pdfBase64);
+				}
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
 				responseModel.setResult(timestamp);
@@ -166,36 +175,37 @@ public class CamsDocService implements ICamsDocService {
 			if (user.isPresent() && savedSegmentEntity != null && savedSegmentEntity.getEd() == 1
 					|| savedSegmentEntity.getCd() == 1 || savedSegmentEntity.getComm() == 1) {
 				BankAddressModel model = null;
-				
+
 				BankEntity savedBankEntity = bankRepository.findByapplicationId(applicationId);
 				if (savedBankEntity != null) {
-				    model = commonRestService.getBankAddressByIfsc(savedBankEntity.getIfsc());
-				    if (model != null && model.getBank() != null) {
-				        System.out.println("the model bank" + model.getBank());
-				        List<KraKeyValueEntity> kraKeyValueEntity = kraKeyValueRepository.findByMasterIdAndMasterName("14", "CAMS");
-				        
-				        for (KraKeyValueEntity entity : kraKeyValueEntity) {
-				        	 String bankName = model.getBank();
-				        	 String kraValue = entity.getKraValue();
-				        	 System.out.println("the bankName"+bankName);
-				        	 System.out.println("the kraValue bankName"+kraValue);
-				        	 if (kraValue != null && kraValue.toLowerCase().contains(bankName.toLowerCase())) {
-				        	        bankFid = entity.getKraKey();
-				        	        System.out.println("Match found: bankName is a substring of kraValue");
-				        	        System.out.println("Setting bankFid: " + bankFid);
-				        	        break; // Exiting loop once bankFid is found
-				        	    }
-				        }
-				        if (bankFid == null) {
-	                        // If bankFid is not found, return an error message
-	                        responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
-	                        return responseModel;
-	                    }
-				    } else {
-				        responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
-				    }
+					model = commonRestService.getBankAddressByIfsc(savedBankEntity.getIfsc());
+					if (model != null && model.getBank() != null) {
+						System.out.println("the model bank" + model.getBank());
+						List<KraKeyValueEntity> kraKeyValueEntity = kraKeyValueRepository
+								.findByMasterIdAndMasterName("14", "CAMS");
+
+						for (KraKeyValueEntity entity : kraKeyValueEntity) {
+							String bankName = model.getBank();
+							String kraValue = entity.getKraValue();
+							System.out.println("the bankName" + bankName);
+							System.out.println("the kraValue bankName" + kraValue);
+							if (kraValue != null && kraValue.toLowerCase().contains(bankName.toLowerCase())) {
+								bankFid = entity.getKraKey();
+								System.out.println("Match found: bankName is a substring of kraValue");
+								System.out.println("Setting bankFid: " + bankFid);
+								break; // Exiting loop once bankFid is found
+							}
+						}
+						if (bankFid == null) {
+							// If bankFid is not found, return an error message
+							responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
+							return responseModel;
+						}
+					} else {
+						responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
+					}
 				} else {
-				    responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
 				}
 
 				System.out.println("the bankFid" + bankFid);
