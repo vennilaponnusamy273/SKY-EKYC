@@ -956,13 +956,10 @@ public class PdfService implements IPdfService {
 											: "");
 							if (StringUtil.isNotNullOrEmpty(address.getKraproofIdNumber())) {
 
-								map.put("Aadhaar Number1", String.valueOf(address.getKraproofIdNumber().charAt(8)));
-
-								map.put("Aadhaar Number2", String.valueOf(address.getKraproofIdNumber().charAt(9)));
-
-								map.put("Aadhaar Number3", String.valueOf(address.getKraproofIdNumber().charAt(10)));
-
-								map.put("Aadhaar Number4", String.valueOf(address.getKraproofIdNumber().charAt(11)));
+								map.put("Aadhaar Number1", String.valueOf(address.getKraproofIdNumber().charAt(address.getKraproofIdNumber().length() - 4)));
+								map.put("Aadhaar Number2", String.valueOf(address.getKraproofIdNumber().charAt(address.getKraproofIdNumber().length() - 3)));
+								map.put("Aadhaar Number3", String.valueOf(address.getKraproofIdNumber().charAt(address.getKraproofIdNumber().length() - 2)));
+								map.put("Aadhaar Number4", String.valueOf(address.getKraproofIdNumber().charAt(address.getKraproofIdNumber().length() - 1)));
 
 								map.put("Sole / First Holder’s Name UID", address.getKraproofIdNumber());
 
