@@ -168,5 +168,7 @@ public class MessageConstants {
 	public static final String MICR_CODE_INVALID_MESSAGE = "The MICR code is invalid.";
 	public static final String ERR_SAVE_PDF = "Error occurred while saving the PDF. Please try again after sometime";
 	public static final String IFSC_INVALID_OLD = "This bank is not allowed. Please try with another bank.";
+	public static final String BANK_NOT_LIST = "Your bank is not listed in CAMS. Please upload the bank statement manually.";
+	public static final String CAMS_SERVER_BUSY = "The bank server is busy. Please upload the bank statement manually.";
 
 }
