@@ -8,10 +8,10 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import in.codifi.api.config.ApplicationProperties;
 import in.codifi.api.entity.ApplicationUserEntity;
@@ -19,6 +19,7 @@ import in.codifi.api.entity.BankEntity;
 import in.codifi.api.entity.CamsEntity;
 import in.codifi.api.entity.DocumentEntity;
 import in.codifi.api.entity.KraKeyValueEntity;
+import in.codifi.api.entity.OldBanksEntity;
 import in.codifi.api.entity.SegmentEntity;
 import in.codifi.api.model.BankAddressModel;
 import in.codifi.api.model.CamsRedirectResModel;
@@ -30,6 +31,7 @@ import in.codifi.api.repository.BankRepository;
 import in.codifi.api.repository.CamsRepository;
 import in.codifi.api.repository.DocumentRepository;
 import in.codifi.api.repository.KraKeyValueRepository;
+import in.codifi.api.repository.OldBanksRepository;
 import in.codifi.api.repository.SegmentRepository;
 import in.codifi.api.restservice.CamsRestService;
 import in.codifi.api.restservice.RazorpayIfscRestService;
@@ -64,6 +66,8 @@ public class CamsDocService implements ICamsDocService {
 	KraKeyValueRepository kraKeyValueRepository;
 	@Inject
 	RazorpayIfscRestService commonRestService;
+	@Inject
+	OldBanksRepository oldBanksRepository;
 
 	private static final Logger logger = LogManager.getLogger(CamsDocService.class);
 
@@ -178,45 +182,51 @@ public class CamsDocService implements ICamsDocService {
 
 				BankEntity savedBankEntity = bankRepository.findByapplicationId(applicationId);
 				if (savedBankEntity != null) {
-					model = commonRestService.getBankAddressByIfsc(savedBankEntity.getIfsc());
-					if (model != null && model.getBank() != null) {
-						System.out.println("the model bank" + model.getBank());
-						List<KraKeyValueEntity> kraKeyValueEntity = kraKeyValueRepository
-								.findByMasterIdAndMasterName("14", "CAMS");
+					OldBanksEntity oldBanks = oldBanksRepository.findByIfsc(savedBankEntity.getIfsc());
+					if (oldBanks == null) {
+						model = commonRestService.getBankAddressByIfsc(savedBankEntity.getIfsc());
+						if (model != null && model.getBank() != null) {
+							System.out.println("the model bank" + model.getBank());
+							List<KraKeyValueEntity> kraKeyValueEntity = kraKeyValueRepository
+									.findByMasterIdAndMasterName("14", "CAMS");
 
-						for (KraKeyValueEntity entity : kraKeyValueEntity) {
-							String bankName = model.getBank();
-							String kraValue = entity.getKraValue();
-							System.out.println("the bankName" + bankName);
-							System.out.println("the kraValue bankName" + kraValue);
-							if (kraValue != null && kraValue.toLowerCase().contains(bankName.toLowerCase())) {
-								bankFid = entity.getKraKey();
-								System.out.println("Match found: bankName is a substring of kraValue");
-								System.out.println("Setting bankFid: " + bankFid);
-								break; // Exiting loop once bankFid is found
+							for (KraKeyValueEntity entity : kraKeyValueEntity) {
+								String bankName = "Andhra Bank";
+								String kraValue = entity.getKraValue();
+								System.out.println("the bankName" + bankName);
+								System.out.println("the kraValue bankName" + kraValue);
+								if (kraValue != null && kraValue.toLowerCase().contains(bankName.toLowerCase())) {
+									bankFid = entity.getKraKey();
+									System.out.println("Match found: bankName is a substring of kraValue");
+									System.out.println("Setting bankFid: " + bankFid);
+									break; // Exiting loop once bankFid is found
+								}
 							}
-						}
-						if (bankFid == null) {
-							// If bankFid is not found, return an error message
+							if (bankFid == null) {
+								// If bankFid is not found, return an error message
+								responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NOT_LIST);
+								return responseModel;
+							}
+						} else {
 							responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
-							return responseModel;
 						}
 					} else {
-						responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
+						responseModel = commonMethods.constructFailedMsg(MessageConstants.IFSC_INVALID_OLD);
+					}
+					System.out.println("the bankFid" + bankFid);
+					CamsResModel camsResModel = camsRestService.findSessionIdAndToken();
+					if (camsResModel != null && camsResModel.getSessionId() != null
+							&& camsResModel.getToken() != null) {
+						responseModel = camsRestService.finDirectUrl(applicationId, user.get().getMobileNo(),
+								camsResModel.getToken(), camsResModel.getSessionId(), bankFid);
+//					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
+//					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
+//					responseModel.setResult(camsRedirectResModel);
 					}
 				} else {
 					responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
 				}
 
-				System.out.println("the bankFid" + bankFid);
-				CamsResModel camsResModel = camsRestService.findSessionIdAndToken();
-				if (camsResModel != null && camsResModel.getSessionId() != null && camsResModel.getToken() != null) {
-					camsRedirectResModel = camsRestService.finDirectUrl(applicationId, user.get().getMobileNo(),
-							camsResModel.getToken(), camsResModel.getSessionId(), bankFid);
-					responseModel.setMessage(EkycConstants.SUCCESS_MSG);
-					responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-					responseModel.setResult(camsRedirectResModel);
-				}
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.NONEED_TO_DOCUMENT);
 			}
