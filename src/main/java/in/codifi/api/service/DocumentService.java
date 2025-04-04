@@ -51,7 +51,7 @@ public class DocumentService implements IDocumentService {
 	ApplicationUserRepository userRepository;
 	@Inject
 	RejectionStatusHelper rejectionStatusHelper;
-	
+
 	private static final Logger logger = LogManager.getLogger(DocumentService.class);
 
 	/**
@@ -149,7 +149,7 @@ public class DocumentService implements IDocumentService {
 				slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
 			}
 			DocumentEntity updatedDocEntity = null;
-			System.out.println("the data.getTypeOfProof()"+data.getTypeOfProof());
+			System.out.println("the data.getTypeOfProof()" + data.getTypeOfProof());
 			DocumentEntity oldRecord = docrepository.findByApplicationIdAndDocumentType(data.getApplicationId(),
 					data.getDocumentType());
 			if (oldRecord != null) {
@@ -214,14 +214,18 @@ public class DocumentService implements IDocumentService {
 	public String checkPasswordProtected(FormDataModel fileModel) {
 		String error = "";
 		try {
-			Path path = fileModel.getFile().filePath();
-			PDDocument document = PDDocument.load(new File(path.toString()), fileModel.getPassword());
-			if (document.isEncrypted()) {
-				document.setAllSecurityToBeRemoved(true);
-				document.close();
-				error = "";
+			if (StringUtil.isNotNullOrEmpty(fileModel.getPassword())) {
+				Path path = fileModel.getFile().filePath();
+				PDDocument document = PDDocument.load(new File(path.toString()), fileModel.getPassword());
+				if (document.isEncrypted()) {
+					document.setAllSecurityToBeRemoved(true);
+					document.close();
+					error = "";
+				} else {
+					error = "";
+				}
 			} else {
-				error = "";
+				error = MessageConstants.PASSWORD_PDF_EMPTY;
 			}
 		} catch (Exception e) {
 			logger.error("An error occurred: " + e.getMessage());
