@@ -164,17 +164,17 @@ public class PdfService implements IPdfService {
 				// Create UCC
 				String uccCode = null;
 				if (userEntity.get().getUccCodePrefix() == null && userEntity.get().getUccCodeSuffix() == null) {
-					uccCode = commonMethods.generateUccCode();
+					uccCode = commonMethods.generateUccCodeWithRetry(applicationId);
 					System.out.println("the uccCode" + uccCode);
-					if (StringUtil.isNotNullOrEmpty(uccCode)) {
-						if (uccCode.length() > 2) {
-							userEntity.get().setUccCodePrefix(uccCode.substring(0, 3));
-						}
-						if (uccCode.length() > 5) {
-							userEntity.get().setUccCodeSuffix(uccCode.substring(3));
-						}
-						applicationUserRepository.save(userEntity.get());
-					}
+//					if (StringUtil.isNotNullOrEmpty(uccCode)) {
+//						if (uccCode.length() > 2) {
+//							userEntity.get().setUccCodePrefix(uccCode.substring(0, 3));
+//						}
+//						if (uccCode.length() > 5) {
+//							userEntity.get().setUccCodeSuffix(uccCode.substring(3));
+//						}
+//						applicationUserRepository.save(userEntity.get());
+//					}
 				}
 
 				HashMap<String, String> map = mapping(applicationId);

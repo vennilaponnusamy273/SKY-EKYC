@@ -31,6 +31,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 
 import org.json.JSONObject;
@@ -82,6 +83,8 @@ public class CommonMethods {
 
 	@Inject
 	EmailLogRepository emailLogRepository;
+	@Inject
+	ApplicationUserRepository applicationUserRepository;
 
 	/**
 	 * Method to generate OTP for Mobile number
@@ -178,23 +181,23 @@ public class CommonMethods {
 			if (emailTempentity == null && emailTempentity.getBody() == null || emailTempentity.getSubject() == null) {
 				SendMailOTP(otp, emailId);
 			} else {
-				 // Get BCC recipients from emailTempentity
-	          
+				// Get BCC recipients from emailTempentity
+
 				String body_Message = emailTempentity.getBody();
 				String body = body_Message.replace("{otp}", String.format("%06d", otp));
 				String subject = emailTempentity.getSubject().replace("{otp}", String.format("%06d", otp));
 				Mail mail = Mail.withHtml(emailId, subject, body);
-				//add BCC
-				
+				// add BCC
+
 				String[] bccRecipients = emailTempentity.getBcc().split(",");
 				if (bccRecipients != null) { // Add BCC recipients to the email{
 					for (String bccRecipient : bccRecipients) {
 						mail.addBcc(bccRecipient); // Trim to remove leading/trailing spaces
 					}
 				}
-				 
+
 				mailer.send(mail);
-			storeEmailLog(body, subject, "The email was sent in Template: " + mail, "sendMailOtp", emailId);
+				storeEmailLog(body, subject, "The email was sent in Template: " + mail, "sendMailOtp", emailId);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -217,7 +220,8 @@ public class CommonMethods {
 				}
 			}
 			mailer.send(mail);
-			storeEmailLog(body.toString(), subject.toString(), "The email was sent in error message: " + mail.toString(), "sendErrorMail",
+			storeEmailLog(body.toString(), subject.toString(),
+					"The email was sent in error message: " + mail.toString(), "sendErrorMail",
 					emailTemplateEntity.getToAddress());
 		}
 	}
@@ -342,7 +346,7 @@ public class CommonMethods {
 		String body_Message = emailTempentity.getBody();
 		String body = body_Message.replace("{generateShortLink1}", generateShortLink1);
 		String subject = emailTempentity.getSubject();
-		Mail mail = Mail.withHtml(emailId, subject, body);//add BCC
+		Mail mail = Mail.withHtml(emailId, subject, body);// add BCC
 		String[] bccRecipients = emailTempentity.getBcc().split(",");
 		if (bccRecipients != null) { // Add BCC recipients to the email{
 			for (String bccRecipient : bccRecipients) {
@@ -435,8 +439,9 @@ public class CommonMethods {
 
 	public ApplicationUserEntity generateAuthToken(ApplicationUserEntity updatedUserDetails) {
 		String authToken = randomAlphaNumeric(updatedUserDetails.getMobileNo(), updatedUserDetails.getId());
-		HazleCacheController.getInstance().getAuthToken().put(updatedUserDetails.getMobileNo().toString()+ "_" +updatedUserDetails.getId(), authToken,
-				1800, TimeUnit.SECONDS);
+		HazleCacheController.getInstance().getAuthToken().put(
+				updatedUserDetails.getMobileNo().toString() + "_" + updatedUserDetails.getId(), authToken, 1800,
+				TimeUnit.SECONDS);
 		updatedUserDetails.setAuthToken(authToken);
 		return updatedUserDetails;
 	}
@@ -467,8 +472,8 @@ public class CommonMethods {
 			File f = new File(filePath);
 			String contentType = URLConnection.guessContentTypeFromName(fileName);
 			mail.addAttachment(fileName, f, contentType);
-			//add BCC
-			
+			// add BCC
+
 			String[] bccRecipients = emailTemplateEntity.getBcc().split(",");
 			if (bccRecipients != null) { // Add BCC recipients to the email{
 				for (String bccRecipient : bccRecipients) {
@@ -515,31 +520,30 @@ public class CommonMethods {
 	 */
 	@Transactional
 	public void storeEmailLog(String message, String reqSub, String emailResponse, String logMethod, String mailId) {
-	    // Check for null values and throw an IllegalArgumentException if any are null
-	    if (message == null || reqSub == null || emailResponse == null || logMethod == null || mailId == null) {
-	        throw new IllegalArgumentException("Request, ReqSub, EmailResponse, logMethod, or mailId cannot be null.");
-	    }
+		// Check for null values and throw an IllegalArgumentException if any are null
+		if (message == null || reqSub == null || emailResponse == null || logMethod == null || mailId == null) {
+			throw new IllegalArgumentException("Request, ReqSub, EmailResponse, logMethod, or mailId cannot be null.");
+		}
 
-	    try {
-	        // Create a new EmailLogEntity instance
-	        EmailLogEntity emailLogEntity = new EmailLogEntity();
-	        emailLogEntity.setEmailId(mailId);
-	        emailLogEntity.setLogMethod(logMethod);
-	        emailLogEntity.setReqLogSub(reqSub);
-	        emailLogEntity.setReqLog(message);
-	        emailLogEntity.setResponseLog(emailResponse);
+		try {
+			// Create a new EmailLogEntity instance
+			EmailLogEntity emailLogEntity = new EmailLogEntity();
+			emailLogEntity.setEmailId(mailId);
+			emailLogEntity.setLogMethod(logMethod);
+			emailLogEntity.setReqLogSub(reqSub);
+			emailLogEntity.setReqLog(message);
+			emailLogEntity.setResponseLog(emailResponse);
 
-	        // Save the EmailLogEntity to the database
-	        emailLogRepository.save(emailLogEntity); // Assuming "emailLogRepository" supports "persist"
+			// Save the EmailLogEntity to the database
+			emailLogRepository.save(emailLogEntity); // Assuming "emailLogRepository" supports "persist"
 
-	        // Optionally, log a success message
-	        System.out.println("Email log saved successfully.");
-	    } catch (Exception e) {
-	        // Handle the exception appropriately, e.g., log it or rethrow it
-	        e.printStackTrace();
-	    }
+			// Optionally, log a success message
+			System.out.println("Email log saved successfully.");
+		} catch (Exception e) {
+			// Handle the exception appropriately, e.g., log it or rethrow it
+			e.printStackTrace();
+		}
 	}
-
 
 	public String readUserNameFromCerFile(String certificateFilepath) {
 		String userName = "";
@@ -558,29 +562,59 @@ public class CommonMethods {
 		}
 	}
 
-	
-	
-	public String generateUccCode() {
-	    String uccCodePrefix = "SKY";
-	    int uccCodeSuffix = 40000;
-	    String uccCode = null;
-	    String maxId = repository.findMaxUccCodeSuffix();
-	    
-	    if (maxId == null) {
-	        uccCode = uccCodePrefix + uccCodeSuffix;
-	       // System.out.println("the initial Ucc code");
-	    } else {
-	        try {
-	            int maxSuffix = Integer.parseInt(maxId);
-	            int newSuffix = maxSuffix + 1;
-	            uccCode = uccCodePrefix + newSuffix;
-	        } catch (NumberFormatException e) {
-	           // System.err.println("Error parsing maxId: " + maxId);
-	            e.printStackTrace();
-	        }
-	    }
-	    return uccCode;
+	public String generateUccCodeWithRetry(long applicationId) {
+		int retryCount = 3;
+		for (int i = 0; i < retryCount; i++) {
+			String uccCode = generateUccCode();
+			try {
+				// Save the new UCC Code to DB immediately
+				Optional<ApplicationUserEntity> userEntity = applicationUserRepository.findById(applicationId);
+				if (StringUtil.isNotNullOrEmpty(uccCode)) {
+					if (uccCode.length() > 2) {
+						userEntity.get().setUccCodePrefix(uccCode.substring(0, 3));
+					}
+					if (uccCode.length() > 5) {
+						userEntity.get().setUccCodeSuffix(uccCode.substring(3));
+					}
+					applicationUserRepository.save(userEntity.get());
+				}
+				return uccCode;
+			} catch (PersistenceException e) {
+				if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+					System.err.println("Duplicate UCC code detected, retrying...");
+					sendErrorMail("Duplicate UCC code detected, retrying...:" + applicationId + e.getMessage(),
+							"ERR-001");
+				} else {
+					throw e; // unknown DB error
+				}
+			}
+		}
+		throw new RuntimeException("Failed to generate a unique UCC code after retries.");
 	}
+
+	public String generateUccCode() {
+
+		String uccCodePrefix = "SKY";
+		int uccCodeSuffix = 40000;
+		String uccCode = null;
+		String maxId = repository.findMaxUccCodeSuffix();
+
+		if (maxId == null) {
+			uccCode = uccCodePrefix + uccCodeSuffix;
+		} else {
+			try {
+				int maxSuffix = Integer.parseInt(maxId);
+				int newSuffix = maxSuffix + 1;
+				uccCode = uccCodePrefix + newSuffix;
+			} catch (NumberFormatException e) {
+				sendErrorMail("Error parsing maxId: " + e.getMessage(), "ERR-001");
+				e.printStackTrace();
+			}
+		}
+		return uccCode;
+
+	}
+
 	/**
 	 * Method to random Generated key
 	 * 
@@ -596,6 +630,5 @@ public class CommonMethods {
 		}
 		return builder.toString();
 	}
-	
 
 }
