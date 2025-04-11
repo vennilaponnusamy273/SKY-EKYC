@@ -192,6 +192,7 @@ public class PdfService implements IPdfService {
 				}
 				PDDocument combine = PDDocument.load(filename);
 				PDFMergerUtility merger = new PDFMergerUtility();
+				combine.setAllSecurityToBeRemoved(true);
 				merger.appendDocument(document, combine);
 				merger.mergeDocuments();
 				combine.close();
@@ -220,6 +221,7 @@ public class PdfService implements IPdfService {
 					File pennyDropFile = new File(props.getPennyDropPdfPath());
 					PDDocument combine1 = PDDocument.load(pennyDropFile);
 					PDFMergerUtility merger1 = new PDFMergerUtility();
+					combine1.setAllSecurityToBeRemoved(true);
 					merger1.appendDocument(document, combine1);
 					merger1.mergeDocuments();
 					combine1.close();
@@ -299,8 +301,10 @@ public class PdfService implements IPdfService {
 				if (attachmentUrl.endsWith(".pdf") || attachmentUrl.endsWith(".PDF")) {
 					// int originalPages = document.getNumberOfPages();
 					try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
-						PDFMergerUtility merger = new PDFMergerUtility();
+						
 						PDDocument combine = PDDocument.load(new File(attachmentUrl));
+						combine.setAllSecurityToBeRemoved(true);
+						PDFMergerUtility merger = new PDFMergerUtility();
 						merger.appendDocument(document, combine);
 						merger.mergeDocuments();
 						combine.close();
