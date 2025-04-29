@@ -301,7 +301,7 @@ public class PdfService implements IPdfService {
 				if (attachmentUrl.endsWith(".pdf") || attachmentUrl.endsWith(".PDF")) {
 					// int originalPages = document.getNumberOfPages();
 					try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
-						
+
 						PDDocument combine = PDDocument.load(new File(attachmentUrl));
 						combine.setAllSecurityToBeRemoved(true);
 						PDFMergerUtility merger = new PDFMergerUtility();
@@ -309,49 +309,94 @@ public class PdfService implements IPdfService {
 						merger.mergeDocuments();
 						combine.close();
 					}
-				} else {
+				}
+
+//				else {
+//					System.out.println("the attachmentUrl" + attachmentUrl);
+////					BufferedImage image = ImageIO.read(new File(attachmentUrl));
+//					// 🔹 FIX: Load image safely to avoid ICC profile error
+//					BufferedImage image = loadImageWithoutICC(attachmentUrl);
+//					if (image != null) {
+//						PDPage page = new PDPage();
+//						document.addPage(page);
+//						PDRectangle pageSize = page.getMediaBox();
+//						float maxWidth = pageSize.getWidth() * 0.8f;
+//						float maxHeight = pageSize.getHeight() * 0.8f;
+//						float aspectRatio = (float) image.getWidth() / (float) image.getHeight();
+//						float imageWidth = Math.min(maxWidth, maxHeight * aspectRatio);
+//						float imageHeight = Math.min(maxHeight, maxWidth / aspectRatio);
+//						float centerX = (pageSize.getWidth() - imageWidth) / 2f;
+//						float centerY = (pageSize.getHeight() - imageHeight) / 2f;
+//
+//						PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
+//						try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+//							contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
+//						}
+//					}
+//				}
+
+				else {
 					System.out.println("the attachmentUrl" + attachmentUrl);
-//					BufferedImage image = ImageIO.read(new File(attachmentUrl));
+//			BufferedImage image = ImageIO.read(new File(attachmentUrl));
 					// 🔹 FIX: Load image safely to avoid ICC profile error
 					BufferedImage image = loadImageWithoutICC(attachmentUrl);
 					if (image != null) {
+						// Create a new page
 						PDPage page = new PDPage();
 						document.addPage(page);
+
+						// Get page dimensions
 						PDRectangle pageSize = page.getMediaBox();
-						float maxWidth = pageSize.getWidth() * 0.8f;
-						float maxHeight = pageSize.getHeight() * 0.8f;
-						float aspectRatio = (float) image.getWidth() / (float) image.getHeight();
-						float imageWidth = Math.min(maxWidth, maxHeight * aspectRatio);
-						float imageHeight = Math.min(maxHeight, maxWidth / aspectRatio);
+
+						// Calculate optimal dimensions while preserving original aspect ratio
+						float aspectRatio = (float) image.getWidth() / image.getHeight();
+
+						// Use a larger target size to maintain quality (up from 500)
+						float targetSize = Math.min(pageSize.getWidth() * 0.9f, pageSize.getHeight() * 0.9f);
+
+						// Calculate image dimensions that fit on the page while preserving aspect ratio
+						float imageWidth, imageHeight;
+						if (aspectRatio > 1) { // Landscape image
+							imageWidth = Math.min(targetSize, image.getWidth());
+							imageHeight = imageWidth / aspectRatio;
+						} else { // Portrait image
+							imageHeight = Math.min(targetSize, image.getHeight());
+							imageWidth = imageHeight * aspectRatio;
+						}
+
+						// Center the image on the page
 						float centerX = (pageSize.getWidth() - imageWidth) / 2f;
 						float centerY = (pageSize.getHeight() - imageHeight) / 2f;
 
-						PDImageXObject importedPage = JPEGFactory.createFromImage(document, image, 0.5f);
-						try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+						// Use LosslessFactory to preserve image quality
+						PDImageXObject importedPage = LosslessFactory.createFromImage(document, image);
+
+						try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true)) {
 							contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
+							System.out.println("Added image with preserved resolution: " + attachmentUrl);
 						}
 					}
 				}
-			}
 
-			// Load the verification image only once
-			File verifyImageFile = new File(props.getVerifyImage());
-			PDImageXObject importedVerifyImage = null;
+				// Load the verification image only once
+				File verifyImageFile = new File(props.getVerifyImage());
+				PDImageXObject importedVerifyImage = null;
 
-			if (verifyImageFile.exists()) {
-				importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(), document);
-			} else {
-				System.err.println("Failed to load the verification image.");
-			}
+				if (verifyImageFile.exists()) {
+					importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(), document);
+				} else {
+					System.err.println("Failed to load the verification image.");
+				}
 
-			// Iterate through all pages and add the verification image
-			for (int i = originalPages; i < document.getNumberOfPages(); i++) {
-				PDPage page = document.getPage(i);
-				try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true)) {
-					if (importedVerifyImage != null) {
-						contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
-					} else {
-						System.err.println("Failed to load the verification image.");
+				// Iterate through all pages and add the verification image
+				for (int i = originalPages; i < document.getNumberOfPages(); i++) {
+					PDPage page = document.getPage(i);
+					try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true)) {
+						if (importedVerifyImage != null) {
+							contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
+						} else {
+							System.err.println("Failed to load the verification image.");
+						}
 					}
 				}
 			}
@@ -398,7 +443,7 @@ public class PdfService implements IPdfService {
 		}
 	}
 
-	public void addDocument(PDDocument document, long applicationNo) {
+	public void addDocument(PDDocument document, long applicationNo) throws IOException {
 		try {
 			// Fetch documents
 			List<DocumentEntity> documents = docrepository.findByApplicationIdOrderByDocumentTypeDesc(applicationNo);
@@ -418,38 +463,85 @@ public class PdfService implements IPdfService {
 					if (attachmentUrl.endsWith(".pdf") || attachmentUrl.endsWith(".PDF")) {
 						try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
 							PDFMergerUtility merger = new PDFMergerUtility();
-							merger.appendDocument(document, attachment);
+							PDDocument combine = PDDocument.load(new File(attachmentUrl));
+							merger.appendDocument(document, combine);
 							merger.mergeDocuments();
+							combine.close();
 						}
-					} else {
-						System.out.println("the attachmentUrl" + attachmentUrl);
-						BufferedImage image = loadImageWithoutICC(attachmentUrl);
-//						BufferedImage image = ImageIO.read(new File(attachmentUrl));
-						if (image != null) {
-							int newWidth = 800, newHeight = 400;
-							BufferedImage outputImage = new BufferedImage(newWidth, newHeight,
-									BufferedImage.TYPE_INT_RGB);
-							Graphics2D graphics2D = outputImage.createGraphics();
-							graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-									RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-							graphics2D.drawImage(image, 0, 0, newWidth, newHeight, null);
-							graphics2D.dispose();
+					}
 
+					if (attachmentUrl.endsWith(".pdf") || attachmentUrl.endsWith(".PDF")) {
+						System.out.println("Processing PDF: " + attachmentUrl);
+						File pdfFile = new File(attachmentUrl);
+
+						if (pdfFile.exists() && pdfFile.length() > 0) {
+							try {
+								// Load the PDF to append only once
+								PDDocument attachment = PDDocument.load(pdfFile);
+
+								// Create merger utility
+								PDFMergerUtility merger = new PDFMergerUtility();
+
+								// Append the loaded attachment to the destination document
+								merger.appendDocument(document, attachment);
+
+								// mergeDocuments() should not be called here - it's used for merging multiple
+								// docs into a new one
+								// Instead, the appendDocument() already did the job of adding pages to your
+								// target document
+
+								// Close the source document now that it's been appended
+								attachment.close();
+
+								System.out.println("Successfully merged PDF: " + attachmentUrl);
+							} catch (Exception e) {
+								System.err.println("Error merging PDF: " + attachmentUrl);
+								e.printStackTrace();
+							}
+						} else {
+							System.out.println("PDF file doesn't exist or is empty: " + attachmentUrl);
+						}
+					}
+
+					else {
+						System.out.println("Processing image: " + attachmentUrl);
+						BufferedImage image = loadImageWithoutICC(attachmentUrl);
+
+						if (image != null) {
+							// Create a new page
 							PDPage page = new PDPage();
 							document.addPage(page);
 
+							// Get page dimensions
 							PDRectangle pageSize = page.getMediaBox();
+
+							// Calculate optimal dimensions while preserving original aspect ratio
 							float aspectRatio = (float) image.getWidth() / image.getHeight();
-							float targetSize = 500;
-							float imageWidth = (aspectRatio > 1) ? targetSize : targetSize * aspectRatio;
-							float imageHeight = (aspectRatio > 1) ? targetSize / aspectRatio : targetSize;
+
+							// Use a larger target size to maintain quality (up from 500)
+							float targetSize = Math.min(pageSize.getWidth() * 0.9f, pageSize.getHeight() * 0.9f);
+
+							// Calculate image dimensions that fit on the page while preserving aspect ratio
+							float imageWidth, imageHeight;
+							if (aspectRatio > 1) { // Landscape image
+								imageWidth = Math.min(targetSize, image.getWidth());
+								imageHeight = imageWidth / aspectRatio;
+							} else { // Portrait image
+								imageHeight = Math.min(targetSize, image.getHeight());
+								imageWidth = imageHeight * aspectRatio;
+							}
+
+							// Center the image on the page
 							float centerX = (pageSize.getWidth() - imageWidth) / 2f;
 							float centerY = (pageSize.getHeight() - imageHeight) / 2f;
 
-							PDImageXObject importedPage = LosslessFactory.createFromImage(document, outputImage);
+							// Use LosslessFactory to preserve image quality
+							PDImageXObject importedPage = LosslessFactory.createFromImage(document, image);
+
 							try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true,
 									true)) {
 								contentStream.drawImage(importedPage, centerX, centerY, imageWidth, imageHeight);
+								System.out.println("Added image with preserved resolution: " + attachmentUrl);
 							}
 						}
 					}
@@ -960,10 +1052,14 @@ public class PdfService implements IPdfService {
 											: "");
 							if (StringUtil.isNotNullOrEmpty(address.getKraproofIdNumber())) {
 
-								map.put("Aadhaar Number1", String.valueOf(address.getKraproofIdNumber().charAt(address.getKraproofIdNumber().length() - 4)));
-								map.put("Aadhaar Number2", String.valueOf(address.getKraproofIdNumber().charAt(address.getKraproofIdNumber().length() - 3)));
-								map.put("Aadhaar Number3", String.valueOf(address.getKraproofIdNumber().charAt(address.getKraproofIdNumber().length() - 2)));
-								map.put("Aadhaar Number4", String.valueOf(address.getKraproofIdNumber().charAt(address.getKraproofIdNumber().length() - 1)));
+								map.put("Aadhaar Number1", String.valueOf(address.getKraproofIdNumber()
+										.charAt(address.getKraproofIdNumber().length() - 4)));
+								map.put("Aadhaar Number2", String.valueOf(address.getKraproofIdNumber()
+										.charAt(address.getKraproofIdNumber().length() - 3)));
+								map.put("Aadhaar Number3", String.valueOf(address.getKraproofIdNumber()
+										.charAt(address.getKraproofIdNumber().length() - 2)));
+								map.put("Aadhaar Number4", String.valueOf(address.getKraproofIdNumber()
+										.charAt(address.getKraproofIdNumber().length() - 1)));
 
 								map.put("Sole / First Holder’s Name UID", address.getKraproofIdNumber());
 
