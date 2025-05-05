@@ -507,6 +507,11 @@ public class PdfService implements IPdfService {
 						System.out.println("Processing image: " + attachmentUrl);
 						BufferedImage image = loadImageWithoutICC(attachmentUrl);
 
+						if (image.getWidth() > 1500 || image.getHeight() > 1500) {
+							System.out.println("High resolution image detected. Scaling to 30%.");
+							image = resizeImage(image, 0.3); // scale down to 30%
+						}
+
 						if (image != null) {
 							// Create a new page
 							PDPage page = new PDPage();
@@ -560,6 +565,18 @@ public class PdfService implements IPdfService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private BufferedImage resizeImage(BufferedImage originalImage, double scalePercent) {
+		int newWidth = (int) (originalImage.getWidth() * scalePercent);
+		int newHeight = (int) (originalImage.getHeight() * scalePercent);
+
+		BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = resizedImage.createGraphics();
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+		g.dispose();
+		return resizedImage;
 	}
 
 	private BufferedImage loadAndCleanImage(String filePath) {
