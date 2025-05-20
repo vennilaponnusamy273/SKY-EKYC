@@ -61,7 +61,7 @@ public class CamsRestService {
 	                        "    \"aaCustomerMobile\":\"" + mobileNo + "\",\r\n" +
 	                        "    \"sessionId\":\"" + sessionId + "\",\r\n" +
 	                        "    \"useCaseid\":\"" + props.getCamsreuseCaseId() + "\",\r\n" +  // corrected the method name
-	                        "    \"fipid\":\""+bankFid+"\",\r\n" +
+//	                        "    \"fipid\":\""+bankFid+"\",\r\n" +
 	                        "    \"addfip\":\"false\",\r\n" +
 	                        "    \"redirect\":\""+EkycConstants.CAMS_REDIRECT_URL+"\"\r\n" +
 	                        "}";

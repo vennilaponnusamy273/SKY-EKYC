@@ -108,15 +108,22 @@ public class IvrService implements IIvrService {
 			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
 		}
 		ResponseModel responseModel = new ResponseModel();
-		ObjectMapper mapper=new ObjectMapper();
+		ObjectMapper mapper = new ObjectMapper();
 		try {
 			List<String> errorList = checkIvrModel(ivrModel);
 			if (StringUtil.isListNullOrEmpty(errorList)) {
 				LivenessCheckReqModel reqModel = new LivenessCheckReqModel();
 				reqModel.setDoc_base64(ivrModel.getImageUrl());
 				reqModel.setReq_id(ivrModel.getApplicationId());
+				if (!isInsideIndia(ivrModel.getLatitude(), ivrModel.getLongitude())) {
+					responseModel = commonMethods.constructFailedMsg(MessageConstants.WITHIN_INDIA);
+					return responseModel;
+				}
+
 				LivenessCheckResModel model = aryaLivenessCheck.livenessCheck(reqModel);
-				accessLogManager.insertRestAccessLogsIntoDB(Long.toString(ivrModel.getApplicationId()),mapper.writeValueAsString(reqModel) ,mapper.writeValueAsString(model),"uploadIvr","/ivr/uploadIvr");
+				accessLogManager.insertRestAccessLogsIntoDB(Long.toString(ivrModel.getApplicationId()),
+						mapper.writeValueAsString(reqModel), mapper.writeValueAsString(model), "uploadIvr",
+						"/ivr/uploadIvr");
 				if (model != null && model.getDocJson() != null
 						&& Double.parseDouble(model.getDocJson().getReal()) >= 0.75) {
 					String ivrName = documentHelper.convertBase64ToImage(ivrModel.getImageUrl(),
@@ -179,6 +186,18 @@ public class IvrService implements IIvrService {
 		return responseModel;
 	}
 
+	private boolean isInsideIndia(String latitudeStr, String longitudeStr) {
+		try {
+			double latitude = Double.parseDouble(latitudeStr);
+			double longitude = Double.parseDouble(longitudeStr);
+
+			return latitude >= 6.0 && latitude <= 38.0 && longitude >= 68.0 && longitude <= 97.0;
+		} catch (NumberFormatException e) {
+			logger.error("Invalid latitude or longitude format: lat={}, lon={}", latitudeStr, longitudeStr);
+			return false;
+		}
+	}
+
 	public List<String> checkIvrModel(IvrModel ivrModel) {
 		List<String> errorList = new ArrayList<>();
 		if (StringUtil.isNullOrEmpty(ivrModel.getImageUrl())) {
@@ -212,7 +231,7 @@ public class IvrService implements IIvrService {
 					.get(isUserPresent.get().getMobileNo().toString() + "_" + isUserPresent.get().getId().toString());
 			String url = baseUrl + EkycConstants.IVR_KEY + apiKey + EkycConstants.IVR_APPLICATIONID + applicationId
 					+ EkycConstants.IVR_NAME + FirstName + EkycConstants.IVR_USER_DOMAIN_AND_RANDOMKEY
-					+ RandomencodedUuid + EkycConstants.IVR_SESSION +URLEncoder.encode(session);
+					+ RandomencodedUuid + EkycConstants.IVR_SESSION + URLEncoder.encode(session);
 			try {
 //				String generateShortLink1 = cuttlyServiceCheck.shortenUrl(url);
 				String generateShortLink = generateShortLink(url);
@@ -308,10 +327,10 @@ public class IvrService implements IIvrService {
 		try {
 //			IvrEntity oldRecord = ivrRepository.findByApplicationId(userEntity.getId());
 //			if (oldRecord == null || StringUtil.isNullOrEmpty(oldRecord.getUrl())) {
-				ResponseModel newModel = getIvrLink(userEntity.getId());
-				if (newModel.getStat() == 1 && StringUtil.isEqual(newModel.getMessage(), EkycConstants.SUCCESS_MSG)) {
-					url = newModel.getReason();
-				}
+			ResponseModel newModel = getIvrLink(userEntity.getId());
+			if (newModel.getStat() == 1 && StringUtil.isEqual(newModel.getMessage(), EkycConstants.SUCCESS_MSG)) {
+				url = newModel.getReason();
+			}
 //			} else {
 //				url = oldRecord.getUrl();
 //			}

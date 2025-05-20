@@ -300,13 +300,13 @@ public class Esign {
 					if (countNominee == 0) {
 						xCoordinatesList.add(430);
 						yCoordinatesList.add(392);
-						PageNo.add(19);
+						PageNo.add(21);
 						height.add(40);
 						width.add(100);
 					} else {
 						xCoordinatesList.add(80);
 						yCoordinatesList.add(520);
-						PageNo.add(18);
+						PageNo.add(20);
 						height.add(40);
 						width.add(100);
 					}

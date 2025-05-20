@@ -175,38 +175,38 @@ public class CamsDocService implements ICamsDocService {
 			if (user.isPresent() && savedSegmentEntity != null && savedSegmentEntity.getEd() == 1
 					|| savedSegmentEntity.getCd() == 1 || savedSegmentEntity.getComm() == 1) {
 				BankAddressModel model = null;
-
-				BankEntity savedBankEntity = bankRepository.findByapplicationId(applicationId);
-				if (savedBankEntity != null) {
-					model = commonRestService.getBankAddressByIfsc(savedBankEntity.getIfsc());
-					if (model != null && model.getBank() != null) {
-						System.out.println("the model bank" + model.getBank());
-						List<KraKeyValueEntity> kraKeyValueEntity = kraKeyValueRepository
-								.findByMasterIdAndMasterName("14", "CAMS");
-
-						for (KraKeyValueEntity entity : kraKeyValueEntity) {
-							String bankName = model.getBank();
-							String kraValue = entity.getKraValue();
-							System.out.println("the bankName" + bankName);
-							System.out.println("the kraValue bankName" + kraValue);
-							if (kraValue != null && kraValue.toLowerCase().contains(bankName.toLowerCase())) {
-								bankFid = entity.getKraKey();
-								System.out.println("Match found: bankName is a substring of kraValue");
-								System.out.println("Setting bankFid: " + bankFid);
-								break; // Exiting loop once bankFid is found
-							}
-						}
-						if (bankFid == null) {
-							// If bankFid is not found, return an error message
-							responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
-							return responseModel;
-						}
-					} else {
-						responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
-					}
-				} else {
-					responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
-				}
+//
+//				BankEntity savedBankEntity = bankRepository.findByapplicationId(applicationId);
+//				if (savedBankEntity != null) {
+//					model = commonRestService.getBankAddressByIfsc(savedBankEntity.getIfsc());
+//					if (model != null && model.getBank() != null) {
+//						System.out.println("the model bank" + model.getBank());
+//						List<KraKeyValueEntity> kraKeyValueEntity = kraKeyValueRepository
+//								.findByMasterIdAndMasterName("14", "CAMS");
+//
+//						for (KraKeyValueEntity entity : kraKeyValueEntity) {
+//							String bankName = model.getBank();
+//							String kraValue = entity.getKraValue();
+//							System.out.println("the bankName" + bankName);
+//							System.out.println("the kraValue bankName" + kraValue);
+//							if (kraValue != null && kraValue.toLowerCase().contains(bankName.toLowerCase())) {
+//								bankFid = entity.getKraKey();
+//								System.out.println("Match found: bankName is a substring of kraValue");
+//								System.out.println("Setting bankFid: " + bankFid);
+//								break; // Exiting loop once bankFid is found
+//							}
+//						}
+//						if (bankFid == null) {
+//							// If bankFid is not found, return an error message
+//							responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
+//							return responseModel;
+//						}
+//					} else {
+//						responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
+//					}
+//				} else {
+//					responseModel = commonMethods.constructFailedMsg(MessageConstants.BANK_NAME_NULL);
+//				}
 
 				System.out.println("the bankFid" + bankFid);
 				CamsResModel camsResModel = camsRestService.findSessionIdAndToken();

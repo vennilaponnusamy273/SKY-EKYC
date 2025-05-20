@@ -168,5 +168,6 @@ public class MessageConstants {
 	public static final String MICR_CODE_INVALID_MESSAGE = "The MICR code is invalid.";
 	public static final String ERR_SAVE_PDF = "Error occurred while saving the PDF. Please try again after sometime";
 	public static final String IFSC_INVALID_OLD = "This bank is not allowed. Please try with another bank.";
+	public static final String WITHIN_INDIA = "IPV location must be within India.";
 
 }
