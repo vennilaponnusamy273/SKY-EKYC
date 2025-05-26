@@ -175,6 +175,7 @@ public class PanService implements IPanService {
 			if (isUserPresent.isPresent()) {
 				ApplicationUserEntity oldUserEntity = isUserPresent.get();
 				oldUserEntity.setDob(userEntity.getDob());
+				savingEntity = repository.save(oldUserEntity);
 				try {
 					if (StringUtil.isNotNullOrEmpty(oldUserEntity.getPanNumber())
 							&& StringUtil.isNotNullOrEmpty(oldUserEntity.getDob())) {

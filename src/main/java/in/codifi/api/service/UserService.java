@@ -340,7 +340,7 @@ public class UserService implements IUserService {
 				}
 				responseModel.setMessage(EkycConstants.SUCCESS_MSG);
 				responseModel.setStat(EkycConstants.SUCCESS_STATUS);
-				responseModel.setResult(isUserPresent);
+				responseModel.setResult(isUserPresent.get());
 				responseModel.setPage(getPageNumber(isUserPresent.get()));
 			} else {
 				responseModel = commonMethods.constructFailedMsg(MessageConstants.USER_ID_INVALID);
