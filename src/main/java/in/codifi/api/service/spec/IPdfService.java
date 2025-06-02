@@ -1,5 +1,7 @@
 package in.codifi.api.service.spec;
 
+import java.io.IOException;
+
 import javax.ws.rs.core.Response;
 
 import in.codifi.api.model.PdfApplicationDataModel;
@@ -12,8 +14,9 @@ public interface IPdfService {
 	 * 
 	 * @author gowthaman
 	 * @return
+	 * @throws IOException 
 	 */
-	Response savePdf(long applicationId,int activeStatus);
+	Response savePdf(long applicationId,int activeStatus) throws IOException;
 
 	/**
 	 * Method to generate Esign

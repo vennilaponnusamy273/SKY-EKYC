@@ -1,5 +1,7 @@
 package in.codifi.api.controller.spec;
 
+import java.io.IOException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -24,12 +26,13 @@ public interface IPdfController {
 	 * 
 	 * @author gowthaman
 	 * @return
+	 * @throws IOException 
 	 */
 	@Path("/savePdf")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@APIResponse(description = "Method to save PDF")
-	public Response savePdf(@NotNull @QueryParam("applicationId") long applicationId);
+	public Response savePdf(@NotNull @QueryParam("applicationId") long applicationId) throws IOException;
 
 	/**
 	 * Method to save PDF data coordinates

@@ -1,5 +1,7 @@
 package in.codifi.api.controller;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -25,8 +27,9 @@ public class PdfController implements IPdfController {
 	 * 
 	 * @author gowthaman
 	 * @return
+	 * @throws IOException 
 	 */
-	public Response savePdf(long applicationId) {
+	public Response savePdf(long applicationId) throws IOException {
 		if (applicationId > 0) {
 			return iPdfService.savePdf(applicationId,0);
 		} else {

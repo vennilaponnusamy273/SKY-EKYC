@@ -150,118 +150,100 @@ public class PdfService implements IPdfService {
 	 */
 	@Override
 	@Transactional
-	public Response savePdf(long applicationId, int retryCount) {
+	public Response savePdf(long applicationId, int retryCount) throws IOException {
 		String slash = EkycConstants.UBUNTU_FILE_SEPERATOR;
 		if (OS.contains(EkycConstants.OS_WINDOWS)) {
 			slash = EkycConstants.WINDOWS_FILE_SEPERATOR;
 		}
 		String outputPath = props.getFileBasePath() + applicationId;
 		new File(outputPath).mkdir();
+
+		PDDocument document = null;
+		PDDocument combine = null;
+		PDDocument combine1 = null;
+
 		try {
 			Optional<ApplicationUserEntity> userEntity = applicationUserRepository.findById(applicationId);
-			if (userEntity.isPresent() && userEntity.get().getSmsVerified() == 1
-					&& userEntity.get().getEmailVerified() == 1) {
-				// Create UCC
+			if (userEntity.isPresent() && userEntity.get().getSmsVerified() == 1 && userEntity.get().getEmailVerified() == 1) {
+
 				String uccCode = null;
 				if (userEntity.get().getUccCodePrefix() == null && userEntity.get().getUccCodeSuffix() == null) {
 					uccCode = commonMethods.generateUccCodeWithRetry(applicationId);
 					System.out.println("the uccCode" + uccCode);
-//					if (StringUtil.isNotNullOrEmpty(uccCode)) {
-//						if (uccCode.length() > 2) {
-//							userEntity.get().setUccCodePrefix(uccCode.substring(0, 3));
-//						}
-//						if (uccCode.length() > 5) {
-//							userEntity.get().setUccCodeSuffix(uccCode.substring(3));
-//						}
-//						applicationUserRepository.save(userEntity.get());
-//					}
 				}
 
 				HashMap<String, String> map = mapping(applicationId);
-				File file = new File(props.getPdfPath());
-				PDDocument document = PDDocument.load(file);
-				File fileAathar = new File(props.getAadharPdfPath());
+				File baseFile = new File(props.getPdfPath());
+				document = PDDocument.load(baseFile);
+
+				File fileAadhar = new File(props.getAadharPdfPath());
 				File filePan = new File(props.getPanPdfPath());
 				File filename = null;
-				if (map.get("aadharPDF") == "aadharPDF") {
-					filename = fileAathar;
-				} else if (map.get("panPDF") == "panPDF") {
+
+				if ("aadharPDF".equals(map.get("aadharPDF"))) {
+					filename = fileAadhar;
+				} else if ("panPDF".equals(map.get("panPDF"))) {
 					filename = filePan;
-				} else {
-					document = PDDocument.load(file);
 				}
-				PDDocument combine = PDDocument.load(filename);
-				PDFMergerUtility merger = new PDFMergerUtility();
-				combine.setAllSecurityToBeRemoved(true);
-				merger.appendDocument(document, combine);
-				merger.mergeDocuments();
-				combine.close();
-				if (fileAathar != null || filePan != null) {
+
+				if (filename != null && filename.exists()) {
+					combine = PDDocument.load(filename);
+					PDFMergerUtility merger = new PDFMergerUtility();
+					combine.setAllSecurityToBeRemoved(true);
+					merger.appendDocument(document, combine);
+					merger.mergeDocuments();
+				}
+
+				if (fileAadhar != null || filePan != null) {
 					File verifyImageFile = new File(props.getVerifyImage());
 					if (verifyImageFile.exists()) {
-						int pageIndex = 38; // Change this to the actual index of the page you want to add the image to
+						int pageIndex = 38;
 						if (pageIndex >= 0 && pageIndex < document.getNumberOfPages()) {
 							PDPage page = document.getPage(pageIndex);
-							PDImageXObject importedVerifyImage = PDImageXObject.createFromFile(props.getVerifyImage(),
-									document);
-
-							// Create a new content stream for appending content to the existing page
-							PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true);
-							contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
-							contentStream.close(); // Close the content stream
-						} else {
-							System.err.println("Invalid page index.");
+							PDImageXObject image = PDImageXObject.createFromFile(props.getVerifyImage(), document);
+							try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true)) {
+								contentStream.drawImage(image, 480, 60, 80, 80);
+							}
 						}
-					} else {
-						System.err.println("Failed to load the verification image.");
 					}
 				}
+
 				List<PdfDataCoordinatesEntity> pdfDatas = pdfDataCoordinatesrepository.getCoordinates();
+
 				if (StringUtil.isNotNullOrEmpty(map.get("pennystatus"))) {
 					File pennyDropFile = new File(props.getPennyDropPdfPath());
-					PDDocument combine1 = PDDocument.load(pennyDropFile);
+					combine1 = PDDocument.load(pennyDropFile);
 					PDFMergerUtility merger1 = new PDFMergerUtility();
 					combine1.setAllSecurityToBeRemoved(true);
 					merger1.appendDocument(document, combine1);
 					merger1.mergeDocuments();
-					combine1.close();
-					if (StringUtil.isNotNullOrEmpty(map.get("pennystatus"))) {
-						File verifyImageFile = new File(props.getVerifyImage());
-						if (verifyImageFile.exists()) {
-							int pageIndex = 39; // Change this to the actual index of the page you want to add the image
-												// to
-							if (pageIndex >= 0 && pageIndex < document.getNumberOfPages()) {
-								PDPage page = document.getPage(pageIndex);
-								PDImageXObject importedVerifyImage = PDImageXObject
-										.createFromFile(props.getVerifyImage(), document);
 
-								// Create a new content stream for appending content to the existing page
-								PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true);
-								contentStream.drawImage(importedVerifyImage, 480, 60, 80, 80);
-								contentStream.close(); // Close the content stream
-							} else {
-								System.err.println("Invalid page index.");
+					File verifyImageFile = new File(props.getVerifyImage());
+					if (verifyImageFile.exists()) {
+						int pageIndex = 39;
+						if (pageIndex >= 0 && pageIndex < document.getNumberOfPages()) {
+							PDPage page = document.getPage(pageIndex);
+							PDImageXObject image = PDImageXObject.createFromFile(props.getVerifyImage(), document);
+							try (PDPageContentStream contentStream = new PDPageContentStream(document, page, true, true)) {
+								contentStream.drawImage(image, 480, 60, 80, 80);
 							}
-						} else {
-							System.err.println("Failed to load the verification image.");
 						}
 					}
 				}
+
 				pdfInsertCoordinates(document, pdfDatas, map);
 				addIPvDocument(document, applicationId);
 				addDocument(document, applicationId);
+
 				String fileName = userEntity.get().getPanNumber() + EkycConstants.PDF_EXTENSION;
-				document.save(outputPath + slash + fileName);
-				document.close();
-				String path = outputPath + slash + fileName;
-				try {
-					applicationUserRepository.updateEsignStage(applicationId, EkycConstants.EKYC_STATUS_PDF_GENERATED,
-							EkycConstants.PAGE_PDFDOWNLOAD, 0, 1, "");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				String fullPath = outputPath + slash + fileName;
+				document.save(fullPath);
+
+				applicationUserRepository.updateEsignStage(applicationId, EkycConstants.EKYC_STATUS_PDF_GENERATED,
+						EkycConstants.PAGE_PDFDOWNLOAD, 0, 1, "");
+
+				File savedFile = new File(fullPath);
 				String contentType = URLConnection.guessContentTypeFromName(fileName);
-				File savedFile = new File(path);
 				ResponseBuilder response = Response.ok((Object) savedFile);
 				response.type(contentType);
 				response.header("Content-Disposition", "attachment;filename=" + savedFile.getName());
@@ -274,20 +256,21 @@ public class PdfService implements IPdfService {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("In method  savePdf Exception");
-			e.printStackTrace();
-			System.out.println("Exception In method savePdf, RetryCount = " + (retryCount + 1));
+			System.out.println("Exception in savePdf, RetryCount = " + (retryCount + 1));
 			e.printStackTrace();
 			if (retryCount < 5) {
 				++retryCount;
-//				Log.error(e);
-				System.out.println("----------------------------Exception Retry Count : " + retryCount
-						+ "--------------------------");
+				System.out.println("----------------------------Exception Retry Count : " + retryCount + "--------------------------");
 				ipdfService.savePdf(applicationId, retryCount);
 			}
 			return Response.status(Response.Status.OK).entity(MessageConstants.ERR_SAVE_PDF).build();
+		} finally {
+			if (combine != null) combine.close();
+			if (combine1 != null) combine1.close();
+			if (document != null) document.close();
 		}
 	}
+
 
 	public void addIPvDocument(PDDocument document, long applicationNo) {
 		try {
@@ -2007,7 +1990,12 @@ public class PdfService implements IPdfService {
 		ResponseModel model = null;
 		Optional<ApplicationUserEntity> userEntity = applicationUserRepository.findById(pdfModel.getApplicationNo());
 		if (userEntity.isPresent() && userEntity.get().getPdfGenerated() <= 0) {
-			savePdf(pdfModel.getApplicationNo(), 0);
+			try {
+				savePdf(pdfModel.getApplicationNo(), 0);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		model = esign.runMethod(props.getFileBasePath(), pdfModel.getApplicationNo());
 		return model;
