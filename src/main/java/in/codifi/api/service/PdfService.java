@@ -42,6 +42,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
+import org.apache.pdfbox.pdmodel.interactive.action.PDActionJavaScript;
 import org.json.JSONObject;
 import org.json.XML;
 import org.w3c.dom.Document;
@@ -190,6 +191,9 @@ public class PdfService implements IPdfService {
 					combine = PDDocument.load(filename);
 					PDFMergerUtility merger = new PDFMergerUtility();
 					combine.setAllSecurityToBeRemoved(true);
+//					if (combine.getDocumentCatalog().getOpenAction() instanceof PDActionJavaScript) {
+//						combine.getDocumentCatalog().setOpenAction(null);
+//					}
 					merger.appendDocument(document, combine);
 					merger.mergeDocuments();
 				}
@@ -215,6 +219,9 @@ public class PdfService implements IPdfService {
 					combine1 = PDDocument.load(pennyDropFile);
 					PDFMergerUtility merger1 = new PDFMergerUtility();
 					combine1.setAllSecurityToBeRemoved(true);
+//					if (combine1.getDocumentCatalog().getOpenAction() instanceof PDActionJavaScript) {
+//						combine1.getDocumentCatalog().setOpenAction(null);
+//					}
 					merger1.appendDocument(document, combine1);
 					merger1.mergeDocuments();
 
@@ -288,6 +295,9 @@ public class PdfService implements IPdfService {
 						PDDocument combine = PDDocument.load(new File(attachmentUrl));
 						combine.setAllSecurityToBeRemoved(true);
 						PDFMergerUtility merger = new PDFMergerUtility();
+						if (combine.getDocumentCatalog().getOpenAction() instanceof PDActionJavaScript) {
+							combine.getDocumentCatalog().setOpenAction(null);
+						}
 						merger.appendDocument(document, combine);
 						merger.mergeDocuments();
 						combine.close();
@@ -389,42 +399,31 @@ public class PdfService implements IPdfService {
 	}
 
 	private BufferedImage loadImageWithoutICC(String filePath) {
-		try {
-			File file = new File(filePath);
+	    try {
+	        File file = new File(filePath);
+	        BufferedImage image = ImageIO.read(file); // Automatically handles most image types
 
-			// Create ImageInputStream
-			ImageInputStream input = ImageIO.createImageInputStream(file);
-			Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+	        if (image == null) {
+	            throw new IOException("Invalid image or unsupported format: " + filePath);
+	        }
 
-			if (!readers.hasNext()) {
-				throw new IOException("No suitable image reader found for " + filePath);
-			}
+	        // Force image to RGB to ensure compatibility
+	        BufferedImage rgbImage = new BufferedImage(
+	            image.getWidth(),
+	            image.getHeight(),
+	            BufferedImage.TYPE_INT_RGB
+	        );
+	        Graphics2D g = rgbImage.createGraphics();
+	        g.drawImage(image, 0, 0, null);
+	        g.dispose();
 
-			ImageReader reader = readers.next();
-			reader.setInput(input, true, true); // Ignore ICC profile by setting ignoreMetadata=true
-
-			// Read image without ICC profile
-			BufferedImage originalImage = reader.read(0);
-			reader.dispose();
-			input.close();
-
-			if (originalImage == null) {
-				throw new IOException("Invalid image file: " + filePath);
-			}
-
-			// Convert image to RGB mode to remove ICC profile
-			BufferedImage rgbImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(),
-					BufferedImage.TYPE_INT_RGB);
-			Graphics2D graphics = rgbImage.createGraphics();
-			graphics.drawImage(originalImage, 0, 0, null);
-			graphics.dispose();
-
-			return rgbImage;
-		} catch (IOException e) {
-			System.err.println("Error loading image: " + e.getMessage());
-			return null;
-		}
+	        return rgbImage;
+	    } catch (IOException e) {
+	        System.err.println("Error loading image: " + e.getMessage());
+	        return null;
+	    }
 	}
+
 
 	public void addDocument(PDDocument document, long applicationNo) throws IOException {
 		try {
@@ -447,6 +446,9 @@ public class PdfService implements IPdfService {
 						try (PDDocument attachment = PDDocument.load(new File(attachmentUrl))) {
 							PDFMergerUtility merger = new PDFMergerUtility();
 							PDDocument combine = PDDocument.load(new File(attachmentUrl));
+							if (combine.getDocumentCatalog().getOpenAction() instanceof PDActionJavaScript) {
+								combine.getDocumentCatalog().setOpenAction(null);
+							}
 							merger.appendDocument(document, combine);
 							merger.mergeDocuments();
 							combine.close();
@@ -464,7 +466,9 @@ public class PdfService implements IPdfService {
 
 								// Create merger utility
 								PDFMergerUtility merger = new PDFMergerUtility();
-
+								if (attachment.getDocumentCatalog().getOpenAction() instanceof PDActionJavaScript) {
+									attachment.getDocumentCatalog().setOpenAction(null);
+								}
 								// Append the loaded attachment to the destination document
 								merger.appendDocument(document, attachment);
 
@@ -766,36 +770,51 @@ public class PdfService implements IPdfService {
 							contentStream.endText();
 						}
 					} else if (columnType.equalsIgnoreCase("image") || columnType.equalsIgnoreCase("imageSign")) {
-						String imageKey = columnNames;
-						String image = map.get(imageKey);
-						System.out.println("the image" + image);
-						if (StringUtil.isNotNullOrEmpty(image)) {
-							File imageFile = new File(image);
-							if (!imageFile.exists() || !imageFile.isFile()) {
-								System.out.print("Invalid image file path: " + image);
-							}
+					    String imageKey = columnNames;
+					    String image = map.get(imageKey);
+					    System.out.println("the image: " + image);
 
-							BufferedImage bimg = ImageIO.read(imageFile);
-							if (bimg == null) {
-								System.out.print("Failed to read image: " + image);
-							}
+					    if (StringUtil.isNotNullOrEmpty(image)) {
+					        File imageFile = new File(image);
+					        if (!imageFile.exists() || !imageFile.isFile()) {
+					            System.out.println("Invalid image file path: " + image);
+//					            return;
+					        }
 
-							// Adjust the width and height as needed
-							float width = 72;
-							float height = 70;
+					        BufferedImage originalImage = ImageIO.read(imageFile);
+					        if (originalImage == null) {
+					            System.out.println("Failed to read image: " + image);
+//					            return;
+					        }
 
-							if (pageNo == 2 && imageKey.contains("SIGNATURE image")) {
-								width = 72;
-								height = 40;
-							}
+					        // Convert to RGB to avoid color space/raster band mismatch
+					        BufferedImage rgbImage = new BufferedImage(
+					            originalImage.getWidth(),
+					            originalImage.getHeight(),
+					            BufferedImage.TYPE_INT_RGB
+					        );
+					        Graphics2D g = rgbImage.createGraphics();
+					        g.drawImage(originalImage, 0, 0, null);
+					        g.dispose();
 
-							// Create the PDImageXObject and draw it on the PDF
-							PDImageXObject pdImage = JPEGFactory.createFromImage(document, bimg, 0.5f);
-							contentStream.drawImage(pdImage, x, y, width, height);
-						} else {
-							System.out.println("Image is null or empty for key: " + imageKey);
-						}
+					        // Adjust the width and height as needed
+					        float width = 72;
+					        float height = 70;
+
+					        if (pageNo == 2 && imageKey.contains("SIGNATURE image")) {
+					            width = 72;
+					            height = 40;
+					        }
+
+					        // Now create and draw the image in PDF
+					        PDImageXObject pdImage = JPEGFactory.createFromImage(document, rgbImage, 0.5f);
+					        contentStream.drawImage(pdImage, x, y, width, height);
+
+					    } else {
+					        System.out.println("Image is null or empty for key: " + imageKey);
+					    }
 					}
+
 
 					contentStream.close();
 				}
